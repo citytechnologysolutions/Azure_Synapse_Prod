@@ -1,0 +1,829 @@
+{
+	"name": "CLMasterData Full Take-on_PROD",
+	"properties": {
+		"activities": [
+			{
+				"name": "Iterate Data",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.CW_Items",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "If ColumnsNamesBlankSpaces",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "If FullLoad",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@pipeline().parameters.ColumnsNamesBlankSpaces",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "RemoveBlankSpacesColumnNames",
+										"type": "Lookup",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.03:00:00",
+											"retry": 3,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "SqlServerSource",
+												"sqlReaderQuery": {
+													"value": "@concat(' \nDECLARE @s VARCHAR(MAX) \nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,''' \nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as [''+replace(c.name,'' '',''_'')+''] '' \nFROM sys.all_columns c join sys.tables t \nON c.object_id = t.object_id \nWHERE t.name =  @tablename \nSELECT ''SELECT '' + @s + '' FROM ['' +  @tablename + '']''  as Query')",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"name": "If FullLoad",
+							"type": "IfCondition",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@pipeline().parameters.Full_Load",
+									"type": "Expression"
+								},
+								"ifFalseActivities": [
+									{
+										"name": "Lookup Last Max Field",
+										"type": "Lookup",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.03:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "AzureSqlSource",
+												"sqlReaderQuery": {
+													"value": "@concat('SELECT MAX(',item().Increment.IncField,')  as Field \n FROM\n    OPENROWSET(\n        BULK ','''',variables('DataLake'),'/',variables('FolderName'),'/',item().destination.FileName,'.parquet','''',\n        ',FORMAT = ','''PARQUET''','\n    ) AS [result]')",
+													"type": "Expression"
+												},
+												"queryTimeout": "02:00:00",
+												"partitionOption": "None"
+											}
+										}
+									},
+									{
+										"name": "Remove Old Data Incremental Data_SingleFile",
+										"type": "Delete",
+										"dependsOn": [
+											{
+												"activity": "Lookup Last Max Field",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.03:00:00",
+											"retry": 3,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"enableLogging": false,
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										}
+									}
+								],
+								"ifTrueActivities": [
+									{
+										"name": "Remove Old Data Data_Folder",
+										"type": "Delete",
+										"dependsOn": [
+											{
+												"activity": "Remove Old Data Data_SingleFile",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"policy": {
+											"timeout": "0.03:00:00",
+											"retry": 3,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"enableLogging": false,
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"wildcardFileName": {
+													"value": "@{concat(variables('ContainerName'),'/',variables('FolderName'),'/',item().Destination.FileName,'.parquet','/')}",
+													"type": "Expression"
+												},
+												"enablePartitionDiscovery": false
+											}
+										}
+									},
+									{
+										"name": "Remove Old Data Data_SingleFile",
+										"type": "Delete",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.03:00:00",
+											"retry": 0,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"enableLogging": false,
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"enablePartitionDiscovery": false
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"name": "Switch1",
+							"type": "Switch",
+							"dependsOn": [
+								{
+									"activity": "If ColumnsNamesBlankSpaces",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"on": {
+									"value": "@if(pipeline().parameters.Full_Load,'FullTakeOn'\n   ,if(equals(item().Increment.IncField,item().Increment.IdField),'IdLoad'\n      ,'DateLoad'\n   )\n)",
+									"type": "Expression"
+								},
+								"cases": [
+									{
+										"value": "DateLoad",
+										"activities": [
+											{
+												"name": "Incr Load DF",
+												"type": "ExecuteDataFlow",
+												"dependsOn": [
+													{
+														"activity": "Copy New incremental data",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataflow": {
+														"referenceName": "IncrementalLoadDate DataFlow",
+														"type": "DataFlowReference"
+													},
+													"compute": {
+														"coreCount": 8,
+														"computeType": "General"
+													},
+													"traceLevel": "Fine"
+												}
+											},
+											{
+												"name": "Partition DF",
+												"type": "ExecuteDataFlow",
+												"dependsOn": [
+													{
+														"activity": "Delete The Left File_DateLoad_Folder",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													},
+													{
+														"activity": "Delete The Left File_DateLoad_SingleFile",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataflow": {
+														"referenceName": "Partitioning DF",
+														"type": "DataFlowReference"
+													},
+													"compute": {
+														"coreCount": 8,
+														"computeType": "General"
+													},
+													"traceLevel": "Fine"
+												}
+											},
+											{
+												"name": "Delete The Left File_DateLoad_Folder",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Incr Load DF",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"wildcardFileName": {
+															"value": "@{concat(variables('ContainerName'),'/',variables('FolderName'),'/',item().Destination.FileName,'.parquet','/')}",
+															"type": "Expression"
+														},
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "Delete the Temp File",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Partition DF",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "Delete The Right File",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Partition DF",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "Copy New incremental data",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.03:00:00",
+													"retry": 3,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "SqlServerSource",
+														"sqlReaderQuery": {
+															"value": "@concat(if(pipeline().parameters.ColumnsNamesBlankSpaces,\n        activity('RemoveBlankSpacesColumnNames').output.firstRow.Query, concat('SELECT * FROM [', item().Source.TableName,']')\n        )   \n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    )",
+															"type": "Expression"
+														},
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"sink": {
+														"type": "ParquetSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "ParquetWriteSettings"
+														}
+													},
+													"enableStaging": false
+												}
+											},
+											{
+												"name": "Delete The Left File_DateLoad_SingleFile",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Delete The Left File_DateLoad_Folder",
+														"dependencyConditions": [
+															"Failed"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											}
+										]
+									},
+									{
+										"value": "IdLoad",
+										"activities": [
+											{
+												"name": "Copy New incremental data_IDLoad",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.03:00:00",
+													"retry": 3,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "SqlServerSource",
+														"sqlReaderQuery": {
+															"value": "@concat(if(pipeline().parameters.ColumnsNamesBlankSpaces,\n        activity('RemoveBlankSpacesColumnNames').output.firstRow.Query, concat('SELECT * FROM [', item().Source.TableName,']')\n        )   \n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,activity('Lookup Last Max Field').output.firstRow.Field\n        )\n    )",
+															"type": "Expression"
+														},
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"sink": {
+														"type": "ParquetSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "ParquetWriteSettings"
+														}
+													},
+													"enableStaging": false
+												}
+											},
+											{
+												"name": "Data flow Union_IDLoad",
+												"type": "ExecuteDataFlow",
+												"dependsOn": [
+													{
+														"activity": "Copy New incremental data_IDLoad",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataflow": {
+														"referenceName": "IncrementalLoadID DataFlow",
+														"type": "DataFlowReference"
+													},
+													"compute": {
+														"coreCount": 8,
+														"computeType": "General"
+													},
+													"traceLevel": "Fine"
+												}
+											},
+											{
+												"name": "Partition DF_IDLoad",
+												"type": "ExecuteDataFlow",
+												"dependsOn": [
+													{
+														"activity": "Delete The Left File_IDLoad_Folder",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													},
+													{
+														"activity": "Delete The Left File_IDLoad_SingleFile",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataflow": {
+														"referenceName": "Partitioning DF",
+														"type": "DataFlowReference"
+													},
+													"compute": {
+														"coreCount": 8,
+														"computeType": "General"
+													},
+													"traceLevel": "Fine"
+												}
+											},
+											{
+												"name": "Delete The Left File_IDLoad_Folder",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Data flow Union_IDLoad",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"wildcardFileName": {
+															"value": "@{concat(variables('ContainerName'),'/',variables('FolderName'),'/',item().Destination.FileName,'.parquet','/')}",
+															"type": "Expression"
+														},
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "Delete the Temp File_IDLoad",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Partition DF_IDLoad",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "Delete The Right File_IDLoad",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Partition DF_IDLoad",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "Delete The Left File_IDLoad_SingleFile",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Delete The Left File_IDLoad_Folder",
+														"dependencyConditions": [
+															"Failed"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											}
+										]
+									},
+									{
+										"value": "FullTakeOn",
+										"activities": [
+											{
+												"name": "Copy_Data",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "7.00:00:00",
+													"retry": 3,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "SqlServerSource",
+														"sqlReaderQuery": {
+															"value": "@if(pipeline().parameters.ColumnsNamesBlankSpaces,\n    activity('RemoveBlankSpacesColumnNames').output.firstRow.Query,\n    concat('SELECT * FROM [', item().Source.TableName,']')\n    )",
+															"type": "Expression"
+														},
+														"partitionOption": "None"
+													},
+													"sink": {
+														"type": "ParquetSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "ParquetWriteSettings"
+														}
+													},
+													"enableStaging": false
+												}
+											},
+											{
+												"name": "Partition DF_FullLoad",
+												"type": "ExecuteDataFlow",
+												"dependsOn": [
+													{
+														"activity": "Copy_Data",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataflow": {
+														"referenceName": "Partitioning DF",
+														"type": "DataFlowReference"
+													},
+													"compute": {
+														"coreCount": 8,
+														"computeType": "General"
+													},
+													"traceLevel": "Fine"
+												}
+											},
+											{
+												"name": "Delete the Temp File_FullLoad",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Partition DF_FullLoad",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											}
+										]
+									}
+								],
+								"defaultActivities": [
+									{
+										"name": "Fail1",
+										"type": "Fail",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"message": "ERROR",
+											"errorCode": "500"
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"cw_items": {
+				"type": "Array",
+				"defaultValue": []
+			},
+			"TakeOnPeriod": {
+				"type": "string",
+				"defaultValue": " "
+			},
+			"Full_Load": {
+				"type": "bool",
+				"defaultValue": false
+			},
+			"ColumnsNamesBlankSpaces": {
+				"type": "bool",
+				"defaultValue": false
+			}
+		},
+		"variables": {
+			"FolderName": {
+				"type": "String",
+				"defaultValue": "Unstructured Data/CLMasterData"
+			},
+			"DataLake": {
+				"type": "String",
+				"defaultValue": "https://citylogisticsstorageprod.dfs.core.windows.net/synapse"
+			},
+			"ServerName": {
+				"type": "String",
+				"defaultValue": "10.1.9.107"
+			},
+			"DataBaseName": {
+				"type": "String",
+				"defaultValue": "CLMasterData"
+			},
+			"UserName": {
+				"type": "String",
+				"defaultValue": "Synapse@citylogistics.co.za"
+			},
+			"SecretName": {
+				"type": "String",
+				"defaultValue": "CLMastSecret"
+			},
+			"SchemaName": {
+				"type": "String",
+				"defaultValue": "public"
+			},
+			"ContainerName": {
+				"type": "String",
+				"defaultValue": "synapse"
+			},
+			"ASAEndpoint": {
+				"type": "String",
+				"defaultValue": "citylogistics-synapseanalytics-workspace-prod-ondemand.sql.azuresynapse.net"
+			},
+			"ASADataBase": {
+				"type": "String",
+				"defaultValue": "master"
+			}
+		},
+		"folder": {
+			"name": "PROD/BackEnd/Extract/CLMasterData"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-04-22T08:33:31Z",
+		"type": "Microsoft.Synapse/workspaces/pipelines"
+	}
+}

@@ -1,0 +1,46 @@
+{
+	"name": "Partitioning DF",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "source2"
+				}
+			],
+			"sinks": [
+				{
+					"name": "sink1"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"parameters{",
+				"     cw_FileName as string,",
+				"     cw_FolderName as string,",
+				"     cw_IncFolderName as string,",
+				"     cw_incField as string,",
+				"     ContainerName as string",
+				"}",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     purgeFiles: true,",
+				"     fileSystem: ($ContainerName),",
+				"     folderPath: (concat($cw_IncFolderName,'/T1')),",
+				"     fileName: ($cw_FileName),",
+				"     compressionCodec: 'snappy') ~> source2",
+				"source2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     truncate: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     format: 'parquet',",
+				"     fileSystem: 'synapse',",
+				"     folderPath: (concat($cw_FolderName,'/',$cw_FileName)),",
+				"     compressionCodec: 'snappy',",
+				"     preCommands: [],",
+				"     postCommands: []) ~> sink1"
+			]
+		}
+	}
+}

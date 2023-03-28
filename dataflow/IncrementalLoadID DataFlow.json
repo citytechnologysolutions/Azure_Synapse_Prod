@@ -1,0 +1,60 @@
+{
+	"name": "IncrementalLoadID DataFlow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "source1"
+				},
+				{
+					"name": "source2"
+				}
+			],
+			"sinks": [
+				{
+					"name": "WritetoDataLake"
+				}
+			],
+			"transformations": [
+				{
+					"name": "UnionOnID"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     cw_FolderName as string,",
+				"     cw_FileName as string,",
+				"     cw_IncFolderName as string,",
+				"     cw_IdField as string,",
+				"     ContainerName as string",
+				"}",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     fileSystem: ($ContainerName),",
+				"     folderPath: ($cw_FolderName),",
+				"     fileName: ($cw_FileName),",
+				"     compressionCodec: 'snappy') ~> source1",
+				"source(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     fileSystem: ($ContainerName),",
+				"     folderPath: ($cw_IncFolderName),",
+				"     fileName: ($cw_FileName),",
+				"     compressionCodec: 'snappy') ~> source2",
+				"source1, source2 union(byName: true)~> UnionOnID",
+				"UnionOnID sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('dynamicRange', 64,",
+				"          $cw_IdField",
+				"     ),",
+				"     format: 'parquet',",
+				"     fileSystem: ($ContainerName),",
+				"     folderPath: (concat($cw_IncFolderName,'/T1/',$cw_FileName)),",
+				"     preCommands: [],",
+				"     postCommands: []) ~> WritetoDataLake"
+			]
+		}
+	}
+}

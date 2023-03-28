@@ -1,0 +1,41 @@
+{
+	"name": "DataLakeParquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "citylogistics_synapseanalytics_workspace_WorkspaceSecondaryStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"CW_FolderName": {
+				"type": "string"
+			},
+			"CW_FileName": {
+				"type": "string"
+			},
+			"ContainerName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().CW_FileName",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@dataset().CW_FolderName",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().ContainerName",
+					"type": "Expression"
+				}
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

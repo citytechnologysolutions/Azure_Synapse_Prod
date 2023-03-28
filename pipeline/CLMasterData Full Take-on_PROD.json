@@ -52,6 +52,36 @@
 												},
 												"queryTimeout": "02:00:00",
 												"partitionOption": "None"
+											},
+											"dataset": {
+												"referenceName": "SqlServerDataSet",
+												"type": "DatasetReference",
+												"parameters": {
+													"ServerName": {
+														"value": "@variables('ServerName')",
+														"type": "Expression"
+													},
+													"DatabaseName": {
+														"value": "@variables('DatabaseName')",
+														"type": "Expression"
+													},
+													"UserName": {
+														"value": "@variables('UserName')",
+														"type": "Expression"
+													},
+													"CW_SchemaName": {
+														"value": "@variables('SchemaName')",
+														"type": "Expression"
+													},
+													"SecretName": {
+														"value": "@variables('SchemaName')",
+														"type": "Expression"
+													},
+													"CW_TableName": {
+														"value": "@item().Source.TableName",
+														"type": "Expression"
+													}
+												}
 											}
 										}
 									}
@@ -90,6 +120,20 @@
 												},
 												"queryTimeout": "02:00:00",
 												"partitionOption": "None"
+											},
+											"dataset": {
+												"referenceName": "AzureSqlConnection",
+												"type": "DatasetReference",
+												"parameters": {
+													"ASAEndpoint": {
+														"value": "@variables('ASAEndpoint')",
+														"type": "Expression"
+													},
+													"ASADataBase": {
+														"value": "@variables('ASADataBase')",
+														"type": "Expression"
+													}
+												}
 											}
 										}
 									},
@@ -113,6 +157,24 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
+											"dataset": {
+												"referenceName": "DataLakeParquet",
+												"type": "DatasetReference",
+												"parameters": {
+													"CW_FolderName": {
+														"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+														"type": "Expression"
+													},
+													"CW_FileName": {
+														"value": "@concat(item().Destination.FileName,'.parquet')",
+														"type": "Expression"
+													},
+													"ContainerName": {
+														"value": "@variables('ContainerName')",
+														"type": "Expression"
+													}
+												}
+											},
 											"enableLogging": false,
 											"storeSettings": {
 												"type": "AzureBlobFSReadSettings",
@@ -143,6 +205,24 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
+											"dataset": {
+												"referenceName": "DataLakeParquet",
+												"type": "DatasetReference",
+												"parameters": {
+													"CW_FolderName": {
+														"value": "@variables('FolderName')",
+														"type": "Expression"
+													},
+													"CW_FileName": {
+														"value": "@concat(item().Destination.FileName,'.parquet')",
+														"type": "Expression"
+													},
+													"ContainerName": {
+														"value": "@variables('ContainerName')",
+														"type": "Expression"
+													}
+												}
+											},
 											"enableLogging": false,
 											"storeSettings": {
 												"type": "AzureBlobFSReadSettings",
@@ -168,6 +248,24 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
+											"dataset": {
+												"referenceName": "DataLakeParquet",
+												"type": "DatasetReference",
+												"parameters": {
+													"CW_FolderName": {
+														"value": "@variables('FolderName')",
+														"type": "Expression"
+													},
+													"CW_FileName": {
+														"value": "@concat(item().Destination.FileName,'.parquet')",
+														"type": "Expression"
+													},
+													"ContainerName": {
+														"value": "@variables('ContainerName')",
+														"type": "Expression"
+													}
+												}
+											},
 											"enableLogging": false,
 											"storeSettings": {
 												"type": "AzureBlobFSReadSettings",
@@ -332,6 +430,24 @@
 												},
 												"userProperties": [],
 												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													},
 													"enableLogging": false,
 													"storeSettings": {
 														"type": "AzureBlobFSReadSettings",
@@ -364,6 +480,24 @@
 												},
 												"userProperties": [],
 												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'/T1')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													},
 													"enableLogging": false,
 													"storeSettings": {
 														"type": "AzureBlobFSReadSettings",
@@ -392,6 +526,24 @@
 												},
 												"userProperties": [],
 												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													},
 													"enableLogging": false,
 													"storeSettings": {
 														"type": "AzureBlobFSReadSettings",
@@ -431,8 +583,69 @@
 															"type": "ParquetWriteSettings"
 														}
 													},
-													"enableStaging": false
-												}
+													"enableStaging": false,
+													"validateDataConsistency": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "SqlServerDataSet",
+														"type": "DatasetReference",
+														"parameters": {
+															"ServerName": {
+																"value": "@variables('ServerName')",
+																"type": "Expression"
+															},
+															"DatabaseName": {
+																"value": "@variables('DatabaseName')",
+																"type": "Expression"
+															},
+															"UserName": {
+																"value": "@variables('UserName')",
+																"type": "Expression"
+															},
+															"CW_SchemaName": {
+																"value": "@variables('SchemaName')",
+																"type": "Expression"
+															},
+															"SecretName": {
+																"value": "@variables('SecretName')",
+																"type": "Expression"
+															},
+															"CW_TableName": {
+																"value": "@item().Source.TableName",
+																"type": "Expression"
+															}
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													}
+												]
 											},
 											{
 												"name": "Delete The Left File_DateLoad_SingleFile",
@@ -454,6 +667,24 @@
 												},
 												"userProperties": [],
 												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													},
 													"enableLogging": false,
 													"storeSettings": {
 														"type": "AzureBlobFSReadSettings",
@@ -498,8 +729,69 @@
 															"type": "ParquetWriteSettings"
 														}
 													},
-													"enableStaging": false
-												}
+													"enableStaging": false,
+													"validateDataConsistency": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "SqlServerDataSet",
+														"type": "DatasetReference",
+														"parameters": {
+															"ServerName": {
+																"value": "@variables('ServerName')",
+																"type": "Expression"
+															},
+															"DatabaseName": {
+																"value": "@variables('DatabaseName')",
+																"type": "Expression"
+															},
+															"UserName": {
+																"value": "@variables('UserName')",
+																"type": "Expression"
+															},
+															"CW_SchemaName": {
+																"value": "@variables('SchemaName')",
+																"type": "Expression"
+															},
+															"SecretName": {
+																"value": "@variables('SecretName')",
+																"type": "Expression"
+															},
+															"CW_TableName": {
+																"value": "@item().Source.TableName",
+																"type": "Expression"
+															}
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													}
+												]
 											},
 											{
 												"name": "Data flow Union_IDLoad",
@@ -633,6 +925,24 @@
 												},
 												"userProperties": [],
 												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													},
 													"enableLogging": false,
 													"storeSettings": {
 														"type": "AzureBlobFSReadSettings",
@@ -665,6 +975,24 @@
 												},
 												"userProperties": [],
 												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'/T1')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													},
 													"enableLogging": false,
 													"storeSettings": {
 														"type": "AzureBlobFSReadSettings",
@@ -693,6 +1021,24 @@
 												},
 												"userProperties": [],
 												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													},
 													"enableLogging": false,
 													"storeSettings": {
 														"type": "AzureBlobFSReadSettings",
@@ -721,6 +1067,24 @@
 												},
 												"userProperties": [],
 												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													},
 													"enableLogging": false,
 													"storeSettings": {
 														"type": "AzureBlobFSReadSettings",
@@ -764,8 +1128,69 @@
 															"type": "ParquetWriteSettings"
 														}
 													},
-													"enableStaging": false
-												}
+													"enableStaging": false,
+													"validateDataConsistency": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "SqlServerDataSet",
+														"type": "DatasetReference",
+														"parameters": {
+															"ServerName": {
+																"value": "@variables('ServerName')",
+																"type": "Expression"
+															},
+															"DatabaseName": {
+																"value": "@variables('DatabaseName')",
+																"type": "Expression"
+															},
+															"UserName": {
+																"value": "@variables('UserName')",
+																"type": "Expression"
+															},
+															"CW_SchemaName": {
+																"value": "@variables('SchemaName')",
+																"type": "Expression"
+															},
+															"SecretName": {
+																"value": "@variables('SecretName')",
+																"type": "Expression"
+															},
+															"CW_TableName": {
+																"value": "@item().Source.TableName",
+																"type": "Expression"
+															}
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'/T1')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													}
+												]
 											},
 											{
 												"name": "Partition DF_FullLoad",
@@ -840,6 +1265,24 @@
 												},
 												"userProperties": [],
 												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'/T1')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														}
+													},
 													"enableLogging": false,
 													"storeSettings": {
 														"type": "AzureBlobFSReadSettings",

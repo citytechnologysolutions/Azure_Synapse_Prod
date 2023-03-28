@@ -5,11 +5,19 @@
 		"typeProperties": {
 			"sources": [
 				{
+					"linkedService": {
+						"referenceName": "citylogistics_synapseanalytics_workspace_WorkspaceSecondaryStorage",
+						"type": "LinkedServiceReference"
+					},
 					"name": "source2"
 				}
 			],
 			"sinks": [
 				{
+					"linkedService": {
+						"referenceName": "citylogistics_synapseanalytics_workspace_WorkspaceSecondaryStorage",
+						"type": "LinkedServiceReference"
+					},
 					"name": "sink1"
 				}
 			],
@@ -24,22 +32,25 @@
 				"}",
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
 				"     purgeFiles: true,",
+				"     format: 'parquet',",
 				"     fileSystem: ($ContainerName),",
 				"     folderPath: (concat($cw_IncFolderName,'/T1')),",
 				"     fileName: ($cw_FileName),",
 				"     compressionCodec: 'snappy') ~> source2",
 				"source2 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
-				"     truncate: true,",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
 				"     format: 'parquet',",
 				"     fileSystem: 'synapse',",
 				"     folderPath: (concat($cw_FolderName,'/',$cw_FileName)),",
+				"     truncate: true,",
 				"     compressionCodec: 'snappy',",
+				"     umask: 0776,",
 				"     preCommands: [],",
-				"     postCommands: []) ~> sink1"
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
 			]
 		}
 	}

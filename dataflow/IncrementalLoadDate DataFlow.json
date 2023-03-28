@@ -5,14 +5,26 @@
 		"typeProperties": {
 			"sources": [
 				{
+					"linkedService": {
+						"referenceName": "citylogistics_synapseanalytics_workspace_WorkspaceSecondaryStorage",
+						"type": "LinkedServiceReference"
+					},
 					"name": "source1"
 				},
 				{
+					"linkedService": {
+						"referenceName": "citylogistics_synapseanalytics_workspace_WorkspaceSecondaryStorage",
+						"type": "LinkedServiceReference"
+					},
 					"name": "source2"
 				}
 			],
 			"sinks": [
 				{
+					"linkedService": {
+						"referenceName": "citylogistics_synapseanalytics_workspace_WorkspaceSecondaryStorage",
+						"type": "LinkedServiceReference"
+					},
 					"name": "WritetoDataLake"
 				}
 			],
@@ -34,12 +46,16 @@
 				"}",
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
 				"     fileSystem: ($ContainerName),",
 				"     folderPath: ($cw_FolderName),",
 				"     fileName: ($cw_FileName),",
 				"     compressionCodec: 'snappy') ~> source1",
 				"source(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     ignoreNoFilesFound: true,",
+				"     format: 'parquet',",
 				"     fileSystem: ($ContainerName),",
 				"     folderPath: ($cw_IncFolderName),",
 				"     fileName: ($cw_FileName),",
@@ -50,18 +66,19 @@
 				"exists1, source2 union(byName: true)~> union1",
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     fileSystem: ($ContainerName),",
+				"     folderPath: (concat($cw_IncFolderName,'/T1/',$cw_FileName)),",
 				"     truncate: true,",
+				"     compressionCodec: 'snappy',",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     partitionBy('dynamicRange', 64,",
 				"          $cw_IdField",
-				"     ),",
-				"     format: 'parquet',",
-				"     fileSystem: ($ContainerName),",
-				"     folderPath: (concat($cw_IncFolderName,'/T1/',$cw_FileName)),",
-				"     compressionCodec: 'snappy',",
-				"     preCommands: [],",
-				"     postCommands: []) ~> WritetoDataLake"
+				"     )) ~> WritetoDataLake"
 			]
 		}
 	}

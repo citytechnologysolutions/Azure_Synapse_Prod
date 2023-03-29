@@ -1,0 +1,234 @@
+{
+	"name": "Sharepoint Full Take-on",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get Bearer Token",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.03:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": true,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat('https://accounts.accesscontrol.windows.net/',variables('TenantID'),'/tokens/OAuth/2')\n",
+						"type": "Expression"
+					},
+					"connectVia": {
+						"referenceName": "AutoResolveIntegrationRuntime",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"body": {
+						"value": "@concat('grant_type=client_credentials&client_id=',variables('client_id'),'@',variables('TenantID'),'&client_secret=',variables('client_secret'),'&resource=00000003-0000-0ff1-ce00-000000000000','/',variables('BaseURL'),'@',variables('TenantID'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "ForEachSharepointFolder",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get Bearer Token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.CW_Items",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Get List of File Names_Folder1",
+							"type": "WebActivity",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.03:00:00",
+								"retry": 3,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"url": {
+									"value": "@concat('https://',variables('BaseURL'),'/',variables('SiteURL'),'_api/web/GetFolderByServerRelativeUrl(','''','/',variables('SiteURL'),item().Source.SPFolderName,'''',')/Files')",
+									"type": "Expression"
+								},
+								"connectVia": {
+									"referenceName": "AutoResolveIntegrationRuntime",
+									"type": "IntegrationRuntimeReference"
+								},
+								"method": "GET",
+								"headers": {
+									"Authorization": {
+										"value": "@{concat('Bearer ', activity('Get Bearer Token').output.access_token)}",
+										"type": "Expression"
+									},
+									"Accept": "application/json"
+								},
+								"body": "grant_type=client_credentials&client_id=bd146d1a-7d3f-4b57-8d4e-c794594a7f7f@0e23ddde-1cba-42eb-9760-e698ce0a9b00&client_secret=tI58Q~wsUQhC0tnGQ_KenYWvWfbqWPevgSKm6dsT&resource=00000003-0000-0ff1-ce00-000000000000/citycouriers365.sharepoint.com@0e23ddde-1cba-42eb-9760-e698ce0a9b00"
+							}
+						},
+						{
+							"name": "Get All the Files",
+							"type": "ForEach",
+							"dependsOn": [
+								{
+									"activity": "Get List of File Names_Folder1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"items": {
+									"value": "@activity('Get List of File Names_Folder1').output.value",
+									"type": "Expression"
+								},
+								"activities": [
+									{
+										"name": "Copy data Folder 1",
+										"type": "Copy",
+										"dependsOn": [],
+										"policy": {
+											"timeout": "0.03:00:00",
+											"retry": 3,
+											"retryIntervalInSeconds": 30,
+											"secureOutput": false,
+											"secureInput": true
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"source": {
+												"type": "BinarySource",
+												"storeSettings": {
+													"type": "HttpReadSettings",
+													"requestMethod": "GET",
+													"additionalHeaders": {
+														"value": "@{concat('Authorization: Bearer ', activity('Get Bearer Token').output.access_token)}",
+														"type": "Expression"
+													},
+													"requestTimeout": ""
+												},
+												"formatSettings": {
+													"type": "BinaryReadSettings"
+												}
+											},
+											"sink": {
+												"type": "BinarySink",
+												"storeSettings": {
+													"type": "AzureBlobFSWriteSettings"
+												}
+											},
+											"enableStaging": false
+										},
+										"inputs": [
+											{
+												"referenceName": "SharePointBinary",
+												"type": "DatasetReference",
+												"parameters": {
+													"FileName": {
+														"value": "@{item().ServerRelativeUrl}",
+														"type": "Expression"
+													},
+													"BaseURL": {
+														"value": "@variables('BaseURL')",
+														"type": "Expression"
+													},
+													"SiteURL": {
+														"value": "@variables('SiteURL')",
+														"type": "Expression"
+													}
+												}
+											}
+										],
+										"outputs": [
+											{
+												"referenceName": "DataLakeBinary",
+												"type": "DatasetReference",
+												"parameters": {
+													"ContainerName": {
+														"value": "@variables('ContainerName')",
+														"type": "Expression"
+													},
+													"DestFolderName": {
+														"value": "@pipeline().parameters.DestFolderName_1",
+														"type": "Expression"
+													},
+													"Filename": {
+														"value": "@{item().Name}",
+														"type": "Expression"
+													},
+													"DataLake": {
+														"value": "@variables('DataLake')",
+														"type": "Expression"
+													}
+												}
+											}
+										]
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"SiteURL": {
+				"type": "string"
+			},
+			"CW_Items": {
+				"type": "array"
+			}
+		},
+		"variables": {
+			"TenantID": {
+				"type": "String",
+				"defaultValue": "0e23ddde-1cba-42eb-9760-e698ce0a9b00"
+			},
+			"client_id": {
+				"type": "String",
+				"defaultValue": "bd146d1a-7d3f-4b57-8d4e-c794594a7f7f"
+			},
+			"client_secret": {
+				"type": "String",
+				"defaultValue": "tI58Q~wsUQhC0tnGQ_KenYWvWfbqWPevgSKm6dsT"
+			},
+			"BaseURL": {
+				"type": "String",
+				"defaultValue": "citycouriers365.sharepoint.com"
+			},
+			"ContainerName": {
+				"type": "String",
+				"defaultValue": "synapse"
+			},
+			"DataLake": {
+				"type": "String"
+			},
+			"SiteURL": {
+				"type": "String",
+				"defaultValue": "sites/Maluti-X/"
+			}
+		},
+		"folder": {
+			"name": "PROD/BackEnd/Extract/SharePoint"
+		},
+		"annotations": []
+	}
+}

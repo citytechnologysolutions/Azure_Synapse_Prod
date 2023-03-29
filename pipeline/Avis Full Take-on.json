@@ -26,19 +26,16 @@
 						}
 					},
 					"sink": {
-						"type": "ParquetSink",
+						"type": "BinarySink",
 						"storeSettings": {
 							"type": "AzureBlobFSWriteSettings"
-						},
-						"formatSettings": {
-							"type": "ParquetWriteSettings"
 						}
 					},
 					"enableStaging": false
 				},
 				"inputs": [
 					{
-						"referenceName": "Avis_Files",
+						"referenceName": "OnPremSambaBinary",
 						"type": "DatasetReference",
 						"parameters": {
 							"ServerName": {
@@ -54,7 +51,11 @@
 								"type": "Expression"
 							},
 							"DirectoryName": {
-								"value": "@variables('DirectoryName')",
+								"value": "@variables('SourceDirectoryName')",
+								"type": "Expression"
+							},
+							"FileName": {
+								"value": "@variables('FileName')",
 								"type": "Expression"
 							}
 						}
@@ -62,15 +63,23 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "DataLakeParquet",
+						"referenceName": "DataLakeBinary",
 						"type": "DatasetReference",
 						"parameters": {
-							"CW_FolderName": {
-								"value": "@variables('DirectoryName')",
-								"type": "Expression"
-							},
 							"ContainerName": {
 								"value": "@variables('ContainerName')",
+								"type": "Expression"
+							},
+							"DestFolderName": {
+								"value": "@variables('DestFolderName')",
+								"type": "Expression"
+							},
+							"Filename": {
+								"value": "@variables('FileName')",
+								"type": "Expression"
+							},
+							"DataLake": {
+								"value": "@variables('DataLake')",
 								"type": "Expression"
 							}
 						}
@@ -83,7 +92,7 @@
 				"type": "String",
 				"defaultValue": "\\\\10.1.8.34"
 			},
-			"DirectoryName": {
+			"SourceDirectoryName": {
 				"type": "String",
 				"defaultValue": "Avis"
 			},
@@ -101,6 +110,14 @@
 			"ContainerName": {
 				"type": "String",
 				"defaultValue": "synapse"
+			},
+			"DataLake": {
+				"type": "String",
+				"defaultValue": "https://citylogisticsstorage.dfs.core.windows.net/"
+			},
+			"DestFolderName": {
+				"type": "String",
+				"defaultValue": "\\Unstructured Data\\Avis_Files"
 			}
 		},
 		"folder": {

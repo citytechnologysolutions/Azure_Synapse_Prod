@@ -34,46 +34,67 @@
 				}
 			},
 			{
-				"name": "Get List of File Names",
-				"type": "WebActivity",
+				"name": "ForEach1",
+				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "ForEach1",
+						"activity": "Get Bearer Token",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					}
 				],
-				"policy": {
-					"timeout": "0.03:00:00",
-					"retry": 3,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
 				"userProperties": [],
 				"typeProperties": {
-					"url": {
-						"value": "@concat('https://',variables('BaseURL'),'/',variables('SiteURL'),'_api/web/GetFolderByServerRelativeUrl(','''','/',variables('SiteURL'),variables('SharePointFolderName'),'''',')/Files')",
+					"items": {
+						"value": "@pipeline().parameters.CW_Items",
 						"type": "Expression"
 					},
-					"connectVia": {
-						"referenceName": "AutoResolveIntegrationRuntime",
-						"type": "IntegrationRuntimeReference"
-					},
-					"method": "GET",
-					"headers": {
-						"Authorization": {
-							"value": "@{concat('Bearer ', activity('Get Bearer Token').output.access_token)}",
-							"type": "Expression"
+					"activities": [
+						{
+							"name": "Set variable SourceFolder",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "SharePointFolderName",
+								"value": {
+									"value": "@item().Source.TableName",
+									"type": "Expression"
+								}
+							}
 						},
-						"Accept": "application/json"
-					},
-					"body": "grant_type=client_credentials&client_id=bd146d1a-7d3f-4b57-8d4e-c794594a7f7f@0e23ddde-1cba-42eb-9760-e698ce0a9b00&client_secret=tI58Q~wsUQhC0tnGQ_KenYWvWfbqWPevgSKm6dsT&resource=00000003-0000-0ff1-ce00-000000000000/citycouriers365.sharepoint.com@0e23ddde-1cba-42eb-9760-e698ce0a9b00"
+						{
+							"name": "Set variable DestFolder",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "DestFolderName",
+								"value": {
+									"value": "@item().Destination.FileName",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "Set variable SiteURL",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "SiteURL",
+								"value": {
+									"value": "@concat('sites/',pipeline().parameters.SharepointSiteName,'/')",
+									"type": "Expression"
+								}
+							}
+						}
+					]
 				}
 			},
 			{
-				"name": "Get All the Files",
+				"name": "Get All the Files_copy1",
 				"type": "ForEach",
 				"dependsOn": [
 					{
@@ -91,7 +112,7 @@
 					},
 					"activities": [
 						{
-							"name": "Copy data Folder 1",
+							"name": "Copy data Folder 1_copy1",
 							"type": "Copy",
 							"dependsOn": [],
 							"policy": {
@@ -175,66 +196,46 @@
 				}
 			},
 			{
-				"name": "ForEach1",
-				"type": "ForEach",
+				"name": "Get List of File Names",
+				"type": "WebActivity",
 				"dependsOn": [
 					{
-						"activity": "Get Bearer Token",
+						"activity": "ForEach1",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					}
 				],
+				"policy": {
+					"timeout": "0.03:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
-					"items": {
-						"value": "@pipeline().parameters.CW_Items",
+					"url": {
+						"value": "@concat('https://',variables('BaseURL'),'/',variables('SiteURL'),'_api/web/GetFolderByServerRelativeUrl(','''','/',variables('SiteURL'),variables('SharePointFolderName'),'''',')/Files')",
 						"type": "Expression"
 					},
-					"activities": [
-						{
-							"name": "Set variable SourceFolder",
-							"type": "SetVariable",
-							"dependsOn": [],
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "SharePointFolderName",
-								"value": {
-									"value": "@item().Source.TableName",
-									"type": "Expression"
-								}
-							}
+					"connectVia": {
+						"referenceName": "AutoResolveIntegrationRuntime",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "GET",
+					"headers": {
+						"Authorization": {
+							"value": "@{concat('Bearer ', activity('Get Bearer Token').output.access_token)}",
+							"type": "Expression"
 						},
-						{
-							"name": "Set variable DestFolder",
-							"type": "SetVariable",
-							"dependsOn": [],
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "DestFolderName",
-								"value": {
-									"value": "@item().Destination.FileName",
-									"type": "Expression"
-								}
-							}
-						},
-						{
-							"name": "Set variable SiteURL",
-							"type": "SetVariable",
-							"dependsOn": [],
-							"userProperties": [],
-							"typeProperties": {
-								"variableName": "SiteURL",
-								"value": {
-									"value": "@concat('sites/',pipeline().parameters.SharepointSiteName,'/')",
-									"type": "Expression"
-								}
-							}
-						}
-					]
+						"Accept": "application/json"
+					},
+					"body": "grant_type=client_credentials&client_id=bd146d1a-7d3f-4b57-8d4e-c794594a7f7f@0e23ddde-1cba-42eb-9760-e698ce0a9b00&client_secret=tI58Q~wsUQhC0tnGQ_KenYWvWfbqWPevgSKm6dsT&resource=00000003-0000-0ff1-ce00-000000000000/citycouriers365.sharepoint.com@0e23ddde-1cba-42eb-9760-e698ce0a9b00"
 				}
 			}
 		],
+		"concurrency": 1,
 		"parameters": {
 			"CW_Items": {
 				"type": "array"
@@ -277,6 +278,15 @@
 			},
 			"DestFolderName": {
 				"type": "String"
+			},
+			"FileList": {
+				"type": "Array"
+			},
+			"FolderContent": {
+				"type": "Array"
+			},
+			"Temp": {
+				"type": "Array"
 			}
 		},
 		"folder": {

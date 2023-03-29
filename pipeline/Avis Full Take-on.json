@@ -1,0 +1,113 @@
+{
+	"name": "Avis Full Take-on",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy Avis data",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "BinarySource",
+						"storeSettings": {
+							"type": "FileServerReadSettings",
+							"recursive": true
+						},
+						"formatSettings": {
+							"type": "BinaryReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "Avis_Files",
+						"type": "DatasetReference",
+						"parameters": {
+							"ServerName": {
+								"value": "@variables('ServerName')",
+								"type": "Expression"
+							},
+							"UserName": {
+								"value": "@variables('UserName')",
+								"type": "Expression"
+							},
+							"SecretName": {
+								"value": "@variables('SecretName')",
+								"type": "Expression"
+							},
+							"DirectoryName": {
+								"value": "@variables('DirectoryName')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DataLakeParquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"CW_FolderName": {
+								"value": "@variables('DirectoryName')",
+								"type": "Expression"
+							},
+							"ContainerName": {
+								"value": "@variables('ContainerName')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"variables": {
+			"ServerName": {
+				"type": "String",
+				"defaultValue": "\\\\10.1.8.34"
+			},
+			"DirectoryName": {
+				"type": "String",
+				"defaultValue": "Avis"
+			},
+			"FileName": {
+				"type": "String"
+			},
+			"UserName": {
+				"type": "String",
+				"defaultValue": "Synapse@citylogistics.co.za"
+			},
+			"SecretName": {
+				"type": "String",
+				"defaultValue": "OnPremSambaSecret"
+			},
+			"ContainerName": {
+				"type": "String",
+				"defaultValue": "synapse"
+			}
+		},
+		"folder": {
+			"name": "PROD/BackEnd/Extract/SharePoint"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-04-05T14:54:15Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

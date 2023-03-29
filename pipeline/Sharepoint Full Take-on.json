@@ -34,7 +34,148 @@
 				}
 			},
 			{
-				"name": "ForEachSharepointFolder",
+				"name": "Get List of File Names",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "ForEach1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.03:00:00",
+					"retry": 3,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": {
+						"value": "@concat('https://',variables('BaseURL'),'/',variables('SiteURL'),'_api/web/GetFolderByServerRelativeUrl(','''','/',variables('SiteURL'),variables('SharePointFolderName'),'''',')/Files')",
+						"type": "Expression"
+					},
+					"connectVia": {
+						"referenceName": "AutoResolveIntegrationRuntime",
+						"type": "IntegrationRuntimeReference"
+					},
+					"method": "GET",
+					"headers": {
+						"Authorization": {
+							"value": "@{concat('Bearer ', activity('Get Bearer Token').output.access_token)}",
+							"type": "Expression"
+						},
+						"Accept": "application/json"
+					},
+					"body": "grant_type=client_credentials&client_id=bd146d1a-7d3f-4b57-8d4e-c794594a7f7f@0e23ddde-1cba-42eb-9760-e698ce0a9b00&client_secret=tI58Q~wsUQhC0tnGQ_KenYWvWfbqWPevgSKm6dsT&resource=00000003-0000-0ff1-ce00-000000000000/citycouriers365.sharepoint.com@0e23ddde-1cba-42eb-9760-e698ce0a9b00"
+				}
+			},
+			{
+				"name": "Get All the Files",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get List of File Names",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get List of File Names').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy data Folder 1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.03:00:00",
+								"retry": 3,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": true
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "BinarySource",
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET",
+										"additionalHeaders": {
+											"value": "@{concat('Authorization: Bearer ', activity('Get Bearer Token').output.access_token)}",
+											"type": "Expression"
+										},
+										"requestTimeout": ""
+									},
+									"formatSettings": {
+										"type": "BinaryReadSettings"
+									}
+								},
+								"sink": {
+									"type": "BinarySink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "SharePointBinary",
+									"type": "DatasetReference",
+									"parameters": {
+										"FileName": {
+											"value": "@{item().ServerRelativeUrl}",
+											"type": "Expression"
+										},
+										"BaseURL": {
+											"value": "@variables('BaseURL')",
+											"type": "Expression"
+										},
+										"SiteURL": {
+											"value": "@variables('SiteURL')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DataLakeBinary",
+									"type": "DatasetReference",
+									"parameters": {
+										"ContainerName": {
+											"value": "@variables('ContainerName')",
+											"type": "Expression"
+										},
+										"DestFolderName": {
+											"value": "@variables('DestFolderName')",
+											"type": "Expression"
+										},
+										"DataLake": {
+											"value": "@variables('DataLake')",
+											"type": "Expression"
+										},
+										"FileName": {
+											"value": "@{item().Name}",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "ForEach1",
 				"type": "ForEach",
 				"dependsOn": [
 					{
@@ -52,137 +193,42 @@
 					},
 					"activities": [
 						{
-							"name": "Get List of File Names_Folder1",
-							"type": "WebActivity",
+							"name": "Set variable SourceFolder",
+							"type": "SetVariable",
 							"dependsOn": [],
-							"policy": {
-								"timeout": "0.03:00:00",
-								"retry": 3,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
 							"userProperties": [],
 							"typeProperties": {
-								"url": {
-									"value": "@concat('https://',variables('BaseURL'),'/',variables('SiteURL'),'_api/web/GetFolderByServerRelativeUrl(','''','/',variables('SiteURL'),item().Source.SPFolderName,'''',')/Files')",
+								"variableName": "SharePointFolderName",
+								"value": {
+									"value": "@item().Source.TableName",
 									"type": "Expression"
-								},
-								"connectVia": {
-									"referenceName": "AutoResolveIntegrationRuntime",
-									"type": "IntegrationRuntimeReference"
-								},
-								"method": "GET",
-								"headers": {
-									"Authorization": {
-										"value": "@{concat('Bearer ', activity('Get Bearer Token').output.access_token)}",
-										"type": "Expression"
-									},
-									"Accept": "application/json"
-								},
-								"body": "grant_type=client_credentials&client_id=bd146d1a-7d3f-4b57-8d4e-c794594a7f7f@0e23ddde-1cba-42eb-9760-e698ce0a9b00&client_secret=tI58Q~wsUQhC0tnGQ_KenYWvWfbqWPevgSKm6dsT&resource=00000003-0000-0ff1-ce00-000000000000/citycouriers365.sharepoint.com@0e23ddde-1cba-42eb-9760-e698ce0a9b00"
+								}
 							}
 						},
 						{
-							"name": "Get All the Files",
-							"type": "ForEach",
-							"dependsOn": [
-								{
-									"activity": "Get List of File Names_Folder1",
-									"dependencyConditions": [
-										"Succeeded"
-									]
-								}
-							],
+							"name": "Set variable DestFolder",
+							"type": "SetVariable",
+							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
-								"items": {
-									"value": "@activity('Get List of File Names_Folder1').output.value",
+								"variableName": "DestFolderName",
+								"value": {
+									"value": "@item().Destination.FileName",
 									"type": "Expression"
-								},
-								"activities": [
-									{
-										"name": "Copy data Folder 1",
-										"type": "Copy",
-										"dependsOn": [],
-										"policy": {
-											"timeout": "0.03:00:00",
-											"retry": 3,
-											"retryIntervalInSeconds": 30,
-											"secureOutput": false,
-											"secureInput": true
-										},
-										"userProperties": [],
-										"typeProperties": {
-											"source": {
-												"type": "BinarySource",
-												"storeSettings": {
-													"type": "HttpReadSettings",
-													"requestMethod": "GET",
-													"additionalHeaders": {
-														"value": "@{concat('Authorization: Bearer ', activity('Get Bearer Token').output.access_token)}",
-														"type": "Expression"
-													},
-													"requestTimeout": ""
-												},
-												"formatSettings": {
-													"type": "BinaryReadSettings"
-												}
-											},
-											"sink": {
-												"type": "BinarySink",
-												"storeSettings": {
-													"type": "AzureBlobFSWriteSettings"
-												}
-											},
-											"enableStaging": false
-										},
-										"inputs": [
-											{
-												"referenceName": "SharePointBinary",
-												"type": "DatasetReference",
-												"parameters": {
-													"FileName": {
-														"value": "@{item().ServerRelativeUrl}",
-														"type": "Expression"
-													},
-													"BaseURL": {
-														"value": "@variables('BaseURL')",
-														"type": "Expression"
-													},
-													"SiteURL": {
-														"value": "@variables('SiteURL')",
-														"type": "Expression"
-													}
-												}
-											}
-										],
-										"outputs": [
-											{
-												"referenceName": "DataLakeBinary",
-												"type": "DatasetReference",
-												"parameters": {
-													"ContainerName": {
-														"value": "@variables('ContainerName')",
-														"type": "Expression"
-													},
-													"DestFolderName": {
-														"value": "@pipeline().parameters.DestFolderName_1",
-														"type": "Expression"
-													},
-													"Filename": {
-														"value": "@{item().Name}",
-														"type": "Expression"
-													},
-													"DataLake": {
-														"value": "@variables('DataLake')",
-														"type": "Expression"
-													}
-												}
-											}
-										]
-									}
-								]
+								}
+							}
+						},
+						{
+							"name": "Set variable SiteURL",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "SiteURL",
+								"value": {
+									"value": "@concat('sites/',pipeline().parameters.SharepointSiteName,'/')",
+									"type": "Expression"
+								}
 							}
 						}
 					]
@@ -192,6 +238,10 @@
 		"parameters": {
 			"CW_Items": {
 				"type": "array"
+			},
+			"SharepointSiteName": {
+				"type": "string",
+				"defaultValue": "DataWarehouse"
 			}
 		},
 		"variables": {
@@ -217,11 +267,16 @@
 			},
 			"DataLake": {
 				"type": "String",
-				"defaultValue": "https://citylogisticsstorage.dfs.core.windows.net/synapse"
+				"defaultValue": "https://citylogisticsstorage.dfs.core.windows.net/"
 			},
 			"SiteURL": {
-				"type": "String",
-				"defaultValue": "sites/Maluti-X/"
+				"type": "String"
+			},
+			"SharePointFolderName": {
+				"type": "String"
+			},
+			"DestFolderName": {
+				"type": "String"
 			}
 		},
 		"folder": {

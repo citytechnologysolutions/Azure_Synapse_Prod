@@ -45,7 +45,7 @@
 										"userProperties": [],
 										"typeProperties": {
 											"source": {
-												"type": "SqlServerSource",
+												"type": "PostgreSqlSource",
 												"sqlReaderQuery": {
 													"value": "@concat(' \nDECLARE @s VARCHAR(MAX) \nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,''' \nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as [''+replace(c.name,'' '',''_'')+''] '' \nFROM sys.all_columns c join sys.tables t \nON c.object_id = t.object_id \nWHERE t.name =  @tablename \nSELECT ''SELECT '' + @s + '' FROM ['' +  @tablename + '']''  as Query')",
 													"type": "Expression"
@@ -54,7 +54,7 @@
 												"partitionOption": "None"
 											},
 											"dataset": {
-												"referenceName": "PostgresSQL_Dataset",
+												"referenceName": "SqlServerDataSet",
 												"type": "DatasetReference",
 												"parameters": {
 													"ServerName": {
@@ -172,6 +172,10 @@
 													"ContainerName": {
 														"value": "@variables('ContainerName')",
 														"type": "Expression"
+													},
+													"DataLake": {
+														"value": "@variables('DataLake')",
+														"type": "Expression"
 													}
 												}
 											},
@@ -220,6 +224,10 @@
 													"ContainerName": {
 														"value": "@variables('ContainerName')",
 														"type": "Expression"
+													},
+													"DataLake": {
+														"value": "@variables('DataLake')",
+														"type": "Expression"
 													}
 												}
 											},
@@ -262,6 +270,10 @@
 													},
 													"ContainerName": {
 														"value": "@variables('ContainerName')",
+														"type": "Expression"
+													},
+													"DataLake": {
+														"value": "@variables('DataLake')",
 														"type": "Expression"
 													}
 												}
@@ -342,6 +354,32 @@
 																"value": "'@{variables('ContainerName')}'",
 																"type": "Expression"
 															}
+														},
+														"linkedServiceParameters": {
+															"source1": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															},
+															"source2": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															},
+															"WritetoDataLake": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															}
 														}
 													},
 													"integrationRuntime": {
@@ -401,6 +439,24 @@
 																"value": "'@{variables('ContainerName')}'",
 																"type": "Expression"
 															}
+														},
+														"linkedServiceParameters": {
+															"source2": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															},
+															"sink1": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															}
 														}
 													},
 													"integrationRuntime": {
@@ -444,6 +500,10 @@
 															},
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
 																"type": "Expression"
 															}
 														}
@@ -495,6 +555,10 @@
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
 																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
 															}
 														}
 													},
@@ -541,6 +605,10 @@
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
 																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
 															}
 														}
 													},
@@ -566,7 +634,7 @@
 												"userProperties": [],
 												"typeProperties": {
 													"source": {
-														"type": "SqlServerSource",
+														"type": "PostgreSqlSource",
 														"sqlReaderQuery": {
 															"value": "@concat(if(pipeline().parameters.ColumnsNamesBlankSpaces,\n        activity('RemoveBlankSpacesColumnNames').output.firstRow.Query, concat('SELECT * FROM [', item().Source.TableName,']')\n        )   \n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    )",
 															"type": "Expression"
@@ -596,7 +664,7 @@
 												},
 												"inputs": [
 													{
-														"referenceName": "PostgresSQL_Dataset",
+														"referenceName": "SqlServerDataSet",
 														"type": "DatasetReference",
 														"parameters": {
 															"ServerName": {
@@ -641,6 +709,10 @@
 															},
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
 																"type": "Expression"
 															}
 														}
@@ -682,6 +754,10 @@
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
 																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
 															}
 														}
 													},
@@ -712,7 +788,7 @@
 												"userProperties": [],
 												"typeProperties": {
 													"source": {
-														"type": "SqlServerSource",
+														"type": "PostgreSqlSource",
 														"sqlReaderQuery": {
 															"value": "@concat(if(pipeline().parameters.ColumnsNamesBlankSpaces,\n        activity('RemoveBlankSpacesColumnNames').output.firstRow.Query, concat('SELECT * FROM [', item().Source.TableName,']')\n        )   \n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,activity('Lookup Last Max Field').output.firstRow.Field\n        )\n    )",
 															"type": "Expression"
@@ -742,7 +818,7 @@
 												},
 												"inputs": [
 													{
-														"referenceName": "PostgresSQL_Dataset",
+														"referenceName": "SqlServerDataSet",
 														"type": "DatasetReference",
 														"parameters": {
 															"ServerName": {
@@ -787,6 +863,10 @@
 															},
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
 																"type": "Expression"
 															}
 														}
@@ -837,11 +917,37 @@
 																"value": "'@{variables('ContainerName')}'",
 																"type": "Expression"
 															}
+														},
+														"linkedServiceParameters": {
+															"source1": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															},
+															"source2": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															},
+															"WritetoDataLake": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															}
 														}
 													},
-													"compute": {
-														"coreCount": 8,
-														"computeType": "General"
+													"integrationRuntime": {
+														"referenceName": "DataFlowIncrementalLoadIR",
+														"type": "IntegrationRuntimeReference"
 													},
 													"traceLevel": "Fine"
 												}
@@ -896,6 +1002,24 @@
 																"value": "'@{variables('ContainerName')}'",
 																"type": "Expression"
 															}
+														},
+														"linkedServiceParameters": {
+															"source2": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															},
+															"sink1": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															}
 														}
 													},
 													"integrationRuntime": {
@@ -939,6 +1063,10 @@
 															},
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
 																"type": "Expression"
 															}
 														}
@@ -990,6 +1118,10 @@
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
 																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
 															}
 														}
 													},
@@ -1035,6 +1167,10 @@
 															},
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
 																"type": "Expression"
 															}
 														}
@@ -1082,6 +1218,10 @@
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
 																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
 															}
 														}
 													},
@@ -1112,7 +1252,7 @@
 												"userProperties": [],
 												"typeProperties": {
 													"source": {
-														"type": "SqlServerSource",
+														"type": "PostgreSqlSource",
 														"sqlReaderQuery": {
 															"value": "@if(pipeline().parameters.ColumnsNamesBlankSpaces,\n    activity('RemoveBlankSpacesColumnNames').output.firstRow.Query,\n    concat('SELECT * FROM [', item().Source.TableName,']')\n    )",
 															"type": "Expression"
@@ -1141,7 +1281,7 @@
 												},
 												"inputs": [
 													{
-														"referenceName": "PostgresSQL_Dataset",
+														"referenceName": "SqlServerDataSet",
 														"type": "DatasetReference",
 														"parameters": {
 															"ServerName": {
@@ -1186,6 +1326,10 @@
 															},
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
 																"type": "Expression"
 															}
 														}
@@ -1236,6 +1380,24 @@
 																"value": "'@{variables('ContainerName')}'",
 																"type": "Expression"
 															}
+														},
+														"linkedServiceParameters": {
+															"source2": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															},
+															"sink1": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															}
 														}
 													},
 													"integrationRuntime": {
@@ -1279,6 +1441,10 @@
 															},
 															"ContainerName": {
 																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
 																"type": "Expression"
 															}
 														}

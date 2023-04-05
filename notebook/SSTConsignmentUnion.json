@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "10e12920-c5bc-4653-b89d-28e554e4b989"
+				"spark.autotune.trackingId": "51daefa4-2c4f-4fde-8eed-ad987b222cfa"
 			}
 		},
 		"metadata": {
@@ -54,9 +54,9 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"#Create DataFrame for the dboconsignment_archive LMS Table\r\n",
-					"dboconsignment_archive = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment_archive.parquet', format='parquet')\r\n",
-					"dboconsignment_archive.createOrReplaceTempView(\"dboconsignment_archive\")\r\n",
+					"##Create DataFrame for the dboconsignment_archive LMS Table\r\n",
+					"#dboconsignment_archive = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment_archive.parquet', format='parquet')\r\n",
+					"#dboconsignment_archive.createOrReplaceTempView(\"dboconsignment_archive\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dboconsignment LMS Table\r\n",
 					"dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
@@ -79,10 +79,10 @@
 					}
 				},
 				"source": [
-					"dboconsignmentunion = dboconsignment_archive.unionByName(dboconsignment, allowMissingColumns = True)\r\n",
+					"dboconsignmentunion = dboconsignment #dboconsignment_archive.unionByName(dboconsignment, allowMissingColumns = True)\r\n",
 					"dboconsignmentunion.createOrReplaceTempView(\"dboconsignmentunion\")"
 				],
-				"execution_count": null
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -109,7 +109,7 @@
 					"SELECT * \r\n",
 					"FROM dboconsignmentunion"
 				],
-				"execution_count": null
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -127,7 +127,7 @@
 				"source": [
 					"sstconsignmentunion = spark.sql(\"SELECT * FROM sstconsignmentunion\")"
 				],
-				"execution_count": null
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -145,7 +145,7 @@
 				"source": [
 					"sstconsignmentunion.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 6
 			}
 		]
 	}

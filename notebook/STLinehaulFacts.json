@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "DevSparkPool",
+			"referenceName": "PRDSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "28g",
-			"driverCores": 4,
-			"executorMemory": "28g",
-			"executorCores": 4,
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "fd57c9ce-70c1-431b-9df6-b8f3fe6ec72b"
+				"spark.autotune.trackingId": "5316e5fb-d9dc-4545-8db6-ade555b30fcd"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-				"name": "DevSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+				"name": "PRDSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.2",
+				"sparkVersion": "3.3",
 				"nodeCount": 10,
-				"cores": 4,
-				"memory": 28,
+				"cores": 8,
+				"memory": 56,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -55,56 +55,56 @@
 				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the publiccustomer TMS Table\r\n",
-					"publiccustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publiccustomer.parquet', format='parquet')\r\n",
+					"publiccustomer = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publiccustomer.parquet', format='parquet')\r\n",
 					"publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicthirdparty TMS Table\r\n",
-					"publicthirdparty = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicthirdparty.parquet', format='parquet')\r\n",
+					"publicthirdparty = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicthirdparty.parquet', format='parquet')\r\n",
 					"publicthirdparty.createOrReplaceTempView(\"publicthirdparty\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicroute TMS Table\r\n",
-					"publicroute = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicroute.parquet', format='parquet')\r\n",
+					"publicroute = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicroute.parquet', format='parquet')\r\n",
 					"publicroute.createOrReplaceTempView(\"publicroute\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicaddress TMS Table\r\n",
-					"publicaddress = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicaddress.parquet', format='parquet')\r\n",
+					"publicaddress = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicaddress.parquet', format='parquet')\r\n",
 					"publicaddress.createOrReplaceTempView(\"publicaddress\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicfuelcard TMS Table\r\n",
-					"publicfuelcard = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicfuelcard.parquet', format='parquet')\r\n",
+					"publicfuelcard = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicfuelcard.parquet', format='parquet')\r\n",
 					"publicfuelcard.createOrReplaceTempView(\"publicfuelcard\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicfuelzone TMS Table\r\n",
-					"publicfuelzone = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzone.parquet', format='parquet')\r\n",
+					"publicfuelzone = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzone.parquet', format='parquet')\r\n",
 					"publicfuelzone.createOrReplaceTempView(\"publicfuelzone\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicfuelzonehistory TMS Table\r\n",
-					"publicfuelzonehistory = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzonehistory.parquet', format='parquet')\r\n",
+					"publicfuelzonehistory = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzonehistory.parquet', format='parquet')\r\n",
 					"publicfuelzonehistory.createOrReplaceTempView(\"publicfuelzonehistory\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicratecomponent TMS Table\r\n",
-					"publicratecomponent = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicratecomponent.parquet', format='parquet')\r\n",
+					"publicratecomponent = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicratecomponent.parquet', format='parquet')\r\n",
 					"publicratecomponent.createOrReplaceTempView(\"publicratecomponent\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicrateprofile TMS Table\r\n",
-					"publicrateprofile = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicrateprofile.parquet', format='parquet')\r\n",
+					"publicrateprofile = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicrateprofile.parquet', format='parquet')\r\n",
 					"publicrateprofile.createOrReplaceTempView(\"publicrateprofile\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicselist TMS Table\r\n",
-					"publicselist = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicselist.parquet', format='parquet')\r\n",
+					"publicselist = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicselist.parquet', format='parquet')\r\n",
 					"publicselist.createOrReplaceTempView(\"publicselist\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicselistitem TMS Table\r\n",
-					"publicselistitem = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicselistitem.parquet', format='parquet')\r\n",
+					"publicselistitem = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicselistitem.parquet', format='parquet')\r\n",
 					"publicselistitem.createOrReplaceTempView(\"publicselistitem\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicdriverpay TMS Table\r\n",
-					"publicdriverpay = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicdriverpay.parquet', format='parquet')\r\n",
+					"publicdriverpay = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicdriverpay.parquet', format='parquet')\r\n",
 					"publicdriverpay.createOrReplaceTempView(\"publicdriverpay\")\r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 45
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -149,7 +149,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 51
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -167,7 +167,7 @@
 				"source": [
 					"stdriverpay = spark.sql(\"SELECT * FROM stdriverpay\")"
 				],
-				"execution_count": 52
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -183,9 +183,9 @@
 					}
 				},
 				"source": [
-					"stdriverpay.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stdriverpay.parquet', mode = \"overwrite\")"
+					"stdriverpay.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdriverpay.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 53
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -203,7 +203,7 @@
 				"source": [
 					"stdriverpay.dtypes"
 				],
-				"execution_count": 50
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -246,7 +246,7 @@
 					"\r\n",
 					"FROM publicfuelcard f"
 				],
-				"execution_count": 2
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -265,7 +265,7 @@
 					"\r\n",
 					"stfuelcard = spark.sql(\"SELECT * FROM stfuelcard\")"
 				],
-				"execution_count": 3
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -282,9 +282,9 @@
 				},
 				"source": [
 					"\r\n",
-					"stfuelcard.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stfuelcard.parquet', mode = \"overwrite\")"
+					"stfuelcard.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stfuelcard.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 4
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -322,7 +322,7 @@
 					"FROM publicfuelzone f\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -341,7 +341,7 @@
 					"\r\n",
 					"stfuelzone = spark.sql(\"SELECT * FROM stfuelzone\")"
 				],
-				"execution_count": 7
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -358,9 +358,9 @@
 				},
 				"source": [
 					"\r\n",
-					"stfuelzone.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stfuelzone.parquet', mode = \"overwrite\")"
+					"stfuelzone.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stfuelzone.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 8
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -399,7 +399,7 @@
 					"FROM publicfuelzonehistory f\r\n",
 					""
 				],
-				"execution_count": 16
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -417,7 +417,7 @@
 				"source": [
 					"stfuelzonehistory = spark.sql(\"SELECT * FROM stfuelzonehistory\")"
 				],
-				"execution_count": 17
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -433,9 +433,9 @@
 					}
 				},
 				"source": [
-					"stfuelzonehistory.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stfuelzonehistory.parquet', mode = \"overwrite\")"
+					"stfuelzonehistory.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stfuelzonehistory.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 18
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -475,7 +475,7 @@
 					"\r\n",
 					"FROM publicratecomponent r"
 				],
-				"execution_count": 21
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -493,7 +493,7 @@
 				"source": [
 					"stratecomponent = spark.sql(\"SELECT * FROM stratecomponent\")"
 				],
-				"execution_count": 24
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -509,9 +509,9 @@
 					}
 				},
 				"source": [
-					"stratecomponent.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stratecomponent.parquet', mode = \"overwrite\")"
+					"stratecomponent.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stratecomponent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 25
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -556,7 +556,7 @@
 					"FROM publicrateprofile r\r\n",
 					""
 				],
-				"execution_count": 27
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -574,7 +574,7 @@
 				"source": [
 					"strateprofile = spark.sql(\"SELECT * FROM strateprofile\")"
 				],
-				"execution_count": 28
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -590,9 +590,9 @@
 					}
 				},
 				"source": [
-					"strateprofile.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/strateprofile.parquet', mode = \"overwrite\")"
+					"strateprofile.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/strateprofile.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 29
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -637,7 +637,7 @@
 					"LEFT JOIN publicselistitem s2 on s2.lid = s.id\r\n",
 					""
 				],
-				"execution_count": 41
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -655,7 +655,7 @@
 				"source": [
 					"sttmslist = spark.sql(\"SELECT * FROM sttmslist\")"
 				],
-				"execution_count": 42
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -671,9 +671,9 @@
 					}
 				},
 				"source": [
-					"sttmslist.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/sttmslist.parquet', mode = \"overwrite\")"
+					"sttmslist.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/sttmslist.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 43
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -689,9 +689,9 @@
 					}
 				},
 				"source": [
-					"stlist.dtypes"
+					"sttmslist.dtypes"
 				],
-				"execution_count": 36
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -743,7 +743,7 @@
 					"WHERE c.parentid is null\r\n",
 					""
 				],
-				"execution_count": 12
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -761,7 +761,7 @@
 				"source": [
 					"stprimarycustomer = spark.sql(\"SELECT * FROM stprimarycustomer\")"
 				],
-				"execution_count": 13
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -777,10 +777,10 @@
 					}
 				},
 				"source": [
-					"stprimarycustomer.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stprimarycustomer.parquet', mode = \"overwrite\")\r\n",
+					"stprimarycustomer.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stprimarycustomer.parquet', mode = \"overwrite\")\r\n",
 					""
 				],
-				"execution_count": 14
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -832,7 +832,7 @@
 					"WHERE c.parentid is not null\r\n",
 					""
 				],
-				"execution_count": 16
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -850,7 +850,7 @@
 				"source": [
 					"stsecondarycustomer = spark.sql(\"SELECT * FROM stsecondarycustomer\")"
 				],
-				"execution_count": 17
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -866,10 +866,10 @@
 					}
 				},
 				"source": [
-					"stsecondarycustomer.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stsecondarycustomer.parquet', mode = \"overwrite\")\r\n",
+					"stsecondarycustomer.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stsecondarycustomer.parquet', mode = \"overwrite\")\r\n",
 					""
 				],
-				"execution_count": 18
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -923,7 +923,7 @@
 					"\r\n",
 					"FROM publicthirdparty t"
 				],
-				"execution_count": 27
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -941,7 +941,7 @@
 				"source": [
 					"stthirdparty = spark.sql(\"SELECT * FROM stthirdparty\")"
 				],
-				"execution_count": 28
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -957,9 +957,9 @@
 					}
 				},
 				"source": [
-					"stthirdparty.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stthirdparty.parquet', mode = \"overwrite\")"
+					"stthirdparty.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stthirdparty.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 29
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -1004,7 +1004,7 @@
 					"WHERE r.parentroute is null\r\n",
 					""
 				],
-				"execution_count": 36
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",
@@ -1022,7 +1022,7 @@
 				"source": [
 					"stparentroute = spark.sql(\"SELECT * FROM stparentroute\")"
 				],
-				"execution_count": 37
+				"execution_count": 36
 			},
 			{
 				"cell_type": "code",
@@ -1038,9 +1038,9 @@
 					}
 				},
 				"source": [
-					"stparentroute.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stparentroute.parquet', mode = \"overwrite\")"
+					"stparentroute.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stparentroute.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 38
+				"execution_count": 37
 			},
 			{
 				"cell_type": "code",
@@ -1085,7 +1085,7 @@
 					"WHERE r.parentroute is not null\r\n",
 					""
 				],
-				"execution_count": 39
+				"execution_count": 38
 			},
 			{
 				"cell_type": "code",
@@ -1103,7 +1103,7 @@
 				"source": [
 					"stopsroute = spark.sql(\"SELECT * FROM stopsroute\")"
 				],
-				"execution_count": 40
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -1119,9 +1119,9 @@
 					}
 				},
 				"source": [
-					"stopsroute.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stopsroute.parquet', mode = \"overwrite\")"
+					"stopsroute.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stopsroute.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 41
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
@@ -1139,7 +1139,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": null
+				"execution_count": 41
 			}
 		]
 	}

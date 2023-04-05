@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4b18b606-acfb-4b43-9d1f-b25b559ba962"
+				"spark.autotune.trackingId": "a8077c30-5fcb-469e-8a8b-896900463e07"
 			}
 		},
 		"metadata": {
@@ -75,10 +75,10 @@
 					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the ssttrack LMS Table\r\n",
-					"ssttrack = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/ssttrack.parquet', format='parquet')\r\n",
+					"ssttrack = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/|Semi Structured Data/OPS/ssttrack.parquet', format='parquet')\r\n",
 					"ssttrack.createOrReplaceTempView(\"ssttrack\")"
 				],
-				"execution_count": 15
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -112,7 +112,7 @@
 					"FROM sstparcelunion P\r\n",
 					"GROUP BY P.orderid"
 				],
-				"execution_count": 2
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -130,7 +130,7 @@
 				"source": [
 					"sstparcelbyorder = spark.sql(\"SELECT * FROM sstparcelbyorder\")"
 				],
-				"execution_count": 3
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -148,7 +148,7 @@
 				"source": [
 					"sstparcelbyorder.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 4
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -182,7 +182,7 @@
 					"FROM sstparcelunion P\r\n",
 					"GROUP BY P.waybillid"
 				],
-				"execution_count": 5
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -200,7 +200,7 @@
 				"source": [
 					"sstparcelbywaybill = spark.sql(\"SELECT * FROM sstparcelbywaybill\")"
 				],
-				"execution_count": 6
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -218,7 +218,7 @@
 				"source": [
 					"sstparcelbywaybill.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbywaybill.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 7
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -252,7 +252,7 @@
 					"FROM sstparcelunion P\r\n",
 					"GROUP BY P.consignid"
 				],
-				"execution_count": 7
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -270,7 +270,7 @@
 				"source": [
 					"sstparcelbyconsignment = spark.sql(\"SELECT * FROM sstparcelbyconsignment\")"
 				],
-				"execution_count": 8
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -288,7 +288,7 @@
 				"source": [
 					"sstparcelbyconsignment.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -322,7 +322,7 @@
 					"FROM ssttrack T\r\n",
 					"GROUP BY T.lms_track_loadid"
 				],
-				"execution_count": 19
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -340,7 +340,7 @@
 				"source": [
 					"sstparcelbyload = spark.sql(\"SELECT * FROM sstparcelbyload\")"
 				],
-				"execution_count": 20
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -358,7 +358,7 @@
 				"source": [
 					"sstparcelbyload.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyload.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 13
+				"execution_count": null
 			}
 		]
 	}

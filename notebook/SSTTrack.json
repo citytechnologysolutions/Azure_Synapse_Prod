@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "DevSparkPool",
+			"referenceName": "TESTSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "3dd55377-b205-42d1-a2e4-76100431291d"
+				"spark.autotune.trackingId": "8de5a31d-6757-4c3a-b67d-f0babd3214e8"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-				"name": "DevSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
+				"name": "TESTSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.2",
+				"sparkVersion": "3.3",
 				"nodeCount": 10,
 				"cores": 4,
-				"memory": 28
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -65,18 +66,18 @@
 				},
 				"source": [
 					"#Create DataFrame for the dbotrack LMS Table\r\n",
-					"dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
+					"dbotrack = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
 					"dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dboparcel LMS Table\r\n",
-					"dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"dboparcel = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
 					"dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbolocation LMS Table\r\n",
-					"dbolocation= spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
+					"dbolocation= spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
 					"dbolocation.createOrReplaceTempView(\"dbolocation\")"
 				],
-				"execution_count": 21
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -132,7 +133,7 @@
 					"LEFT JOIN dbolocation fl on fl.id = t.tolocid\r\n",
 					""
 				],
-				"execution_count": 23
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -150,7 +151,7 @@
 				"source": [
 					"ssttrack = spark.sql(\"SELECT * FROM ssttrack\")"
 				],
-				"execution_count": 24
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -166,9 +167,9 @@
 					}
 				},
 				"source": [
-					"ssttrack.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/ssttrack.parquet', mode = \"overwrite\")"
+					"ssttrack.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/ssttrack.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 25
+				"execution_count": 4
 			}
 		]
 	}

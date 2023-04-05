@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "DevSparkPool",
+			"referenceName": "TESTSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "a5f3d5bb-a5c9-4864-8666-c8bc4eb13349"
+				"spark.autotune.trackingId": "196486c8-2e27-43d2-b025-137e19a5d629"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-				"name": "DevSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
+				"name": "TESTSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.2",
+				"sparkVersion": "3.3",
 				"nodeCount": 10,
 				"cores": 4,
-				"memory": 28
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -54,23 +55,23 @@
 				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the publicTrip TMS Table\r\n",
-					"publicTrip = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publictrip.parquet', format='parquet')\r\n",
+					"publicTrip = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publictrip.parquet', format='parquet')\r\n",
 					"publicTrip.createOrReplaceTempView(\"publicTrip\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicDispatch ORV Table\r\n",
-					"publicDispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
+					"publicDispatch = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
 					"publicDispatch.createOrReplaceTempView(\"publicDispatch\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dboLHTrip LMS Table\r\n",
-					"dboLHTrip = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trip.parquet', format='parquet')\r\n",
+					"dboLHTrip = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trip.parquet', format='parquet')\r\n",
 					"dboLHTrip.createOrReplaceTempView(\"dboLHTrip\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dboLHTrackStatus LMS Table\r\n",
-					"dboLHTrackStatus = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trackstatus.parquet', format='parquet')\r\n",
+					"dboLHTrackStatus = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trackstatus.parquet', format='parquet')\r\n",
 					"dboLHTrackStatus.createOrReplaceTempView(\"dboLHTrackStatus\")\r\n",
 					""
 				],
-				"execution_count": 137
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -142,7 +143,7 @@
 					"FROM publicTrip lt\r\n",
 					""
 				],
-				"execution_count": 133
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -160,7 +161,7 @@
 				"source": [
 					"STTrip_tms = spark.sql(\"SELECT * FROM STTrip_tms\")"
 				],
-				"execution_count": 134
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -234,7 +235,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 143
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -252,7 +253,7 @@
 				"source": [
 					"STTrip_lms = spark.sql(\"SELECT * FROM STTrip_tms\")"
 				],
-				"execution_count": 145
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -271,7 +272,7 @@
 					"STTrip_tmp = STTrip_tms.unionByName(STTrip_lms, allowMissingColumns = True)\r\n",
 					"STTrip_tmp.createOrReplaceTempView(\"STTrip_tmp\")"
 				],
-				"execution_count": 146
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -386,7 +387,7 @@
 					"FROM STTrip_tmp st\r\n",
 					"LEFT JOIN publicDispatch d on d.lmsid = st.tms_trip_id and d.vehicletype = 2"
 				],
-				"execution_count": 148
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -404,7 +405,7 @@
 				"source": [
 					"STTrip = spark.sql(\"SELECT * FROM STTrip\")"
 				],
-				"execution_count": 149
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -422,9 +423,9 @@
 				"source": [
 					"print(\"SUCCESS\")\r\n",
 					"\r\n",
-					"#STTrip.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/STTrip.parquet', mode = \"overwrite\")"
+					"#STTrip.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/STTrip.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 150
+				"execution_count": 10
 			}
 		]
 	}

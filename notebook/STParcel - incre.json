@@ -1,0 +1,540 @@
+{
+	"name": "STParcel - incre",
+	"properties": {
+		"description": "1.Need to add a field for \"finalparcelweight\" applying the customer Billing matrix principle",
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "ApacheSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 4,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "4",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "2e2252b8-ea36-4751-ac49-9de6983760e6"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#Create DataFrame for the sstparcelunion LMS Table\r\n",
+					"sstparcelunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dboorder LMS Table\r\n",
+					"dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the sstconsignmentunion LMS Table\r\n",
+					"sstconsignmentunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
+					"sstconsignmentunion.createOrReplaceTempView(\"sstconsignmentunion\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbowaybill LMS Table\r\n",
+					"dbowaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
+					"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dboparceldetail LMS Table\r\n",
+					"dboparceldetail = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparceldetail.parquet', format='parquet')\r\n",
+					"dboparceldetail.createOrReplaceTempView(\"dboparceldetail\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicparcel LMS Table\r\n",
+					"publicparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicparcel.parquet', format='parquet')\r\n",
+					"publicparcel.createOrReplaceTempView(\"publicparcel\")\r\n",
+					""
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import datetime"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from dateutil.relativedelta import relativedelta"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"IncrementingMonth = str(datetime.datetime.now())[0:7] + '-01'\r\n",
+					"IncrementingMonth1 = str(datetime.datetime.now() + relativedelta(months = -1))[0:7] + '-01'\r\n",
+					"IncrementingMonth12 = str(datetime.datetime.now() + relativedelta(months = -12))[0:7] + '-01'\r\n",
+					"IncrementingMonth24 = str(datetime.datetime.now() + relativedelta(months = -24))[0:7] + '-01'"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"IncrementingMonth1"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#Create DataFrame for the publicparcel LMS Table\r\n",
+					"stparcelunion_lake = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', format='parquet')\r\n",
+					"stparcelunion_lake.createOrReplaceTempView(\"stparcelunion_lake\")"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"MaxDate = spark.sql(\"Select MAX(lms_parcel_lastupdate) FROM stparcelunion_lake\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"MaxDate = str(MaxDate.collect()[0][0])[0:19]"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"MaxDate"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.sql(\"SET MaxDate = '\" + IncrementingMonth1 + \"'\")"
+				],
+				"execution_count": 24
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcel_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    p.id as lms_parcel_id\r\n",
+					"    ,p.OrderID as lms_parcel_orderid\r\n",
+					"    ,p.ConsignID as lms_parcel_consignid\r\n",
+					"    ,p.WaybillID as lms_parcel_waybillid\r\n",
+					"    ,p.LocID as lms_parcel_locid\r\n",
+					"    ,p.Weight as lms_parcel_weight\r\n",
+					"    ,p.TotCharge as lms_parcel_totcharge\r\n",
+					"    ,p.DIMMS as lms_parcel_dimms\r\n",
+					"    ,p.NoOfPcls as lms_parcel_noofpcls\r\n",
+					"    ,p.PL as lms_parcel_pl\r\n",
+					"    ,p.PW as lms_parcel_pw\r\n",
+					"    ,p.PH as lms_parcel_ph\r\n",
+					"    ,p.AcceptanceDate as lms_parcel_acceptancedate\r\n",
+					"    ,p.Barcode as lms_parcel_barcode\r\n",
+					"    ,p.VolWeight as lms_parcel_volweight\r\n",
+					"    ,p.ChargeWeight as lms_parcel_chargeweight\r\n",
+					"    ,p.PType as lms_parcel_ptype\r\n",
+					"    ,p.HandOverDate as lms_parcel_handoverdate\r\n",
+					"    ,p.FloorStatus as lms_parcel_floorstatus\r\n",
+					"    ,p.ClaimID as lms_parcel_claimid\r\n",
+					"    ,p.DateVolumised as lms_parcel_datevolumised\r\n",
+					"    ,p.VolumiserWeight as lms_parcel_volumiserweight\r\n",
+					"    ,p.VolumiserLength as lms_parcel_volumiserlength\r\n",
+					"    ,p.VolumiserHeight as lms_parcel_volumiserheight\r\n",
+					"    ,p.VolumiserWidth as lms_parcel_volumiserwidth\r\n",
+					"    ,p.Volumiserid as lms_parcel_volumiserid\r\n",
+					"    ,p.LastUpdate as lms_parcel_lastupdate\r\n",
+					"    ,o.HODate as lms_parcel_orderhodate\r\n",
+					"    ,c.CDate as lms_parcel_consignmentcdate\r\n",
+					"    ,c.DeliverBy as lms_parcel_consignmentdeliverby\r\n",
+					"    ,w.PODDate  as lms_parcel_waybillpoddate \r\n",
+					"    ,w.Date as lms_parcel_waybilldate\r\n",
+					"    ,pd.id as lms_parcel_parceldetailid\r\n",
+					"    ,pd.InServiceStart as lms_parcel_parceldetailinservicestart\r\n",
+					"    ,pd.DeliverBy as lms_parcel_parceldetaildeliverby\r\n",
+					"    ,pd.ServiceDays as lms_parcel_parceldetailservicedays\r\n",
+					"    ,pd.ServiceTime as lms_parcel_parceldetailservicetime\r\n",
+					"    ,pd.Cutofftime as lms_parcel_parceldetailcutofftime\r\n",
+					"    ,pd.Appointment as lms_parcel_parceldetailappointment\r\n",
+					"    ,pd.NDDID as lms_parcel_parceldetailnddid\r\n",
+					"    ,pd.CustOnholdStart as lms_parcel_parceldetailcustonholdstart\r\n",
+					"    ,pd.CustOnholdEnd as lms_parcel_parceldetailcustonholdend\r\n",
+					"    ,pd.SplitInitial as lms_parcel_parceldetailsplitinitial\r\n",
+					"    ,pd.WeekendHolidays as lms_parcel_parceldetailweekendholidays\r\n",
+					"    ,pd.Inbound as lms_parcel_parceldetailinbound\r\n",
+					"    ,pd.CourierID as lms_parcel_parceldetailcourierid\r\n",
+					"    ,pd.ServiceID as lms_parcel_parceldetailserviceid\r\n",
+					"    ,pd.CustAccID as lms_parcel_parceldetailcustaccid\r\n",
+					"    ,pd.BrouteMasterID as lms_parcel_parceldetailbroutemasterid\r\n",
+					"    ,pd.BrouteMasterFromID as lms_parcel_parceldetailbroutemasterfromid\r\n",
+					"    ,pd.BrouteMasterToID as lms_parcel_parceldetailbroutemastertoid\r\n",
+					"    ,pd.LeadTimeID as lms_parcel_parceldetailleadtimeid\r\n",
+					"    ,CASE \r\n",
+					"        WHEN pd.id is null and (coalesce(w.PODDate,CURRENT_TIMESTAMP) > c.DeliverBy) then 0 \r\n",
+					"        WHEN coalesce(w.PODDate,CURRENT_TIMESTAMP) > pd.DeliverBy then 0 \r\n",
+					"        ELSE 1 \r\n",
+					"    END as lms_parcel_inserviceflag\r\n",
+					"    ,CASE\r\n",
+					"        WHEN pd.id is null then (DATE_PART('day', (coalesce(w.PODDate,CURRENT_TIMESTAMP)) - (date(c.cdate) + interval '86399 seconds')))\r\n",
+					"        WHEN w.PODDate is null then 0  \r\n",
+					"        ELSE DATE_PART('day', w.PODDate - pd.InServiceStart)\r\n",
+					"    END as lms_parcel_actualleaddays\r\n",
+					"\r\n",
+					"FROM sstparcelunion p\r\n",
+					"\r\n",
+					"LEFT JOIN dboorder o on p.orderid = o.id\r\n",
+					"LEFT JOIN sstconsignmentunion c on p.consignid = c.id\r\n",
+					"LEFT JOIN dbowaybill w on p.waybillid = w.ID\r\n",
+					"LEFT JOIN dboparceldetail pd on p.id = pd.parcelid\r\n",
+					"WHERE p.LastUpdate > ${MaxDate} AND coalesce(p.acceptanceDate,p.handoverdate) IS NOT NULL\r\n",
+					"AND p.locid NOT IN (163,110,213,27)\r\n",
+					""
+				],
+				"execution_count": 25
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcel_R\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    sp.*\r\n",
+					"    ,to_timestamp(p.scandate) as orv_parcel_scandate\r\n",
+					"    ,p.scanstatus as orv_parcel_scanstatus\r\n",
+					"\t,p.scanmode as orv_parcel_scanmode\r\n",
+					"\t,p.claimid as orv_parcel_claimid\r\n",
+					"\t,p.courierid as orv_parcel_courierid\r\n",
+					"    ,to_timestamp(p.moddate) as orv_parcel_moddate\r\n",
+					"\r\n",
+					"FROM stparcel_tmp sp\r\n",
+					"LEFT JOIN publicParcel p on p.lmsid = sp.lms_parcel_id\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stparcel_R = spark.sql(\"SELECT * FROM stparcel_R\")\r\n",
+					"stparcel_R.cache()\r\n",
+					"stparcel_R.count()"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stparcelunion_lake.cache()\r\n",
+					"stparcelunion_lake.count()"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcel_Unioned\r\n",
+					"AS\r\n",
+					"SELECT * FROM stparcelunion_lake\r\n",
+					"WHERE lms_parcel_lastupdate <= ${MaxDate}\r\n",
+					"\r\n",
+					"UNION ALL\r\n",
+					"\r\n",
+					"SELECT * FROM stparcel_R"
+				],
+				"execution_count": 33
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stparcel = spark.sql(\"SELECT * FROM stparcel_Unioned\")\r\n",
+					"stparcel.cache()\r\n",
+					"stparcel.count()"
+				],
+				"execution_count": 34
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stparcel.createOrReplaceTempView(\"stparcel\")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"SELECT DISTINCT lms_parcel_id, COUNT(lms_parcel_id) FROM stparcel GROUP BY lms_parcel_id HAVING COUNT(lms_parcel_id) >= 3"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")\r\n",
+					"\r\n",
+					"#stparcel.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 6
+			}
+		]
+	}
+}

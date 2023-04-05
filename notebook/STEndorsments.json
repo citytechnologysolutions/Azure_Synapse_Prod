@@ -1,0 +1,176 @@
+{
+	"name": "STEndorsments",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "e0a91029-e82a-491d-b994-590ed1d59be5"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "python"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#create dataframe for the publicclaim orv table\r\n",
+					"publicclaim = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicclaim.parquet', format='parquet')\r\n",
+					"publicclaim.createOrReplaceTempView(\"publicclaim\")\r\n",
+					"\r\n",
+					"#create dataframe for the publicdelivery orv table\r\n",
+					"publicdelivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbowbendorsement LMS Table\r\n",
+					"dbowbendorsement = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbowbendorsement.parquet', format='parquet')\r\n",
+					"dbowbendorsement.createOrReplaceTempView(\"dbowbendorsement\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbodb_endorsement LMS Table\r\n",
+					"dbodb_endorsement = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_endorsement.parquet', format='parquet')\r\n",
+					"dbodb_endorsement.createOrReplaceTempView(\"dbodb_endorsement\")\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stendorsments_tmp\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    c.id\r\n",
+					"    ,c.delid\r\n",
+					"\t,c.claimtype\r\n",
+					"\t,to_timestamp(c.claimdate) as claimdate\r\n",
+					"\t,c.did\r\n",
+					"\t,c.parcelid\r\n",
+					"\t,c.barcode\r\n",
+					"\t,c.attachid\r\n",
+					"\t,c.note\r\n",
+					"    ,d.waybillid\r\n",
+					"    \r\n",
+					"FROM publicclaim c\r\n",
+					"LEFT JOIN publicdelivery d on d.id = c.delid"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stendorsments\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    e.ID as lms_db_endorsement_id\r\n",
+					"\t,e.Description as lms_db_endorsement_description\r\n",
+					"    ,er.ID as lms_wbendorsement_id\r\n",
+					"    ,er.Barcode as lms_wbendorsement_barcode\r\n",
+					"    ,er.WaybillID as lms_wbendorsement_waybillid\r\n",
+					"    ,et.id as orv_claim_id\r\n",
+					"    ,et.delid as orv_claim_delid\r\n",
+					"\t,et.claimtype as orv_claim_claimtype\r\n",
+					"\t,et.claimdate as orv_claim_claimdate\r\n",
+					"\t,et.did as orv_claim_did\r\n",
+					"\t,et.parcelid as orv_claim_parcelid\r\n",
+					"\t,et.barcode as orv_claim_barcode\r\n",
+					"\t,et.attachid as orv_claim_attachid\r\n",
+					"\t,et.note as orv_claim_note\r\n",
+					"    \r\n",
+					"FROM dbodb_endorsement e\r\n",
+					"LEFT JOIN dbowbendorsement er on er.EType = e.ID\r\n",
+					"LEFT JOIN stendorsments_tmp et on et.waybillid||'|'||et.barcode = er.WaybillID||'|'||er.barcode"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stendorsments = spark.sql(\"SELECT * FROM stendorsments\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stendorsments.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stendorsments.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

@@ -1,0 +1,1523 @@
+{
+	"name": "STDistributionFacts",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "065c2f9e-3845-48be-ac1a-5cc88f5c1863"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#create dataframe for the publicdispatchsegment orv table\r\n",
+					"publicdispatchsegment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatchsegment.parquet', format='parquet')\r\n",
+					"publicdispatchsegment.createOrReplaceTempView(\"publicdispatchsegment\")\r\n",
+					"\r\n",
+					"#create dataframe for the publicorvuser orv table\r\n",
+					"publicorvuser = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicorvuser.parquet', format='parquet')\r\n",
+					"publicorvuser.createOrReplaceTempView(\"publicorvuser\")\r\n",
+					"\r\n",
+					"#create dataframe for the publicvehicle orv table\r\n",
+					"publicvehicle = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicvehicle.parquet', format='parquet')\r\n",
+					"publicvehicle.createOrReplaceTempView(\"publicvehicle\")\r\n",
+					"\r\n",
+					"#create dataframe for the publicdepot orv table\r\n",
+					"publicdepot = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdepo.parquet', format='parquet')\r\n",
+					"publicdepot.createOrReplaceTempView(\"publicdepot\")\r\n",
+					"\r\n",
+					"#create dataframe for the publiccustomer orv table\r\n",
+					"publiccustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publiccustomer.parquet', format='parquet')\r\n",
+					"publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbocustomer lms table\r\n",
+					"dbocustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
+					"dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbozone lms table\r\n",
+					"dbozone = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbozone.parquet', format='parquet')\r\n",
+					"dbozone.createOrReplaceTempView(\"dbozone\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbosroute lms table\r\n",
+					"dbosroute = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbosroute.parquet', format='parquet')\r\n",
+					"dbosroute.createOrReplaceTempView(\"dbosroute\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbobillzoneroute lms table\r\n",
+					"dbobillzoneroute = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_zoneroute.parquet', format='parquet')\r\n",
+					"dbobillzoneroute.createOrReplaceTempView(\"dbobillzoneroute\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbobillzone lms table\r\n",
+					"dbobillzone = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_zone.parquet', format='parquet')\r\n",
+					"dbobillzone.createOrReplaceTempView(\"dbobillzone\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbobillbillcustomersr  lms table\r\n",
+					"dbobillbillcustomersr = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_billcustomersr.parquet', format='parquet')\r\n",
+					"dbobillbillcustomersr.createOrReplaceTempView(\"dbobillbillcustomersr\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbobillcustomergroups  lms table\r\n",
+					"dbobillcustomergroups  = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_customergroups.parquet', format='parquet')\r\n",
+					"dbobillcustomergroups.createOrReplaceTempView(\"dbobillcustomergroups\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbobillcustomergrouptypes  lms table\r\n",
+					"dbobillcustomergrouptypes  = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_customergrouptypes.parquet', format='parquet')\r\n",
+					"dbobillcustomergrouptypes.createOrReplaceTempView(\"dbobillcustomergrouptypes\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbolocation  lms table\r\n",
+					"dbolocation  = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
+					"dbolocation.createOrReplaceTempView(\"dbolocation\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbodepot LMS Table\r\n",
+					"dbodepot = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbodepot.parquet', format='parquet')\r\n",
+					"dbodepot.createOrReplaceTempView(\"dbodepot\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbovehicle LMS Table\r\n",
+					"dbovehicle = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbovehicle.parquet', format='parquet')\r\n",
+					"dbovehicle.createOrReplaceTempView(\"dbovehicle\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbodb_reasongroup LMS Table\r\n",
+					"dbodb_reasongroup = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_reasongroup.parquet', format='parquet')\r\n",
+					"dbodb_reasongroup.createOrReplaceTempView(\"dbodb_reasongroup\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbodb_inservicereason LMS Table\r\n",
+					"dbodb_inservicereason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_inservicereason.parquet', format='parquet')\r\n",
+					"dbodb_inservicereason.createOrReplaceTempView(\"dbodb_inservicereason\")\r\n",
+					"\r\n",
+					"#create dataframe for the publicpod orv table\r\n",
+					"publicpod = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
+					"publicpod.createOrReplaceTempView(\"publicpod\")\r\n",
+					""
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stpod\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    p.id as orv_pod_id\r\n",
+					"    ,p.did as orv_pod_did\r\n",
+					"\t,p.name as orv_pod_name\r\n",
+					"\t,to_timestamp(p.poddate) as orv_pod_poddate\r\n",
+					"\t,p.lat as orv_pod_lat\r\n",
+					"\t,p.lng as orv_pod_lng\r\n",
+					"\t,p.customerrating as orv_pod_customerrating\r\n",
+					"\t,p.customerfeedback as orv_pod_customerfeedback\r\n",
+					"FROM publicpod p"
+				],
+				"execution_count": 38
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stpod = spark.sql(\"SELECT * FROM stpod\")"
+				],
+				"execution_count": 39
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stpod.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stpod.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 40
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stinservicereasons\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    isr.ID as lms_inservicereason_id\r\n",
+					"\t,isr.ReasonGroupID as lms_inservicereason_reasongroupid\r\n",
+					"\t,rg.Description as lms_reasongroup_description\r\n",
+					"    ,isr.Reason as lms_inservicereason_reason\r\n",
+					"    ,isr.Valid as lms_inservicereason_valid\r\n",
+					"FROM dbodb_inservicereason isr\r\n",
+					"LEFT JOIN dbodb_reasongroup rg on rg.id = isr.ReasonGroupID;"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stinservicereasons = spark.sql(\"SELECT * FROM stinservicereasons\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stinservicereasons.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stinservicereasons.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stdispatchsegment\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"\r\n",
+					"    d.id as orv_dispatchsegment_id\r\n",
+					"    ,d.fromdelid as orv_dispatchsegment_fromdelid\r\n",
+					"    ,d.todelid as orv_dispatchsegment_todelid\r\n",
+					"    ,d.distance as orv_dispatchsegment_distance\r\n",
+					"    ,d.duration as orv_dispatchsegment_duration\r\n",
+					"    ,d.encodedpolyline as orv_dispatchsegment_encodedpolyline\r\n",
+					"    ,d.did as orv_dispatchsegment_did\r\n",
+					"    ,d.tollcost as orv_dispatchsegment_tollcost\r\n",
+					"    ,d.fuelcost as orv_dispatchsegment_fuelcost\r\n",
+					"    ,d.inscost as orv_dispatchsegment_inscost\r\n",
+					"    ,d.labourcost as orv_dispatchsegment_labourcost\r\n",
+					"    ,d.maintcost as orv_dispatchsegment_maintcost\r\n",
+					"    ,d.cpicost as orv_dispatchsegment_cpicost\r\n",
+					"    ,d.vehicleclass as orv_dispatchsegment_vehicleclass\r\n",
+					"    ,d.fromlat as orv_dispatchsegment_fromlat\r\n",
+					"    ,d.fromlng as orv_dispatchsegment_fromlng\r\n",
+					"    ,d.tolat as orv_dispatchsegment_tolat\r\n",
+					"    ,d.tolng as orv_dispatchsegment_tolng\r\n",
+					"    ,to_timestamp(d.departuredate) as orv_dispatchsegment_departuredate\r\n",
+					"    ,to_timestamp(d.arrivaldate) as orv_dispatchsegment_arrivaldate\r\n",
+					"    ,to_timestamp(d.debriefeddate) as orv_dispatchsegment_debriefeddate\r\n",
+					"    ,d.optimized as orv_dispatchsegment_optimized\r\n",
+					"    ,d.segmentorder as orv_dispatchsegment_segmentorder\r\n",
+					"    ,d.customized as orv_dispatchsegment_customized\r\n",
+					"    ,d.parcelct as orv_dispatchsegment_parcelct\r\n",
+					"\r\n",
+					"FROM publicdispatchsegment d\r\n",
+					"    "
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdispatchsegment = spark.sql(\"SELECT * FROM stdispatchsegment\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdispatchsegment.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stdispatchsegment.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"storvuser\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    o.id as orv_orvuser_id\r\n",
+					"    ,o.username as orv_orvuser_username\r\n",
+					"    ,o.fname as orv_orvuser_fname\r\n",
+					"    ,o.lname as orv_orvuser_lname\r\n",
+					"    ,o.empcode as orv_orvuser_empcode\r\n",
+					"    ,o.aka as orv_orvuser_aka\r\n",
+					"    ,o.gender as orv_orvuser_gender\r\n",
+					"    ,o.rsaid as orv_orvuser_rsaid\r\n",
+					"    ,o.passportno as orv_orvuser_passportno\r\n",
+					"    ,o.idpassportno as orv_orvuser_idpassportno\r\n",
+					"    ,o.nationality as orv_orvuser_nationality\r\n",
+					"    ,to_timestamp(o.termindate) as orv_orvuser_termindate\r\n",
+					"    ,o.status as orv_orvuser_status\r\n",
+					"    ,o.depot as orv_orvuser_depot\r\n",
+					"    ,o.jobcategory as orv_orvuser_jobcategory\r\n",
+					"    ,o.lmsid as orv_orvuser_lmsid\r\n",
+					"    ,o.vipid as orv_orvuser_vipid\r\n",
+					"    ,o.crewlmsid as orv_orvuser_crewlmsid\r\n",
+					"    ,o.courierid as orv_orvuser_courierid\r\n",
+					"\r\n",
+					"    FROM publicorvuser o\r\n",
+					"    \r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"storvuser = spark.sql(\"SELECT * FROM storvuser\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"storvuser.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/storvuser.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stvehicle\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    v.id as lms_vehicle_id\r\n",
+					"    ,v.FleetNo as lms_vehicle_fleetno\r\n",
+					"    ,v.RegNo as lms_vehicle_regno\r\n",
+					"    ,v.UID as lms_vehicle_uid\r\n",
+					"    ,v2.id as orv_vehicle_id\r\n",
+					"    ,v2.tollclass as orv_vehicle_tollclass\r\n",
+					"    ,v2.sapcode as orv_vehicle_sapcode\r\n",
+					"    ,v2.lmsid as orv_vehicle_lmsid\r\n",
+					"\r\n",
+					"FROM dbovehicle v\r\n",
+					"LEFT JOIN publicvehicle v2 on v2.lmsid = v.id\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stvehicle = spark.sql(\"SELECT * FROM stvehicle\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stvehicle.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stvehicle.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stdepotorv\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    d.id as orv_depot_id\r\n",
+					"    ,d.name as orv_depot_name\r\n",
+					"    ,d.depcode as orv_depot_depcode\r\n",
+					"    ,d.address as orv_depot_address\r\n",
+					"    ,d.suburb as orv_depot_suburb\r\n",
+					"    ,d.city as orv_depot_city\r\n",
+					"    ,d.zipcode as orv_depot_zipcode\r\n",
+					"    ,d.region as orv_depot_region\r\n",
+					"    ,d.lat as orv_depot_lat\r\n",
+					"    ,d.lng as orv_depot_lng\r\n",
+					"    ,d.placeid as orv_depot_placeid\r\n",
+					"    ,d.w3w as orv_depot_w3w\r\n",
+					"    ,to_timestamp(d.insdate) as orv_depot_insdate\r\n",
+					"    ,to_timestamp(d.update) as orv_depot_update\r\n",
+					"    ,d.lmsid as orv_depot_lmsid\r\n",
+					"    ,d.country as orv_depot_country\r\n",
+					"    ,d.status as orv_depot_status\r\n",
+					"\r\n",
+					"FROM publicdepot d\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdepotorv = spark.sql(\"SELECT * FROM stdepotorv\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdepotorv.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stdepotorv.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stdepot\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"\r\n",
+					"    d.id as md_depot_id\r\n",
+					"    ,d.itemlabel as md_depot_itemlabel\r\n",
+					"    ,d.itemvalue as md_depot_itemvalue\r\n",
+					"    ,d.depotname as md_depot_depotname\r\n",
+					"    ,d.parentdepotcode as md_depot_parentdepotcode\r\n",
+					"    ,d.division as md_depot_division\r\n",
+					"    ,d.address as md_depot_address\r\n",
+					"    ,d.latitude as md_depot_latitude\r\n",
+					"    ,d.longitude as md_depot_longitude\r\n",
+					"    ,d.sapdepreciationaccountcode as md_depot_sapdepreciationaccountcode\r\n",
+					"    ,d.mfrauthoriser as md_depot_mfrauthoriser\r\n",
+					"    ,d.mfrapplicationflag as md_depot_mfrapplicationflag\r\n",
+					"    ,d.activeflag as md_depot_activeflag\r\n",
+					"    ,d.operationsmanager as md_depot_operationsmanager\r\n",
+					"    ,d.branchmanager as md_depot_branchmanager\r\n",
+					"    ,d.fleetmanager as md_depot_fleetmanager\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dbodepot d\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdepot = spark.sql(\"SELECT * FROM stdepot\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdepot.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stdepot.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stbillcustomer \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    lc.id as lms_customer_id\r\n",
+					"    ,lc.ActiveFlag as lms_customer_activeflag\r\n",
+					"    ,lc.Adres1 as lms_customer_adres1\r\n",
+					"    ,lc.Adres2 as lms_customer_adres2\r\n",
+					"    ,lc.Appointment as lms_customer_appointment\r\n",
+					"    ,lc.AreaDesc as lms_customer_areadesc\r\n",
+					"    ,lc.AutoEmailFlag as lms_customer_autoemailflag\r\n",
+					"    ,lc.Bill_RouteID as lms_customer_bill_routeid\r\n",
+					"    ,lc.Bill_ServiceTypeID as lms_customer_bill_servicetypeid\r\n",
+					"    ,lc.Bill_ZoneRouteID as lms_customer_bill_zonerouteid\r\n",
+					"    ,lc.brouteid as lms_customer_brouteid\r\n",
+					"    ,lc.BType as lms_customer_btype\r\n",
+					"    ,lc.ccDepot as lms_customer_ccdepot\r\n",
+					"    ,lc.ccRoute as lms_customer_ccroute\r\n",
+					"    ,lc.ChainStoreFlag as lms_customer_chainstoreflag\r\n",
+					"    ,lc.CONSPerORD as lms_customer_consperord\r\n",
+					"    ,lc.ContactPerson as lms_customer_contactperson\r\n",
+					"    ,lc.CountryCode as lms_customer_countrycode\r\n",
+					"    ,lc.CRef as lms_customer_cref\r\n",
+					"    ,lc.CREF2 as lms_customer_cref2\r\n",
+					"    ,lc.CRouteID as lms_customer_crouteid\r\n",
+					"    ,lc.CType as lms_customer_ctype\r\n",
+					"    ,lc.CustAccID as lms_customer_custaccid\r\n",
+					"    ,lc.CustGroupID as lms_customer_custgroupid\r\n",
+					"    ,lc.CustMainID as lms_customer_custmainid\r\n",
+					"    ,lc.CustRateid as lms_customer_custrateid\r\n",
+					"    ,lc.CustRouteGroupID as lms_customer_custroutegroupid\r\n",
+					"    ,lc.CustServiceDays as lms_customer_custservicedays\r\n",
+					"    ,lc.CustServiceTime as lms_customer_custservicetime\r\n",
+					"    ,lc.DC as lms_customer_dc\r\n",
+					"    ,lc.DefDelPCode as lms_customer_defdelpcode\r\n",
+					"    ,lc.DeliveryDepotID as lms_customer_deliverydepotid\r\n",
+					"    ,lc.DeliveryType as lms_customer_deliverytype\r\n",
+					"    ,lc.DestinationLocationCode as lms_customer_destinationlocationcode\r\n",
+					"    ,lc.DualBillCourier as lms_customer_dualbillcourier\r\n",
+					"    ,lc.Email as lms_customer_email\r\n",
+					"    ,lc.FaxNo as lms_customer_faxno\r\n",
+					"    ,lc.FCType as lms_customer_fctype\r\n",
+					"    ,lc.FLevy as lms_customer_flevy\r\n",
+					"    ,lc.InCompleteOrderChkFlag as lms_customer_incompleteorderchkflag\r\n",
+					"    ,lc.InsertDate as lms_customer_insertdate\r\n",
+					"    ,lc.IsBillTo as lms_customer_isbillto\r\n",
+					"    ,lc.isBooking as lms_customer_isbooking\r\n",
+					"    ,lc.isHighVolume as lms_customer_ishighvolume\r\n",
+					"    ,lc.IsManual as lms_customer_ismanual\r\n",
+					"    ,lc.LastUpdate as lms_customer_lastupdate\r\n",
+					"    ,lc.LocationTypeCode as lms_customer_locationtypecode\r\n",
+					"    ,lc.MaxCartons as lms_customer_maxcartons\r\n",
+					"    ,lc.Name as lms_customer_name\r\n",
+					"    ,lc.NDDID as lms_customer_nddid\r\n",
+					"    ,lc.OnHoldID as lms_customer_onholdid\r\n",
+					"    ,lc.PCode as lms_customer_pcode\r\n",
+					"    ,lc.PCodeID as lms_customer_pcodeid\r\n",
+					"    ,lc.ServRouteID as lms_customer_servrouteid\r\n",
+					"    ,lc.SRouteID as lms_customer_srouteid\r\n",
+					"    ,lc.StoreID as lms_customer_storeid\r\n",
+					"    ,lc.Suburb as lms_customer_suburb\r\n",
+					"    ,lc.TelNo as lms_customer_telno\r\n",
+					"    ,lc.Town as lms_customer_town\r\n",
+					"    ,lc.VolFact as lms_customer_volfact\r\n",
+					"    ,lc.WType as lms_customer_wtype\r\n",
+					"    ,oc.id as orv_customer_id\r\n",
+					"    ,oc.name as orv_customer_name\r\n",
+					"    ,oc.contact as orv_customer_contact\r\n",
+					"    ,oc.email as orv_customer_email\r\n",
+					"    ,oc.mobileno as orv_customer_mobileno\r\n",
+					"    ,oc.landline as orv_customer_landline\r\n",
+					"    ,oc.ctype as orv_customer_ctype\r\n",
+					"    ,oc.parent as orv_customer_parent\r\n",
+					"    ,to_timestamp(oc.lastupdate) as orv_customer_lastupdate\r\n",
+					"    ,oc.lmsid as orv_customer_lmsid\r\n",
+					"    ,oc.srouteid as orv_customer_srouteid\r\n",
+					"    ,oc.verified as orv_customer_verified\r\n",
+					"    ,oc.defaultmaildomain as orv_customer_defaultmaildomain\r\n",
+					"    ,oc.autoassignticketid as orv_customer_autoassignticketid\r\n",
+					"    ,oc.sendinfodel as orv_customer_sendinfodel\r\n",
+					"    ,oc.anonemailcustsupportemail as orv_customer_anonemailcustsupportemail\r\n",
+					"    ,oc.anonemailcustsupporttel as orv_customer_anonemailcustsupporttel\r\n",
+					"    ,oc.cref as orv_customer_cref\r\n",
+					"    ,oc.division as orv_customer_division\r\n",
+					"    ,oc.ecomm as orv_customer_ecomm\r\n",
+					"    ,oc.preverifiedaddid as orv_customer_preverifiedaddid\r\n",
+					"    ,oc.mallname as orv_customer_mallname\r\n",
+					"    ,oc.mallid as orv_customer_mallid\r\n",
+					"    ,oc.mallflag as orv_customer_mallflag\r\n",
+					"    ,oc.malllmsid as orv_customer_malllmsid\r\n",
+					"    ,oc.highvolume as orv_customer_highvolume\r\n",
+					"    ,oc.custreference as orv_customer_custreference\r\n",
+					"    ,oc.unverdate as orv_customer_unverdate\r\n",
+					"    ,oc.verdate as orv_customer_verdate\r\n",
+					"    ,oc.groupid as orv_customer_groupid\r\n",
+					"    ,oc.postalcodecustgroupid as orv_customer_postalcodecustgroupid\r\n",
+					"    ,oc.webhookauthcredential as orv_customer_webhookauthcredential\r\n",
+					"    ,oc.mergedinto as orv_customer_mergedinto\r\n",
+					"    ,oc.cusmergedate as orv_customer_cusmergedate\r\n",
+					"    ,oc.customerref as orv_customer_customerref\r\n",
+					"    ,oc.routemaint as orv_customer_routemaint\r\n",
+					"    ,bcr.id as lms_customer_billcustid\r\n",
+					"    ,bcr.billcustid as lms_customer_billcustbillcustid\r\n",
+					"    ,bcr.incovalue as lms_customer_billcustincovalue\r\n",
+					"    ,bcr.daterangelimit as lms_customer_billcustdaterangelimit\r\n",
+					"    ,bcr.status as lms_customer_billcuststatus\r\n",
+					"    ,bcr.note as lms_customer_billcustnote\r\n",
+					"    ,bcr.custgroupid as lms_customer_billcustcustgroupid\r\n",
+					"    ,bcr.activeflag as lms_customer_billcustactiveflag\r\n",
+					"    ,bcr.routerateeffectivedate as lms_customer_billcustrouterateeffectivedate\r\n",
+					"    ,bcr.ratesaddedflag as lms_customer_billcustratesaddedflag\r\n",
+					"    ,bcr.ibtratesflag as lms_customer_billcustibtratesflag\r\n",
+					"    ,bcr.slidingscaleflag as lms_customer_billcustslidingscaleflag\r\n",
+					"    ,bcr.sapflag as lms_customer_billcustsapflag\r\n",
+					"    ,bcr.sapcode as lms_customer_billcustsapcode\r\n",
+					"    ,bcr.sapcustname as lms_customer_billcustsapcustname\r\n",
+					"    ,bcr.averagepclrateflag as lms_customer_billcustaveragepclrateflag\r\n",
+					"    ,bcr.averagepclkg as lms_customer_billcustaveragepclkg\r\n",
+					"    ,bcr.billdatestart as lms_customer_billcustbilldatestart\r\n",
+					"    ,bcr.itemcode as lms_customer_billcustitemcode\r\n",
+					"    ,bcr.servicetypeflag as lms_customer_billcustservicetypeflag\r\n",
+					"    ,bcr.returnreverserateflag as lms_customer_billcustreturnreverserateflag\r\n",
+					"    ,bcr.minnoofpcls as lms_customer_billcustminnoofpcls\r\n",
+					"    ,bcr.productcategoryid as lms_customer_billcustproductcategoryid\r\n",
+					"    ,bcr.samedayconsolidation as lms_customer_billcustsamedayconsolidation\r\n",
+					"    ,bcr.rategroupid as lms_customer_billcustrategroupid\r\n",
+					"    ,bcr.risksurchargeflag as lms_customer_billcustrisksurchargeflag\r\n",
+					"    ,bcr.applyavgvolweight as lms_customer_billcustapplyavgvolweight\r\n",
+					"    ,bcr.avgvolweight as lms_customer_billcustavgvolweight\r\n",
+					"    ,bcr.ecommcustomerflag as lms_customer_billcustecommcustomerflag\r\n",
+					"    ,bcr.leadtimestructureid as lms_customer_billcustleadtimestructureid\r\n",
+					"    ,bcr.recalcinprogress as lms_customer_billcustrecalcinprogress\r\n",
+					"    ,bcr.recalcuserid as lms_customer_billcustrecalcuserid\r\n",
+					"    ,bcr.needwebhook as lms_customer_billcustneedwebhook\r\n",
+					"    ,bcr.routemaint as lms_customer_billcustroutemaint\r\n",
+					"    ,bcr.lhdistrflag as lms_customer_billcustlhdistrflag\r\n",
+					"    ,bcg.id as lms_customer_billcustgroupid\r\n",
+					"    ,bcg.description as lms_customer_billcustgroupdescription\r\n",
+					"    ,bcg.grouptypeid as lms_customer_billcustgroupgrouptypeid\r\n",
+					"    ,bcgt.id as lms_customer_billcustgrouptypeid\r\n",
+					"    ,bcgt.description as lms_customer_billcustgrouptypedescription\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dbocustomer lc\r\n",
+					"LEFT JOIN publiccustomer oc on oc.lmsid = lc.id\r\n",
+					"LEFT JOIN dbobillbillcustomersr bcr on bcr.billcustid = lc.id \r\n",
+					"LEFT JOIN dbobillcustomergroups bcg  on bcg.id = bcr.custgroupid\r\n",
+					"LEFT JOIN dbobillcustomergrouptypes bcgt on bcgt.id = bcg.grouptypeid\r\n",
+					"\r\n",
+					"WHERE lc.isbillto = 1"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbillcustomer = spark.sql(\"SELECT * FROM stbillcustomer\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbillcustomer.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stbillcustomer.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stdeliverypickupcustomer \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    lc.id as lms_customer_id\r\n",
+					"    ,lc.ActiveFlag as lms_customer_activeflag\r\n",
+					"    ,lc.Adres1 as lms_customer_adres1\r\n",
+					"    ,lc.Adres2 as lms_customer_adres2\r\n",
+					"    ,lc.Appointment as lms_customer_appointment\r\n",
+					"    ,lc.AreaDesc as lms_customer_areadesc\r\n",
+					"    ,lc.AutoEmailFlag as lms_customer_autoemailflag\r\n",
+					"    ,lc.Bill_RouteID as lms_customer_bill_routeid\r\n",
+					"    ,lc.Bill_ServiceTypeID as lms_customer_bill_servicetypeid\r\n",
+					"    ,lc.Bill_ZoneRouteID as lms_customer_bill_zonerouteid\r\n",
+					"    ,lc.brouteid as lms_customer_brouteid\r\n",
+					"    ,lc.BType as lms_customer_btype\r\n",
+					"    ,lc.ccDepot as lms_customer_ccdepot\r\n",
+					"    ,lc.ccRoute as lms_customer_ccroute\r\n",
+					"    ,lc.ChainStoreFlag as lms_customer_chainstoreflag\r\n",
+					"    ,lc.CONSPerORD as lms_customer_consperord\r\n",
+					"    ,lc.ContactPerson as lms_customer_contactperson\r\n",
+					"    ,lc.CountryCode as lms_customer_countrycode\r\n",
+					"    ,lc.CRef as lms_customer_cref\r\n",
+					"    ,lc.CREF2 as lms_customer_cref2\r\n",
+					"    ,lc.CRouteID as lms_customer_crouteid\r\n",
+					"    ,lc.CType as lms_customer_ctype\r\n",
+					"    ,lc.CustAccID as lms_customer_custaccid\r\n",
+					"    ,lc.CustGroupID as lms_customer_custgroupid\r\n",
+					"    ,lc.CustMainID as lms_customer_custmainid\r\n",
+					"    ,lc.CustRateid as lms_customer_custrateid\r\n",
+					"    ,lc.CustRouteGroupID as lms_customer_custroutegroupid\r\n",
+					"    ,lc.CustServiceDays as lms_customer_custservicedays\r\n",
+					"    ,lc.CustServiceTime as lms_customer_custservicetime\r\n",
+					"    ,lc.DC as lms_customer_dc\r\n",
+					"    ,lc.DefDelPCode as lms_customer_defdelpcode\r\n",
+					"    ,lc.DeliveryDepotID as lms_customer_deliverydepotid\r\n",
+					"    ,lc.DeliveryType as lms_customer_deliverytype\r\n",
+					"    ,lc.DestinationLocationCode as lms_customer_destinationlocationcode\r\n",
+					"    ,lc.DualBillCourier as lms_customer_dualbillcourier\r\n",
+					"    ,lc.Email as lms_customer_email\r\n",
+					"    ,lc.FaxNo as lms_customer_faxno\r\n",
+					"    ,lc.FCType as lms_customer_fctype\r\n",
+					"    ,lc.FLevy as lms_customer_flevy\r\n",
+					"    ,lc.InCompleteOrderChkFlag as lms_customer_incompleteorderchkflag\r\n",
+					"    ,lc.InsertDate as lms_customer_insertdate\r\n",
+					"    ,lc.IsBillTo as lms_customer_isbillto\r\n",
+					"    ,lc.isBooking as lms_customer_isbooking\r\n",
+					"    ,lc.isHighVolume as lms_customer_ishighvolume\r\n",
+					"    ,lc.IsManual as lms_customer_ismanual\r\n",
+					"    ,lc.LastUpdate as lms_customer_lastupdate\r\n",
+					"    ,lc.LocationTypeCode as lms_customer_locationtypecode\r\n",
+					"    ,lc.MaxCartons as lms_customer_maxcartons\r\n",
+					"    ,lc.Name as lms_customer_name\r\n",
+					"    ,lc.NDDID as lms_customer_nddid\r\n",
+					"    ,lc.OnHoldID as lms_customer_onholdid\r\n",
+					"    ,lc.PCode as lms_customer_pcode\r\n",
+					"    ,lc.PCodeID as lms_customer_pcodeid\r\n",
+					"    ,lc.ServRouteID as lms_customer_servrouteid\r\n",
+					"    ,lc.SRouteID as lms_customer_srouteid\r\n",
+					"    ,lc.StoreID as lms_customer_storeid\r\n",
+					"    ,lc.Suburb as lms_customer_suburb\r\n",
+					"    ,lc.TelNo as lms_customer_telno\r\n",
+					"    ,lc.Town as lms_customer_town\r\n",
+					"    ,lc.VolFact as lms_customer_volfact\r\n",
+					"    ,lc.WType as lms_customer_wtype\r\n",
+					"    ,oc.id as orv_customer_id\r\n",
+					"    ,oc.name as orv_customer_name\r\n",
+					"    ,oc.contact as orv_customer_contact\r\n",
+					"    ,oc.email as orv_customer_email\r\n",
+					"    ,oc.mobileno as orv_customer_mobileno\r\n",
+					"    ,oc.landline as orv_customer_landline\r\n",
+					"    ,oc.ctype as orv_customer_ctype\r\n",
+					"    ,oc.parent as orv_customer_parent\r\n",
+					"    ,to_timestamp(oc.lastupdate) as orv_customer_lastupdate\r\n",
+					"    ,oc.lmsid as orv_customer_lmsid\r\n",
+					"    ,oc.srouteid as orv_customer_srouteid\r\n",
+					"    ,oc.verified as orv_customer_verified\r\n",
+					"    ,oc.defaultmaildomain as orv_customer_defaultmaildomain\r\n",
+					"    ,oc.autoassignticketid as orv_customer_autoassignticketid\r\n",
+					"    ,oc.sendinfodel as orv_customer_sendinfodel\r\n",
+					"    ,oc.anonemailcustsupportemail as orv_customer_anonemailcustsupportemail\r\n",
+					"    ,oc.anonemailcustsupporttel as orv_customer_anonemailcustsupporttel\r\n",
+					"    ,oc.cref as orv_customer_cref\r\n",
+					"    ,oc.division as orv_customer_division\r\n",
+					"    ,oc.ecomm as orv_customer_ecomm\r\n",
+					"    ,oc.preverifiedaddid as orv_customer_preverifiedaddid\r\n",
+					"    ,oc.mallname as orv_customer_mallname\r\n",
+					"    ,oc.mallid as orv_customer_mallid\r\n",
+					"    ,oc.mallflag as orv_customer_mallflag\r\n",
+					"    ,oc.malllmsid as orv_customer_malllmsid\r\n",
+					"    ,oc.highvolume as orv_customer_highvolume\r\n",
+					"    ,oc.custreference as orv_customer_custreference\r\n",
+					"    ,oc.unverdate as orv_customer_unverdate\r\n",
+					"    ,oc.verdate as orv_customer_verdate\r\n",
+					"    ,oc.groupid as orv_customer_groupid\r\n",
+					"    ,oc.postalcodecustgroupid as orv_customer_postalcodecustgroupid\r\n",
+					"    ,oc.webhookauthcredential as orv_customer_webhookauthcredential\r\n",
+					"    ,oc.mergedinto as orv_customer_mergedinto\r\n",
+					"    ,oc.cusmergedate as orv_customer_cusmergedate\r\n",
+					"    ,oc.customerref as orv_customer_customerref\r\n",
+					"    ,oc.routemaint as orv_customer_routemaint\r\n",
+					"    ,bcr.id as lms_customer_billcustid\r\n",
+					"    ,bcr.billcustid as lms_customer_billcustbillcustid\r\n",
+					"    ,bcr.incovalue as lms_customer_billcustincovalue\r\n",
+					"    ,bcr.daterangelimit as lms_customer_billcustdaterangelimit\r\n",
+					"    ,bcr.status as lms_customer_billcuststatus\r\n",
+					"    ,bcr.note as lms_customer_billcustnote\r\n",
+					"    ,bcr.custgroupid as lms_customer_billcustcustgroupid\r\n",
+					"    ,bcr.activeflag as lms_customer_billcustactiveflag\r\n",
+					"    ,bcr.routerateeffectivedate as lms_customer_billcustrouterateeffectivedate\r\n",
+					"    ,bcr.ratesaddedflag as lms_customer_billcustratesaddedflag\r\n",
+					"    ,bcr.ibtratesflag as lms_customer_billcustibtratesflag\r\n",
+					"    ,bcr.slidingscaleflag as lms_customer_billcustslidingscaleflag\r\n",
+					"    ,bcr.sapflag as lms_customer_billcustsapflag\r\n",
+					"    ,bcr.sapcode as lms_customer_billcustsapcode\r\n",
+					"    ,bcr.sapcustname as lms_customer_billcustsapcustname\r\n",
+					"    ,bcr.averagepclrateflag as lms_customer_billcustaveragepclrateflag\r\n",
+					"    ,bcr.averagepclkg as lms_customer_billcustaveragepclkg\r\n",
+					"    ,bcr.billdatestart as lms_customer_billcustbilldatestart\r\n",
+					"    ,bcr.itemcode as lms_customer_billcustitemcode\r\n",
+					"    ,bcr.servicetypeflag as lms_customer_billcustservicetypeflag\r\n",
+					"    ,bcr.returnreverserateflag as lms_customer_billcustreturnreverserateflag\r\n",
+					"    ,bcr.minnoofpcls as lms_customer_billcustminnoofpcls\r\n",
+					"    ,bcr.productcategoryid as lms_customer_billcustproductcategoryid\r\n",
+					"    ,bcr.samedayconsolidation as lms_customer_billcustsamedayconsolidation\r\n",
+					"    ,bcr.rategroupid as lms_customer_billcustrategroupid\r\n",
+					"    ,bcr.risksurchargeflag as lms_customer_billcustrisksurchargeflag\r\n",
+					"    ,bcr.applyavgvolweight as lms_customer_billcustapplyavgvolweight\r\n",
+					"    ,bcr.avgvolweight as lms_customer_billcustavgvolweight\r\n",
+					"    ,bcr.ecommcustomerflag as lms_customer_billcustecommcustomerflag\r\n",
+					"    ,bcr.leadtimestructureid as lms_customer_billcustleadtimestructureid\r\n",
+					"    ,bcr.recalcinprogress as lms_customer_billcustrecalcinprogress\r\n",
+					"    ,bcr.recalcuserid as lms_customer_billcustrecalcuserid\r\n",
+					"    ,bcr.needwebhook as lms_customer_billcustneedwebhook\r\n",
+					"    ,bcr.routemaint as lms_customer_billcustroutemaint\r\n",
+					"    ,bcr.lhdistrflag as lms_customer_billcustlhdistrflag\r\n",
+					"    ,bcg.id as lms_customer_billcustgroupid\r\n",
+					"    ,bcg.description as lms_customer_billcustgroupdescription\r\n",
+					"    ,bcg.grouptypeid as lms_customer_billcustgroupgrouptypeid\r\n",
+					"    ,bcgt.id as lms_customer_billcustgrouptypeid\r\n",
+					"    ,bcgt.description as lms_customer_billcustgrouptypedescription\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dbocustomer lc\r\n",
+					"LEFT JOIN publiccustomer oc on oc.lmsid = lc.id\r\n",
+					"LEFT JOIN dbobillbillcustomersr bcr on bcr.billcustid = lc.id \r\n",
+					"LEFT JOIN dbobillcustomergroups bcg  on bcg.id = bcr.custgroupid\r\n",
+					"LEFT JOIN dbobillcustomergrouptypes bcgt on bcgt.id = bcg.grouptypeid\r\n",
+					"\r\n",
+					"WHERE isbillto <> 1"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdeliverypickupcustomer = spark.sql(\"SELECT * FROM stdeliverypickupcustomer\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdeliverypickupcustomer.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stzone \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    z.Id as lms_zone_id\r\n",
+					"    ,z.Code as lms_zone_code\r\n",
+					"    ,z.Description as lms_zone_description\r\n",
+					"    ,z.ISOCode as lms_zone_isocode\r\n",
+					"    ,z.LocID as lms_zone_locid\r\n",
+					"    ,z.ZoneMasterID as lms_zone_zonemasterid\r\n",
+					"FROM dbozone z\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stzone = spark.sql(\"SELECT * FROM stzone\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stzone.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stzone.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stsroute \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    sr.ID as lms_sroute_id\r\n",
+					"    ,sr.BillCustID as lms_sroute_billcustid\r\n",
+					"    ,sr.CourierID as lms_sroute_courierid\r\n",
+					"    ,sr.Description as lms_sroute_description\r\n",
+					"    ,sr.Code as lms_sroute_code\r\n",
+					"    ,sr.id2 as lms_sroute_id2\r\n",
+					"    ,sr.SRouteGroupID as lms_sroute_sroutegroupid\r\n",
+					"    ,sr.ZoneID as lms_sroute_zoneid\r\n",
+					"    ,sr.broutemasterID as lms_sroute_broutemasterid\r\n",
+					"    ,sr.LocalFlag as lms_sroute_localflag\r\n",
+					"    ,sr.Area as lms_sroute_area\r\n",
+					"    ,sr.HighVolume as lms_sroute_highvolume\r\n",
+					"FROM dbosroute sr\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stsroute = spark.sql(\"SELECT * FROM stsroute\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stsroute.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', mode = \"overwrite\")\r\n",
+					"\r\n",
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stbillzoneroute \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    bzr.ID as lms_billzoneroute_id\r\n",
+					"    ,bzr.Description as lms_billzoneroute_description\r\n",
+					"    ,bzr.ZoneID as lms_billzoneroute_zoneid\r\n",
+					"    ,bzr.ZRSCode as lms_billzoneroute_zrscode\r\n",
+					"    ,bzr.ZoneRouteOrder as lms_billzoneroute_zonerouteorder\r\n",
+					"    ,bzr.ZoneType as lms_billzoneroute_zonetype\r\n",
+					"    ,bzr.BRouteMasterID as lms_billzoneroute_broutemasterid\r\n",
+					"    ,bzr.BrouteCode as lms_billzoneroute_broutecode\r\n",
+					"\r\n",
+					"FROM dbobillzoneroute bzr\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbillzoneroute = spark.sql(\"SELECT * FROM stbillzoneroute\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbillzoneroute.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stbillzoneroute.parquet', mode = \"overwrite\")\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stbillzone \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    bz.ID as lms_customer_id\r\n",
+					"    ,bz.Description as lms_billzone_description\r\n",
+					"    ,bz.ZoneMasterID as lms_billzone_zonemasterid\r\n",
+					"    ,bz.CountryID as lms_billzone_countryid\r\n",
+					"FROM dbobillzone bz\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbillzone = spark.sql(\"SELECT * FROM stbillzone\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbillzone.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stbillzone.parquet', mode = \"overwrite\")\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stlocation \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    l.id as lms_location_id\r\n",
+					"    ,l.description as lms_location_description\r\n",
+					"    ,l.code as lms_location_code\r\n",
+					"    ,l.collect as lms_location_collect\r\n",
+					"    ,l.pcode as lms_location_pcode\r\n",
+					"    ,l.custid as lms_location_custid\r\n",
+					"    ,l.retail as lms_location_retail\r\n",
+					"    ,l.scale as lms_location_scale\r\n",
+					"    ,l.custcode as lms_location_custcode\r\n",
+					"    ,l.captureonly as lms_location_captureonly\r\n",
+					"    ,l.zoneid as lms_location_zoneid\r\n",
+					"    ,l.scantype as lms_location_scantype\r\n",
+					"    ,l.billcustid as lms_location_billcustid\r\n",
+					"    ,l.latitude as lms_location_latitude\r\n",
+					"    ,l.longitude as lms_location_longitude\r\n",
+					"    ,l.holdlocid as lms_location_holdlocid\r\n",
+					"    ,l.branchmanageruserid as lms_location_branchmanageruserid\r\n",
+					"    ,l.fwcostcentre as lms_location_fwcostcentre\r\n",
+					"    ,l.fwuserid as lms_location_fwuserid\r\n",
+					"    ,l.fwmultibusinessid as lms_location_fwmultibusinessid\r\n",
+					"    ,l.glcode as lms_location_glcode\r\n",
+					"    ,l.hubcode as lms_location_hubcode\r\n",
+					"    ,l.fwapikey as lms_location_fwapikey\r\n",
+					"    ,l.geolocationgroupid as lms_location_geolocationgroupid\r\n",
+					"    ,l.geolocationflag as lms_location_geolocationflag\r\n",
+					"    ,l.orvactive as lms_location_orvactive\r\n",
+					"    ,l.cref as lms_location_cref\r\n",
+					"    ,l.tempcol as lms_location_tempcol\r\n",
+					"    ,l.holdlocparentlocid as lms_location_holdlocparentlocid\r\n",
+					"    ,l.floorsize as lms_location_floorsize\r\n",
+					"    ,l.isstationidenabled as lms_location_isstationidenabled\r\n",
+					"    ,l.activeflag as lms_location_activeflag\r\n",
+					"    ,l.masterlocid as lms_location_masterlocid\r\n",
+					"    ,l.locationtypeid as lms_location_locationtypeid\r\n",
+					"    ,l.locationcode as lms_location_locationcode\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dbolocation l"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stlocation = spark.sql(\"SELECT * FROM stlocation\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stlocation.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', mode = \"overwrite\")\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

@@ -1,0 +1,251 @@
+{
+	"name": "STMDVehicle",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/MasterData"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "9c78b786-afaa-4713-a685-17344245bf6a"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#Create DataFrame for the dbovehiclebasic MD Table\r\n",
+					"dbovehiclebasic = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclebasic.parquet', format='parquet')\r\n",
+					"dbovehiclebasic.createOrReplaceTempView(\"dbovehiclebasic\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbovehicleadmin MD Table\r\n",
+					"dbovehicleadmin = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicleadmin.parquet', format='parquet')\r\n",
+					"dbovehicleadmin.createOrReplaceTempView(\"dbovehicleadmin\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbovehicleoperations MD Table\r\n",
+					"dbovehicleoperations = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicleoperations.parquet', format='parquet')\r\n",
+					"dbovehicleoperations.createOrReplaceTempView(\"dbovehicleoperations\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbovehiclefinance MD Table\r\n",
+					"dbovehiclefinance = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclefinance.parquet', format='parquet')\r\n",
+					"dbovehiclefinance.createOrReplaceTempView(\"dbovehiclefinance\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbovehicletracking MD Table\r\n",
+					"dbovehicletracking = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicletracking.parquet', format='parquet')\r\n",
+					"dbovehicletracking.createOrReplaceTempView(\"dbovehicletracking\")\r\n",
+					""
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stmdvehicle\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    vb.id as md_vehicle_id\r\n",
+					"    ,vb.uid as md_vehicle_uid\r\n",
+					"    ,vb.vehicletype as md_vehicle_vehicletype\r\n",
+					"    ,vb.internalexternal as md_vehicle_internalexternal\r\n",
+					"    ,vb.activeflag as md_vehicle_activeflag\r\n",
+					"    ,vb.vehiclestatus as md_vehicle_vehiclestatus\r\n",
+					"    ,vb.chassisnumber as md_vehicle_chassisnumber\r\n",
+					"    ,vb.depot as md_vehicle_depot\r\n",
+					"    ,vb.enginenumber as md_vehicle_enginenumber\r\n",
+					"    ,vb.fleetcode as md_vehicle_fleetcode\r\n",
+					"    ,vb.fueltype as md_vehicle_fueltype\r\n",
+					"    ,vb.registrationnumber as md_vehicle_registrationnumber\r\n",
+					"    ,vb.vehicleapplication as md_vehicle_vehicleapplication\r\n",
+					"    ,vb.vehiclebodymake as md_vehicle_vehiclebodymake\r\n",
+					"    ,vb.vehiclecolour as md_vehicle_vehiclecolour\r\n",
+					"    ,vb.vehiclemake as md_vehicle_vehiclemake\r\n",
+					"    ,vb.vehiclemodel as md_vehicle_vehiclemodel\r\n",
+					"    ,vb.vehicleseries as md_vehicle_vehicleseries\r\n",
+					"    ,vb.year as md_vehicle_year\r\n",
+					"    ,vb.vehicleownerid as md_vehicle_vehicleownerid\r\n",
+					"    ,vb.vehicleowner as md_vehicle_vehicleowner\r\n",
+					"    ,vb.staffvehicleflag as md_vehicle_staffvehicleflag\r\n",
+					"    ,vb.vehicletrailersize as md_vehicle_vehicletrailersize\r\n",
+					"    ,vb.vehicletrailertype as md_vehicle_vehicletrailertype\r\n",
+					"    ,vb.vehicleetollclass as md_vehicle_vehicleetollclass\r\n",
+					"    ,vb.brn as md_vehicle_brn\r\n",
+					"    ,vb.brnnumber as md_vehicle_brnnumber\r\n",
+					"    ,vb.vehicleregisterno as md_vehicle_vehicleregisterno\r\n",
+					"    ,to_timestamp(vb.insdate) as md_vehicle_vehiclebasicinsdate\r\n",
+					"    ,vb.insby as md_vehicle_insby\r\n",
+					"    ,vb.islinehaulvehicle as md_vehicle_islinehaulvehicle\r\n",
+					"    ,vb.internalheight as md_vehicle_internalheight\r\n",
+					"    ,vb.internallength as md_vehicle_internallength\r\n",
+					"    ,vb.internalvolume as md_vehicle_internalvolume\r\n",
+					"    ,vb.internalwidth as md_vehicle_internalwidth\r\n",
+					"    ,to_timestamp(vb.moddate) as md_vehicle_vehiclebasicmoddate\r\n",
+					"    ,vb.trailerflag as md_vehicle_trailerflag\r\n",
+					"    ,vb.workflowstatus as md_vehicle_workflowstatus\r\n",
+					"    ,to_timestamp(vb.approveddate) as md_vehicle_vehicleapproveddate\r\n",
+					"    ,vb.mmcode as md_vehicle_mmcode\r\n",
+					"    ,vb.tmplicenseexpiery as md_vehicle_tmplicenseexpiery\r\n",
+					"    ,va.currentadvertising as md_vehicle_currentadvertising\r\n",
+					"    ,va.fuelcardnumber as md_vehicle_fuelcardnumber\r\n",
+					"    ,to_timestamp(va.fuelcardreceivedate) as md_vehicle_fuelcardreceivedate\r\n",
+					"    ,to_timestamp(va.licenseexpirydate) as md_vehicle_licenseexpirydate\r\n",
+					"    ,va.licensefee as md_vehicle_licensefee\r\n",
+					"    ,va.vehicleadvertisingindicator as md_vehicle_vehicleadvertisingindicator\r\n",
+					"    ,va.vehiclespeedgoverningdevice as md_vehicle_vehiclespeedgoverningdevice\r\n",
+					"    ,va.oldregistrationnumber as md_vehicle_oldregistrationnumber\r\n",
+					"    ,va.oldchassisnumber as md_vehicle_oldchassisnumber\r\n",
+					"    ,va.oldenginenumber as md_vehicle_oldenginenumber\r\n",
+					"    ,va.logbookrecord as md_vehicle_logbookrecord\r\n",
+					"    ,va.status as md_vehicle_adminstatus\r\n",
+					"    ,to_timestamp(va.completebydate) as md_vehicle_vehicleadmincompletebydate\r\n",
+					"    ,vo.backdoorheight as md_vehicle_backdoorheight\r\n",
+					"    ,vo.backdoorwidth as md_vehicle_backdoorwidth\r\n",
+					"    ,vo.externalheight as md_vehicle_externalheight\r\n",
+					"    ,vo.externallength as md_vehicle_externallength\r\n",
+					"    ,vo.externalwidth as md_vehicle_externalwidth\r\n",
+					"    ,vo.fleximounts as md_vehicle_fleximounts\r\n",
+					"    ,vo.fuelcapacity as md_vehicle_fuelcapacity\r\n",
+					"    ,vo.grossvehiclemass as md_vehicle_grossvehiclemass\r\n",
+					"    ,vo.numberoftyres as md_vehicle_numberoftyres\r\n",
+					"    ,vo.numberoftyresrear as md_vehicle_numberoftyresrear\r\n",
+					"    ,vo.numberoftyressteering as md_vehicle_numberoftyressteering\r\n",
+					"    ,vo.payload as md_vehicle_payload\r\n",
+					"    ,vo.peoplecarrier as md_vehicle_peoplecarrier\r\n",
+					"    ,vo.tareweight as md_vehicle_tareweight\r\n",
+					"    ,vo.tyresize as md_vehicle_tyresize\r\n",
+					"    ,vo.tyresizealternative as md_vehicle_tyresizealternative\r\n",
+					"    ,vo.targetfuelconsumption as md_vehicle_targetfuelconsumption\r\n",
+					"    ,vo.tankrange as md_vehicle_tankrange\r\n",
+					"    ,vo.status as md_vehicle_operationsstatus\r\n",
+					"    ,to_timestamp(vo.completebydate) as md_vehicle_vehiclevehicleoperationscompletebydate\r\n",
+					"    ,vf.assetnumber as md_vehicle_assetnumber\r\n",
+					"    ,to_timestamp(vf.contractenddate) as md_vehicle_contractenddate\r\n",
+					"    ,vf.contractnumber as md_vehicle_contractnumber\r\n",
+					"    ,to_timestamp(vf.contractstartdate) as md_vehicle_contractstartdate\r\n",
+					"    ,vf.vehiclefinancecompany as md_vehicle_vehiclefinancecompany\r\n",
+					"    ,vf.budgetrmcpk as md_vehicle_budgetrmcpk\r\n",
+					"    ,vf.budgettyrecpk as md_vehicle_budgettyrecpk\r\n",
+					"    ,vf.retailvalue as md_vehicle_retailvalue\r\n",
+					"    ,vf.tradeinvalue as md_vehicle_tradeinvalue\r\n",
+					"    ,vf.loadbodyreplacementcost as md_vehicle_loadbodyreplacementcost\r\n",
+					"    ,vf.status as md_vehicle_financestatus\r\n",
+					"    ,to_timestamp(vf.completebydate) as md_vehicle_vehiclefinancecompletebydate\r\n",
+					"    ,vt.status as md_vehicle_trackingstatus\r\n",
+					"    ,to_timestamp(vt.completebydate) as md_vehicle_vehicletrackingcompletebydate\r\n",
+					"    ,to_timestamp(vt.moddate) as md_vehicle_vehicletrackingmoddate\r\n",
+					"    ,vt.assetid as md_vehicle_assetid\r\n",
+					"    ,vt.providerid as md_vehicle_providerid\r\n",
+					"    ,vt.providername as md_vehicle_providername\r\n",
+					"    ,vt.serial as md_vehicle_serial\r\n",
+					"    ,to_timestamp(vt.insdate) as md_vehicle_vehicletrackinginsdate\r\n",
+					"    ,to_timestamp(vt.linkdate) as md_vehicle_linkdate\r\n",
+					"    ,vt.linkby as md_vehicle_linkby\r\n",
+					"    ,vt.linkbyname as md_vehicle_linkbyname\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dbovehiclebasic vb \r\n",
+					"LEFT JOIN dbovehicleadmin va on va.vid = vb.id\r\n",
+					"LEFT JOIN dbovehicleoperations vo on vo.vid = vb.id\r\n",
+					"LEFT JOIN dbovehiclefinance vf on vf.vid = vb.id\r\n",
+					"LEFT JOIN dbovehicletracking vt on vt.vid = vb.id\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stmdvehicle = spark.sql(\"SELECT * FROM stmdvehicle\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stmdvehicle.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stmdvehicle.parquet', mode = \"overwrite\")\r\n",
+					"\r\n",
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 4
+			}
+		]
+	}
+}

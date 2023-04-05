@@ -1,0 +1,221 @@
+{
+	"name": "STLoadParent",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "b4700bb7-143c-49ba-9fa5-57b6bfbf7b0c"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#Create DataFrame for the sstloadparent LMS Table\r\n",
+					"sstloadparent = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstloadparent.parquet', format='parquet')\r\n",
+					"sstloadparent.createOrReplaceTempView(\"sstloadparent\")"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stloadparent\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    lms_loadparent_parentloadid \r\n",
+					"    ,lms_loadparent_aggweight \r\n",
+					"    ,lms_loadparent_aggchargeweight\r\n",
+					"    ,lms_loadparent_aggvolweight\r\n",
+					"    ,lms_loadparent_aggvolumiserweight\r\n",
+					"    ,lms_loadparent_noparcels\r\n",
+					"    ,orv_dispatch_id\r\n",
+					"    ,orv_dispatch_lmsid as orv_dispatch_lmsid\r\n",
+					"    ,orv_dispatch_vid as orv_dispatch_vid\r\n",
+					"    ,orv_dispatch_did as orv_dispatch_did\r\n",
+					"    ,orv_dispatch_status as orv_dispatch_status\r\n",
+					"    ,orv_dispatch_startdate as orv_dispatch_startdate\r\n",
+					"    ,orv_dispatch_stopdate as orv_dispatch_stopdate\r\n",
+					"    ,orv_dispatch_vehicletype as orv_dispatch_vehicletype\r\n",
+					"    ,orv_dispatch_uid as orv_dispatch_uid\r\n",
+					"    ,orv_dispatch_estdepdate as orv_dispatch_estdepdate\r\n",
+					"    ,orv_dispatch_trailer as orv_dispatch_trailer\r\n",
+					"    ,orv_dispatch_trailer2 as orv_dispatch_trailer2\r\n",
+					"    ,orv_dispatch_fromlocid as orv_dispatch_fromlocid\r\n",
+					"    ,orv_dispatch_tolocid as orv_dispatch_tolocid\r\n",
+					"    ,orv_dispatch_site as orv_dispatch_site\r\n",
+					"    ,orv_dispatch_lastupdate as orv_dispatch_lastupdate\r\n",
+					"    ,orv_dispatch_etastatus as orv_dispatch_etastatus\r\n",
+					"    ,orv_dispatch_startinglat as orv_dispatch_startinglat\r\n",
+					"    ,orv_dispatch_startinglng as orv_dispatch_startinglng\r\n",
+					"    ,orv_dispatch_endinglat as orv_dispatch_endinglat\r\n",
+					"    ,orv_dispatch_endinglng as orv_dispatch_endinglng\r\n",
+					"    ,orv_dispatch_startingfrom as orv_dispatch_startingfrom\r\n",
+					"    ,orv_dispatch_goingto as orv_dispatch_goingto\r\n",
+					"    ,orv_dispatch_importissue as orv_dispatch_importissue\r\n",
+					"    ,orv_dispatch_insdate as orv_dispatch_insdate\r\n",
+					"    ,orv_dispatch_estarrdate as orv_dispatch_estarrdate\r\n",
+					"    ,orv_dispatch_duration as orv_dispatch_duration\r\n",
+					"    ,orv_dispatch_distance as orv_dispatch_distance\r\n",
+					"    ,orv_dispatch_cost as orv_dispatch_cost\r\n",
+					"    ,orv_dispatch_stoplat as orv_dispatch_stoplat\r\n",
+					"    ,orv_dispatch_stoplng as orv_dispatch_stoplng\r\n",
+					"    ,orv_dispatch_stopreason as orv_dispatch_stopreason\r\n",
+					"    ,orv_dispatch_startodo as orv_dispatch_startodo\r\n",
+					"    ,orv_dispatch_stopodo as orv_dispatch_stopodo\r\n",
+					"    ,orv_dispatch_expduration as orv_dispatch_expduration\r\n",
+					"    ,orv_dispatch_expdistance as orv_dispatch_expdistance\r\n",
+					"    ,orv_dispatch_expcost as orv_dispatch_expcost\r\n",
+					"    ,orv_dispatch_collectionid as orv_dispatch_collectionid\r\n",
+					"    ,orv_dispatch_crew as orv_dispatch_crew\r\n",
+					"    ,orv_dispatch_crewnames as orv_dispatch_crewnames\r\n",
+					"    ,orv_dispatch_bocloseuid as orv_dispatch_bocloseuid\r\n",
+					"    ,orv_dispatch_routing as orv_dispatch_routing\r\n",
+					"    ,orv_dispatch_swapct as orv_dispatch_swapct\r\n",
+					"    ,orv_dispatch_debriefed as orv_dispatch_debriefed\r\n",
+					"    ,orv_dispatch_debriefnotes as orv_dispatch_debriefnotes\r\n",
+					"    ,orv_dispatch_bopin as orv_dispatch_bopin\r\n",
+					"    ,orv_dispatch_cpicost as orv_dispatch_cpicost\r\n",
+					"    ,orv_dispatch_labourcost as orv_dispatch_labourcost\r\n",
+					"    ,orv_dispatch_maintcost as orv_dispatch_maintcost\r\n",
+					"    ,orv_dispatch_inscost as orv_dispatch_inscost\r\n",
+					"    ,orv_dispatch_tollcost as orv_dispatch_tollcost\r\n",
+					"    ,orv_dispatch_fuelcost as orv_dispatch_fuelcost\r\n",
+					"    ,orv_dispatch_internal as orv_dispatch_internal\r\n",
+					"    ,orv_dispatch_childids as orv_dispatch_childids\r\n",
+					"    ,orv_dispatch_guid as orv_dispatch_guid\r\n",
+					"    ,orv_dispatch_timedefinite as orv_dispatch_timedefinite\r\n",
+					"    ,orv_dispatch_orvcode as orv_dispatch_orvcode\r\n",
+					"    ,orv_dispatch_tsstopdepoenter as orv_dispatch_tsstopdepoenter\r\n",
+					"    ,orv_dispatch_tsstartdepoexit as orv_dispatch_tsstartdepoexit\r\n",
+					"    ,orv_dispatch_reroutect as orv_dispatch_reroutect\r\n",
+					"    ,orv_dispatch_actualarrdate as orv_dispatch_actualarrdate\r\n",
+					"    ,orv_dispatch_physicalstartlat as orv_dispatch_physicalstartlat\r\n",
+					"    ,orv_dispatch_physicalstartlng as orv_dispatch_physicalstartlng\r\n",
+					"    ,orv_dispatch_tsstartdepoexitapp as orv_dispatch_tsstartdepoexitapp\r\n",
+					"    ,orv_dispatch_tsstopdepoenterapp as orv_dispatch_tsstopdepoenterapp\r\n",
+					"    ,orv_dispatch_uncanceldate as orv_dispatch_uncanceldate\r\n",
+					"    ,orv_dispatch_uncancelusername as orv_dispatch_uncancelusername\r\n",
+					"    ,orv_dispatch_lmsdebrifed as orv_dispatch_lmsdebrifed\r\n",
+					"    ,orv_dispatch_reviseddebrief as orv_dispatch_reviseddebrief\r\n",
+					"    ,orv_dispatch_lhtransporter as orv_dispatch_lhtransporter\r\n",
+					"    ,orv_dispatch_triptype as orv_dispatch_triptype\r\n",
+					"    ,orv_dispatch_startreason as orv_dispatch_startreason\r\n",
+					"    ,orv_dispatch_route as orv_dispatch_route\r\n",
+					"    ,orv_dispatch_tmstraileridentify as orv_dispatch_tmstraileridentify\r\n",
+					"    ,orv_dispatch_tmstrailer2identify as orv_dispatch_tmstrailer2identify\r\n",
+					"    ,orv_dispatch_tmscontroller as orv_dispatch_tmscontroller\r\n",
+					"    ,orv_dispatch_routekey as orv_dispatch_routekey\r\n",
+					"    ,orv_dispatch_courierid as orv_dispatch_courierid\r\n",
+					"    ,orv_dispatch_originalstartdate as orv_dispatch_originalstartdate\r\n",
+					"    ,orv_dispatch_originalextarrival as orv_dispatch_originalextarrival\r\n",
+					"    ,orv_dispatch_recomputeoriginals as orv_dispatch_recomputeoriginals\r\n",
+					"    ,orv_dispatch_originalextdistance as orv_dispatch_originalextdistance\r\n",
+					"    ,orv_dispatch_originalextduration as orv_dispatch_originalextduration\r\n",
+					"    ,orv_dispatch_moddate as orv_dispatch_moddate\r\n",
+					"    ,orv_dispatch_tmsmode as orv_dispatch_tmsmode\r\n",
+					"    ,orv_dispatch_driversignature as orv_dispatch_driversignature\r\n",
+					" \r\n",
+					"FROM sstloadparent"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stloadparent = spark.sql(\"SELECT * FROM stloadparent\")"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stloadparent.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")\r\n",
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 24
+			}
+		]
+	}
+}

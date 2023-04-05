@@ -1,0 +1,1146 @@
+{
+	"name": "STLinehaulFacts",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Linehaul"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "fd57c9ce-70c1-431b-9df6-b8f3fe6ec72b"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#Create DataFrame for the publiccustomer TMS Table\r\n",
+					"publiccustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publiccustomer.parquet', format='parquet')\r\n",
+					"publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicthirdparty TMS Table\r\n",
+					"publicthirdparty = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicthirdparty.parquet', format='parquet')\r\n",
+					"publicthirdparty.createOrReplaceTempView(\"publicthirdparty\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicroute TMS Table\r\n",
+					"publicroute = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicroute.parquet', format='parquet')\r\n",
+					"publicroute.createOrReplaceTempView(\"publicroute\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicaddress TMS Table\r\n",
+					"publicaddress = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicaddress.parquet', format='parquet')\r\n",
+					"publicaddress.createOrReplaceTempView(\"publicaddress\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicfuelcard TMS Table\r\n",
+					"publicfuelcard = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicfuelcard.parquet', format='parquet')\r\n",
+					"publicfuelcard.createOrReplaceTempView(\"publicfuelcard\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicfuelzone TMS Table\r\n",
+					"publicfuelzone = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzone.parquet', format='parquet')\r\n",
+					"publicfuelzone.createOrReplaceTempView(\"publicfuelzone\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicfuelzonehistory TMS Table\r\n",
+					"publicfuelzonehistory = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzonehistory.parquet', format='parquet')\r\n",
+					"publicfuelzonehistory.createOrReplaceTempView(\"publicfuelzonehistory\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicratecomponent TMS Table\r\n",
+					"publicratecomponent = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicratecomponent.parquet', format='parquet')\r\n",
+					"publicratecomponent.createOrReplaceTempView(\"publicratecomponent\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicrateprofile TMS Table\r\n",
+					"publicrateprofile = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicrateprofile.parquet', format='parquet')\r\n",
+					"publicrateprofile.createOrReplaceTempView(\"publicrateprofile\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicselist TMS Table\r\n",
+					"publicselist = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicselist.parquet', format='parquet')\r\n",
+					"publicselist.createOrReplaceTempView(\"publicselist\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicselistitem TMS Table\r\n",
+					"publicselistitem = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicselistitem.parquet', format='parquet')\r\n",
+					"publicselistitem.createOrReplaceTempView(\"publicselistitem\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicdriverpay TMS Table\r\n",
+					"publicdriverpay = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicdriverpay.parquet', format='parquet')\r\n",
+					"publicdriverpay.createOrReplaceTempView(\"publicdriverpay\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 45
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stdriverpay\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    d.id as tms_driverpay_id\r\n",
+					"    ,d.routeid as tms_driverpay_routeid\r\n",
+					"    ,d.triprate as tms_driverpay_triprate\r\n",
+					"    ,d.mealrate as tms_driverpay_mealrate\r\n",
+					"    ,d.linkrate as tms_driverpay_linkrate\r\n",
+					"    ,d.sleepoverrate as tms_driverpay_sleepoverrate\r\n",
+					"    ,d.numsleepover as tms_driverpay_numsleepover\r\n",
+					"    ,d.nummeal as tms_driverpay_nummeal\r\n",
+					"    ,to_timestamp(d.validfromdate) as tms_driverpay_validfromdate\r\n",
+					"    ,to_timestamp(d.validtodate) as tms_driverpay_validtodate\r\n",
+					"    ,to_timestamp(d.insdate) as tms_driverpay_insdate\r\n",
+					"    ,to_timestamp(d.moddate) as tms_driverpay_moddate\r\n",
+					"    ,d.insby as tms_driverpay_insby\r\n",
+					"    ,d.airtimerate as tms_driverpay_airtimerate\r\n",
+					"    ,d.status as tms_driverpay_status\r\n",
+					"    ,d.legacyid as tms_driverpay_legacyid\r\n",
+					"FROM publicdriverpay d\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 51
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdriverpay = spark.sql(\"SELECT * FROM stdriverpay\")"
+				],
+				"execution_count": 52
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdriverpay.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stdriverpay.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 53
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdriverpay.dtypes"
+				],
+				"execution_count": 50
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stfuelcard\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    f.id as tms_fuelcard_id\r\n",
+					"    ,f.eid as tms_fuelcard_eid\r\n",
+					"    ,f.entity as tms_fuelcard_entity\r\n",
+					"    ,f.baseprice as tms_fuelcard_baseprice\r\n",
+					"    ,f.routeid as tms_fuelcard_routeid\r\n",
+					"    ,f.operatingpercentage as tms_fuelcard_operatingpercentage\r\n",
+					"    ,to_timestamp(f.insdate) as tms_fuelcard_insdate\r\n",
+					"    ,to_timestamp(f.activefromdate) as tms_fuelcard_activefromdate\r\n",
+					"    ,to_timestamp(f.activetodate) as tms_fuelcard_activetodate\r\n",
+					"    ,to_timestamp(f.moddate) as tms_fuelcard_moddate\r\n",
+					"    ,f.status as tms_fuelcard_status\r\n",
+					"    ,f.insby as tms_fuelcard_insby\r\n",
+					"    ,f.zoneid as tms_fuelcard_zoneid\r\n",
+					"    ,f.legacyid as tms_fuelcard_legacyid\r\n",
+					"\r\n",
+					"FROM publicfuelcard f"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\r\n",
+					"stfuelcard = spark.sql(\"SELECT * FROM stfuelcard\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\r\n",
+					"stfuelcard.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stfuelcard.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stfuelzone\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    f.id as tms_fuelzone_id\r\n",
+					"    ,f.zonename as tms_fuelzone_zonename\r\n",
+					"    ,f.rulingprice as tms_fuelzone_rulingprice\r\n",
+					"    ,to_timestamp(f.insdate) as tms_fuelzone_insdate\r\n",
+					"    ,to_timestamp(f.moddate) as tms_fuelzone_moddate\r\n",
+					"    ,f.insby as tms_fuelzone_insby\r\n",
+					"    ,f.lastrulingprice as tms_fuelzone_lastrulingprice\r\n",
+					"    ,f.legacyid as tms_fuelzone_legacyid\r\n",
+					"\r\n",
+					"FROM publicfuelzone f\r\n",
+					""
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\r\n",
+					"stfuelzone = spark.sql(\"SELECT * FROM stfuelzone\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\r\n",
+					"stfuelzone.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stfuelzone.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stfuelzonehistory\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    f.id as tms_fuelzonehistory_id\r\n",
+					"    ,f.zoneid as tms_fuelzonehistory_zoneid\r\n",
+					"    ,f.rulingprice as tms_fuelzonehistory_rulingprice\r\n",
+					"    ,f.validfromdate as tms_fuelzonehistory_validfromdate\r\n",
+					"    ,f.validtodate as tms_fuelzonehistory_validtodate\r\n",
+					"    ,f.editby as tms_fuelzonehistory_editby\r\n",
+					"    ,to_timestamp(f.insdate) as tms_fuelzonehistory_insdate\r\n",
+					"    ,to_timestamp(f.moddate) as tms_fuelzonehistory_moddate\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM publicfuelzonehistory f\r\n",
+					""
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stfuelzonehistory = spark.sql(\"SELECT * FROM stfuelzonehistory\")"
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stfuelzonehistory.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stfuelzonehistory.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stratecomponent\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    r.id as tms_ratecomponent_id\r\n",
+					"    ,r.profileid as tms_ratecomponent_profileid\r\n",
+					"    ,r.ratetype as tms_ratecomponent_ratetype\r\n",
+					"    ,r.amount as tms_ratecomponent_amount\r\n",
+					"    ,r.applyfuellevy as tms_ratecomponent_applyfuellevy\r\n",
+					"    ,r.note as tms_ratecomponent_note\r\n",
+					"    ,to_timestamp(r.insdate) as tms_ratecomponent_insdate\r\n",
+					"    ,to_timestamp(r.moddate) as tms_ratecomponent_moddate\r\n",
+					"    ,r.insby as tms_ratecomponent_insby\r\n",
+					"    ,r.legacyid as tms_ratecomponent_legacyid\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM publicratecomponent r"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stratecomponent = spark.sql(\"SELECT * FROM stratecomponent\")"
+				],
+				"execution_count": 24
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stratecomponent.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stratecomponent.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 25
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"strateprofile\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    r.id as tms_rateprofile_id\r\n",
+					"    ,r.eid as tms_rateprofile_eid\r\n",
+					"    ,r.entity as tms_rateprofile_entity\r\n",
+					"    ,r.trailersize as tms_rateprofile_trailersize\r\n",
+					"    ,r.routeid as tms_rateprofile_routeid\r\n",
+					"    ,r.profiletype as tms_rateprofile_profiletype\r\n",
+					"    ,to_timestamp(r.fromdate) as tms_rateprofile_fromdate\r\n",
+					"    ,to_timestamp(r.todate) as tms_rateprofile_todate\r\n",
+					"    ,r.insby as tms_rateprofile_insby\r\n",
+					"    ,r.status as tms_rateprofile_status\r\n",
+					"    ,to_timestamp(r.insdate) as tms_rateprofile_insdate\r\n",
+					"    ,to_timestamp(r.moddate) as tms_rateprofile_moddate\r\n",
+					"    ,r.note as tms_rateprofile_note\r\n",
+					"    ,r.legacyid as tms_rateprofile_legacyid\r\n",
+					"    ,r.usedfuelprice as tms_rateprofile_usedfuelprice\r\n",
+					"\r\n",
+					"FROM publicrateprofile r\r\n",
+					""
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"strateprofile = spark.sql(\"SELECT * FROM strateprofile\")"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"strateprofile.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/strateprofile.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttmslist\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    s.id as tms_list_id\r\n",
+					"    ,s.slug as tms_list_slug\r\n",
+					"    ,s.valuetype as tms_list_valuetype\r\n",
+					"    ,s.descr as tms_list_descr\r\n",
+					"    ,to_timestamp(s.insdate) as tms_list_insdate\r\n",
+					"    ,to_timestamp(s.moddate) as tms_list_moddate\r\n",
+					"    ,s.refcols as tms_list_refcols\r\n",
+					"    ,s.editable  as tms_list_editable \r\n",
+					"    ,s2.id as tms_listitem_id\r\n",
+					"    ,s2.lid as tms_listitem_lid\r\n",
+					"    ,s2.itemlabel as tms_listitem_itemlabel\r\n",
+					"    ,s2.itemvalue as tms_listitem_itemvalue\r\n",
+					"    ,s2.sort as tms_listitem_sort\r\n",
+					"    ,s2.mdid as tms_listitem_mdid\r\n",
+					"\r\n",
+					"FROM publicselist s\r\n",
+					"LEFT JOIN publicselistitem s2 on s2.lid = s.id\r\n",
+					""
+				],
+				"execution_count": 41
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttmslist = spark.sql(\"SELECT * FROM sttmslist\")"
+				],
+				"execution_count": 42
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttmslist.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/sttmslist.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 43
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stlist.dtypes"
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stprimarycustomer\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    c.id as tms_customer_id\r\n",
+					"    ,c.status as tms_customer_status\r\n",
+					"    ,c.name as tms_customer_name\r\n",
+					"    ,c.parentid as tms_customer_parentid\r\n",
+					"    ,c.accountnumber as tms_customer_accountnumber\r\n",
+					"    ,c.revenuecode as tms_customer_revenuecode\r\n",
+					"    ,to_timestamp(c.insdate) as tms_customer_insdate\r\n",
+					"    ,to_timestamp(c.moddate) as tms_customer_moddate\r\n",
+					"    ,c.insby as tms_customer_insby\r\n",
+					"    ,c.opaqueid as tms_customer_opaqueid\r\n",
+					"    ,c.email as tms_customer_email\r\n",
+					"    ,c.areacode as tms_customer_areacode\r\n",
+					"    ,c.mobilenum as tms_customer_mobilenum\r\n",
+					"    ,c.legacyid as tms_customer_legacyid\r\n",
+					"    ,c.billingmethod as tms_customer_billingmethod\r\n",
+					"    ,c.adjustmetric as tms_customer_adjustmetric\r\n",
+					"    ,c.adjustvalue as tms_customer_adjustvalue\r\n",
+					"    ,c.adjustnegativeallowed as tms_customer_adjustnegativeallowed\r\n",
+					"    ,c.adjustvalueusingprevmonth as tms_customer_adjustvalueusingprevmonth\r\n",
+					"    ,c.excludefromnotinvoicedreport as tms_customer_excludefromnotinvoicedreport\r\n",
+					"    ,c.logictype as tms_customer_logictype\r\n",
+					"    ,c.minliability as tms_customer_minliability\r\n",
+					" \r\n",
+					"FROM publiccustomer c\r\n",
+					"WHERE c.parentid is null\r\n",
+					""
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stprimarycustomer = spark.sql(\"SELECT * FROM stprimarycustomer\")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stprimarycustomer.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stprimarycustomer.parquet', mode = \"overwrite\")\r\n",
+					""
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stsecondarycustomer\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    c.id as tms_customer_id\r\n",
+					"    ,c.status as tms_customer_status\r\n",
+					"    ,c.name as tms_customer_name\r\n",
+					"    ,c.parentid as tms_customer_parentid\r\n",
+					"    ,c.accountnumber as tms_customer_accountnumber\r\n",
+					"    ,c.revenuecode as tms_customer_revenuecode\r\n",
+					"    ,to_timestamp(c.insdate) as tms_customer_insdate\r\n",
+					"    ,to_timestamp(c.moddate) as tms_customer_moddate\r\n",
+					"    ,c.insby as tms_customer_insby\r\n",
+					"    ,c.opaqueid as tms_customer_opaqueid\r\n",
+					"    ,c.email as tms_customer_email\r\n",
+					"    ,c.areacode as tms_customer_areacode\r\n",
+					"    ,c.mobilenum as tms_customer_mobilenum\r\n",
+					"    ,c.legacyid as tms_customer_legacyid\r\n",
+					"    ,c.billingmethod as tms_customer_billingmethod\r\n",
+					"    ,c.adjustmetric as tms_customer_adjustmetric\r\n",
+					"    ,c.adjustvalue as tms_customer_adjustvalue\r\n",
+					"    ,c.adjustnegativeallowed as tms_customer_adjustnegativeallowed\r\n",
+					"    ,c.adjustvalueusingprevmonth as tms_customer_adjustvalueusingprevmonth\r\n",
+					"    ,c.excludefromnotinvoicedreport as tms_customer_excludefromnotinvoicedreport\r\n",
+					"    ,c.logictype as tms_customer_logictype\r\n",
+					"    ,c.minliability as tms_customer_minliability\r\n",
+					" \r\n",
+					"FROM publiccustomer c\r\n",
+					"WHERE c.parentid is not null\r\n",
+					""
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stsecondarycustomer = spark.sql(\"SELECT * FROM stsecondarycustomer\")"
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stsecondarycustomer.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stsecondarycustomer.parquet', mode = \"overwrite\")\r\n",
+					""
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stthirdparty\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    t.id as tms_thirdparty_id\r\n",
+					"    ,t.name as tms_thirdparty_name\r\n",
+					"    ,t.areacode as tms_thirdparty_areacode\r\n",
+					"    ,t.telnumber as tms_thirdparty_telnumber\r\n",
+					"    ,t.mobareacode as tms_thirdparty_mobareacode\r\n",
+					"    ,t.mobnumer as tms_thirdparty_mobnumer\r\n",
+					"    ,t.contact as tms_thirdparty_contact\r\n",
+					"    ,t.address as tms_thirdparty_address\r\n",
+					"    ,t.streetno as tms_thirdparty_streetno\r\n",
+					"    ,t.zipcode as tms_thirdparty_zipcode\r\n",
+					"    ,t.city as tms_thirdparty_city\r\n",
+					"    ,t.province as tms_thirdparty_province\r\n",
+					"    ,t.status as tms_thirdparty_status\r\n",
+					"    ,t.mdvoid as tms_thirdparty_mdvoid\r\n",
+					"    ,t.registration as tms_thirdparty_registration\r\n",
+					"    ,t.email as tms_thirdparty_email\r\n",
+					"    ,t.accnumber as tms_thirdparty_accnumber\r\n",
+					"    ,to_timestamp(t.insdate) as tms_thirdparty_insdate\r\n",
+					"    ,to_timestamp(t.moddate) as tms_thirdparty_moddate\r\n",
+					"    ,t.gitstatus as tms_thirdparty_gitstatus\r\n",
+					"    ,t.legacyid as tms_thirdparty_legacyid\r\n",
+					"    ,t.lat as tms_thirdparty_lat\r\n",
+					"    ,t.lng as tms_thirdparty_lng\r\n",
+					"    ,t.note as tms_thirdparty_note\r\n",
+					"    ,t.revenuecode as tms_thirdparty_revenuecode\r\n",
+					"    ,t.country as tms_thirdparty_country\r\n",
+					"\r\n",
+					"FROM publicthirdparty t"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stthirdparty = spark.sql(\"SELECT * FROM stthirdparty\")"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stthirdparty.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stthirdparty.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparentroute\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    r.id as tms_parentroute_id\r\n",
+					"    ,r.name as tms_parentroute_name\r\n",
+					"    ,r.slug as tms_parentroute_slug\r\n",
+					"    ,r.parentroute as tms_parentroute_parentroute\r\n",
+					"    ,to_timestamp(r.insdate) as tms_parentroute_insdate\r\n",
+					"    ,to_timestamp(r.moddate) as tms_parentroute_moddate\r\n",
+					"    ,r.insby as tms_parentroute_insby\r\n",
+					"    ,r.status as tms_parentroute_status\r\n",
+					"    ,r.crossborder as tms_parentroute_crossborder\r\n",
+					"    ,r.roundtripdays as tms_parentroute_roundtripdays\r\n",
+					"    ,r.distance as tms_parentroute_distance\r\n",
+					"    ,r.duration as tms_parentroute_duration\r\n",
+					"    ,r.numofuse as tms_parentroute_numofuse\r\n",
+					"    ,r.legacyid as tms_parentroute_legacyid\r\n",
+					"    ,r.local as tms_parentroute_local\r\n",
+					"\r\n",
+					"FROM publicroute r\r\n",
+					"WHERE r.parentroute is null\r\n",
+					""
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stparentroute = spark.sql(\"SELECT * FROM stparentroute\")"
+				],
+				"execution_count": 37
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stparentroute.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stparentroute.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 38
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stopsroute\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    r.id as tms_parentroute_id\r\n",
+					"    ,r.name as tms_parentroute_name\r\n",
+					"    ,r.slug as tms_parentroute_slug\r\n",
+					"    ,r.parentroute as tms_parentroute_parentroute\r\n",
+					"    ,to_timestamp(r.insdate) as tms_parentroute_insdate\r\n",
+					"    ,to_timestamp(r.moddate) as tms_parentroute_moddate\r\n",
+					"    ,r.insby as tms_parentroute_insby\r\n",
+					"    ,r.status as tms_parentroute_status\r\n",
+					"    ,r.crossborder as tms_parentroute_crossborder\r\n",
+					"    ,r.roundtripdays as tms_parentroute_roundtripdays\r\n",
+					"    ,r.distance as tms_parentroute_distance\r\n",
+					"    ,r.duration as tms_parentroute_duration\r\n",
+					"    ,r.numofuse as tms_parentroute_numofuse\r\n",
+					"    ,r.legacyid as tms_parentroute_legacyid\r\n",
+					"    ,r.local as tms_parentroute_local\r\n",
+					"\r\n",
+					"FROM publicroute r\r\n",
+					"WHERE r.parentroute is not null\r\n",
+					""
+				],
+				"execution_count": 39
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stopsroute = spark.sql(\"SELECT * FROM stopsroute\")"
+				],
+				"execution_count": 40
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stopsroute.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stopsroute.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 41
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

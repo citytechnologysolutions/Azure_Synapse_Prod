@@ -1,0 +1,225 @@
+{
+	"name": "SSTOrder",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/01 SEMI-STRUCTURED/LMS + ORV"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "1935e7b3-6ddb-4004-a79f-1b37c863d0e2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#Create DataFrame for the dboorder LMS Table\r\n",
+					"dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbocustomer LMS Table\r\n",
+					"dbocustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
+					"dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbousers LMS Table\r\n",
+					"dbousers = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbousers.parquet', format='parquet')\r\n",
+					"dbousers.createOrReplaceTempView(\"dbousers\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the sstparcelbyorder LMS Table\r\n",
+					"sstparcelbyorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', format='parquet')\r\n",
+					"sstparcelbyorder.createOrReplaceTempView(\"sstparcelbyorder\")"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstorder \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     O.id as lms_order_id\r\n",
+					"    ,O.idold as lms_order_idold\r\n",
+					"    ,O.corderno as lms_order_corderno\r\n",
+					"    ,O.custref as lms_order_custref\r\n",
+					"    ,O.waybillid as lms_order_waybillid\r\n",
+					"    ,O.pickupcustid as lms_order_pickupcustid\r\n",
+					"    ,O.delivercustid as lms_order_delivercustid\r\n",
+					"    ,O.billcustid as lms_order_billcustid\r\n",
+					"    ,O.ovalue as lms_order_ovalue\r\n",
+					"    ,O.hodate as lms_order_hodate\r\n",
+					"    ,O.cservice as lms_order_cservice\r\n",
+					"    ,O.courierid as lms_order_courierid\r\n",
+					"    ,O.custservice as lms_order_custservice\r\n",
+					"    ,O.userid as lms_order_userid\r\n",
+					"    ,O.pcode as lms_order_pcode\r\n",
+					"    ,O.appointment as lms_order_appointment\r\n",
+					"    ,O.deliverby as lms_order_deliverby\r\n",
+					"    ,O.dconfirmed as lms_order_dconfirmed\r\n",
+					"    ,O.dcomment as lms_order_dcomment\r\n",
+					"    ,O.drefno as lms_order_drefno\r\n",
+					"    ,O.duserid as lms_order_duserid\r\n",
+					"    ,O.nopods as lms_order_nopods\r\n",
+					"    ,O.duedate as lms_order_duedate\r\n",
+					"    ,O.batchno as lms_order_batchno\r\n",
+					"    ,O.units as lms_order_units\r\n",
+					"    ,O.airfreightflag as lms_order_airfreightflag\r\n",
+					"    ,O.custref3 as lms_order_custref3\r\n",
+					"    ,O.specdel as lms_order_specdel\r\n",
+					"    ,O.flunits as lms_order_flunits\r\n",
+					"    ,O.flkgs as lms_order_flkgs\r\n",
+					"    ,O.inservice as lms_order_inservice\r\n",
+					"    ,O.custdocs as lms_order_custdocs\r\n",
+					"    ,O.scanned as lms_order_scanned\r\n",
+					"    ,O.scanimagename1 as lms_order_scanimagename1\r\n",
+					"    ,O.scanimagename as lms_order_scanimagename\r\n",
+					"    ,O.changereasonid as lms_order_changereasonid\r\n",
+					"    ,O.bill_servicetype as lms_order_bill_servicetype\r\n",
+					"    ,O.bill_vehicletype as lms_order_bill_vehicletype\r\n",
+					"    ,O.quote as lms_order_quote\r\n",
+					"    ,O.consignlabel as lms_order_consignlabel\r\n",
+					"    ,O.custref2 as lms_order_custref2\r\n",
+					"    ,O.callprogid as lms_order_callprogid\r\n",
+					"    ,O.callprogupddate as lms_order_callprogupddate\r\n",
+					"    ,O.submitedi as lms_order_submitedi\r\n",
+					"    ,O.lastupdate as lms_order_lastupdate\r\n",
+					"    ,O.quoteflag as lms_order_quoteflag\r\n",
+					"    ,O.bill_minrate as lms_order_bill_minrate\r\n",
+					"    ,O.bill_addrate as lms_order_bill_addrate\r\n",
+					"    ,O.bill_minkg as lms_order_bill_minkg\r\n",
+					"    ,O.notes as lms_order_notes\r\n",
+					"    ,O.quoteweight as lms_order_quoteweight\r\n",
+					"    ,O.orderconsolidationid as lms_order_orderconsolidationid\r\n",
+					"    ,O.quotefuellevy as lms_order_quotefuellevy\r\n",
+					"    ,O.quoteothersurcharges as lms_order_quoteothersurcharges\r\n",
+					"    ,O.quotedocfees as lms_order_quotedocfees\r\n",
+					"    ,BC.id as lms_bcustomer_id\r\n",
+					"    ,BC.name as lms_bcustomer_name\r\n",
+					"    ,PC.id as lms_pcustomer_id\r\n",
+					"    ,PC.name as lms_pcustomer_name\r\n",
+					"    ,DC.id as lms_dcustomer_id\r\n",
+					"    ,DC.name as lms_dcustomer_name\r\n",
+					"    ,U.id as lms_users_id\r\n",
+					"    ,U.fullname as lms_users_fullname\r\n",
+					"    ,U.site as lms_users_site\r\n",
+					"    ,lms_parcelbyorder_orderid as lms_parcelbyorder_orderid\r\n",
+					"    ,lms_parcelbyorder_aggweight as lms_parcelbyorder_aggweight\r\n",
+					"    ,lms_parcelbyorder_aggchargeweight as lms_parcelbyorder_aggchargeweight\r\n",
+					"    ,lms_parcelbyorder_aggvolweight as lms_parcelbyorder_aggvolweight\r\n",
+					"    ,lms_parcelbyorder_aggvolumiserweight as lms_parcelbyorder_aggvolumiserweight\r\n",
+					"    ,lms_parcelbyorder_noparcels as lms_parcelbyorder_noparcels\r\n",
+					"FROM dboorder O\r\n",
+					"LEFT JOIN dbocustomer BC ON BC.id = O.billcustid\r\n",
+					"LEFT JOIN dbocustomer PC ON PC.id = O.pickupcustid\r\n",
+					"LEFT JOIN dbocustomer DC ON DC.id = O.delivercustid\r\n",
+					"LEFT JOIN dbousers U ON U.id = O.userid\r\n",
+					"LEFT JOIN sstparcelbyorder PBO ON PBO.lms_parcelbyorder_orderid  = O.id"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstorder = spark.sql(\"SELECT * FROM sstorder\")"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"SSTsstorderOrder.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstorder.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 31
+			}
+		]
+	}
+}

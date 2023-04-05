@@ -1,0 +1,503 @@
+{
+	"name": "STBooking",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Linehaul"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "b285e5be-8281-435e-9255-5582e94572d2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#Create DataFrame for the publicbooking TMS Table\r\n",
+					"publicbooking = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicbooking.parquet', format='parquet')\r\n",
+					"publicbooking.createOrReplaceTempView(\"publicbooking\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicnonbooking TMS Table\r\n",
+					"publicnonbooking = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicnonbooking.parquet', format='parquet')\r\n",
+					"publicnonbooking.createOrReplaceTempView(\"publicnonbooking\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbolhbooking TMS Table\r\n",
+					"dboLHBooking = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbolh_booking.parquet', format='parquet')\r\n",
+					"dboLHBooking.createOrReplaceTempView(\"dboLHBooking\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbolhroutes TMS Table\r\n",
+					"dbolhroutes = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbolh_routes.parquet', format='parquet')\r\n",
+					"dbolhroutes.createOrReplaceTempView(\"dbolhroutes\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbolhbookingspertrip TMS Table\r\n",
+					"dbolhbookingspertrip = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbolh_bookingspertrip.parquet', format='parquet')\r\n",
+					"dbolhbookingspertrip.createOrReplaceTempView(\"dbolhbookingspertrip\")"
+				],
+				"execution_count": 71
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stbooking_tms\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    b.id as tms_booking_id\r\n",
+					"    ,b.allocatedby as tms_booking_allocatedby\r\n",
+					"    ,to_timestamp(b.allocateddate) as tms_booking_allocateddate\r\n",
+					"    ,to_timestamp(b.assetreleasedate) as tms_booking_assetreleasedate\r\n",
+					"    ,b.billingmethod as tms_booking_billingmethod\r\n",
+					"    ,b.billingstatus as tms_booking_billingstatus\r\n",
+					"    ,null as tms_booking_convertedbookingid\r\n",
+					"    ,b.cargoweight as tms_booking_cargoweight\r\n",
+					"    ,b.customerid as tms_booking_customerid\r\n",
+					"    ,b.childcustomerid as tms_booking_childcustomerid\r\n",
+					"    ,b.createdby as tms_booking_createdby\r\n",
+					"    ,b.createdbyname as tms_booking_createdbyname\r\n",
+					"    ,b.cref1 as tms_booking_cref1\r\n",
+					"    ,b.cref2 as tms_booking_cref2\r\n",
+					"    ,b.cubicvolume as tms_booking_cubicvolume\r\n",
+					"    ,b.customeragreedrate as tms_booking_customeragreedrate\r\n",
+					"    ,b.customerrate as tms_booking_customerrate\r\n",
+					"    ,to_timestamp(b.deliverydate) as tms_booking_deliverydate\r\n",
+					"    ,b.directbooking as tms_booking_directbooking\r\n",
+					"    ,to_timestamp(b.dispatchdate) as tms_booking_dispatchdate\r\n",
+					"    ,to_timestamp(b.docdate) as tms_booking_docdate\r\n",
+					"    ,b.docstatus as tms_booking_docstatus\r\n",
+					"    ,b.emailrequester as tms_booking_emailrequester\r\n",
+					"    ,b.frombranch as tms_booking_frombranch\r\n",
+					"    ,b.frombranchid as tms_booking_frombranchid\r\n",
+					"    ,to_timestamp(b.insdate) as tms_booking_insdate\r\n",
+					"    ,to_timestamp(b.invoiceddate) as tms_booking_invoiceddate\r\n",
+					"    ,b.invoiceid as tms_booking_invoiceid\r\n",
+					"    ,b.legacyid as tms_booking_legacyid\r\n",
+					"    ,b.local as tms_booking_local\r\n",
+					"    ,b.manifests as tms_booking_manifests\r\n",
+					"    ,to_timestamp(b.moddate) as tms_booking_moddate\r\n",
+					"    ,b.note as tms_booking_note\r\n",
+					"    ,b.opsrouteid as tms_booking_opsrouteid\r\n",
+					"    ,b.opsroutename as tms_booking_opsroutename\r\n",
+					"    ,b.originalpod as tms_booking_originalpod\r\n",
+					"    ,to_timestamp(b.pickupdate) as tms_booking_pickupdate\r\n",
+					"    ,b.ponumber as tms_booking_ponumber\r\n",
+					"    ,b.routeid as tms_booking_routeid\r\n",
+					"    ,b.routename as tms_booking_routename\r\n",
+					"    ,b.status as tms_booking_status\r\n",
+					"    ,b.thirdpartyagreedrate as tms_booking_thirdpartyagreedrate\r\n",
+					"    ,b.thirdpartydriverflag as tms_booking_thirdpartydriverflag\r\n",
+					"    ,b.thirdpartyid as tms_booking_thirdpartyid\r\n",
+					"    ,b.thirdpartyrate as tms_booking_thirdpartyrate\r\n",
+					"    ,b.thirdpartyreason as tms_booking_thirdpartyreason\r\n",
+					"    ,b.thirdpartytrailerflag as tms_booking_thirdpartytrailerflag\r\n",
+					"    ,b.thirdpartyvehicleflag as tms_booking_thirdpartyvehicleflag\r\n",
+					"    ,b.tobranch as tms_booking_tobranch\r\n",
+					"    ,b.tobranchid as tms_booking_tobranchid\r\n",
+					"    ,b.trailersize as tms_booking_trailersize\r\n",
+					"    ,b.trailertype as tms_booking_trailertype\r\n",
+					"    ,b.transporter as tms_booking_transporter\r\n",
+					"    ,b.tripid as tms_booking_tripid\r\n",
+					"    ,null as tms_booking_reason\r\n",
+					"\r\n",
+					"FROM publicbooking b\r\n",
+					""
+				],
+				"execution_count": 114
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbooking_tms = spark.sql(\"SELECT * FROM stbooking_tms\")"
+				],
+				"execution_count": 115
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbooking_tms.createOrReplaceTempView(\"stbooking_tms\")"
+				],
+				"execution_count": 116
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stnonbooking_tms\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    b.id as tms_booking_id\r\n",
+					"    ,null as tms_booking_allocatedby\r\n",
+					"    ,to_timestamp(b.insdate) as tms_booking_allocateddate\r\n",
+					"    ,to_timestamp(b.assetreleasedate) as tms_booking_assetreleasedate\r\n",
+					"    ,null as tms_booking_billingmethod\r\n",
+					"    ,b.billingstatus as tms_booking_billingstatus\r\n",
+					"    ,b.convertedbookingid as tms_booking_convertedbookingid\r\n",
+					"    ,null as tms_booking_cargoweight \r\n",
+					"    ,null as tms_booking_customerid\r\n",
+					"    ,null as tms_booking_childcustomerid\r\n",
+					"    ,b.insby as tms_booking_insby\r\n",
+					"    ,b.insbyname as tms_booking_insbyname\r\n",
+					"    ,null as tms_booking_cref1\r\n",
+					"    ,null as tms_booking_cref2\r\n",
+					"    ,null as tms_booking_cubicvolume\r\n",
+					"    ,null as tms_booking_customeragreedrate\r\n",
+					"    ,null as tms_booking_customerrate\r\n",
+					"    ,to_timestamp(b.deliverydate) as tms_booking_deliverydate\r\n",
+					"    ,null as tms_booking_directbooking\r\n",
+					"    ,to_timestamp(b.dispatchdate) as tms_booking_dispatchdate\r\n",
+					"    ,null as tms_booking_docdate\r\n",
+					"    ,null as tms_booking_docstatus\r\n",
+					"    ,null as tms_booking_emailrequester\r\n",
+					"    ,b.frombranch as tms_booking_frombranch\r\n",
+					"    ,b.frombranchid as tms_booking_frombranchid\r\n",
+					"    ,to_timestamp(b.insdate) as tms_booking_insdate\r\n",
+					"    ,null as tms_booking_invoiceddate\r\n",
+					"    ,null as tms_booking_invoiceid\r\n",
+					"    ,b.legacyid as tms_booking_legacyid\r\n",
+					"    ,b.local as tms_booking_local\r\n",
+					"    ,null as tms_booking_manifests\r\n",
+					"    ,to_timestamp(b.moddate) as tms_booking_moddate\r\n",
+					"    ,b.note as tms_booking_note\r\n",
+					"    ,b.routeid as tms_booking_opsrouteid\r\n",
+					"    ,b.routename as tms_booking_opsroutename\r\n",
+					"    ,null as tms_booking_originalpod\r\n",
+					"    ,null as tms_booking_pickupdate\r\n",
+					"    ,null as tms_booking_ponumber\r\n",
+					"    ,null as tms_booking_routeid\r\n",
+					"    ,null as tms_booking_routename\r\n",
+					"    ,b.status as tms_booking_status\r\n",
+					"    ,null as tms_booking_thirdpartyagreedrate\r\n",
+					"    ,null as tms_booking_thirdpartydriverflag\r\n",
+					"    ,null as tms_booking_thirdpartyid\r\n",
+					"    ,null as tms_booking_thirdpartyrate\r\n",
+					"    ,null as tms_booking_thirdpartyreason\r\n",
+					"    ,null as tms_booking_thirdpartytrailerflag\r\n",
+					"    ,null as tms_booking_thirdpartyvehicleflag\r\n",
+					"    ,null as tms_booking_tobranch\r\n",
+					"    ,null as tms_booking_tobranchid\r\n",
+					"    ,b.trailersize as tms_booking_trailersize\r\n",
+					"    ,null as tms_booking_trailertype\r\n",
+					"    ,null as tms_booking_transporter\r\n",
+					"    ,b.tripid as tms_booking_tripid\r\n",
+					"    ,b.reason as tms_booking_reason\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM publicnonbooking b\r\n",
+					""
+				],
+				"execution_count": 117
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stnonbooking_tms = spark.sql(\"SELECT * FROM stnonbooking_tms\")"
+				],
+				"execution_count": 118
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stnonbooking_tms.createOrReplaceTempView(\"stnonbooking_tms\")"
+				],
+				"execution_count": 119
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stbooking_lms\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"\r\n",
+					"    b.id as tms_booking_id\r\n",
+					"    ,b.allocationuserid as tms_booking_allocatedby\r\n",
+					"    ,to_timestamp(b.AllocationDate) as tms_booking_allocateddate\r\n",
+					"    ,null as tms_booking_assetreleasedate\r\n",
+					"    ,null as tms_booking_billingmethod\r\n",
+					"    ,null as tms_booking_billingstatus\r\n",
+					"    ,null as tms_booking_convertedbookingid\r\n",
+					"    ,b.cargoweight as tms_booking_cargoweight\r\n",
+					"    ,b.primaryaccountid as tms_booking_customerid\r\n",
+					"    ,b.secondaryaccountid as tms_booking_childcustomerid\r\n",
+					"    ,null as tms_booking_insby\r\n",
+					"    ,b.userid as tms_booking_insbyname\r\n",
+					"    ,b.customerreference1 as tms_booking_cref1\r\n",
+					"    ,b.customerreference2 as tms_booking_cref2\r\n",
+					"    ,b.cubicvolume as tms_booking_cubicvolume\r\n",
+					"    ,null as tms_booking_customeragreedrate\r\n",
+					"    ,null as tms_booking_customerrate\r\n",
+					"    ,b.deliverydate as tms_booking_deliverydate\r\n",
+					"    ,b.isdirect as tms_booking_directbooking\r\n",
+					"    ,b.dispatchdate as tms_booking_dispatchdate\r\n",
+					"    ,null as tms_booking_docdate\r\n",
+					"    ,null as tms_booking_docstatus\r\n",
+					"    ,null as tms_booking_emailrequester\r\n",
+					"    ,null as tms_booking_frombranch\r\n",
+					"    ,null as tms_booking_frombranchid\r\n",
+					"    ,b.createddate as tms_booking_insdate\r\n",
+					"    ,null as tms_booking_invoiceddate\r\n",
+					"    ,null as tms_booking_invoiceid\r\n",
+					"    ,null as tms_booking_legacyid\r\n",
+					"    ,b.islocal as tms_booking_local\r\n",
+					"    ,null as tms_booking_manifests\r\n",
+					"    ,null as tms_booking_moddate\r\n",
+					"    ,b.notes as tms_booking_note\r\n",
+					"    ,b.routeid as tms_booking_opsrouteid\r\n",
+					"    ,r.description as tms_booking_opsroutename\r\n",
+					"    ,null as tms_booking_originalpod\r\n",
+					"    -- ,b.orginalpodreceiveddate as tms_booking_originalpod\r\n",
+					"    ,b.pickupdate as tms_booking_pickupdate\r\n",
+					"    ,null as tms_booking_ponumber\r\n",
+					"    ,null as tms_booking_routeid\r\n",
+					"    ,null as tms_booking_routename\r\n",
+					"    ,b.statusid as tms_booking_status\r\n",
+					"    ,null as tms_booking_thirdpartyagreedrate\r\n",
+					"    ,null as tms_booking_thirdpartydriverflag\r\n",
+					"    ,b.3pl_accountid as tms_booking_thirdpartyid\r\n",
+					"    ,null as tms_booking_thirdpartyrate\r\n",
+					"    ,b.3pl_reason as tms_booking_thirdpartyreason\r\n",
+					"    ,null as tms_booking_thirdpartytrailerflag\r\n",
+					"    ,null as tms_booking_thirdpartyvehicleflag\r\n",
+					"    ,null as tms_booking_tobranch\r\n",
+					"    ,null as tms_booking_tobranchid\r\n",
+					"    ,b.trailersizeid as tms_booking_trailersize\r\n",
+					"    ,b.trailertypeid as tms_booking_trailertype\r\n",
+					"    ,null as tms_booking_transporter\r\n",
+					"    ,bpt.tripid as tms_booking_tripid\r\n",
+					"    ,b.nonbookingreasonid as tms_booking_reason\r\n",
+					"\r\n",
+					"FROM dbolhbooking b\r\n",
+					"LEFT JOIN dbolhroutes r on r.id = b.routeid\r\n",
+					"LEFT JOIN dbolhbookingspertrip bpt on bpt.bookingid = b.id\r\n",
+					""
+				],
+				"execution_count": 127
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbooking_lms = spark.sql(\"SELECT * FROM stbooking_lms\")"
+				],
+				"execution_count": 128
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbooking_lms.createOrReplaceTempView(\"stbooking_lms\")"
+				],
+				"execution_count": 129
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbooking_tmp = stbooking_tms.unionByName(stnonbooking_tms, allowMissingColumns = True)\r\n",
+					"stbooking_tmp.createOrReplaceTempView(\"stbooking_tmp\")"
+				],
+				"execution_count": 130
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbooking = stbooking_tmp.unionByName(stbooking_lms, allowMissingColumns = True)\r\n",
+					"stbooking.createOrReplaceTempView(\"stbooking\")"
+				],
+				"execution_count": 132
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbooking.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', mode = \"overwrite\")\r\n",
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 133
+			}
+		]
+	}
+}

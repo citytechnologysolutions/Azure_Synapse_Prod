@@ -1,0 +1,364 @@
+{
+	"name": "SSTAggrParcelByX",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/01 SEMI-STRUCTURED/LMS Aggr"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "e9a12fd1-1a0f-4797-9724-bc67878f975e"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Create SSTParcelByOrder \r\n",
+					"# Create SSTParcelByWaybill\r\n",
+					"# Create SSTParcelByConsignment\r\n",
+					"# Create SSTParcelByLoad\r\n",
+					"\r\n",
+					"#Create DataFrame for the sstparcelunion LMS Table\r\n",
+					"sstparcelunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the ssttrack LMS Table\r\n",
+					"ssttrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/ssttrack.parquet', format='parquet')\r\n",
+					"ssttrack.createOrReplaceTempView(\"ssttrack\")"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbyorder \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     P.orderid as lms_parcelbyorder_orderid\r\n",
+					"    ,Sum(P.weight) as lms_parcelbyorder_aggweight\r\n",
+					"    ,Sum(P.chargeweight) as lms_parcelbyorder_aggchargeweight\r\n",
+					"    ,Sum(P.volweight) as lms_parcelbyorder_aggvolweight\r\n",
+					"    ,Sum(P.volumiserweight) as lms_parcelbyorder_aggvolumiserweight\r\n",
+					"    ,Count(P.id) as lms_parcelbyorder_noparcels\r\n",
+					"FROM sstparcelunion P\r\n",
+					"GROUP BY P.orderid"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbyorder = spark.sql(\"SELECT * FROM sstparcelbyorder\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbyorder.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbywaybill \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     P.waybillid as lms_parcelbywaybill_waybillid\r\n",
+					"    ,Sum(P.weight) as lms_parcelbywaybill_aggweight\r\n",
+					"    ,Sum(P.chargeweight) as lms_parcelbywaybill_aggchargeweight\r\n",
+					"    ,Sum(P.volweight) as lms_parcelbywaybill_aggvolweight\r\n",
+					"    ,Sum(P.volumiserweight) as lms_parcelbywaybill_aggvolumiserweight\r\n",
+					"    ,Count(P.id) as lms_parcelbywaybill_noparcels\r\n",
+					"FROM sstparcelunion P\r\n",
+					"GROUP BY P.waybillid"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbywaybill = spark.sql(\"SELECT * FROM sstparcelbywaybill\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbywaybill.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbywaybill.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbyconsignment \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     P.consignid as lms_parcelbyconsignment_consignid\r\n",
+					"    ,Sum(P.weight) as lms_parcelbyconsignment_aggweight\r\n",
+					"    ,Sum(P.chargeweight) as lms_parcelbyconsignment_aggchargeweight\r\n",
+					"    ,Sum(P.volweight) as lms_parcelbyconsignment_aggvolweight\r\n",
+					"    ,Sum(P.volumiserweight) as lms_parcelbyconsignment_aggvolumiserweight\r\n",
+					"    ,Count(P.id) as lms_parcelbyconsignment_noparcels\r\n",
+					"FROM sstparcelunion P\r\n",
+					"GROUP BY P.consignid"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbyconsignment = spark.sql(\"SELECT * FROM sstparcelbyconsignment\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbyconsignment.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbyload \r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     T.lms_track_loadid as lms_parcelbyload_loadid\r\n",
+					"    ,Sum(T.lms_parcel_weight) as lms_parcelbyload_aggweight\r\n",
+					"    ,Sum(T.lms_parcel_chargeweight) as lms_parcelbyload_aggchargeweight\r\n",
+					"    ,Sum(T.lms_parcel_volweight) as lms_parcelbyload_aggvolweight\r\n",
+					"    ,Sum(T.lms_parcel_volumiserweight) as lms_parcelbyload_aggvolumiserweight\r\n",
+					"    ,Count(T.lms_track_parcelid) as lms_parcelbyload_noparcels\r\n",
+					"FROM ssttrack T\r\n",
+					"GROUP BY T.lms_track_loadid"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbyload = spark.sql(\"SELECT * FROM sstparcelbyload\")"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbyload.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyload.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 13
+			}
+		]
+	}
+}

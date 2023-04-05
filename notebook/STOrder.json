@@ -1,0 +1,251 @@
+{
+	"name": "STOrder",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "a413173d-4c65-4fa1-871d-fc6f301c6a25"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#Create DataFrame for the dboorder LMS Table\r\n",
+					"dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the sstparcelbyorder LMS Table\r\n",
+					"sstparcelbyorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', format='parquet')\r\n",
+					"sstparcelbyorder.createOrReplaceTempView(\"sstparcelbyorder\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbowaybill LMS Table\r\n",
+					"dbowaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
+					"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the sstparcelunion LMS Table\r\n",
+					"sstparcelunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the sstconsignmentunion LMS Table\r\n",
+					"sstconsignmentunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
+					"sstconsignmentunion.createOrReplaceTempView(\"sstconsignmentunion\")"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"storder_tmp1\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    o.id as lms_order_id\r\n",
+					"    ,o.COrderNo as lms_order_corderno\r\n",
+					"    ,o.CustRef as lms_order_custref\r\n",
+					"    ,o.PickUpCustID as lms_order_pickupcustid\r\n",
+					"    ,o.DeliverCustID as lms_order_delivercustid\r\n",
+					"    ,o.BillCustID as lms_order_billcustid\r\n",
+					"    ,o.Weight as lms_order_weight\r\n",
+					"    ,o.OValue as lms_order_ovalue\r\n",
+					"    ,o.HODate as lms_order_hodate\r\n",
+					"    ,o.CService as lms_order_cservice\r\n",
+					"    ,o.CourierID as lms_order_courierid\r\n",
+					"    ,o.CustService as lms_order_custservice\r\n",
+					"    ,o.UserID as lms_order_userid\r\n",
+					"    ,o.Appointment as lms_order_appointment\r\n",
+					"    ,o.DeliverBy as lms_order_deliverby\r\n",
+					"    ,o.DConfirmed as lms_order_onfirmed\r\n",
+					"    ,o.DComment as lms_order_omment\r\n",
+					"    ,o.DRefNo as lms_order_efno\r\n",
+					"    ,o.DueDate as lms_order_edate\r\n",
+					"    ,o.BatchNo as lms_order_tchno\r\n",
+					"    ,o.CustAccID as lms_order_staccid\r\n",
+					"    ,o.Airfreightflag as lms_order_rfreightflag\r\n",
+					"    ,o.SpecDel as lms_order_ecdel\r\n",
+					"    ,pbo.lms_parcelbyorder_aggweight\r\n",
+					"    ,pbo.lms_parcelbyorder_aggchargeweight\r\n",
+					"    ,pbo.lms_parcelbyorder_aggvolweight\r\n",
+					"    ,pbo.lms_parcelbyorder_aggvolumiserweight\r\n",
+					"    ,pbo.lms_parcelbyorder_noparcels\r\n",
+					"\r\n",
+					"FROM dboorder o\r\n",
+					"LEFT JOIN sstparcelbyorder pbo on pbo.lms_parcelbyorder_orderid =  o.id\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"storder_tmp2\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT\r\n",
+					"\r\n",
+					"p.orderid,\r\n",
+					"max(w.poddate) as lms_order_maxpoddate,\r\n",
+					"min(c.deliverby) as lms_order_mindeliverby\r\n",
+					"\r\n",
+					"FROM  sstparcelunion p\r\n",
+					"LEFT JOIN dbowaybill w on w.id = p.waybillid\r\n",
+					"LEFT JOIN sstconsignmentunion c on c.id = p.consignid\r\n",
+					"WHERE p.orderid is not null and p.consignid is not null\r\n",
+					"GROUP BY p.orderid\r\n",
+					""
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"storder\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    o.*\r\n",
+					"    ,o2.lms_order_maxpoddate\r\n",
+					"    ,CASE \r\n",
+					"\t    WHEN (coalesce(o2.lms_order_maxpoddate,CURRENT_TIMESTAMP)) <= (date(o2.lms_order_mindeliverby) + interval '86399 seconds') THEN 1\r\n",
+					"\t    ELSE 0\r\n",
+					"    END lms_order_inserviceflag\r\n",
+					"    ,CASE\r\n",
+					"        WHEN o2.lms_order_maxpoddate is null then 0  \r\n",
+					"        ELSE DATE_PART('day', o2.lms_order_maxpoddate - o.lms_order_hodate)\r\n",
+					"    END as lms_order_actualleaddays\r\n",
+					"\r\n",
+					"FROM storder_tmp1 o\r\n",
+					"LEFT JOIN storder_tmp2 o2 ON o2.orderid = o.lms_order_id"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"storder = spark.sql(\"SELECT * FROM storder\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"storder.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/storder.parquet', mode = \"overwrite\")\r\n",
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 8
+			}
+		]
+	}
+}

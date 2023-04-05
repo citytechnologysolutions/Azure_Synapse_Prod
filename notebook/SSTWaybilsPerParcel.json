@@ -1,0 +1,179 @@
+{
+	"name": "SSTWaybilsPerParcel",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/01 SEMI-STRUCTURED/LMS + ORV"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "3c4bf3f7-4537-47d6-ad03-693f78582f18"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#Create DataFrame for the sstparcelunion LMS Table\r\n",
+					"sstparcelunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the ssttrackunion LMS Table\r\n",
+					"ssttrackunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
+					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbowaybillsperparcel LMS Table\r\n",
+					"dbowaybillsperparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbowaybillsperparcel.parquet', format='parquet')\r\n",
+					"dbowaybillsperparcel.createOrReplaceTempView(\"dbowaybillsperparcel\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbowaybill LMS Table\r\n",
+					"dbowaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
+					"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
+					""
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstwaybillsperparcelunion_tmp1\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    p.id as parcelid,\r\n",
+					"    p.waybillid\r\n",
+					"FROM SSTParcelUnion p\r\n",
+					"UNION ALL\r\n",
+					"SELECT \r\n",
+					"    w.parcelid,\r\n",
+					"    w.waybillid\r\n",
+					"FROM dbowaybillsperparcel w"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstwaybillsperparcel\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT\r\n",
+					"    parcelid as lms_waybillsperparcel_parcelid,\r\n",
+					"    waybillid as lms_waybillsperparcel_waybillid,\r\n",
+					"    b.loadid as lms_waybillsperparcel_loadid\r\n",
+					"FROM sstwaybillsperparcelunion_tmp1 a\r\n",
+					"LEFT JOIN dbowaybill b on b.id = a.waybillid\r\n",
+					""
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstwaybillsperparcel = spark.sql(\"SELECT * FROM sstwaybillsperparcel\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstwaybillsperparcel.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstwaybillsperparcel.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 5
+			}
+		]
+	}
+}

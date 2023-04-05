@@ -1,0 +1,221 @@
+{
+	"name": "STMDPeople",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/MasterData"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "16969146-17fc-4672-ab1f-301bb1da7b34"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#Create DataFrame for the dbopeoplebasic MD Table\r\n",
+					"dbopeoplebasic = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplebasic.parquet', format='parquet')\r\n",
+					"dbopeoplebasic.createOrReplaceTempView(\"dbopeoplebasic\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbopeopledriver MD Table\r\n",
+					"dbopeopledriver = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeopledriver.parquet', format='parquet')\r\n",
+					"dbopeopledriver.createOrReplaceTempView(\"dbopeopledriver\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbopeoplepersonal MD Table\r\n",
+					"dbopeoplepersonal = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplepersonal.parquet', format='parquet')\r\n",
+					"dbopeoplepersonal.createOrReplaceTempView(\"dbopeoplepersonal\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 64
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stmdpeople\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    pb.id as md_people_id\r\n",
+					"    ,pb.empid as md_people_empid\r\n",
+					"    ,pb.employeecode as md_people_employeecode\r\n",
+					"    ,pb.uid as md_people_uid\r\n",
+					"    ,pb.firstname as md_people_firstname\r\n",
+					"    ,pb.lastname as md_people_lastname\r\n",
+					"    ,pb.knownasname as md_people_knownasname\r\n",
+					"    ,pb.birthdate as md_people_birthdate\r\n",
+					"    ,pb.gender as md_people_gender\r\n",
+					"    ,pb.cellno as md_people_cellno\r\n",
+					"    ,pb.emailaddress as md_people_emailaddress\r\n",
+					"    ,pb.nationality as md_people_nationality\r\n",
+					"    ,pb.idnumber as md_people_idnumber\r\n",
+					"    ,pb.passportno as md_people_passportno\r\n",
+					"    ,pb.passportcountrycode as md_people_passportcountrycode\r\n",
+					"    ,pb.idpassportno as md_people_idpassportno\r\n",
+					"    ,to_timestamp(pb.dateengaged) as md_people_dateengaged\r\n",
+					"    ,to_timestamp(pb.datejoinedgroup) as md_people_datejoinedgroup\r\n",
+					"    ,pb.employeestatus as md_people_employeestatus\r\n",
+					"    ,to_timestamp(pb.terminationdate) as md_people_terminationdate\r\n",
+					"    ,pb.terminationreasonid as md_people_terminationreasonid\r\n",
+					"    ,pb.depotcode as md_people_depotcode\r\n",
+					"    ,pb.jobcategory as md_people_jobcategory\r\n",
+					"    ,pb.jobtitle as md_people_jobtitle\r\n",
+					"    ,pb.source as md_people_source\r\n",
+					"    ,pb.insby as md_people_insby\r\n",
+					"    ,pb.islinehaul as md_people_islinehaul\r\n",
+					"    ,pb.companycode as md_people_companycode\r\n",
+					"    ,pb.companydisplayname as md_people_companydisplayname\r\n",
+					"    ,pb.companyrulecode as md_people_companyrulecode\r\n",
+					"    ,pb.reportstoemployee as md_people_reportstoemployee\r\n",
+					"    ,pb.reporttoempid as md_people_reporttoempid\r\n",
+					"    ,pb.internalexternal as md_people_internalexternal\r\n",
+					"    -- ,to_timestamp(pb.moddate) as md_people_moddate\r\n",
+					"    -- ,to_timestamp(pb.insdate) as md_people_insdate\r\n",
+					"    ,pd.id as md_people_driverid\r\n",
+					"    ,pd.licenseno as md_people_licenseno\r\n",
+					"    ,pd.driverrestriction as md_people_driverrestriction\r\n",
+					"    ,pd.issuecountry as md_people_issuecountry\r\n",
+					"    ,to_timestamp(pd.issuedate) as md_people_issuedate\r\n",
+					"    ,to_timestamp(pd.licensevalidfrom) as md_people_licensevalidfrom\r\n",
+					"    ,to_timestamp(pd.licensevalidto) as md_people_licensevalidto\r\n",
+					"    ,pd.vehiclecode as md_people_vehiclecode\r\n",
+					"    ,pd.vehiclerestriction as md_people_vehiclerestriction\r\n",
+					"    ,pd.driverphoto as md_people_driverphoto\r\n",
+					"    ,pd.licenseexpired as md_people_licenseexpired\r\n",
+					"    ,pd.prdpcode as md_people_prdpcode\r\n",
+					"    ,to_timestamp(pd.prdpexpiry) as md_people_prdpexpiry\r\n",
+					"    ,pp.id as md_people_personalid\r\n",
+					"    ,pp.physicalblock as md_people_physicalblock\r\n",
+					"    ,pp.physicalcitytown as md_people_physicalcitytown\r\n",
+					"    ,pp.physicalcomplex as md_people_physicalcomplex\r\n",
+					"    ,pp.physicalcountrycode as md_people_physicalcountrycode\r\n",
+					"    ,pp.physicaldistrictid as md_people_physicaldistrictid\r\n",
+					"    ,pp.physicallevelfloor as md_people_physicallevelfloor\r\n",
+					"    ,pp.physicalpostalcode as md_people_physicalpostalcode\r\n",
+					"    ,pp.physicalprovince as md_people_physicalprovince\r\n",
+					"    ,pp.physicalstreetfarmname as md_people_physicalstreetfarmname\r\n",
+					"    ,pp.physicalstreetnumber as md_people_physicalstreetnumber\r\n",
+					"    ,pp.physicalsuburbdistrict as md_people_physicalsuburbdistrict\r\n",
+					"    ,pp.physicalunitpostalnumber as md_people_physicalunitpostalnumber\r\n",
+					"    ,pp.postaladdressid as md_people_postaladdressid\r\n",
+					"    ,pp.postaladdressservicetype as md_people_postaladdressservicetype\r\n",
+					"    ,pp.postalblock as md_people_postalblock\r\n",
+					"    ,pp.postalcitytown as md_people_postalcitytown\r\n",
+					"    ,pp.postalcomplex as md_people_postalcomplex\r\n",
+					"    ,pp.postalconcat as md_people_postalconcat\r\n",
+					"    ,pp.postaldistrictid as md_people_postaldistrictid\r\n",
+					"    ,pp.postallevelfloor as md_people_postallevelfloor\r\n",
+					"    ,pp.postalpostalcode as md_people_postalpostalcode\r\n",
+					"    ,pp.postalprovince as md_people_postalprovince\r\n",
+					"    ,pp.postalstreetfarmname as md_people_postalstreetfarmname\r\n",
+					"    ,pp.postalstreetnumber as md_people_postalstreetnumber\r\n",
+					"    ,pp.postalsuburbdistrict as md_people_postalsuburbdistrict\r\n",
+					"    ,pp.postalunitpostalnumber as md_people_postalunitpostalnumber\r\n",
+					"    ,pp.racialgroup as md_people_racialgroup\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dbopeoplebasic pb\r\n",
+					"LEFT JOIN dbopeoplepersonal pp on pp.pid = pb.id\r\n",
+					"LEFT JOIN dbopeopledriver pd on pd.pid = pb.id \r\n",
+					""
+				],
+				"execution_count": 72
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stmdpeople = spark.sql(\"SELECT * FROM stmdpeople\")"
+				],
+				"execution_count": 73
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stmdpeople.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stmdpeople.parquet', mode = \"overwrite\")\r\n",
+					"\r\n",
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 74
+			}
+		]
+	}
+}

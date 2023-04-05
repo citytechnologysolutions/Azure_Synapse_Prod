@@ -1,0 +1,167 @@
+{
+	"name": "STInvoice",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Linehaul"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "6ba326a8-210a-4c82-b767-6fee1139ba50"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#Create DataFrame for the publicinvoice TMS Table\r\n",
+					"publicinvoice = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicinvoice.parquet', format='parquet')\r\n",
+					"publicinvoice.createOrReplaceTempView(\"publicinvoice\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicinvoiceitem TMS Table\r\n",
+					"publicinvoiceitem = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicinvoiceitem.parquet', format='parquet')\r\n",
+					"publicinvoiceitem.createOrReplaceTempView(\"publicinvoiceitem\")"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stinvoice\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    i.id as tms_invoice_id\r\n",
+					"    ,i.customerid as tms_invoice_customerid\r\n",
+					"    ,to_timestamp(i.invoicedate) as tms_invoice_invoicedate\r\n",
+					"    ,i.reference as tms_invoice_reference\r\n",
+					"    ,i.status as tms_invoice_status\r\n",
+					"    ,i.insby as tms_invoice_insby\r\n",
+					"    ,to_timestamp(i.insdate) as tms_invoice_insdate\r\n",
+					"    ,i.total as tms_invoice_total\r\n",
+					"    ,i.vat as tms_invoice_vat\r\n",
+					"    ,i.invoicenum as tms_invoice_invoicenum\r\n",
+					"    ,i.opaqueid as tms_invoice_opaqueid\r\n",
+					"    ,i.sapstatus as tms_invoice_sapstatus\r\n",
+					"    ,i.sapid as tms_invoice_sapid\r\n",
+					"    ,to_timestamp(i.sendsapdate) as tms_invoice_sendsapdate\r\n",
+					"    ,i.legacyid as tms_invoice_legacyid\r\n",
+					"    ,i.customercode as tms_invoice_customercode\r\n",
+					"    ,i.revennuecode as tms_invoice_revennuecode\r\n",
+					"    ,i.depotcode  as tms_invoice_depotcode \r\n",
+					"    ,i2.id as tms_invoiceitem_id\r\n",
+					"    ,i2.invoiceid as tms_invoiceitem_invoiceid\r\n",
+					"    ,i2.bookingid as tms_invoiceitem_bookingid\r\n",
+					"    ,i2.amount as tms_invoiceitem_amount\r\n",
+					"    ,i2.vat as tms_invoiceitem_vat\r\n",
+					"    ,i2.linetotal as tms_invoiceitem_linetotal\r\n",
+					"    ,to_timestamp(i2.insdate) as tms_invoiceitem_insdate\r\n",
+					"    ,to_timestamp(i2.moddate) as tms_invoiceitem_moddate\r\n",
+					"    ,i2.insby as tms_invoiceitem_insby\r\n",
+					"    ,i2.linenum as tms_invoiceitem_linenum\r\n",
+					"    ,i2.legacyid as tms_invoiceitem_legacyid\r\n",
+					"    ,i2.sapid as tms_invoiceitem_sapid\r\n",
+					"    ,i2.vatable as tms_invoiceitem_vatable\r\n",
+					"    ,i2.routeid as tms_invoiceitem_routeid\r\n",
+					"    ,i2.routename as tms_invoiceitem_routename\r\n",
+					"FROM publicinvoice i\r\n",
+					"LEFT JOIN publicinvoiceitem i2 on i2.invoiceid = i.id"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stinvoice = spark.sql(\"SELECT * FROM stinvoice\")"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stinvoice.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stinvoice.parquet', mode = \"overwrite\")\r\n",
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 23
+			}
+		]
+	}
+}

@@ -6,6 +6,10 @@
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "TESTSparkPool",
+			"type": "BigDataPoolReference"
+		},
 		"sessionProperties": {
 			"driverMemory": "28g",
 			"driverCores": 4,
@@ -16,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "63eb6e32-8491-484a-9582-262582aae3a3"
+				"spark.autotune.trackingId": "e0e07a17-805b-458c-addb-1a2eeff8e4f8"
 			}
 		},
 		"metadata": {
@@ -24,10 +28,25 @@
 			"enableDebugMode": false,
 			"kernelspec": {
 				"name": "synapse_pyspark",
-				"display_name": "python"
+				"display_name": "Synapse PySpark"
 			},
 			"language_info": {
 				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
+				"name": "TESTSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -36,10 +55,10 @@
 				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the dbodc_transfer LMS Table\r\n",
-					"dbodc_transfer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodc_transfer.parquet', format='parquet')\r\n",
+					"dbodc_transfer = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbodc_transfer.parquet', format='parquet')\r\n",
 					"dbodc_transfer.createOrReplaceTempView(\"dbodc_transfer\")"
 				],
-				"execution_count": null
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -55,7 +74,8 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
@@ -87,7 +107,7 @@
 					"FROM dbodc_transfer dct\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -105,7 +125,7 @@
 				"source": [
 					"stdctransfer = spark.sql(\"SELECT * FROM stdctransfer\")"
 				],
-				"execution_count": null
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -121,9 +141,9 @@
 					}
 				},
 				"source": [
-					"stdctransfer.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stdctransfer.parquet', mode = \"overwrite\")"
+					"stdctransfer.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdctransfer.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 4
 			}
 		]
 	}

@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "DevSparkPool",
+			"referenceName": "TESTSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "161cbd25-1df6-44dd-9860-15746125310c"
+				"spark.autotune.trackingId": "27ae0f42-9e14-4ffe-8cb8-0e97b50e7a41"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-				"name": "DevSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
+				"name": "TESTSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.2",
+				"sparkVersion": "3.3",
 				"nodeCount": 10,
 				"cores": 4,
-				"memory": 28
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -54,31 +55,31 @@
 				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the dboloads LMS Table\r\n",
-					"dboloads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
+					"dboloads = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
 					"dboloads.createOrReplaceTempView(\"dboloads\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the sstloadchild LMS Table\r\n",
-					"sstloadchild = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstloadchild.parquet', format='parquet')\r\n",
+					"sstloadchild = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/sstloadchild.parquet', format='parquet')\r\n",
 					"sstloadchild.createOrReplaceTempView(\"sstloadchild\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbovehicle LMS Table\r\n",
-					"dbovehicle = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbovehicle.parquet', format='parquet')\r\n",
+					"dbovehicle = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbovehicle.parquet', format='parquet')\r\n",
 					"dbovehicle.createOrReplaceTempView(\"dbovehicle\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicdispatch ORV Table\r\n",
-					"publicdispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
+					"publicdispatch = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
 					"publicdispatch.createOrReplaceTempView(\"publicdispatch\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicvehicle ORV Table\r\n",
-					"publicvehicle = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicvehicle.parquet', format='parquet')\r\n",
+					"publicvehicle = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/Onroute/publicvehicle.parquet', format='parquet')\r\n",
 					"publicvehicle.createOrReplaceTempView(\"publicvehicle\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicorvuser ORV Table\r\n",
-					"publicorvuser = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicorvuser.parquet', format='parquet')\r\n",
+					"publicorvuser = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/Onroute/publicorvuser.parquet', format='parquet')\r\n",
 					"publicorvuser.createOrReplaceTempView(\"publicorvuser\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbovehiclebasic LMS Table\r\n",
-					"dbovehiclebasic = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclebasic.parquet', format='parquet')\r\n",
+					"dbovehiclebasic = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclebasic.parquet', format='parquet')\r\n",
 					"dbovehiclebasic.createOrReplaceTempView(\"dbovehiclebasic\")"
 				],
 				"execution_count": 1
@@ -118,7 +119,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -136,7 +137,7 @@
 				"source": [
 					"sstloadparent_tmp = spark.sql(\"SELECT * FROM sstloadparent_tmp\")"
 				],
-				"execution_count": 30
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -431,7 +432,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 36
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -449,7 +450,7 @@
 				"source": [
 					"sstloadparent = spark.sql(\"SELECT * FROM sstloadparent\")"
 				],
-				"execution_count": 38
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -465,9 +466,9 @@
 					}
 				},
 				"source": [
-					"sstloadparent.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstloadparent.parquet', mode = \"overwrite\")"
+					"sstloadparent.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/sstloadparent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 39
+				"execution_count": null
 			}
 		]
 	}

@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "DevSparkPool",
+			"referenceName": "TESTSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "6565f721-e02f-466c-a5c9-08dff3800431"
+				"spark.autotune.trackingId": "0ebe8b4e-b1a8-4ad3-95c6-a80c2cfae02c"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-				"name": "DevSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
+				"name": "TESTSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.2",
+				"sparkVersion": "3.3",
 				"nodeCount": 10,
 				"cores": 4,
-				"memory": 28
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -54,54 +55,54 @@
 				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the dboconsignment LMS Table\r\n",
-					"dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/SSTConsignmentUnion.parquet', format='parquet')\r\n",
+					"dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
 					"dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the sstparcelbyconsignment LMS Table\r\n",
-					"sstparcelbyconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', format='parquet')\r\n",
+					"sstparcelbyconsignment = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', format='parquet')\r\n",
 					"sstparcelbyconsignment.createOrReplaceTempView(\"sstparcelbyconsignment\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbobill_consignmentr LMS Table\r\n",
-					"dbobill_consignmentr = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
+					"dbobill_consignmentr = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
 					"dbobill_consignmentr.createOrReplaceTempView(\"dbobill_consignmentr\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbousers LMS Table\r\n",
-					"dbousers = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbousers.parquet', format='parquet')\r\n",
+					"dbousers = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbousers.parquet', format='parquet')\r\n",
 					"dbousers.createOrReplaceTempView(\"dbousers\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbocustomer LMS Table\r\n",
-					"dbocustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
+					"dbocustomer = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
 					"dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbobill_delivertype LMS Table\r\n",
-					"dbobill_delivertype = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_delivertype.parquet', format='parquet')\r\n",
+					"dbobill_delivertype = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_delivertype.parquet', format='parquet')\r\n",
 					"dbobill_delivertype.createOrReplaceTempView(\"dbobill_delivertype\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbobill_zone LMS Table\r\n",
-					"dbobill_zone = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_zone.parquet', format='parquet')\r\n",
+					"dbobill_zone = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_zone.parquet', format='parquet')\r\n",
 					"dbobill_zone.createOrReplaceTempView(\"dbobill_zone\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbobill_servicetype LMS Table\r\n",
-					"dbobill_servicetype = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_servicetype.parquet', format='parquet')\r\n",
+					"dbobill_servicetype = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_servicetype.parquet', format='parquet')\r\n",
 					"dbobill_servicetype.createOrReplaceTempView(\"dbobill_servicetype\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbobill_zoneroute LMS Table\r\n",
-					"dbobill_zoneroute = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_zoneroute.parquet', format='parquet')\r\n",
+					"dbobill_zoneroute = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_zoneroute.parquet', format='parquet')\r\n",
 					"dbobill_zoneroute.createOrReplaceTempView(\"dbobill_zoneroute\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbobill_billtypesr LMS Table\r\n",
-					"dbobill_billtypesr = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_billtypesr.parquet', format='parquet')\r\n",
+					"dbobill_billtypesr = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_billtypesr.parquet', format='parquet')\r\n",
 					"dbobill_billtypesr.createOrReplaceTempView(\"dbobill_billtypesr\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbobill_routerate LMS Table\r\n",
-					"dbobill_routerate = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_routerate.parquet', format='parquet')\r\n",
+					"dbobill_routerate = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_routerate.parquet', format='parquet')\r\n",
 					"dbobill_routerate.createOrReplaceTempView(\"dbobill_routerate\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbobroutemaster LMS Table\r\n",
-					"dbobroutemaster = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobroutemaster.parquet', format='parquet')\r\n",
+					"dbobroutemaster = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobroutemaster.parquet', format='parquet')\r\n",
 					"dbobroutemaster.createOrReplaceTempView(\"dbobroutemaster\")"
 				],
-				"execution_count": 1
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -315,7 +316,7 @@
 					"LEFT JOIN dboBroutemaster brmd on brmd.id = bzrd.broutemasterid\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -333,7 +334,7 @@
 				"source": [
 					"sstconsignment = spark.sql(\"SELECT * FROM sstconsignment\")"
 				],
-				"execution_count": 3
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -349,9 +350,9 @@
 					}
 				},
 				"source": [
-					"sstconsignment.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignment.parquet', mode = \"overwrite\")"
+					"sstconsignment.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignment.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 4
+				"execution_count": 7
 			}
 		]
 	}

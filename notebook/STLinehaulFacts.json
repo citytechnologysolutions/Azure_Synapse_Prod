@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "5316e5fb-d9dc-4545-8db6-ade555b30fcd"
+				"spark.autotune.trackingId": "a2c5a6ae-a674-499f-bf55-8d1320d9dc90"
 			}
 		},
 		"metadata": {
@@ -53,53 +53,81 @@
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccountRead + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the publiccustomer TMS Table\r\n",
-					"publiccustomer = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publiccustomer.parquet', format='parquet')\r\n",
+					"publiccustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publiccustomer.parquet', format='parquet')\r\n",
 					"publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicthirdparty TMS Table\r\n",
-					"publicthirdparty = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicthirdparty.parquet', format='parquet')\r\n",
+					"publicthirdparty = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicthirdparty.parquet', format='parquet')\r\n",
 					"publicthirdparty.createOrReplaceTempView(\"publicthirdparty\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicroute TMS Table\r\n",
-					"publicroute = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicroute.parquet', format='parquet')\r\n",
+					"publicroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicroute.parquet', format='parquet')\r\n",
 					"publicroute.createOrReplaceTempView(\"publicroute\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicaddress TMS Table\r\n",
-					"publicaddress = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicaddress.parquet', format='parquet')\r\n",
+					"publicaddress = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicaddress.parquet', format='parquet')\r\n",
 					"publicaddress.createOrReplaceTempView(\"publicaddress\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicfuelcard TMS Table\r\n",
-					"publicfuelcard = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicfuelcard.parquet', format='parquet')\r\n",
+					"publicfuelcard = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfuelcard.parquet', format='parquet')\r\n",
 					"publicfuelcard.createOrReplaceTempView(\"publicfuelcard\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicfuelzone TMS Table\r\n",
-					"publicfuelzone = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzone.parquet', format='parquet')\r\n",
+					"publicfuelzone = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzone.parquet', format='parquet')\r\n",
 					"publicfuelzone.createOrReplaceTempView(\"publicfuelzone\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicfuelzonehistory TMS Table\r\n",
-					"publicfuelzonehistory = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzonehistory.parquet', format='parquet')\r\n",
+					"publicfuelzonehistory = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzonehistory.parquet', format='parquet')\r\n",
 					"publicfuelzonehistory.createOrReplaceTempView(\"publicfuelzonehistory\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicratecomponent TMS Table\r\n",
-					"publicratecomponent = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicratecomponent.parquet', format='parquet')\r\n",
+					"publicratecomponent = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicratecomponent.parquet', format='parquet')\r\n",
 					"publicratecomponent.createOrReplaceTempView(\"publicratecomponent\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicrateprofile TMS Table\r\n",
-					"publicrateprofile = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicrateprofile.parquet', format='parquet')\r\n",
+					"publicrateprofile = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicrateprofile.parquet', format='parquet')\r\n",
 					"publicrateprofile.createOrReplaceTempView(\"publicrateprofile\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicselist TMS Table\r\n",
-					"publicselist = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicselist.parquet', format='parquet')\r\n",
+					"publicselist = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicselist.parquet', format='parquet')\r\n",
 					"publicselist.createOrReplaceTempView(\"publicselist\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicselistitem TMS Table\r\n",
-					"publicselistitem = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicselistitem.parquet', format='parquet')\r\n",
+					"publicselistitem = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicselistitem.parquet', format='parquet')\r\n",
 					"publicselistitem.createOrReplaceTempView(\"publicselistitem\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicdriverpay TMS Table\r\n",
-					"publicdriverpay = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicdriverpay.parquet', format='parquet')\r\n",
+					"publicdriverpay = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicdriverpay.parquet', format='parquet')\r\n",
 					"publicdriverpay.createOrReplaceTempView(\"publicdriverpay\")\r\n",
 					"\r\n",
 					""
@@ -183,7 +211,7 @@
 					}
 				},
 				"source": [
-					"stdriverpay.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdriverpay.parquet', mode = \"overwrite\")"
+					"stdriverpay.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdriverpay.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 4
 			},
@@ -282,7 +310,7 @@
 				},
 				"source": [
 					"\r\n",
-					"stfuelcard.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stfuelcard.parquet', mode = \"overwrite\")"
+					"stfuelcard.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfuelcard.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 8
 			},
@@ -358,7 +386,7 @@
 				},
 				"source": [
 					"\r\n",
-					"stfuelzone.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stfuelzone.parquet', mode = \"overwrite\")"
+					"stfuelzone.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfuelzone.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 11
 			},
@@ -433,7 +461,7 @@
 					}
 				},
 				"source": [
-					"stfuelzonehistory.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stfuelzonehistory.parquet', mode = \"overwrite\")"
+					"stfuelzonehistory.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfuelzonehistory.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 14
 			},

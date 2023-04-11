@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "3dc27893-d05d-470b-b210-6a27c413605a"
+				"spark.autotune.trackingId": "357cc8a7-e6f2-4471-bcc8-4368f0c2cc74"
 			}
 		},
 		"metadata": {
@@ -68,8 +68,14 @@
 					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
 					"if 'prod' in Environment:\r\n",
 					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
 					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'"
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
 				],
 				"execution_count": 8
 			},
@@ -77,11 +83,11 @@
 				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the dboconsignment_archive LMS Table\r\n",
-					"dboconsignment_archive = spark.read.load('abfss://synapse@' + StorageAccount + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment_archive.parquet', format='parquet')\r\n",
+					"dboconsignment_archive = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment_archive.parquet', format='parquet')\r\n",
 					"dboconsignment_archive.createOrReplaceTempView(\"dboconsignment_archive\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dboconsignment LMS Table\r\n",
-					"dboconsignment = spark.read.load('abfss://synapse@' + StorageAccount + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"dboconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
 					"dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
 					""
 				],
@@ -165,7 +171,7 @@
 					}
 				},
 				"source": [
-					"sstconsignmentunion.write.parquet('abfss://synapse@' + StorageAccount + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', mode = \"overwrite\")"
+					"sstconsignmentunion.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 14
 			}

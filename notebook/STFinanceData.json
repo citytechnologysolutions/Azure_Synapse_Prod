@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "add0d2b0-f5a9-44b9-92ae-1f3daa6e8a6f"
+				"spark.autotune.trackingId": "9fac34de-dd64-47a0-990d-b594bf11b2e9"
 			}
 		},
 		"metadata": {
@@ -53,9 +53,37 @@
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccountRead + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the publicfinancedata TMS Table\r\n",
-					"publicfinancedata = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicfinancedata.parquet', format='parquet')\r\n",
+					"publicfinancedata = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfinancedata.parquet', format='parquet')\r\n",
 					"publicfinancedata.createOrReplaceTempView(\"publicfinancedata\")"
 				],
 				"execution_count": 2
@@ -139,7 +167,7 @@
 					}
 				},
 				"source": [
-					"stfinancedata.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stfinancedata.parquet', mode = \"overwrite\")"
+					"stfinancedata.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfinancedata.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 5
 			}

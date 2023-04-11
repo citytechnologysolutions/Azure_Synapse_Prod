@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "84a29b33-ae4a-42eb-88ab-54637c27d5ea"
+				"spark.autotune.trackingId": "b6e9b92e-fe4d-4f5a-a758-945450f2aa16"
 			}
 		},
 		"metadata": {
@@ -53,21 +53,49 @@
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the sstparcelunion LMS Table\r\n",
-					"sstparcelunion = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
 					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the ssttrackunion LMS Table\r\n",
-					"ssttrackunion = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
+					"ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
 					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbowaybillsperparcel LMS Table\r\n",
-					"dbowaybillsperparcel = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbowaybillsperparcel.parquet', format='parquet')\r\n",
+					"dbowaybillsperparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybillsperparcel.parquet', format='parquet')\r\n",
 					"dbowaybillsperparcel.createOrReplaceTempView(\"dbowaybillsperparcel\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbowaybill LMS Table\r\n",
-					"dbowaybill = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
+					"dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
 					"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
 					""
 				],
@@ -171,7 +199,7 @@
 					}
 				},
 				"source": [
-					"sstwaybillsperparcel.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/sstwaybillsperparcel.parquet', mode = \"overwrite\")"
+					"sstwaybillsperparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstwaybillsperparcel.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 15
 			}

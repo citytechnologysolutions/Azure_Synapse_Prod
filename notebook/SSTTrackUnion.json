@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "132eb7c4-73d5-4ee1-86cb-8a95982cddfd"
+				"spark.autotune.trackingId": "13867f14-b9a5-4009-a29d-0b530a7c5cdc"
 			}
 		},
 		"metadata": {
@@ -53,17 +53,45 @@
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the dbotrack_archive LMS Table\r\n",
-					"dbotrack_archive = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbotrack_archive.parquet', format='parquet')\r\n",
+					"dbotrack_archive = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbotrack_archive.parquet', format='parquet')\r\n",
 					"dbotrack_archive.createOrReplaceTempView(\"dbotrack_archive\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbotrack LMS Table\r\n",
-					"dbotrack = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"dbotrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
 					"dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
 					""
 				],
-				"execution_count": 1
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -82,7 +110,7 @@
 					"dbotrackunion = dbotrack_archive.unionByName(dbotrack, allowMissingColumns = True)\r\n",
 					"dbotrackunion.createOrReplaceTempView(\"dbotrackunion\")"
 				],
-				"execution_count": 2
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -109,7 +137,7 @@
 					"SELECT * \r\n",
 					"FROM dbotrackunion"
 				],
-				"execution_count": 3
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -127,7 +155,7 @@
 				"source": [
 					"ssttrackunion = spark.sql(\"SELECT * FROM ssttrackunion\")"
 				],
-				"execution_count": 4
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -143,9 +171,9 @@
 					}
 				},
 				"source": [
-					"ssttrackunion.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', mode = \"overwrite\")"
+					"ssttrackunion.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 5
+				"execution_count": 6
 			}
 		]
 	}

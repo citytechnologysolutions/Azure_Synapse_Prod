@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "593fa404-79ec-42a0-8b6e-5c6dfa60a3aa"
+				"spark.autotune.trackingId": "592eb39d-b7d7-451b-8a93-9cd3bf420a54"
 			}
 		},
 		"metadata": {
@@ -77,7 +77,7 @@
 					"\r\n",
 					"# ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -90,7 +90,7 @@
 					"dboparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
 					"dboparcel.createOrReplaceTempView(\"dboparcel\")"
 				],
-				"execution_count": 2
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -109,7 +109,7 @@
 					"dboparcelunion = dboparcel_archive.unionByName(dboparcel, allowMissingColumns = True)\r\n",
 					"dboparcelunion.createOrReplaceTempView(\"dboparcelunion\")"
 				],
-				"execution_count": 3
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -136,7 +136,7 @@
 					"SELECT * \r\n",
 					"FROM dboparcelunion"
 				],
-				"execution_count": 4
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -154,7 +154,7 @@
 				"source": [
 					"sstparcelunion = spark.sql(\"SELECT * FROM sstparcelunion\")"
 				],
-				"execution_count": 5
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -172,7 +172,7 @@
 				"source": [
 					"sstparcelunion.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 6
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",

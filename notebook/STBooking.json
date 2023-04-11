@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "0467d131-a31a-43d3-976b-6993c9747d00"
+				"spark.autotune.trackingId": "8d38746d-d654-4340-81fa-cfb9dfb37747"
 			}
 		},
 		"metadata": {
@@ -53,25 +53,53 @@
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccountRead + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the publicbooking TMS Table\r\n",
-					"publicbooking = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicbooking.parquet', format='parquet')\r\n",
+					"publicbooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicbooking.parquet', format='parquet')\r\n",
 					"publicbooking.createOrReplaceTempView(\"publicbooking\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicnonbooking TMS Table\r\n",
-					"publicnonbooking = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicnonbooking.parquet', format='parquet')\r\n",
+					"publicnonbooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicnonbooking.parquet', format='parquet')\r\n",
 					"publicnonbooking.createOrReplaceTempView(\"publicnonbooking\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbolhbooking TMS Table\r\n",
-					"dboLHBooking = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbolh_booking.parquet', format='parquet')\r\n",
+					"dboLHBooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_booking.parquet', format='parquet')\r\n",
 					"dboLHBooking.createOrReplaceTempView(\"dboLHBooking\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbolhroutes TMS Table\r\n",
-					"dbolhroutes = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbolh_routes.parquet', format='parquet')\r\n",
+					"dbolhroutes = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_routes.parquet', format='parquet')\r\n",
 					"dbolhroutes.createOrReplaceTempView(\"dbolhroutes\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbolhbookingspertrip TMS Table\r\n",
-					"dbolhbookingspertrip = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbolh_bookingspertrip.parquet', format='parquet')\r\n",
+					"dbolhbookingspertrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_bookingspertrip.parquet', format='parquet')\r\n",
 					"dbolhbookingspertrip.createOrReplaceTempView(\"dbolhbookingspertrip\")"
 				],
 				"execution_count": 1
@@ -493,7 +521,7 @@
 					}
 				},
 				"source": [
-					"stbooking.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', mode = \"overwrite\")\r\n",
+					"stbooking.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', mode = \"overwrite\")\r\n",
 					"print(\"SUCCESS\")"
 				],
 				"execution_count": 13

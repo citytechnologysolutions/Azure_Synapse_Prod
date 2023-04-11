@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "783009fb-7efd-4806-b304-1ba86638152c"
+				"spark.autotune.trackingId": "65845163-beaf-4f96-a8e3-71785d75aa07"
 			}
 		},
 		"metadata": {
@@ -53,9 +53,37 @@
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the sstloadchild LMS Table\r\n",
-					"sstloadchild = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/sstloadchild.parquet', format='parquet')\r\n",
+					"sstloadchild = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstloadchild.parquet', format='parquet')\r\n",
 					"sstloadchild.createOrReplaceTempView(\"sstloadchild\")\r\n",
 					""
 				],
@@ -183,7 +211,7 @@
 					}
 				},
 				"source": [
-					"stloadchild.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', mode = \"overwrite\")\r\n",
+					"stloadchild.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', mode = \"overwrite\")\r\n",
 					"\r\n",
 					"print(\"SUCCESS\")\r\n",
 					""

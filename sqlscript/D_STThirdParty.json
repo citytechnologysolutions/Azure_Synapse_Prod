@@ -1,0 +1,20 @@
+{
+	"name": "D_STThirdParty",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Linehaul"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STThirdParty') )\n    DROP EXTERNAL TABLE dbo.D_STThirdParty\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STThirdParty (\n    [tms_thirdparty_id] bigint,\n    [tms_thirdparty_name] nvarchar(4000),\n    [tms_thirdparty_areacode] nvarchar(4000),\n    [tms_thirdparty_telnumber] nvarchar(4000),\n    [tms_thirdparty_mobareacode] nvarchar(4000),\n    [tms_thirdparty_mobnumer] nvarchar(4000),\n    [tms_thirdparty_contact] nvarchar(4000),\n    [tms_thirdparty_address] nvarchar(4000),\n    [tms_thirdparty_streetno] nvarchar(4000),\n    [tms_thirdparty_zipcode] nvarchar(4000),\n    [tms_thirdparty_city] nvarchar(4000),\n    [tms_thirdparty_province] nvarchar(4000),\n    [tms_thirdparty_status] nvarchar(4000),\n    [tms_thirdparty_mdvoid] bigint,\n    [tms_thirdparty_registration] nvarchar(4000),\n    [tms_thirdparty_email] nvarchar(4000),\n    [tms_thirdparty_accnumber] nvarchar(4000),\n    [tms_thirdparty_insdate] datetime2(7),\n    [tms_thirdparty_moddate] datetime2(7),\n    [tms_thirdparty_gitstatus] nvarchar(4000),\n    [tms_thirdparty_legacyid] int,\n    [tms_thirdparty_lat] float,\n    [tms_thirdparty_lng] float,\n    [tms_thirdparty_note] nvarchar(4000),\n    [tms_thirdparty_revenuecode] nvarchar(4000),\n    [tms_thirdparty_country] nvarchar(4000)\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stthirdparty.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STThirdParty \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

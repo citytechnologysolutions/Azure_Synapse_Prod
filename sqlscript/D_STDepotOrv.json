@@ -1,0 +1,20 @@
+{
+	"name": "D_STDepotOrv",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STDepotOrv') )\n    DROP EXTERNAL TABLE dbo.D_STDepotOrv\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STDepotOrv (\n    [orv_depot_id] bigint,\n    [orv_depot_name] nvarchar(4000),\n    [orv_depot_depcode] nvarchar(4000),\n    [orv_depot_address] nvarchar(4000),\n    [orv_depot_suburb] nvarchar(4000),\n    [orv_depot_city] nvarchar(4000),\n    [orv_depot_zipcode] nvarchar(4000),\n    [orv_depot_region] nvarchar(4000),\n    [orv_depot_lat] float,\n    [orv_depot_lng] float,\n    [orv_depot_placeid] nvarchar(4000),\n    [orv_depot_w3w] nvarchar(4000),\n    [orv_depot_insdate] datetime2(7),\n    [orv_depot_update] datetime2(7),\n    [orv_depot_lmsid] int,\n    [orv_depot_country] nvarchar(4000),\n    [orv_depot_status] nvarchar(4000)\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stdepotorv.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STDepotOrv \nGO\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

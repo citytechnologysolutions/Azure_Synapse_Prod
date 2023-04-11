@@ -1,0 +1,20 @@
+{
+	"name": "D_STVehicle",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STVehicle') )\n    DROP EXTERNAL TABLE dbo.D_STVehicle\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STVehicle (\n\n    [lms_vehicle_id] int,\n    [lms_vehicle_fleetno] nvarchar(4000),\n    [lms_vehicle_regno] nvarchar(4000),\n    [lms_vehicle_uid] nvarchar(4000),\n    [orv_vehicle_id] bigint,\n    [orv_vehicle_tollclass] nvarchar(4000),\n    [orv_vehicle_sapcode] nvarchar(4000),\n    [orv_vehicle_lmsid] bigint,\n\n    \n    \n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stvehicle.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STVehicle \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

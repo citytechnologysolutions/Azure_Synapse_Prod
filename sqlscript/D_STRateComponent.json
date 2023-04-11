@@ -1,0 +1,20 @@
+{
+	"name": "D_STRateComponent",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Linehaul"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STRateComponent') )\n    DROP EXTERNAL TABLE dbo.D_STRateComponent\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STRateComponent (\n    [tms_ratecomponent_id] bigint,\n    [tms_ratecomponent_profileid] bigint,\n    [tms_ratecomponent_ratetype] nvarchar(4000),\n    [tms_ratecomponent_amount] int,\n    [tms_ratecomponent_applyfuellevy] int,\n    [tms_ratecomponent_note] nvarchar(4000),\n    [tms_ratecomponent_insdate] datetime2(7),\n    [tms_ratecomponent_moddate] datetime2(7),\n    [tms_ratecomponent_insby] bigint,\n    [tms_ratecomponent_legacyid] int,\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stratecomponent.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STRateComponent \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

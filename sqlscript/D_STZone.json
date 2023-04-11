@@ -1,0 +1,20 @@
+{
+	"name": "D_STZone",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "\nIF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STZone') )\n    DROP EXTERNAL TABLE dbo.D_STZone\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STZone (\n    [lms_zone_id] int,\n    [lms_zone_code] nvarchar(4000),\n    [lms_zone_description] nvarchar(4000),\n    [lms_zone_isocode] nvarchar(4000),\n    [lms_zone_locid] int,\n    [lms_zone_zonemasterid] int \n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stzone.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STZone \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

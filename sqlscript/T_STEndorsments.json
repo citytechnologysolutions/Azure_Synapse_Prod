@@ -1,0 +1,20 @@
+{
+	"name": "T_STEndorsments",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STEndorsments') )\n    DROP EXTERNAL TABLE dbo.T_STEndorsments\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STEndorsments (\n\t[lms_db_endorsement_id] int,\n\t[lms_db_endorsement_description] nvarchar(4000),\n\t[lms_wbendorsement_id] int,\n\t[lms_wbendorsement_barcode] nvarchar(4000),\n\t[lms_wbendorsement_waybillid] int,\n\t[orv_claim_id] bigint,\n\t[orv_claim_delid] bigint,\n\t[orv_claim_claimtype] nvarchar(4000),\n\t[orv_claim_claimdate] datetime2(7),\n\t[orv_claim_did] bigint,\n\t[orv_claim_parcelid] bigint,\n\t[orv_claim_barcode] nvarchar(4000),\n\t[orv_claim_attachid] bigint,\n\t[orv_claim_note] nvarchar(4000)\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stendorsments.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STEndorsments \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

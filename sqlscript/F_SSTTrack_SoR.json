@@ -1,0 +1,20 @@
+{
+	"name": "F_SSTTrack_SoR",
+	"properties": {
+		"folder": {
+			"name": "Semi Structured Schema on Read/OPS"
+		},
+		"content": {
+			"query": "DROP EXTERNAL TABLE dbo.F_SSTTrack;\n\nCREATE EXTERNAL TABLE dbo.F_SSTTrack (\n\t[lms_track_id] int,\n\t[lms_track_opendt] datetime2(7),\n\t[lms_track_closedt] datetime2(7),\n\t[lms_track_loadid] int,\n\t[lms_track_userid] int,\n\t[lms_track_parcelid] int,\n\t[lms_track_tolocid] int,\n\t[lms_track_touserid] int,\n\t[lms_track_fromlocid] int,\n\t[lms_track_tracktypeid2] int,\n\t[lms_track_tracktypeid] int,\n\t[lms_track_lastupdate] datetime2(7),\n\t[lms_track_toloadid] int,\n\t[lms_track_openstationid] int,\n\t[lms_track_closestationid] int,\n\t[lms_parcel_weight] float,\n\t[lms_parcel_chargeweight] numeric(18,2),\n\t[lms_parcel_volweight] float,\n\t[lms_parcel_volumiserweight] numeric(18,2),\n\t[lms_flocation_id] int,\n\t[lms_flocation_description] nvarchar(4000),\n\t[lms_tlocation_id] int,\n\t[lms_tlocation_description] nvarchar(4000)\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/ssttrack.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTTrack\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "SemiSTOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

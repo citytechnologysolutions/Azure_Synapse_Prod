@@ -1,0 +1,20 @@
+{
+	"name": "T_STFinanceData",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Linehaul"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STFinanceData') )\n    DROP EXTERNAL TABLE dbo.T_STFinanceData\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STFinanceData (\n    [tms_financedata_id] bigint,\n    [tms_financedata_bookingid] bigint,\n    [tms_financedata_insdate] datetime2(7),\n    [tms_financedata_peaksurchagrebuy] bigint,\n    [tms_financedata_peaksurchagresell] bigint,\n    [tms_financedata_manualentryroadhaulsell] bigint,\n    [tms_financedata_manualentryahocsell] bigint,\n    [tms_financedata_systemfuellevy] bigint,\n    [tms_financedata_systemratefuellevy] bigint,\n    [tms_financedata_systemratefuelexlevy] bigint,\n    [tms_financedata_systemratefuelinclevy] bigint,\n    [tms_financedata_systemsellrate] bigint,\n    [tms_financedata_totalsellrate] bigint,\n    [tms_financedata_moddate] datetime2(7),\n    [tms_financedata_totalbuyrate] bigint,\n    [tms_financedata_rateprofileid] bigint\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stfinancedata.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STFinanceData \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

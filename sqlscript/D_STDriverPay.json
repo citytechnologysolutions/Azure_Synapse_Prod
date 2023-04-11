@@ -1,0 +1,20 @@
+{
+	"name": "D_STDriverPay",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Linehaul"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STDriverPay') )\n    DROP EXTERNAL TABLE dbo.D_STDriverPay\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STDriverPay (\n    [tms_driverpay_id] bigint,\n    [tms_driverpay_routeid] bigint,\n    [tms_driverpay_triprate] int,\n    [tms_driverpay_mealrate] int,\n    [tms_driverpay_linkrate] int,\n    [tms_driverpay_sleepoverrate] int,\n    [tms_driverpay_numsleepover] int,\n    [tms_driverpay_nummeal] int,\n    [tms_driverpay_validfromdate] datetime2(7),\n    [tms_driverpay_validtodate] datetime2(7),\n    [tms_driverpay_insdate] datetime2(7),\n    [tms_driverpay_moddate] datetime2(7),\n    [tms_driverpay_insby] bigint,\n    [tms_driverpay_airtimerate] int,\n    [tms_driverpay_status] nvarchar(4000),\n    [tms_driverpay_legacyid] int,\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stdriverpay.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STDriverPay \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

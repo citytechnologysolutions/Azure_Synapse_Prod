@@ -1,0 +1,20 @@
+{
+	"name": "D_STTMSList",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Linehaul"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STTMSList') )\n    DROP EXTERNAL TABLE dbo.D_STTMSList\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STTMSList (\n    [tms_list_id] bigint,\n    [tms_list_slug] nvarchar(4000),\n    [tms_list_valuetype] nvarchar(4000),\n    [tms_list_descr] nvarchar(4000),\n    [tms_list_insdate] datetime2(7),\n    [tms_list_moddate] datetime2(7),\n    [tms_list_refcols] nvarchar(4000),\n    [tms_list_editable] int,\n    [tms_listitem_id] bigint,\n    [tms_listitem_lid] bigint,\n    [tms_listitem_itemlabel] nvarchar(4000),\n    [tms_listitem_itemvalue] nvarchar(4000),\n    [tms_listitem_sort] int,\n    [tms_listitem_mdid] bigint,\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/sttmslist.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STTMSList \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

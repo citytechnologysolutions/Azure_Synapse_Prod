@@ -1,0 +1,20 @@
+{
+	"name": "T_STTMSTrack",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Linehaul"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STTMSTrack') )\n    DROP EXTERNAL TABLE dbo.T_STTMSTrack\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STTMSTrack (\n    [tms_track_id] bigint,\n    [tms_track_tripid] bigint,\n    [tms_track_source] nvarchar(4000),\n    [tms_track_trackdate] datetime2(7),\n    [tms_track_tracktype] nvarchar(4000),\n    [tms_track_userid] bigint,\n    [tms_track_lat] float,\n    [tms_track_lng] float,\n    [tms_track_address] nvarchar(4000),\n    [tms_track_note] nvarchar(4000),\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/sttmstrack.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STTMSTrack \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

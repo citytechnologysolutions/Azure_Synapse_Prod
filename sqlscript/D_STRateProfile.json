@@ -1,0 +1,20 @@
+{
+	"name": "D_STRateProfile",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Linehaul"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STRateProfile') )\n    DROP EXTERNAL TABLE dbo.D_STRateProfile\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STRateProfile (\n    [tms_rateprofile_id] bigint,\n    [tms_rateprofile_eid] bigint,\n    [tms_rateprofile_entity] nvarchar(4000),\n    [tms_rateprofile_trailersize] nvarchar(4000),\n    [tms_rateprofile_routeid] bigint,\n    [tms_rateprofile_profiletype] nvarchar(4000),\n    [tms_rateprofile_fromdate] datetime2(7),\n    [tms_rateprofile_todate] datetime2(7),\n    [tms_rateprofile_insby] bigint,\n    [tms_rateprofile_status] nvarchar(4000),\n    [tms_rateprofile_insdate] datetime2(7),\n    [tms_rateprofile_moddate] datetime2(7),\n    [tms_rateprofile_note] nvarchar(4000),\n    [tms_rateprofile_legacyid] int,\n    [tms_rateprofile_usedfuelprice] int,\n\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/strateprofile.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STRateProfile \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

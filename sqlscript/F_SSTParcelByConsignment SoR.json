@@ -1,0 +1,20 @@
+{
+	"name": "F_SSTParcelByConsignment SoR",
+	"properties": {
+		"folder": {
+			"name": "Semi Structured Schema on Read/OPS"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTParcelByConsignment') )\n    DROP EXTERNAL TABLE dbo.F_SSTParcelByConsignment\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTParcelByConsignment (\n\t[lms_parcelbyconsignment_consignid] int,\n\t[lms_parcelbyconsignment_aggweight] float,\n\t[lms_parcelbyconsignment_aggchargeweight] numeric(28,2),\n\t[lms_parcelbyconsignment_aggvolweight] float,\n\t[lms_parcelbyconsignment_aggvolumiserweight] numeric(28,2),\n\t[lms_parcelbyconsignment_noparcels] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstparcelbyconsignment.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTParcelByConsignment\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "SemiSTOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "D_STSRoute",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STSRoute') )\n    DROP EXTERNAL TABLE dbo.D_STSRoute\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STSRoute (\n    [lms_sroute_id] int,\n    [lms_sroute_billcustid] int,\n    [lms_sroute_courierid] nvarchar(4000),\n    [lms_sroute_description] nvarchar(4000),\n    [lms_sroute_code] nvarchar(4000),\n    [lms_sroute_id2] int,\n    [lms_sroute_sroutegroupid] int,\n    [lms_sroute_zoneid] int,\n    [lms_sroute_broutemasterid] int,\n    [lms_sroute_localflag] int,\n    [lms_sroute_area] nvarchar(4000),\n    [lms_sroute_highvolume] int\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stsroute.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STSRoute \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

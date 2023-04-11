@@ -1,0 +1,20 @@
+{
+	"name": "D_STParentRoute",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Linehaul"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STParentRoute') )\n    DROP EXTERNAL TABLE dbo.D_STParentRoute\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STParentRoute (\n    [tms_parentroute_id] bigint,\n    [tms_parentroute_name] nvarchar(4000),\n    [tms_parentroute_slug] nvarchar(4000),\n    [tms_parentroute_parentroute] bigint,\n    [tms_parentroute_insdate] datetime2(7),\n    [tms_parentroute_moddate] datetime2(7),\n    [tms_parentroute_insby] bigint,\n    [tms_parentroute_status] nvarchar(4000),\n    [tms_parentroute_crossborder] int,\n    [tms_parentroute_roundtripdays] int,\n    [tms_parentroute_distance] int,\n    [tms_parentroute_duration] int,\n    [tms_parentroute_numofuse] int,\n    [tms_parentroute_legacyid] int,\n    [tms_parentroute_local] int\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stparentroute.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STParentRoute \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "D_STUserOrv",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STUserOrv') )\n    DROP EXTERNAL TABLE dbo.D_STUserOrv\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STUserOrv (\n    [orv_orvuser_id] bigint,\n    [orv_orvuser_username] nvarchar(4000),\n    [orv_orvuser_fname] nvarchar(4000),\n    [orv_orvuser_lname] nvarchar(4000),\n    [orv_orvuser_empcode] nvarchar(4000),\n    [orv_orvuser_aka] nvarchar(4000),\n    [orv_orvuser_gender] nvarchar(4000),\n    [orv_orvuser_rsaid] nvarchar(4000),\n    [orv_orvuser_passportno] nvarchar(4000),\n    [orv_orvuser_idpassportno] nvarchar(4000),\n    [orv_orvuser_nationality] nvarchar(4000),\n    [orv_orvuser_termindate] datetime2(7),\n    [orv_orvuser_status] nvarchar(4000),\n    [orv_orvuser_depot] nvarchar(4000),\n    [orv_orvuser_jobcategory] nvarchar(4000),\n    [orv_orvuser_lmsid] bigint,\n    [orv_orvuser_vipid] bigint,\n    [orv_orvuser_crewlmsid] bigint,\n    [orv_orvuser_courierid] bigint\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/storvuser.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STUserOrv\nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "D_STLocation",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STLocation') )\n    DROP EXTERNAL TABLE dbo.D_STLocation\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STLocation (\n    [lms_location_id] int,\n    [lms_location_description] nvarchar(4000),\n    [lms_location_code] nvarchar(4000),\n    [lms_location_collect] int,\n    [lms_location_pcode] nvarchar(4000),\n    [lms_location_custid] int,\n    [lms_location_retail] int,\n    [lms_location_scale] int,\n    [lms_location_custcode] int,\n    [lms_location_captureonly] int,\n    [lms_location_zoneid] int,\n    [lms_location_scantype] int,\n    [lms_location_billcustid] int,\n    [lms_location_latitude] nvarchar(4000),\n    [lms_location_longitude] nvarchar(4000),\n    [lms_location_holdlocid] int,\n    [lms_location_branchmanageruserid] int,\n    [lms_location_fwcostcentre] int,\n    [lms_location_fwuserid] int,\n    [lms_location_fwmultibusinessid] int,\n    [lms_location_glcode] nvarchar(4000),\n    [lms_location_hubcode] nvarchar(4000),\n    [lms_location_fwapikey] nvarchar(4000),\n    [lms_location_geolocationgroupid] int,\n    [lms_location_geolocationflag] int,\n    [lms_location_orvactive] int,\n    [lms_location_cref] nvarchar(4000),\n    [lms_location_tempcol] int,\n    [lms_location_holdlocparentlocid] int,\n    [lms_location_floorsize] int,\n    [lms_location_isstationidenabled] int,\n    [lms_location_activeflag] int,\n    [lms_location_masterlocid] int,\n    [lms_location_locationtypeid] int,\n    [lms_location_locationcode] nvarchar(4000)\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stlocation.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STLocation \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

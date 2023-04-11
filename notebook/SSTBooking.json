@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4271734e-f3c6-41de-85e9-33988d9a76fc"
+				"spark.autotune.trackingId": "d2a5e1c7-eae6-4c1c-98d5-2440f7ed2886"
 			}
 		},
 		"metadata": {
@@ -53,33 +53,58 @@
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the publicnonbooking TMS Table\r\n",
-					"publicnonbooking = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicnonbooking.parquet', format='parquet')\r\n",
+					"publicnonbooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicnonbooking.parquet', format='parquet')\r\n",
 					"publicnonbooking.createOrReplaceTempView(\"publicnonbooking\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicbooking TMS Table\r\n",
-					"publicbooking = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicbooking.parquet', format='parquet')\r\n",
+					"publicbooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicbooking.parquet', format='parquet')\r\n",
 					"publicbooking.createOrReplaceTempView(\"publicbooking\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publiccustomer TMS Table\r\n",
-					"publiccustomer = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publiccustomer.parquet', format='parquet')\r\n",
+					"publiccustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publiccustomer.parquet', format='parquet')\r\n",
 					"publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicroute TMS Table\r\n",
-					"publicroute = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicroute.parquet', format='parquet')\r\n",
+					"publicroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicroute.parquet', format='parquet')\r\n",
 					"publicroute.createOrReplaceTempView(\"publicroute\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicthirdparty TMS Table\r\n",
-					"publicthirdparty = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicthirdparty.parquet', format='parquet')\r\n",
+					"publicthirdparty = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicthirdparty.parquet', format='parquet')\r\n",
 					"publicthirdparty.createOrReplaceTempView(\"publicthirdparty\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicfinancedata TMS Table\r\n",
-					"publicfinancedata = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicfinancedata.parquet', format='parquet')\r\n",
-					"publicfinancedata.createOrReplaceTempView(\"publicfinancedata\")\r\n",
-					"\r\n",
-					"\r\n",
-					""
+					"publicfinancedata = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfinancedata.parquet', format='parquet')\r\n",
+					"publicfinancedata.createOrReplaceTempView(\"publicfinancedata\")"
 				],
 				"execution_count": 1
 			},
@@ -549,7 +574,7 @@
 					}
 				},
 				"source": [
-					"sstbooking.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Semi Structured Data/OPS/sstbooking.parquet', mode = \"overwrite\")"
+					"sstbooking.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstbooking.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 9
 			}

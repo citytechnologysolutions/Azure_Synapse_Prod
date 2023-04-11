@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "5ff540cd-01f3-46b9-b5f4-becb82bddb7a"
+				"spark.autotune.trackingId": "d1f03df7-a3a2-462d-a4f6-42bf1465d89d"
 			}
 		},
 		"metadata": {
@@ -53,13 +53,41 @@
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccountRead + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the publicinvoice TMS Table\r\n",
-					"publicinvoice = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicinvoice.parquet', format='parquet')\r\n",
+					"publicinvoice = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicinvoice.parquet', format='parquet')\r\n",
 					"publicinvoice.createOrReplaceTempView(\"publicinvoice\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicinvoiceitem TMS Table\r\n",
-					"publicinvoiceitem = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicinvoiceitem.parquet', format='parquet')\r\n",
+					"publicinvoiceitem = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicinvoiceitem.parquet', format='parquet')\r\n",
 					"publicinvoiceitem.createOrReplaceTempView(\"publicinvoiceitem\")"
 				],
 				"execution_count": 1

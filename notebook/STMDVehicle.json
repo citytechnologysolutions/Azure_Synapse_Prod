@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "dc08f48a-ec40-48b1-b321-d400b91c1095"
+				"spark.autotune.trackingId": "b0b8aadb-6a0c-4c6b-9cbb-3ad5052cf9d1"
 			}
 		},
 		"metadata": {
@@ -53,25 +53,53 @@
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the dbovehiclebasic MD Table\r\n",
-					"dbovehiclebasic = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclebasic.parquet', format='parquet')\r\n",
+					"dbovehiclebasic = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclebasic.parquet', format='parquet')\r\n",
 					"dbovehiclebasic.createOrReplaceTempView(\"dbovehiclebasic\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbovehicleadmin MD Table\r\n",
-					"dbovehicleadmin = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicleadmin.parquet', format='parquet')\r\n",
+					"dbovehicleadmin = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicleadmin.parquet', format='parquet')\r\n",
 					"dbovehicleadmin.createOrReplaceTempView(\"dbovehicleadmin\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbovehicleoperations MD Table\r\n",
-					"dbovehicleoperations = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicleoperations.parquet', format='parquet')\r\n",
+					"dbovehicleoperations = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicleoperations.parquet', format='parquet')\r\n",
 					"dbovehicleoperations.createOrReplaceTempView(\"dbovehicleoperations\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbovehiclefinance MD Table\r\n",
-					"dbovehiclefinance = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclefinance.parquet', format='parquet')\r\n",
+					"dbovehiclefinance = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclefinance.parquet', format='parquet')\r\n",
 					"dbovehiclefinance.createOrReplaceTempView(\"dbovehiclefinance\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbovehicletracking MD Table\r\n",
-					"dbovehicletracking = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicletracking.parquet', format='parquet')\r\n",
+					"dbovehicletracking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicletracking.parquet', format='parquet')\r\n",
 					"dbovehicletracking.createOrReplaceTempView(\"dbovehicletracking\")\r\n",
 					""
 				],
@@ -240,7 +268,7 @@
 					}
 				},
 				"source": [
-					"stmdvehicle.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stmdvehicle.parquet', mode = \"overwrite\")\r\n",
+					"stmdvehicle.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stmdvehicle.parquet', mode = \"overwrite\")\r\n",
 					"\r\n",
 					"print(\"SUCCESS\")"
 				],

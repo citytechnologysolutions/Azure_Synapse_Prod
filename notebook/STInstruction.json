@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4fbf5892-8e0c-48c7-961f-7e5fcd2d37fb"
+				"spark.autotune.trackingId": "b27ec3a1-1d54-447e-b398-cc6a01a05d6c"
 			}
 		},
 		"metadata": {
@@ -53,17 +53,45 @@
 		"cells": [
 			{
 				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccountRead + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
 				"source": [
 					"#Create DataFrame for the publicInstruction TMS Table\r\n",
-					"publicInstruction = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicinstruction.parquet', format='parquet')\r\n",
+					"publicInstruction = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicinstruction.parquet', format='parquet')\r\n",
 					"publicInstruction.createOrReplaceTempView(\"publicInstruction\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dboLHInstruction LMS Table\r\n",
-					"dboLHInstruction = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbolh_instruction.parquet', format='parquet')\r\n",
+					"dboLHInstruction = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_instruction.parquet', format='parquet')\r\n",
 					"dboLHInstruction.createOrReplaceTempView(\"dboLHInstruction\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicLHInstruction LMS Table\r\n",
-					"publicLHInstruction = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/Onroute/publiclhdelivery.parquet', format='parquet')\r\n",
+					"publicLHInstruction = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publiclhdelivery.parquet', format='parquet')\r\n",
 					"publicLHInstruction.createOrReplaceTempView(\"publicLHInstruction\")"
 				],
 				"execution_count": 1
@@ -339,7 +367,7 @@
 				"source": [
 					"print(\"SUCCESS\")\r\n",
 					"\r\n",
-					"#STInstruction.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/STInstruction.parquet', mode = \"overwrite\")"
+					"#STInstruction.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/STInstruction.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 8
 			}

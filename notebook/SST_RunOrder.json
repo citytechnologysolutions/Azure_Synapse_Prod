@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "b96ef6d7-2adb-45e9-9e9a-202312fd5c41"
+				"spark.autotune.trackingId": "d9489ba5-8425-40d5-ae22-fec11257b205"
 			}
 		},
 		"metadata": {
@@ -321,7 +321,7 @@
 				"source": [
 					"%run TRANSFORM/01 SEMI-STRUCTURED/LMS + ORV/SSTCollect"
 				],
-				"execution_count": 13
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -337,9 +337,9 @@
 					}
 				},
 				"source": [
-					"sstcollect.write.parquet('abfss://synapse@' + StorageAccountWrite + 'prod.dfs.core.windows.net/Semi Structured Data/OPS/sstcollect.parquet', mode = \"overwrite\")"
+					"sstcollect.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstcollect.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 14
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -363,7 +363,7 @@
 					"dboparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
 					"dboparcel.createOrReplaceTempView(\"dboparcel\")"
 				],
-				"execution_count": null
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -376,12 +376,13 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%run TRANSFORM/01 SEMI-STRUCTURED/LMS + ORV/SSTTrack"
 				],
-				"execution_count": null
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -399,7 +400,7 @@
 				"source": [
 					"ssttrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrack.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -423,7 +424,7 @@
 					"ssttrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrack.parquet', format='parquet')\r\n",
 					"ssttrack.createOrReplaceTempView(\"ssttrack\")"
 				],
-				"execution_count": null
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -436,12 +437,13 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%run TRANSFORM/01 SEMI-STRUCTURED/LMS Aggr/SSTAggrParcelByX"
 				],
-				"execution_count": null
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -462,7 +464,7 @@
 					"sstparcelbyconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', mode = \"overwrite\")\r\n",
 					"sstparcelbyload.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyload.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -518,7 +520,7 @@
 					"dbobroutemaster = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobroutemaster.parquet', format='parquet')\r\n",
 					"dbobroutemaster.createOrReplaceTempView(\"dbobroutemaster\")"
 				],
-				"execution_count": null
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -531,12 +533,13 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%run TRANSFORM/01 SEMI-STRUCTURED/LMS + ORV/SSTConsignment"
 				],
-				"execution_count": null
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -554,7 +557,7 @@
 				"source": [
 					"sstconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignment.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -595,7 +598,7 @@
 					"dbovehiclebasic.createOrReplaceTempView(\"dbovehiclebasic\")\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -608,12 +611,13 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%run TRANSFORM/01 SEMI-STRUCTURED/LMS + ORV/SSTLoadChild"
 				],
-				"execution_count": null
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -631,7 +635,7 @@
 				"source": [
 					"sstloadchild.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstloadchild.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -663,7 +667,7 @@
 					"publicorvuser = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicorvuser.parquet', format='parquet')\r\n",
 					"publicorvuser.createOrReplaceTempView(\"publicorvuser\")"
 				],
-				"execution_count": null
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -676,12 +680,13 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%run TRANSFORM/01 SEMI-STRUCTURED/LMS + ORV/SSTLoadParent"
 				],
-				"execution_count": null
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -699,7 +704,7 @@
 				"source": [
 					"sstloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstloadparent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -723,7 +728,7 @@
 					"sstparcelbyorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', format='parquet')\r\n",
 					"sstparcelbyorder.createOrReplaceTempView(\"sstparcelbyorder\")"
 				],
-				"execution_count": null
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -736,12 +741,13 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%run TRANSFORM/01 SEMI-STRUCTURED/LMS + ORV/SSTOrder"
 				],
-				"execution_count": null
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -759,7 +765,7 @@
 				"source": [
 					"sstorder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstorder.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",

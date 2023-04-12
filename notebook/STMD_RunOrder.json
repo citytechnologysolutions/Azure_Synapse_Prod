@@ -6,17 +6,21 @@
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
 		"sessionProperties": {
-			"driverMemory": "28g",
-			"driverCores": 4,
-			"executorMemory": "28g",
-			"executorCores": 4,
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "08df5fbc-a0f9-4cb6-b3f1-313467010a92"
+				"spark.autotune.trackingId": "3aa4fbc7-5d1b-48b6-9368-20012503b950"
 			}
 		},
 		"metadata": {
@@ -24,10 +28,25 @@
 			"enableDebugMode": false,
 			"kernelspec": {
 				"name": "synapse_pyspark",
-				"display_name": "python"
+				"display_name": "Synapse PySpark"
 			},
 			"language_info": {
 				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+				"name": "PRDSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -35,9 +54,159 @@
 			{
 				"cell_type": "code",
 				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#Create DataFrame for the dbopeoplebasic MD Table\r\n",
+					"dbopeoplebasic = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplebasic.parquet', format='parquet')\r\n",
+					"dbopeoplebasic.createOrReplaceTempView(\"dbopeoplebasic\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbopeopledriver MD Table\r\n",
+					"dbopeopledriver = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeopledriver.parquet', format='parquet')\r\n",
+					"dbopeopledriver.createOrReplaceTempView(\"dbopeopledriver\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbopeoplepersonal MD Table\r\n",
+					"dbopeoplepersonal = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplepersonal.parquet', format='parquet')\r\n",
+					"dbopeoplepersonal.createOrReplaceTempView(\"dbopeoplepersonal\")\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/MasterData/STMDPeople"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stmdpeople.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stmdpeople.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#Create DataFrame for the dbovehiclebasic MD Table\r\n",
+					"dbovehiclebasic = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclebasic.parquet', format='parquet')\r\n",
+					"dbovehiclebasic.createOrReplaceTempView(\"dbovehiclebasic\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbovehicleadmin MD Table\r\n",
+					"dbovehicleadmin = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicleadmin.parquet', format='parquet')\r\n",
+					"dbovehicleadmin.createOrReplaceTempView(\"dbovehicleadmin\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbovehicleoperations MD Table\r\n",
+					"dbovehicleoperations = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicleoperations.parquet', format='parquet')\r\n",
+					"dbovehicleoperations.createOrReplaceTempView(\"dbovehicleoperations\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbovehiclefinance MD Table\r\n",
+					"dbovehiclefinance = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclefinance.parquet', format='parquet')\r\n",
+					"dbovehiclefinance.createOrReplaceTempView(\"dbovehiclefinance\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbovehicletracking MD Table\r\n",
+					"dbovehicletracking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicletracking.parquet', format='parquet')\r\n",
+					"dbovehicletracking.createOrReplaceTempView(\"dbovehicletracking\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/MasterData/STMDVehicle"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stmdvehicle.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stmdvehicle.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 7
 			}
 		]
 	}

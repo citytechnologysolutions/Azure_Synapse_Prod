@@ -5,7 +5,7 @@
 			"name": "Semi Structured Schema on Read/OPS"
 		},
 		"content": {
-			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTParcelByWaybill') )\n    DROP EXTERNAL TABLE dbo.F_SSTParcelByWaybill\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTParcelByWaybill (\n\t[lms_parcelbywaybill_waybillid] int,\n\t[lms_parcelbywaybill_aggweight] float,\n\t[lms_parcelbywaybill_aggchargeweight] numeric(28,2),\n\t[lms_parcelbywaybill_aggvolweight] float,\n\t[lms_parcelbywaybill_aggvolumiserweight] numeric(28,2),\n\t[lms_parcelbywaybill_noparcels] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstparcelbywaybill.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTParcelByWaybill\nGO",
+			"query": "DROP EXTERNAL TABLE dbo.F_SSTParcelByWaybill;\n\nCREATE EXTERNAL TABLE dbo.F_SSTParcelByWaybill (\n\t[lms_parcelbywaybill_waybillid] int,\n\t[lms_parcelbywaybill_aggweight] float,\n\t[lms_parcelbywaybill_aggchargeweight] numeric(28,2),\n\t[lms_parcelbywaybill_aggvolweight] float,\n\t[lms_parcelbywaybill_aggvolumiserweight] numeric(28,2),\n\t[lms_parcelbywaybill_noparcels] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstparcelbywaybill.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTParcelByWaybill\nGO",
 			"metadata": {
 				"language": "sql"
 			},

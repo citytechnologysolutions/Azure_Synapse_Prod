@@ -1,0 +1,20 @@
+{
+	"name": "T_STLoadChild_PY3Month",
+	"properties": {
+		"folder": {
+			"name": "Structured Views"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.views WHERE object_id = OBJECT_ID('dbo.T_STLoadChild_PY3Month') )\n    DROP VIEW dbo.T_STLoadChild_PY3Month\nGO\n\nCREATE VIEW [dbo].[T_STLoadChild_PY3Month]\n\nAS \n\nWITH CTE AS (\n\nSELECT lms_track_loadid as lms_loadchild_id \nFROM dbo.T_STLMSTrack_PY3Month \n\n\nUNION\n\nSELECT lms_loadchild_id\nFROM dbo.T_STLoadChild \nWHERE lms_loadchild_ldate >= DATEADD(yy,-1,DATEADD(m,-3, DATEADD(mm, DATEDIFF(m,0,GETDATE()),0)))\nAND lms_loadchild_ldate <= DATEADD(yy,-1,DATEADD(nanosecond,-50,DATEADD(d,1,CAST(CAST(GETDATE() AS DATE) AS DATETIME2(7)))))\n\n)\n\nSELECT \nLC.*\nFROM CTE \nLEFT JOIN dbo.T_STLoadChild LC on LC.lms_loadchild_id  = CTE.lms_loadchild_id\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

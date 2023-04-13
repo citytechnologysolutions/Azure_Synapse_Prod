@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "TESTSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "59691ea0-b0ef-4765-9220-7ff6e8f28e18"
+				"spark.autotune.trackingId": "9bf19cb7-a983-4369-82b4-946400b8097f"
 			}
 		},
 		"metadata": {
@@ -34,15 +34,15 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
-				"name": "TESTSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
 				"memory": 28,
@@ -77,7 +77,7 @@
 					"\r\n",
 					"# ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -93,20 +93,20 @@
 					}
 				},
 				"source": [
-					"## Create SSTParcelByOrder \r\n",
-					"## Create SSTParcelByWaybill\r\n",
-					"## Create SSTParcelByConsignment\r\n",
-					"## Create SSTParcelByLoad\r\n",
-					"#\r\n",
-					"##Create DataFrame for the sstparcelunion LMS Table\r\n",
-					"#sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
-					"#sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the ssttrack LMS Table\r\n",
-					"#ssttrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrack.parquet', format='parquet')\r\n",
-					"#ssttrack.createOrReplaceTempView(\"ssttrack\")"
+					"# # Create SSTParcelByOrder \r\n",
+					"# # Create SSTParcelByWaybill\r\n",
+					"# # Create SSTParcelByConsignment\r\n",
+					"# # Create SSTParcelByLoad\r\n",
+					"\r\n",
+					"# #Create DataFrame for the sstparcelunion LMS Table\r\n",
+					"# sstparcelunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"# sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the ssttrack LMS Table\r\n",
+					"# ssttrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/ssttrack.parquet', format='parquet')\r\n",
+					"# ssttrack.createOrReplaceTempView(\"ssttrack\")"
 				],
-				"execution_count": 2
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -140,7 +140,7 @@
 					"FROM sstparcelunion P\r\n",
 					"GROUP BY P.orderid"
 				],
-				"execution_count": 3
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -158,7 +158,7 @@
 				"source": [
 					"sstparcelbyorder = spark.sql(\"SELECT * FROM sstparcelbyorder\")"
 				],
-				"execution_count": 4
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -174,9 +174,9 @@
 					}
 				},
 				"source": [
-					"#sstparcelbyorder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', mode = \"overwrite\")"
+					"# sstparcelbyorder.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 5
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -210,7 +210,7 @@
 					"FROM sstparcelunion P\r\n",
 					"GROUP BY P.waybillid"
 				],
-				"execution_count": 6
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -228,7 +228,7 @@
 				"source": [
 					"sstparcelbywaybill = spark.sql(\"SELECT * FROM sstparcelbywaybill\")"
 				],
-				"execution_count": 7
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -244,9 +244,9 @@
 					}
 				},
 				"source": [
-					"#sstparcelbywaybill.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbywaybill.parquet', mode = \"overwrite\")"
+					"# sstparcelbywaybill.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbywaybill.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 8
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -280,7 +280,7 @@
 					"FROM sstparcelunion P\r\n",
 					"GROUP BY P.consignid"
 				],
-				"execution_count": 9
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -298,7 +298,7 @@
 				"source": [
 					"sstparcelbyconsignment = spark.sql(\"SELECT * FROM sstparcelbyconsignment\")"
 				],
-				"execution_count": 10
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -314,9 +314,9 @@
 					}
 				},
 				"source": [
-					"#sstparcelbyconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', mode = \"overwrite\")"
+					"# sstparcelbyconsignment.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 11
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -350,7 +350,7 @@
 					"FROM ssttrack T\r\n",
 					"GROUP BY T.lms_track_loadid"
 				],
-				"execution_count": 12
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -368,7 +368,7 @@
 				"source": [
 					"sstparcelbyload = spark.sql(\"SELECT * FROM sstparcelbyload\")"
 				],
-				"execution_count": 13
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -384,9 +384,9 @@
 					}
 				},
 				"source": [
-					"#sstparcelbyload.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyload.parquet', mode = \"overwrite\")"
+					"# sstparcelbyload.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyload.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 14
+				"execution_count": 13
 			}
 		]
 	}

@@ -6,10 +6,6 @@
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
-		"bigDataPool": {
-			"referenceName": "TESTSparkPool",
-			"type": "BigDataPoolReference"
-		},
 		"sessionProperties": {
 			"driverMemory": "28g",
 			"driverCores": 4,
@@ -20,7 +16,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "8a59e4f0-c37a-4d1c-85b1-30abe9525893"
+				"spark.autotune.trackingId": "63bd6028-77fb-4c1c-b49e-5ee7c2abb931"
 			}
 		},
 		"metadata": {
@@ -28,25 +24,10 @@
 			"enableDebugMode": false,
 			"kernelspec": {
 				"name": "synapse_pyspark",
-				"display_name": "Synapse PySpark"
+				"display_name": "python"
 			},
 			"language_info": {
 				"name": "python"
-			},
-			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
-				"name": "TESTSparkPool",
-				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
-				"auth": {
-					"type": "AAD",
-					"authResource": "https://dev.azuresynapse.net"
-				},
-				"sparkVersion": "3.3",
-				"nodeCount": 10,
-				"cores": 4,
-				"memory": 28,
-				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -82,24 +63,24 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"##create dataframe for the publicclaim orv table\r\n",
-					"#publicclaim = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicclaim.parquet', format='parquet')\r\n",
-					"#publicclaim.createOrReplaceTempView(\"publicclaim\")\r\n",
-					"#\r\n",
-					"##create dataframe for the publicdelivery orv table\r\n",
-					"#publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
-					"#publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the dbowbendorsement LMS Table\r\n",
-					"#dbowbendorsement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowbendorsement.parquet', format='parquet')\r\n",
-					"#dbowbendorsement.createOrReplaceTempView(\"dbowbendorsement\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the dbodb_endorsement LMS Table\r\n",
-					"#dbodb_endorsement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_endorsement.parquet', format='parquet')\r\n",
-					"#dbodb_endorsement.createOrReplaceTempView(\"dbodb_endorsement\")\r\n",
-					"#"
+					"# #create dataframe for the publicclaim orv table\r\n",
+					"# publicclaim = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicclaim.parquet', format='parquet')\r\n",
+					"# publicclaim.createOrReplaceTempView(\"publicclaim\")\r\n",
+					"\r\n",
+					"# #create dataframe for the publicdelivery orv table\r\n",
+					"# publicdelivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"# publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbowbendorsement LMS Table\r\n",
+					"# dbowbendorsement = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbowbendorsement.parquet', format='parquet')\r\n",
+					"# dbowbendorsement.createOrReplaceTempView(\"dbowbendorsement\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodb_endorsement LMS Table\r\n",
+					"# dbodb_endorsement = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_endorsement.parquet', format='parquet')\r\n",
+					"# dbodb_endorsement.createOrReplaceTempView(\"dbodb_endorsement\")\r\n",
+					""
 				],
-				"execution_count": 1
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -115,8 +96,7 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
-					},
-					"collapsed": false
+					}
 				},
 				"source": [
 					"%%sql\r\n",
@@ -138,7 +118,7 @@
 					"FROM publicclaim c\r\n",
 					"LEFT JOIN publicdelivery d on d.id = c.delid"
 				],
-				"execution_count": 2
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -154,8 +134,7 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
-					},
-					"collapsed": false
+					}
 				},
 				"source": [
 					"%%sql\r\n",
@@ -182,7 +161,7 @@
 					"LEFT JOIN dbowbendorsement er on er.EType = e.ID\r\n",
 					"LEFT JOIN stendorsments_tmp et on et.waybillid||'|'||et.barcode = er.WaybillID||'|'||er.barcode"
 				],
-				"execution_count": 3
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -200,7 +179,7 @@
 				"source": [
 					"stendorsments = spark.sql(\"SELECT * FROM stendorsments\")"
 				],
-				"execution_count": 4
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -216,9 +195,10 @@
 					}
 				},
 				"source": [
-					"#stendorsments.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stendorsments.parquet', mode = \"overwrite\")"
+					"# stendorsments.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stendorsments.parquet', mode = \"overwrite\")\r\n",
+					"print(\"SUCCESS\")"
 				],
-				"execution_count": 5
+				"execution_count": null
 			}
 		]
 	}

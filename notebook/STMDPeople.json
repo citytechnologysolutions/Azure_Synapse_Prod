@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "TESTSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2ebed17c-9127-44c1-9c28-2fbaa4918cca"
+				"spark.autotune.trackingId": "435b2e0b-4ed2-4315-9751-2645e6aeff53"
 			}
 		},
 		"metadata": {
@@ -34,15 +34,15 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
-				"name": "TESTSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
 				"memory": 28,
@@ -82,21 +82,21 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"##Create DataFrame for the dbopeoplebasic MD Table\r\n",
-					"#dbopeoplebasic = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplebasic.parquet', format='parquet')\r\n",
-					"#dbopeoplebasic.createOrReplaceTempView(\"dbopeoplebasic\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the dbopeopledriver MD Table\r\n",
-					"#dbopeopledriver = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeopledriver.parquet', format='parquet')\r\n",
-					"#dbopeopledriver.createOrReplaceTempView(\"dbopeopledriver\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the dbopeoplepersonal MD Table\r\n",
-					"#dbopeoplepersonal = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplepersonal.parquet', format='parquet')\r\n",
-					"#dbopeoplepersonal.createOrReplaceTempView(\"dbopeoplepersonal\")\r\n",
-					"#\r\n",
-					"#"
+					"# #Create DataFrame for the dbopeoplebasic MD Table\r\n",
+					"# dbopeoplebasic = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplebasic.parquet', format='parquet')\r\n",
+					"# dbopeoplebasic.createOrReplaceTempView(\"dbopeoplebasic\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbopeopledriver MD Table\r\n",
+					"# dbopeopledriver = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeopledriver.parquet', format='parquet')\r\n",
+					"# dbopeopledriver.createOrReplaceTempView(\"dbopeopledriver\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbopeoplepersonal MD Table\r\n",
+					"# dbopeoplepersonal = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplepersonal.parquet', format='parquet')\r\n",
+					"# dbopeoplepersonal.createOrReplaceTempView(\"dbopeoplepersonal\")\r\n",
+					"\r\n",
+					""
 				],
-				"execution_count": 1
+				"execution_count": 64
 			},
 			{
 				"cell_type": "code",
@@ -204,7 +204,7 @@
 					"LEFT JOIN dbopeopledriver pd on pd.pid = pb.id \r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 72
 			},
 			{
 				"cell_type": "code",
@@ -222,7 +222,7 @@
 				"source": [
 					"stmdpeople = spark.sql(\"SELECT * FROM stmdpeople\")"
 				],
-				"execution_count": 3
+				"execution_count": 73
 			},
 			{
 				"cell_type": "code",
@@ -238,11 +238,11 @@
 					}
 				},
 				"source": [
-					"#stmdpeople.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stmdpeople.parquet', mode = \"overwrite\")\r\n",
+					"# stmdpeople.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stmdpeople.parquet', mode = \"overwrite\")\r\n",
 					"\r\n",
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 4
+				"execution_count": 74
 			}
 		]
 	}

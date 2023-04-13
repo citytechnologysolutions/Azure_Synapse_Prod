@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "94828f88-139b-4a8c-b3fb-f853623de8f4"
+				"spark.autotune.trackingId": "05fa14df-acfd-462e-b60b-3e122fe5303e"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -77,21 +77,21 @@
 					"\r\n",
 					"# ' + StorageAccount + '"
 				],
-				"execution_count": 8
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"##Create DataFrame for the dboconsignment_archive LMS Table\r\n",
-					"#dboconsignment_archive = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment_archive.parquet', format='parquet')\r\n",
-					"#dboconsignment_archive.createOrReplaceTempView(\"dboconsignment_archive\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the dboconsignment LMS Table\r\n",
-					"#dboconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
-					"#dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"# #Create DataFrame for the dboconsignment_archive LMS Table\r\n",
+					"# dboconsignment_archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment_archive.parquet', format='parquet')\r\n",
+					"# dboconsignment_archive.createOrReplaceTempView(\"dboconsignment_archive\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboconsignment LMS Table\r\n",
+					"# dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"# dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
 					""
 				],
-				"execution_count": 10
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -107,10 +107,10 @@
 					}
 				},
 				"source": [
-					"dboconsignmentunion = dboconsignment #dboconsignment_archive.unionByName(dboconsignment, allowMissingColumns = True)\r\n",
+					"dboconsignmentunion = dboconsignment_archive.unionByName(dboconsignment, allowMissingColumns = True)\r\n",
 					"dboconsignmentunion.createOrReplaceTempView(\"dboconsignmentunion\")"
 				],
-				"execution_count": 11
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -137,7 +137,7 @@
 					"SELECT * \r\n",
 					"FROM dboconsignmentunion"
 				],
-				"execution_count": 12
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -155,7 +155,7 @@
 				"source": [
 					"sstconsignmentunion = spark.sql(\"SELECT * FROM sstconsignmentunion\")"
 				],
-				"execution_count": 13
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -171,9 +171,9 @@
 					}
 				},
 				"source": [
-					"#sstconsignmentunion.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', mode = \"overwrite\")"
+					"# sstconsignmentunion.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 14
+				"execution_count": 6
 			}
 		]
 	}

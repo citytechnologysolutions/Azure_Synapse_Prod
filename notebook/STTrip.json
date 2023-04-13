@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "TESTSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2fc25727-dbf8-45e9-a377-53b43be9e245"
+				"spark.autotune.trackingId": "0130ff81-5889-4484-938b-f9f39e028223"
 			}
 		},
 		"metadata": {
@@ -34,15 +34,15 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
-				"name": "TESTSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
 				"memory": 28,
@@ -75,119 +75,29 @@
 					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
 					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccountRead + '"
+					"# ' + StorageAccount + '"
 				],
 				"execution_count": null
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"##Create DataFrame for the publicTrip TMS Table\r\n",
-					"#publicTrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publictrip.parquet', format='parquet')\r\n",
-					"#publicTrip.createOrReplaceTempView(\"publicTrip\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the publicDispatch ORV Table\r\n",
-					"#publicDispatch = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
-					"#publicDispatch.createOrReplaceTempView(\"publicDispatch\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the dboLHTrip LMS Table\r\n",
-					"#dboLHTrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trip.parquet', format='parquet')\r\n",
-					"#dboLHTrip.createOrReplaceTempView(\"dboLHTrip\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the dboLHTrackStatus LMS Table\r\n",
-					"#dboLHTrackStatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trackstatus.parquet', format='parquet')\r\n",
-					"#dboLHTrackStatus.createOrReplaceTempView(\"dboLHTrackStatus\")\r\n",
+					"# #Create DataFrame for the publictrip TMS Table\r\n",
+					"# publictrip = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publictrip.parquet', format='parquet')\r\n",
+					"# publictrip.createOrReplaceTempView(\"publictrip\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the publicdispatch ORV Table\r\n",
+					"# publicdispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
+					"# publicdispatch.createOrReplaceTempView(\"publicdispatch\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolhtrip LMS Table\r\n",
+					"# dbolhtrip = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trip.parquet', format='parquet')\r\n",
+					"# dbolhtrip.createOrReplaceTempView(\"dbolhtrip\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolhtrackstatus LMS Table\r\n",
+					"# dbolhtrackstatus = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trackstatus.parquet', format='parquet')\r\n",
+					"# dbolhtrackstatus.createOrReplaceTempView(\"dbolhtrackstatus\")\r\n",
 					""
-				],
-				"execution_count": 2
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "sparksql"
-					},
-					"collapsed": false
-				},
-				"source": [
-					"%%sql\r\n",
-					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"STTrip_tms\r\n",
-					"AS\r\n",
-					"SELECT \r\n",
-					"    lt.id as tms_trip_id\r\n",
-					"    ,lt.driverid as tms_trip_driverid\r\n",
-					"    ,lt.vehicleid as tms_trip_vehicleid\r\n",
-					"    ,lt.trailerid as tms_trip_trailerid\r\n",
-					"    ,lt.sectrailerid as tms_trip_sectrailerid\r\n",
-					"    ,lt.status as tms_trip_status\r\n",
-					"    ,lt.routeid as tms_trip_routeid\r\n",
-					"    ,lt.opsrouteid as tms_trip_opsrouteid\r\n",
-					"    ,lt.startfromaddress as tms_trip_startfromaddress\r\n",
-					"    ,lt.startfromlat as tms_trip_startfromlat\r\n",
-					"    ,lt.startfromlng as tms_trip_startfromlng\r\n",
-					"    ,lt.dispatchdate as tms_trip_dispatchdate\r\n",
-					"    ,lt.stopaddress as tms_trip_stopaddress\r\n",
-					"    ,lt.stoplat as tms_trip_stoplat\r\n",
-					"    ,lt.stoplng as tms_trip_stoplng\r\n",
-					"    ,lt.insdate as tms_trip_insdate\r\n",
-					"    ,lt.moddate as tms_trip_moddate\r\n",
-					"    ,lt.insby as tms_trip_insby\r\n",
-					"    ,lt.onrouteid as tms_trip_onrouteid\r\n",
-					"    ,lt.uuid as tms_trip_uuid\r\n",
-					"    ,lt.insbyuser as tms_trip_insbyuser\r\n",
-					"    ,lt.thirdpartyid as tms_trip_thirdpartyid\r\n",
-					"    ,lt.timehash as tms_trip_timehash\r\n",
-					"    ,lt.onroutestatus as tms_trip_onroutestatus\r\n",
-					"    ,lt.lastupdate as tms_trip_lastupdate\r\n",
-					"    ,lt.lastlng as tms_trip_lastlng\r\n",
-					"    ,lt.lastlat as tms_trip_lastlat\r\n",
-					"    ,lt.controllerid as tms_trip_controllerid\r\n",
-					"    ,lt.trackstatus as tms_trip_trackstatus\r\n",
-					"    ,lt.lastrackid as tms_trip_lastrackid\r\n",
-					"    ,lt.customer as tms_trip_customer\r\n",
-					"    ,lt.bookings as tms_trip_bookings\r\n",
-					"    ,lt.controller as tms_trip_controller\r\n",
-					"    ,lt.transporter as tms_trip_transporter\r\n",
-					"    ,lt.legacyid as tms_trip_legacyid\r\n",
-					"    ,lt.originatedfrom as tms_trip_originatedfrom\r\n",
-					"    ,lt.local as tms_trip_local\r\n",
-					"    ,lt.startdate as tms_trip_startdate\r\n",
-					"    ,lt.enddate as tms_trip_enddate\r\n",
-					"    ,lt.actualdeliverydate as tms_trip_actualdeliverydate\r\n",
-					"    ,lt.note as tms_trip_note\r\n",
-					"    ,lt.deliverydate as tms_trip_deliverydate\r\n",
-					"    ,lt.internalexternal as tms_trip_internalexternal\r\n",
-					"    ,lt.pickupstartaddress as tms_trip_pickupstartaddress\r\n",
-					"FROM publicTrip lt\r\n",
-					""
-				],
-				"execution_count": 3
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"STTrip_tms = spark.sql(\"SELECT * FROM STTrip_tms\")"
 				],
 				"execution_count": 4
 			},
@@ -211,7 +121,98 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"STTrip_lms\r\n",
+					"sttrip_tms\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    lt.id as tms_trip_id\r\n",
+					"    ,lt.driverid as tms_trip_driverid\r\n",
+					"    ,lt.vehicleid as tms_trip_vehicleid\r\n",
+					"    ,lt.trailerid as tms_trip_trailerid\r\n",
+					"    ,lt.sectrailerid as tms_trip_sectrailerid\r\n",
+					"    ,lt.status as tms_trip_status\r\n",
+					"    ,lt.routeid as tms_trip_routeid\r\n",
+					"    ,lt.opsrouteid as tms_trip_opsrouteid\r\n",
+					"    ,lt.startfromaddress as tms_trip_startfromaddress\r\n",
+					"    ,lt.startfromlat as tms_trip_startfromlat\r\n",
+					"    ,lt.startfromlng as tms_trip_startfromlng\r\n",
+					"    ,to_timestamp(lt.dispatchdate) as tms_trip_dispatchdate\r\n",
+					"    ,lt.stopaddress as tms_trip_stopaddress\r\n",
+					"    ,lt.stoplat as tms_trip_stoplat\r\n",
+					"    ,lt.stoplng as tms_trip_stoplng\r\n",
+					"    ,to_timestamp(lt.insdate) as tms_trip_insdate\r\n",
+					"    ,to_timestamp(lt.moddate) as tms_trip_moddate\r\n",
+					"    ,lt.insby as tms_trip_insby\r\n",
+					"    ,lt.onrouteid as tms_trip_onrouteid\r\n",
+					"    ,lt.uuid as tms_trip_uuid\r\n",
+					"    ,lt.insbyuser as tms_trip_insbyuser\r\n",
+					"    ,lt.thirdpartyid as tms_trip_thirdpartyid\r\n",
+					"    ,lt.timehash as tms_trip_timehash\r\n",
+					"    ,lt.onroutestatus as tms_trip_onroutestatus\r\n",
+					"    ,to_timestamp(lt.lastupdate) as tms_trip_lastupdate\r\n",
+					"    ,lt.lastlng as tms_trip_lastlng\r\n",
+					"    ,lt.lastlat as tms_trip_lastlat\r\n",
+					"    ,lt.controllerid as tms_trip_controllerid\r\n",
+					"    ,lt.trackstatus as tms_trip_trackstatus\r\n",
+					"    ,lt.lastrackid as tms_trip_lastrackid\r\n",
+					"    ,lt.customer as tms_trip_customer\r\n",
+					"    ,lt.bookings as tms_trip_bookings\r\n",
+					"    ,lt.controller as tms_trip_controller\r\n",
+					"    ,lt.transporter as tms_trip_transporter\r\n",
+					"    ,lt.legacyid as tms_trip_legacyid\r\n",
+					"    ,lt.originatedfrom as tms_trip_originatedfrom\r\n",
+					"    ,lt.local as tms_trip_local\r\n",
+					"    ,to_timestamp(lt.startdate) as tms_trip_startdate\r\n",
+					"    ,to_timestamp(lt.enddate) as tms_trip_enddate\r\n",
+					"    ,lt.actualdeliverydate as tms_trip_actualdeliverydate\r\n",
+					"    ,lt.note as tms_trip_note\r\n",
+					"    ,to_timestamp(lt.deliverydate) as tms_trip_deliverydate\r\n",
+					"    ,lt.internalexternal as tms_trip_internalexternal\r\n",
+					"    ,lt.pickupstartaddress as tms_trip_pickupstartaddress\r\n",
+					"\r\n",
+					"FROM publictrip lt\r\n",
+					""
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttrip_tms = spark.sql(\"SELECT * FROM sttrip_tms\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttrip_lms\r\n",
 					"AS\r\n",
 					"SELECT \r\n",
 					"    lt.id as tms_trip_id\r\n",
@@ -225,7 +226,7 @@
 					"    ,lt.dispatchaddress as tms_trip_startfromaddress\r\n",
 					"    ,lt.dispatchlongitude as tms_trip_startfromlat\r\n",
 					"    ,lt.dispatchlatitude as tms_trip_startfromlng\r\n",
-					"    ,unix_timestamp( lt.dispatchdate) as tms_trip_dispatchdate\r\n",
+					"    ,lt.dispatchdate as tms_trip_dispatchdate\r\n",
 					"    ,lt.destinationaddress as tms_trip_stopaddress\r\n",
 					"    ,lt.destinationlongitude as tms_trip_stoplat\r\n",
 					"    ,lt.destinationlatitude as tms_trip_stoplng\r\n",
@@ -263,7 +264,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -279,9 +280,9 @@
 					}
 				},
 				"source": [
-					"STTrip_lms = spark.sql(\"SELECT * FROM STTrip_tms\")"
+					"sttrip_lms = spark.sql(\"SELECT * FROM sttrip_lms\")"
 				],
-				"execution_count": 6
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -297,10 +298,10 @@
 					}
 				},
 				"source": [
-					"STTrip_tmp = STTrip_tms.unionByName(STTrip_lms, allowMissingColumns = True)\r\n",
-					"STTrip_tmp.createOrReplaceTempView(\"STTrip_tmp\")"
+					"sttrip_tmp = sttrip_tms.unionByName(sttrip_lms, allowMissingColumns = True)\r\n",
+					"sttrip_tmp.createOrReplaceTempView(\"sttrip_tmp\")"
 				],
-				"execution_count": 7
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -322,7 +323,7 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"STTrip\r\n",
+					"sttrip\r\n",
 					"AS\r\n",
 					"SELECT \r\n",
 					"    st.*\r\n",
@@ -331,17 +332,17 @@
 					"    ,d.vid as orv_dispatch_vid\r\n",
 					"    ,d.did as orv_dispatch_did\r\n",
 					"    ,d.status as orv_dispatch_status\r\n",
-					"    ,d.startdate as orv_dispatch_startdate\r\n",
-					"    ,d.stopdate as orv_dispatch_stopdate\r\n",
+					"    ,to_timestamp(d.startdate) as orv_dispatch_startdate\r\n",
+					"    ,to_timestamp(d.stopdate) as orv_dispatch_stopdate\r\n",
 					"    ,d.vehicletype as orv_dispatch_vehicletype\r\n",
 					"    ,d.uid as orv_dispatch_uid\r\n",
-					"    ,d.estdepdate as orv_dispatch_estdepdate\r\n",
+					"    ,to_timestamp(d.estdepdate) as orv_dispatch_estdepdate\r\n",
 					"    ,d.trailer as orv_dispatch_trailer\r\n",
 					"    ,d.trailer2 as orv_dispatch_trailer2\r\n",
 					"    ,d.fromlocid as orv_dispatch_fromlocid\r\n",
 					"    ,d.tolocid as orv_dispatch_tolocid\r\n",
 					"    ,d.site as orv_dispatch_site\r\n",
-					"    ,d.lastupdate as orv_dispatch_lastupdate\r\n",
+					"    ,to_timestamp(d.lastupdate) as orv_dispatch_lastupdate\r\n",
 					"    ,d.etastatus as orv_dispatch_etastatus\r\n",
 					"    ,d.startinglat as orv_dispatch_startinglat\r\n",
 					"    ,d.startinglng as orv_dispatch_startinglng\r\n",
@@ -350,8 +351,8 @@
 					"    ,d.startingfrom as orv_dispatch_startingfrom\r\n",
 					"    ,d.goingto as orv_dispatch_goingto\r\n",
 					"    ,d.importissue as orv_dispatch_importissue\r\n",
-					"    ,d.insdate as orv_dispatch_insdate\r\n",
-					"    ,d.estarrdate as orv_dispatch_estarrdate\r\n",
+					"    ,to_timestamp(d.insdate) as orv_dispatch_insdate\r\n",
+					"    ,to_timestamp(d.estarrdate) as orv_dispatch_estarrdate\r\n",
 					"    ,d.duration as orv_dispatch_duration\r\n",
 					"    ,d.distance as orv_dispatch_distance\r\n",
 					"    ,d.cost as orv_dispatch_cost\r\n",
@@ -383,15 +384,15 @@
 					"    ,d.guid as orv_dispatch_guid\r\n",
 					"    ,d.timedefinite as orv_dispatch_timedefinite\r\n",
 					"    ,d.orvcode as orv_dispatch_orvcode\r\n",
-					"    ,d.tsstopdepoenter as orv_dispatch_tsstopdepoenter\r\n",
-					"    ,d.tsstartdepoexit as orv_dispatch_tsstartdepoexit\r\n",
+					"    ,to_timestamp(d.tsstopdepoenter) as orv_dispatch_tsstopdepoenter\r\n",
+					"    ,to_timestamp(d.tsstartdepoexit) as orv_dispatch_tsstartdepoexit\r\n",
 					"    ,d.reroutect as orv_dispatch_reroutect\r\n",
-					"    ,d.actualarrdate as orv_dispatch_actualarrdate\r\n",
+					"    ,to_timestamp(d.actualarrdate) as orv_dispatch_actualarrdate\r\n",
 					"    ,d.physicalstartlat as orv_dispatch_physicalstartlat\r\n",
 					"    ,d.physicalstartlng as orv_dispatch_physicalstartlng\r\n",
-					"    ,d.tsstartdepoexitapp as orv_dispatch_tsstartdepoexitapp\r\n",
-					"    ,d.tsstopdepoenterapp as orv_dispatch_tsstopdepoenterapp\r\n",
-					"    ,d.uncanceldate as orv_dispatch_uncanceldate\r\n",
+					"    ,to_timestamp(d.tsstartdepoexitapp) as orv_dispatch_tsstartdepoexitapp\r\n",
+					"    ,to_timestamp(d.tsstopdepoenterapp) as orv_dispatch_tsstopdepoenterapp\r\n",
+					"    ,to_timestamp(d.uncanceldate) as orv_dispatch_uncanceldate\r\n",
 					"    ,d.uncancelusername as orv_dispatch_uncancelusername\r\n",
 					"    ,d.lmsdebrifed as orv_dispatch_lmsdebrifed\r\n",
 					"    ,d.reviseddebrief as orv_dispatch_reviseddebrief\r\n",
@@ -404,18 +405,19 @@
 					"    ,d.tmscontroller as orv_dispatch_tmscontroller\r\n",
 					"    ,d.routekey as orv_dispatch_routekey\r\n",
 					"    ,d.courierid as orv_dispatch_courierid\r\n",
-					"    ,d.originalstartdate as orv_dispatch_originalstartdate\r\n",
-					"    ,d.originalextarrival as orv_dispatch_originalextarrival\r\n",
+					"    ,to_timestamp(d.originalstartdate) as orv_dispatch_originalstartdate\r\n",
+					"    ,to_timestamp(d.originalextarrival) as orv_dispatch_originalextarrival\r\n",
 					"    ,d.recomputeoriginals as orv_dispatch_recomputeoriginals\r\n",
 					"    ,d.originalextdistance as orv_dispatch_originalextdistance\r\n",
 					"    ,d.originalextduration as orv_dispatch_originalextduration\r\n",
-					"    ,d.moddate as orv_dispatch_moddate\r\n",
+					"    ,to_timestamp(d.moddate) as orv_dispatch_moddate\r\n",
 					"    ,d.tmsmode as orv_dispatch_tmsmode\r\n",
 					"    ,d.driversignature as orv_dispatch_driversignature\r\n",
-					"FROM STTrip_tmp st\r\n",
+					"\r\n",
+					"FROM sttrip_tmp st\r\n",
 					"LEFT JOIN publicDispatch d on d.lmsid = st.tms_trip_id and d.vehicletype = 2"
 				],
-				"execution_count": 8
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -431,9 +433,9 @@
 					}
 				},
 				"source": [
-					"STTrip = spark.sql(\"SELECT * FROM STTrip\")"
+					"sttrip = spark.sql(\"SELECT * FROM sttrip\")"
 				],
-				"execution_count": 9
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -449,11 +451,12 @@
 					}
 				},
 				"source": [
+					"# sttrip.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', mode = \"overwrite\")\r\n",
 					"print(\"SUCCESS\")\r\n",
 					"\r\n",
-					"#STTrip.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/STTrip.parquet', mode = \"overwrite\")"
+					""
 				],
-				"execution_count": 10
+				"execution_count": 16
 			}
 		]
 	}

@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "TESTSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "5039e25f-7412-4a11-8fb4-2a70fd38a924"
+				"spark.autotune.trackingId": "e3b0be96-881c-4390-8b83-e609fd595231"
 			}
 		},
 		"metadata": {
@@ -34,15 +34,15 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
-				"name": "TESTSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
 				"memory": 28,
@@ -75,16 +75,16 @@
 					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
 					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccountRead + '"
+					"# ' + StorageAccount + '"
 				],
 				"execution_count": null
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"##Create DataFrame for the publicdriverpayitem TMS Table\r\n",
-					"#publicdriverpayitem = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicdriverpayitem.parquet', format='parquet')\r\n",
-					"#publicdriverpayitem.createOrReplaceTempView(\"publicdriverpayitem\")"
+					"# #Create DataFrame for the publicdriverpayitem TMS Table\r\n",
+					"# publicdriverpayitem = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicdriverpayitem.parquet', format='parquet')\r\n",
+					"# publicdriverpayitem.createOrReplaceTempView(\"publicdriverpayitem\")"
 				],
 				"execution_count": 1
 			},
@@ -123,15 +123,15 @@
 					"    ,d.totalrate as tms_driverpayitem_totalrate\r\n",
 					"    ,d.routeid as tms_driverpayitem_routeid\r\n",
 					"    ,d.routename as tms_driverpayitem_routename\r\n",
-					"    ,d.insdate as tms_driverpayitem_insdate\r\n",
-					"    ,d.moddate as tms_driverpayitem_moddate\r\n",
+					"    ,to_timestamp(d.insdate) as tms_driverpayitem_insdate\r\n",
+					"    ,to_timestamp(d.moddate) as tms_driverpayitem_moddate\r\n",
 					"    ,d.horse as tms_driverpayitem_horse\r\n",
 					"    ,d.trailers as tms_driverpayitem_trailers\r\n",
 					"    ,d.linkused as tms_driverpayitem_linkused\r\n",
 					"    ,d.manualadjustment as tms_driverpayitem_manualadjustment\r\n",
 					"    ,d.editby as tms_driverpayitem_editby\r\n",
 					"    ,d.drivername as tms_driverpayitem_drivername\r\n",
-					"    ,d.dispatchdate as tms_driverpayitem_dispatchdate\r\n",
+					"    ,to_timestamp(d.dispatchdate) as tms_driverpayitem_dispatchdate\r\n",
 					"    ,d.bookings as tms_driverpayitem_bookings\r\n",
 					"    ,d.employeecode as tms_driverpayitem_employeecode\r\n",
 					"    ,d.originatedfrom as tms_driverpayitem_originatedfrom\r\n",
@@ -174,7 +174,7 @@
 					}
 				},
 				"source": [
-					"#stdriverpayitem.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdriverpayitem.parquet', mode = \"overwrite\")\r\n",
+					"# stdriverpayitem.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stdriverpayitem.parquet', mode = \"overwrite\")\r\n",
 					"print(\"SUCCESS\")"
 				],
 				"execution_count": 4

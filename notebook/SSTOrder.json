@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "TESTSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4a90e86c-bc23-4280-8ae1-6882a2aa7c25"
+				"spark.autotune.trackingId": "5f363b16-2743-48ae-a00f-a92633bf5b11"
 			}
 		},
 		"metadata": {
@@ -34,15 +34,15 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
-				"name": "TESTSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
 				"memory": 28,
@@ -93,23 +93,23 @@
 					}
 				},
 				"source": [
-					"##Create DataFrame for the dboorder LMS Table\r\n",
-					"#dboorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
-					"#dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the dbocustomer LMS Table\r\n",
-					"#dbocustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
-					"#dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the dbousers LMS Table\r\n",
-					"#dbousers = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbousers.parquet', format='parquet')\r\n",
-					"#dbousers.createOrReplaceTempView(\"dbousers\")\r\n",
-					"#\r\n",
-					"##Create DataFrame for the sstparcelbyorder LMS Table\r\n",
-					"#sstparcelbyorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', format='parquet')\r\n",
-					"#sstparcelbyorder.createOrReplaceTempView(\"sstparcelbyorder\")"
+					"# #Create DataFrame for the dboorder LMS Table\r\n",
+					"# dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"# dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbocustomer LMS Table\r\n",
+					"# dbocustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
+					"# dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbousers LMS Table\r\n",
+					"# dbousers = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbousers.parquet', format='parquet')\r\n",
+					"# dbousers.createOrReplaceTempView(\"dbousers\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the sstparcelbyorder LMS Table\r\n",
+					"# sstparcelbyorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', format='parquet')\r\n",
+					"# sstparcelbyorder.createOrReplaceTempView(\"sstparcelbyorder\")"
 				],
-				"execution_count": 6
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -211,7 +211,7 @@
 					"LEFT JOIN dbousers U ON U.id = O.userid\r\n",
 					"LEFT JOIN sstparcelbyorder PBO ON PBO.lms_parcelbyorder_orderid  = O.id"
 				],
-				"execution_count": 7
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -229,7 +229,7 @@
 				"source": [
 					"sstorder = spark.sql(\"SELECT * FROM sstorder\")"
 				],
-				"execution_count": 8
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -245,9 +245,9 @@
 					}
 				},
 				"source": [
-					"#sstorder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstorder.parquet', mode = \"overwrite\")"
+					"# SSTsstorderOrder.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstorder.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": 31
 			}
 		]
 	}

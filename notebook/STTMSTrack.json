@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "TESTSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "a7aaffe0-f4a9-42ca-afdb-fcf942269fb7"
+				"spark.autotune.trackingId": "0934329e-69f0-41a1-b2c9-977a236a81fa"
 			}
 		},
 		"metadata": {
@@ -34,15 +34,15 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
-				"name": "TESTSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
 				"memory": 28,
@@ -75,18 +75,18 @@
 					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
 					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccountRead + '"
+					"# ' + StorageAccount + '"
 				],
 				"execution_count": null
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"##Create DataFrame for the publictrack TMS Table\r\n",
-					"#publictrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publictrack.parquet', format='parquet')\r\n",
-					"#publictrack.createOrReplaceTempView(\"publictrack\")"
+					"# #Create DataFrame for the publictrack TMS Table\r\n",
+					"# publictrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publictrack.parquet', format='parquet')\r\n",
+					"# publictrack.createOrReplaceTempView(\"publictrack\")"
 				],
-				"execution_count": 2
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -126,7 +126,7 @@
 					"FROM publictrack t\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -144,7 +144,7 @@
 				"source": [
 					"sttmstrack = spark.sql(\"SELECT * FROM sttmstrack\")"
 				],
-				"execution_count": 4
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -160,10 +160,10 @@
 					}
 				},
 				"source": [
-					"#sttmstrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttmstrack.parquet', mode = \"overwrite\")\r\n",
+					"# sttmstrack.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/sttmstrack.parquet', mode = \"overwrite\")\r\n",
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 5
+				"execution_count": 33
 			}
 		]
 	}

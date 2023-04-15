@@ -47,7 +47,7 @@
 											"source": {
 												"type": "SqlServerSource",
 												"sqlReaderQuery": {
-													"value": "@concat(' \nDECLARE @s VARCHAR(MAX) \nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,''' \nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as [''+replace(c.name,'' '',''_'')+''] '' \nFROM sys.all_columns c join sys.tables t \nON c.object_id = t.object_id \nWHERE t.name =  @tablename \nSELECT ''SELECT '' + @s + '' FROM ['' +  @tablename + '']''  as Query')",
+													"value": "@concat(' \nDECLARE @s VARCHAR(MAX) \nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,''' \nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as [''+replace(c.name,'' '',''_'')+''] '' \nFROM sys.all_columns c \njoin sys.objects t ON c.object_id = t.object_id \nWHERE t.name =  @tablename \nSELECT ''SELECT '' + @s + '' FROM ['' +  @tablename + '']''  as Query')",
 													"type": "Expression"
 												},
 												"queryTimeout": "02:00:00",

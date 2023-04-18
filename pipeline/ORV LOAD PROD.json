@@ -953,83 +953,6 @@
 												}
 											},
 											{
-												"name": "Partition DF_IDLoad",
-												"type": "ExecuteDataFlow",
-												"dependsOn": [
-													{
-														"activity": "Delete The Left File_IDLoad_Folder",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													},
-													{
-														"activity": "Delete The Left File_IDLoad_SingleFile",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"dataflow": {
-														"referenceName": "Partitioning DF",
-														"type": "DataFlowReference",
-														"parameters": {
-															"cw_FileName": {
-																"value": "'@{concat(item().Destination.FileName,'.parquet')}'",
-																"type": "Expression"
-															},
-															"cw_FolderName": {
-																"value": "'@{variables('FolderName')}'",
-																"type": "Expression"
-															},
-															"cw_IncFolderName": {
-																"value": "'@{concat(variables('FolderName'),'_Incremental_Data')}'",
-																"type": "Expression"
-															},
-															"cw_incField": {
-																"value": "'@{item().Increment.IncField}'",
-																"type": "Expression"
-															},
-															"ContainerName": {
-																"value": "'@{variables('ContainerName')}'",
-																"type": "Expression"
-															}
-														},
-														"linkedServiceParameters": {
-															"source2": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"sink1": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															}
-														}
-													},
-													"integrationRuntime": {
-														"referenceName": "DataFlowIncrementalLoadIR",
-														"type": "IntegrationRuntimeReference"
-													},
-													"traceLevel": "Fine"
-												}
-											},
-											{
 												"name": "Delete The Left File_IDLoad_Folder",
 												"type": "Delete",
 												"dependsOn": [
@@ -1231,6 +1154,83 @@
 														"recursive": true,
 														"enablePartitionDiscovery": false
 													}
+												}
+											},
+											{
+												"name": "Partition DF_IDLoad",
+												"type": "ExecuteDataFlow",
+												"dependsOn": [
+													{
+														"activity": "Delete The Left File_IDLoad_Folder",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													},
+													{
+														"activity": "Delete The Left File_IDLoad_SingleFile",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataflow": {
+														"referenceName": "Partitioning DF",
+														"type": "DataFlowReference",
+														"parameters": {
+															"cw_FileName": {
+																"value": "'@{concat(item().Destination.FileName,'.parquet')}'",
+																"type": "Expression"
+															},
+															"cw_FolderName": {
+																"value": "'@{variables('FolderName')}'",
+																"type": "Expression"
+															},
+															"cw_IncFolderName": {
+																"value": "'@{concat(variables('FolderName'),'_Incremental_Data')}'",
+																"type": "Expression"
+															},
+															"cw_incField": {
+																"value": "'@{item().Increment.IncField}'",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "'@{variables('ContainerName')}'",
+																"type": "Expression"
+															}
+														},
+														"linkedServiceParameters": {
+															"source2": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															},
+															"sink1": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															}
+														}
+													},
+													"integrationRuntime": {
+														"referenceName": "DataFlowIncrementalLoadIR",
+														"type": "IntegrationRuntimeReference"
+													},
+													"traceLevel": "Fine"
 												}
 											}
 										]

@@ -12,9 +12,10 @@
 						"value": "@pipeline().parameters.CW_Items",
 						"type": "Expression"
 					},
+					"batchCount": 2,
 					"activities": [
 						{
-							"name": "If ColumnsNamesBlankSpaces",
+							"name": "If ColumnsNamesBlankSpacesOrLimitedLoad",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
@@ -27,17 +28,17 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@pipeline().parameters.ColumnsNamesBlankSpaces",
+									"value": "@or(pipeline().parameters.ColumnsNamesBlankSpaces,greater(length(pipeline().parameters.LimitedLoadTopX),0))",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
 									{
-										"name": "RemoveBlankSpacesColumnNames",
+										"name": "SelectStatementBuilder",
 										"type": "Lookup",
 										"dependsOn": [],
 										"policy": {
 											"timeout": "0.03:00:00",
-											"retry": 1,
+											"retry": 3,
 											"retryIntervalInSeconds": 30,
 											"secureOutput": false,
 											"secureInput": false
@@ -47,7 +48,7 @@
 											"source": {
 												"type": "PostgreSqlSource",
 												"sqlReaderQuery": {
-													"value": "@concat(' \nDECLARE @s VARCHAR(MAX) \nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,''' \nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as [''+replace(c.name,'' '',''_'')+''] '' \nFROM sys.all_columns c join sys.tables t \nON c.object_id = t.object_id \nWHERE t.name =  @tablename \nSELECT ''SELECT '' + @s + '' FROM ['' +  @tablename + '']''  as Query')",
+													"value": "@concat(' \nDECLARE @s VARCHAR(MAX)\nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,'''\nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as [''+replace(c.name,'' '',''_'')+''] ''\nFROM sys.all_columns c \njoin sys.objects t ON c.object_id = t.object_id \nWHERE t.name =  @tablename \nSELECT ''SELECT ', if(greater(length(pipeline().parameters.LimitedLoadTopX),0),concat('TOP ', pipeline().parameters.LimitedLoadTopX),''), ' '' + @s + '' FROM ['' +  @tablename + '']', if(greater(length(item().Increment.IdField),1),concat(' ORDER BY ', item().Increment.IdField, ' DESC'),''),''' as Query')",
 													"type": "Expression"
 												},
 												"queryTimeout": "02:00:00",
@@ -74,7 +75,7 @@
 														"type": "Expression"
 													},
 													"SecretName": {
-														"value": "@variables('SchemaName')",
+														"value": "@variables('SecretName')",
 														"type": "Expression"
 													},
 													"CW_TableName": {
@@ -115,7 +116,7 @@
 											"source": {
 												"type": "AzureSqlSource",
 												"sqlReaderQuery": {
-													"value": "@concat('SELECT MAX(',item().Increment.IncField,')  as Field \n FROM\n    OPENROWSET(\n        BULK ','''',variables('DataLake'),variables('ContainerName'),'/',variables('FolderName'),'/',item().destination.FileName,'.parquet','''',\n        ',FORMAT = ','''PARQUET''','\n    ) AS [result]')",
+													"value": "@concat('SELECT MAX(',item().Increment.IncField,')  as Field \n FROM\n    OPENROWSET(\n        BULK ','''',variables('DataLake'),'/',variables('FolderName'),'/',item().destination.FileName,'.parquet','''',\n        ',FORMAT = ','''PARQUET''','\n    ) AS [result]')",
 													"type": "Expression"
 												},
 												"queryTimeout": "02:00:00",
@@ -150,7 +151,7 @@
 										],
 										"policy": {
 											"timeout": "0.03:00:00",
-											"retry": 1,
+											"retry": 3,
 											"retryIntervalInSeconds": 30,
 											"secureOutput": false,
 											"secureInput": false
@@ -202,7 +203,7 @@
 										],
 										"policy": {
 											"timeout": "0.03:00:00",
-											"retry": 1,
+											"retry": 0,
 											"retryIntervalInSeconds": 30,
 											"secureOutput": false,
 											"secureInput": false
@@ -285,6 +286,22 @@
 												"enablePartitionDiscovery": false
 											}
 										}
+									},
+									{
+										"name": "WaitBecause of Error",
+										"type": "Wait",
+										"dependsOn": [
+											{
+												"activity": "Remove Old Data Data_Folder",
+												"dependencyConditions": [
+													"Failed"
+												]
+											}
+										],
+										"userProperties": [],
+										"typeProperties": {
+											"waitTimeInSeconds": 1
+										}
 									}
 								]
 							}
@@ -294,7 +311,7 @@
 							"type": "Switch",
 							"dependsOn": [
 								{
-									"activity": "If ColumnsNamesBlankSpaces",
+									"activity": "If ColumnsNamesBlankSpacesOrLimitedLoad",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -383,7 +400,7 @@
 														}
 													},
 													"integrationRuntime": {
-														"referenceName": "DataFlowIncrementalLoadIR",
+														"referenceName": "DataFlowIR",
 														"type": "IntegrationRuntimeReference"
 													},
 													"traceLevel": "Fine"
@@ -402,7 +419,8 @@
 													{
 														"activity": "Delete The Left File_DateLoad_SingleFile",
 														"dependencyConditions": [
-															"Succeeded"
+															"Succeeded",
+															"Skipped"
 														]
 													}
 												],
@@ -460,7 +478,7 @@
 														}
 													},
 													"integrationRuntime": {
-														"referenceName": "DataFlowIncrementalLoadIR",
+														"referenceName": "DataFlowIR",
 														"type": "IntegrationRuntimeReference"
 													},
 													"traceLevel": "Fine"
@@ -626,7 +644,7 @@
 												"dependsOn": [],
 												"policy": {
 													"timeout": "0.03:00:00",
-													"retry": 1,
+													"retry": 3,
 													"retryIntervalInSeconds": 30,
 													"secureOutput": false,
 													"secureInput": false
@@ -636,7 +654,7 @@
 													"source": {
 														"type": "PostgreSqlSource",
 														"sqlReaderQuery": {
-															"value": "@concat(if(pipeline().parameters.ColumnsNamesBlankSpaces,\n        activity('RemoveBlankSpacesColumnNames').output.firstRow.Query, concat('SELECT * FROM [', item().Source.TableName,']')\n        )   \n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    )",
+															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),0)),\n        activity('SelectStatementBuilder').output.firstRow.Query,concat('SELECT * FROM [', item().Source.TableName,']')\n        )\n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    )",
 															"type": "Expression"
 														},
 														"queryTimeout": "02:00:00",
@@ -780,7 +798,7 @@
 												"dependsOn": [],
 												"policy": {
 													"timeout": "0.03:00:00",
-													"retry": 1,
+													"retry": 3,
 													"retryIntervalInSeconds": 30,
 													"secureOutput": false,
 													"secureInput": false
@@ -790,7 +808,7 @@
 													"source": {
 														"type": "PostgreSqlSource",
 														"sqlReaderQuery": {
-															"value": "@concat(if(pipeline().parameters.ColumnsNamesBlankSpaces,\n        activity('RemoveBlankSpacesColumnNames').output.firstRow.Query, concat('SELECT * FROM [', item().Source.TableName,']')\n        )   \n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,activity('Lookup Last Max Field').output.firstRow.Field\n        )\n    )",
+															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces,    greater(length(pipeline().parameters.LimitedLoadTopX),0)),\n        activity('SelectStatementBuilder').output.firstRow.Query, concat('SELECT * FROM [', item().Source.TableName,']')\n        )   \n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,activity('Lookup Last Max Field').output.firstRow.Field\n        )\n    )",
 															"type": "Expression"
 														},
 														"queryTimeout": "02:00:00",
@@ -946,7 +964,85 @@
 														}
 													},
 													"integrationRuntime": {
-														"referenceName": "DataFlowIncrementalLoadIR",
+														"referenceName": "DataFlowIR",
+														"type": "IntegrationRuntimeReference"
+													},
+													"traceLevel": "Fine"
+												}
+											},
+											{
+												"name": "Partition DF_IDLoad",
+												"type": "ExecuteDataFlow",
+												"dependsOn": [
+													{
+														"activity": "Delete The Left File_IDLoad_Folder",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													},
+													{
+														"activity": "Delete The Left File_IDLoad_SingleFile",
+														"dependencyConditions": [
+															"Succeeded",
+															"Skipped"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataflow": {
+														"referenceName": "Partitioning DF",
+														"type": "DataFlowReference",
+														"parameters": {
+															"cw_FileName": {
+																"value": "'@{concat(item().Destination.FileName,'.parquet')}'",
+																"type": "Expression"
+															},
+															"cw_FolderName": {
+																"value": "'@{variables('FolderName')}'",
+																"type": "Expression"
+															},
+															"cw_IncFolderName": {
+																"value": "'@{concat(variables('FolderName'),'_Incremental_Data')}'",
+																"type": "Expression"
+															},
+															"cw_incField": {
+																"value": "'@{item().Increment.IncField}'",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "'@{variables('ContainerName')}'",
+																"type": "Expression"
+															}
+														},
+														"linkedServiceParameters": {
+															"source2": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															},
+															"sink1": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															}
+														}
+													},
+													"integrationRuntime": {
+														"referenceName": "DataFlowIR",
 														"type": "IntegrationRuntimeReference"
 													},
 													"traceLevel": "Fine"
@@ -1155,83 +1251,6 @@
 														"enablePartitionDiscovery": false
 													}
 												}
-											},
-											{
-												"name": "Partition DF_IDLoad",
-												"type": "ExecuteDataFlow",
-												"dependsOn": [
-													{
-														"activity": "Delete The Left File_IDLoad_Folder",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													},
-													{
-														"activity": "Delete The Left File_IDLoad_SingleFile",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"dataflow": {
-														"referenceName": "Partitioning DF",
-														"type": "DataFlowReference",
-														"parameters": {
-															"cw_FileName": {
-																"value": "'@{concat(item().Destination.FileName,'.parquet')}'",
-																"type": "Expression"
-															},
-															"cw_FolderName": {
-																"value": "'@{variables('FolderName')}'",
-																"type": "Expression"
-															},
-															"cw_IncFolderName": {
-																"value": "'@{concat(variables('FolderName'),'_Incremental_Data')}'",
-																"type": "Expression"
-															},
-															"cw_incField": {
-																"value": "'@{item().Increment.IncField}'",
-																"type": "Expression"
-															},
-															"ContainerName": {
-																"value": "'@{variables('ContainerName')}'",
-																"type": "Expression"
-															}
-														},
-														"linkedServiceParameters": {
-															"source2": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"sink1": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															}
-														}
-													},
-													"integrationRuntime": {
-														"referenceName": "DataFlowIncrementalLoadIR",
-														"type": "IntegrationRuntimeReference"
-													},
-													"traceLevel": "Fine"
-												}
 											}
 										]
 									},
@@ -1239,12 +1258,12 @@
 										"value": "FullTakeOn",
 										"activities": [
 											{
-												"name": "Copy_Data",
+												"name": "Copy_Data_Full_Take_On",
 												"type": "Copy",
 												"dependsOn": [],
 												"policy": {
 													"timeout": "7.00:00:00",
-													"retry": 1,
+													"retry": 3,
 													"retryIntervalInSeconds": 30,
 													"secureOutput": false,
 													"secureInput": false
@@ -1254,7 +1273,7 @@
 													"source": {
 														"type": "PostgreSqlSource",
 														"sqlReaderQuery": {
-															"value": "@if(pipeline().parameters.ColumnsNamesBlankSpaces,\n    activity('RemoveBlankSpacesColumnNames').output.firstRow.Query,\n    concat('SELECT * FROM [', item().Source.TableName,']')\n    )",
+															"value": "@if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),0)),\n    activity('SelectStatementBuilder').output.firstRow.Query,\n    concat('SELECT * FROM [', item().Source.TableName,']')\n    )",
 															"type": "Expression"
 														},
 														"partitionOption": "None"
@@ -1341,7 +1360,7 @@
 												"type": "ExecuteDataFlow",
 												"dependsOn": [
 													{
-														"activity": "Copy_Data",
+														"activity": "Copy_Data_Full_Take_On",
 														"dependencyConditions": [
 															"Succeeded"
 														]
@@ -1401,7 +1420,7 @@
 														}
 													},
 													"integrationRuntime": {
-														"referenceName": "DataFlowIncrementalLoadIR",
+														"referenceName": "DataFlowIR",
 														"type": "IntegrationRuntimeReference"
 													},
 													"traceLevel": "Fine"

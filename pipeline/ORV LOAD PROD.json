@@ -46,7 +46,7 @@
 										"userProperties": [],
 										"typeProperties": {
 											"source": {
-												"type": "PostgreSqlSource",
+												"type": "SqlServerSource",
 												"sqlReaderQuery": {
 													"value": "@concat(' \nDECLARE @s VARCHAR(MAX)\nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,'''\nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as [''+replace(c.name,'' '',''_'')+''] ''\nFROM sys.all_columns c \njoin sys.objects t ON c.object_id = t.object_id \nWHERE t.name =  @tablename \nSELECT ''SELECT ', if(greater(length(pipeline().parameters.LimitedLoadTopX),0),concat('TOP ', pipeline().parameters.LimitedLoadTopX),''), ' '' + @s + '' FROM ['' +  @tablename + '']', if(greater(length(item().Increment.IdField),1),concat(' ORDER BY ', item().Increment.IdField, ' DESC'),''),''' as Query')",
 													"type": "Expression"
@@ -55,7 +55,7 @@
 												"partitionOption": "None"
 											},
 											"dataset": {
-												"referenceName": "PostgresSQL_Dataset",
+												"referenceName": "SqlServerDataSet",
 												"type": "DatasetReference",
 												"parameters": {
 													"ServerName": {
@@ -652,7 +652,7 @@
 												"userProperties": [],
 												"typeProperties": {
 													"source": {
-														"type": "PostgreSqlSource",
+														"type": "SqlServerSource",
 														"sqlReaderQuery": {
 															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),0)),\n        activity('SelectStatementBuilder').output.firstRow.Query,concat('SELECT * FROM [', item().Source.TableName,']')\n        )\n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    )",
 															"type": "Expression"
@@ -682,7 +682,7 @@
 												},
 												"inputs": [
 													{
-														"referenceName": "PostgresSQL_Dataset",
+														"referenceName": "SqlServerDataSet",
 														"type": "DatasetReference",
 														"parameters": {
 															"ServerName": {
@@ -806,7 +806,7 @@
 												"userProperties": [],
 												"typeProperties": {
 													"source": {
-														"type": "PostgreSqlSource",
+														"type": "SqlServerSource",
 														"sqlReaderQuery": {
 															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces,    greater(length(pipeline().parameters.LimitedLoadTopX),0)),\n        activity('SelectStatementBuilder').output.firstRow.Query, concat('SELECT * FROM [', item().Source.TableName,']')\n        )   \n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,activity('Lookup Last Max Field').output.firstRow.Field\n        )\n    )",
 															"type": "Expression"
@@ -836,7 +836,7 @@
 												},
 												"inputs": [
 													{
-														"referenceName": "PostgresSQL_Dataset",
+														"referenceName": "SqlServerDataSet",
 														"type": "DatasetReference",
 														"parameters": {
 															"ServerName": {
@@ -1271,7 +1271,7 @@
 												"userProperties": [],
 												"typeProperties": {
 													"source": {
-														"type": "PostgreSqlSource",
+														"type": "SqlServerSource",
 														"sqlReaderQuery": {
 															"value": "@if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),0)),\n    activity('SelectStatementBuilder').output.firstRow.Query,\n    concat('SELECT * FROM [', item().Source.TableName,']')\n    )",
 															"type": "Expression"
@@ -1300,7 +1300,7 @@
 												},
 												"inputs": [
 													{
-														"referenceName": "PostgresSQL_Dataset",
+														"referenceName": "SqlServerDataSet",
 														"type": "DatasetReference",
 														"parameters": {
 															"ServerName": {
@@ -1513,6 +1513,10 @@
 			"ColumnsNamesBlankSpaces": {
 				"type": "bool",
 				"defaultValue": false
+			},
+			"LimitedLoadTopX": {
+				"type": "string",
+				"defaultValue": "100"
 			}
 		},
 		"variables": {

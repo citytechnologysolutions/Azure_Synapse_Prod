@@ -28,7 +28,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@or(pipeline().parameters.ColumnsNamesBlankSpaces,greater(length(pipeline().parameters.LimitedLoadTopX),0))",
+									"value": "@or(pipeline().parameters.ColumnsNamesBlankSpaces,greater(length(pipeline().parameters.LimitedLoadTopX),1))",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
@@ -48,7 +48,7 @@
 											"source": {
 												"type": "PostgreSqlSource",
 												"query": {
-													"value": "@concat(' \nDECLARE @s VARCHAR(MAX)\nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,'''\nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as ['' + replace(c.name,'' '',''_'') + ''] ''\nFROM information_schema.columns c \nWHERE table_name = @tablename\nSELECT ''SELECT '' + @s + '' FROM ['' +  @tablename + '']', if(greater(length(item().Increment.IdField),1),concat(' ORDER BY ', item().Increment.IdField, ' DESC'),''), if(greater(length(pipeline().parameters.LimitedLoadTopX),0),concat(' LIMIT ', pipeline().parameters.LimitedLoadTopX),''),''' as Query')",
+													"value": "@concat(' \nDECLARE @s VARCHAR(MAX)\nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,'''\nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as ['' + replace(c.name,'' '',''_'') + ''] ''\nFROM information_schema.columns c \nWHERE table_name = @tablename\nSELECT ''SELECT '' + @s + '' FROM ['' +  @tablename + '']', if(greater(length(item().Increment.IdField),1),concat(' ORDER BY ', item().Increment.IdField, ' DESC'),''), if(greater(length(pipeline().parameters.LimitedLoadTopX),1),concat(' LIMIT ', pipeline().parameters.LimitedLoadTopX),''),''' as Query')",
 													"type": "Expression"
 												},
 												"queryTimeout": "02:00:00",
@@ -654,7 +654,7 @@
 													"source": {
 														"type": "PostgreSqlSource",
 														"query": {
-															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),0)),\n        activity('SelectStatementBuilder').output.firstRow.Query,concat('SELECT * FROM [', item().Source.TableName,']')\n        )\n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    )",
+															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1)),\n        activity('SelectStatementBuilder').output.firstRow.Query,concat('SELECT * FROM [', item().Source.TableName,']')\n        )\n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    )",
 															"type": "Expression"
 														},
 														"queryTimeout": "02:00:00",
@@ -808,7 +808,7 @@
 													"source": {
 														"type": "PostgreSqlSource",
 														"query": {
-															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces,    greater(length(pipeline().parameters.LimitedLoadTopX),0)),\n        activity('SelectStatementBuilder').output.firstRow.Query, concat('SELECT * FROM [', item().Source.TableName,']')\n        )   \n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,activity('Lookup Last Max Field').output.firstRow.Field\n        )\n    )",
+															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces,    greater(length(pipeline().parameters.LimitedLoadTopX),1)),\n        activity('SelectStatementBuilder').output.firstRow.Query, concat('SELECT * FROM [', item().Source.TableName,']')\n        )   \n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,activity('Lookup Last Max Field').output.firstRow.Field\n        )\n    )",
 															"type": "Expression"
 														},
 														"queryTimeout": "02:00:00",
@@ -1273,7 +1273,7 @@
 													"source": {
 														"type": "PostgreSqlSource",
 														"query": {
-															"value": "@if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),0)),\n    activity('SelectStatementBuilder').output.firstRow.Query,\n    concat('SELECT * FROM [', item().Source.TableName,']')\n    )",
+															"value": "@if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1)),\n    activity('SelectStatementBuilder').output.firstRow.Query,\n    concat('SELECT * FROM [', item().Source.TableName,']')\n    )",
 															"type": "Expression"
 														},
 														"partitionOption": "None"

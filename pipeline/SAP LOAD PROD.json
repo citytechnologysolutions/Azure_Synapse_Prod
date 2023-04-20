@@ -48,7 +48,7 @@
 											"source": {
 												"type": "SqlServerSource",
 												"sqlReaderQuery": {
-													"value": "@concat(' \nDECLARE @s VARCHAR(MAX)\nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,'''\nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as [''+replace(c.name,'' '',''_'')+''] ''\nFROM sys.all_columns c \njoin sys.objects t ON c.object_id = t.object_id \nWHERE t.name =  @tablename \nSELECT ''SELECT ', if(greater(length(pipeline().parameters.LimitedLoadTopX),0),concat('TOP ', pipeline().parameters.LimitedLoadTopX),''), ' '' + @s + '' FROM ['' +  @tablename + '']', if(greater(length(item().Increment.IdField),1),concat(' ORDER BY ', item().Increment.IdField, ' DESC'),''),''' as Query')",
+													"value": "@concat(' \nDECLARE @s VARCHAR(MAX)\nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,'''\nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as [''+replace(c.name,'' '',''_'')+''] ''\nFROM sys.all_columns c \njoin sys.objects t ON c.object_id = t.object_id \nWHERE t.name =  @tablename \nSELECT ''SELECT ', if(greater(length(pipeline().parameters.LimitedLoadTopX),1),concat('TOP ', pipeline().parameters.LimitedLoadTopX),''), ' '' + @s + '' FROM ['' +  @tablename + '']', if(and(greater(length(item().Increment.IdField),1),greater(length(pipeline().parameters.LimitedLoadTopX),1)),concat(' ORDER BY ', item().Increment.IdField, ' DESC'),''),''' as Query')",
 													"type": "Expression"
 												},
 												"queryTimeout": "02:00:00",
@@ -1506,7 +1506,7 @@
 			},
 			"LimitedLoadTopX": {
 				"type": "string",
-				"defaultValue": "1"
+				"defaultValue": " "
 			}
 		},
 		"variables": {

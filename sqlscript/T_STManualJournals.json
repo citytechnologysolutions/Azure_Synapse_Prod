@@ -1,0 +1,20 @@
+{
+	"name": "T_STManualJournals",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STManualJournals') )\n    DROP EXTERNAL TABLE dbo.T_STManualJournals\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STManualJournals (\n[sap_journalsheader_postingdate] datetime2(7),\n[sap_journalsheader_duedate] datetime2(7),\n[sap_journalsheader_doctotal] numeric(18,2),\n[sap_journalsheader_doctype] nvarchar(4000),\n[sap_journalsheader_transid] int,\n[sap_journalsline_linenum] int,\n[sap_journalsline_acctcode] nvarchar(4000),\n[sap_journalsheader_objtype] nvarchar(4000),\n[sap_journalsline_project] nvarchar(4000),\n[sap_journalsline_vatgroup] nvarchar(4000),\n[sap_journalsline_vatrate] numeric(18,2),\n[sap_journalsline_vatamount] numeric(18,2),\n[sap_journalsline_description] nvarchar(4000),\n[sap_journalsline_jnlref1] nvarchar(4000),\n[sap_journalsline_jnlref2] nvarchar(4000),\n[sap_journalsline_subdepotcode] nvarchar(4000),\n[sap_journalsline_linetotal] numeric(18,2),\n[sap_journalsline_doccat] nvarchar(4000),\n[sap_journalsline_itemcode] nvarchar(4000),\n[sap_journalsheader_cardcode] nvarchar(4000),\n[sap_journalsheader_cardref] nvarchar(4000),\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/stmanualjournals.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STManualJournals \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

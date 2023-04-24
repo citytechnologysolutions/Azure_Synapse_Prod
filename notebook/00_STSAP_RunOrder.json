@@ -1,0 +1,704 @@
+{
+	"name": "00_STSAP_RunOrder",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Finance"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "86fc0141-990b-4504-8a0e-a60b7a73435d"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": true,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#COA\r\n",
+					"#Create DataFrame for the dboOACT SAP Table\r\n",
+					"dboOACT = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbooact.parquet', format='parquet')\r\n",
+					"dboOACT.createOrReplaceTempView(\"dboOACT\")\r\n",
+					"\r\n",
+					"#Item\r\n",
+					"# #Create DataFrame for the dboOITM SAP Table \r\n",
+					"dboOITM = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbooitm.parquet', format='parquet')\r\n",
+					"dboOITM.createOrReplaceTempView(\"dboOITM\")\r\n",
+					"\r\n",
+					"#Item Group\r\n",
+					"# #Create DataFrame for the dboOITB SAP Table\r\n",
+					"dboOITB = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbooitb.parquet', format='parquet')\r\n",
+					"dboOITB.createOrReplaceTempView(\"dboOITB\")\r\n",
+					"\r\n",
+					"#Business Partner\r\n",
+					"#Create DataFrame for the dboOCRD SAP Table\r\n",
+					"dboOCRD = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboocrd.parquet', format='parquet')\r\n",
+					"dboOCRD.createOrReplaceTempView(\"dboOCRD\")\r\n",
+					"\r\n",
+					"#Sales Invoice Header\r\n",
+					"#Create DataFrame for the dboOINV SAP Table\r\n",
+					"dboOINV = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbooinv.parquet', format='parquet')\r\n",
+					"dboOINV.createOrReplaceTempView(\"dboOINV\")\r\n",
+					"\r\n",
+					"#Sales Invoice Line\r\n",
+					"#Create DataFrame for the dboINV1 SAP Table\r\n",
+					"dboINV1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboinv1.parquet', format='parquet')\r\n",
+					"dboINV1.createOrReplaceTempView(\"dboINV1\")\r\n",
+					"\r\n",
+					"#Stocck Revaluation Line\r\n",
+					"#Create DataFrame for the dboOMRV SAP Table\r\n",
+					"dboOMRV = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboomrv.parquet', format='parquet')\r\n",
+					"dboOMRV.createOrReplaceTempView(\"dboOMRV\")\r\n",
+					"\r\n",
+					"#Stocck Revaluation Line 1\r\n",
+					"#Create DataFrame for the dboMRV1 SAP Table\r\n",
+					"dboMRV1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbomrv1.parquet', format='parquet')\r\n",
+					"dboMRV1.createOrReplaceTempView(\"dboMRV1\")\r\n",
+					"\r\n",
+					"#Stocck Revaluation Line 2\r\n",
+					"#Create DataFrame for the dboMRV2 SAP Table\r\n",
+					"dboMRV2 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbomrv2.parquet', format='parquet')\r\n",
+					"dboMRV2.createOrReplaceTempView(\"dboMRV2\")\r\n",
+					"\r\n",
+					"#Stock\r\n",
+					"#Create DataFrame for the dboOINM \r\n",
+					"dboOINM = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbooinm.parquet', format='parquet')\r\n",
+					"dboOINM.createOrReplaceTempView(\"dboOINM\")\r\n",
+					"\r\n",
+					"#Goods Issue Header\r\n",
+					"#Create DataFrame for the dboOIGE \r\n",
+					"dboOIGE = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbooige.parquet', format='parquet')\r\n",
+					"dboOIGE.createOrReplaceTempView(\"dboOIGE\")\r\n",
+					"\r\n",
+					"#Goods Issue Line\r\n",
+					"#Create DataFrame for the dboIGE1 SAP LINE Table\r\n",
+					"dboIGE1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboige1.parquet', format='parquet')\r\n",
+					"dboIGE1.createOrReplaceTempView(\"dboIGE1\")\r\n",
+					"\r\n",
+					"#Goods Receipt Header\r\n",
+					"#Create DataFrame for the dboOIGN \r\n",
+					"dboOIGN = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbooign.parquet', format='parquet')\r\n",
+					"dboOIGN.createOrReplaceTempView(\"dboOIGN\")\r\n",
+					"\r\n",
+					"#Goods Receipt Line\r\n",
+					"#Create DataFrame for the dboIGN1 SAP LINE Table\r\n",
+					"dboIGN1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboign1.parquet', format='parquet')\r\n",
+					"dboIGN1.createOrReplaceTempView(\"dboIGN1\")\r\n",
+					"\r\n",
+					"#Sales Credit Header\r\n",
+					"#Create DataFrame for the dboORIN \r\n",
+					"dboORIN = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboorin.parquet', format='parquet')\r\n",
+					"dboORIN.createOrReplaceTempView(\"dboORIN\")\r\n",
+					"\r\n",
+					"#Sales Credit Line\r\n",
+					"#Create DataFrame for the dboRIN1 SAP LINE Table\r\n",
+					"dboRIN1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dborin1.parquet', format='parquet')\r\n",
+					"dboRIN1.createOrReplaceTempView(\"dboRIN1\")\r\n",
+					"\r\n",
+					"#Purchase Invoice Header\r\n",
+					"#Create DataFrame for the dboOPCH \r\n",
+					"dboOPCH = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboopch.parquet', format='parquet')\r\n",
+					"dboOPCH.createOrReplaceTempView(\"dboOPCH\")\r\n",
+					"\r\n",
+					"#Purchase Invoice Line\r\n",
+					"#Create DataFrame for the dboPCH1 SAP LINE Table\r\n",
+					"dboPCH1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbopch1.parquet', format='parquet')\r\n",
+					"dboPCH1.createOrReplaceTempView(\"dboPCH1\")\r\n",
+					"\r\n",
+					"#Purchase Credit Header\r\n",
+					"#Create DataFrame for the dboORPC \r\n",
+					"dboORPC = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboorpc.parquet', format='parquet')\r\n",
+					"dboORPC.createOrReplaceTempView(\"dboORPC\")\r\n",
+					"\r\n",
+					"#Purchase Credit Line\r\n",
+					"#Create DataFrame for the dboRPC1 SAP LINE Table\r\n",
+					"dboRPC1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dborpc1.parquet', format='parquet')\r\n",
+					"dboRPC1.createOrReplaceTempView(\"dboRPC1\")\r\n",
+					"\r\n",
+					"#Goods Receipt Note Header\r\n",
+					"#Create DataFrame for the dboOPDN \r\n",
+					"dboOPDN = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboopdn.parquet', format='parquet')\r\n",
+					"dboOPDN.createOrReplaceTempView(\"dboOPDN\")\r\n",
+					"\r\n",
+					"#Goods Receipt Note Line\r\n",
+					"#Create DataFrame for the dboPDN1 SAP LINE Table\r\n",
+					"dboPDN1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbopdn1.parquet', format='parquet')\r\n",
+					"dboPDN1.createOrReplaceTempView(\"dboPDN1\")\r\n",
+					"\r\n",
+					"#Goods Return Header\r\n",
+					"#Create DataFrame for the dboORPD \r\n",
+					"dboORPD = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboorpd.parquet', format='parquet')\r\n",
+					"dboORPD.createOrReplaceTempView(\"dboORPD\")\r\n",
+					"\r\n",
+					"#Goods Return Line\r\n",
+					"#Create DataFrame for the dboRPD1 SAP LINE Table\r\n",
+					"dboRPD1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dborpd1.parquet', format='parquet')\r\n",
+					"dboRPD1.createOrReplaceTempView(\"dboRPD1\")\r\n",
+					"\r\n",
+					"#Goods Issue Header\r\n",
+					"#Create DataFrame for the dboOIGE \r\n",
+					"dboOIGE = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbooige.parquet', format='parquet')\r\n",
+					"dboOIGE.createOrReplaceTempView(\"dboOIGE\")\r\n",
+					"\r\n",
+					"#Goods Issue Line\r\n",
+					"#Create DataFrame for the dboIGE1 SAP LINE Table\r\n",
+					"dboIGE1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboige1.parquet', format='parquet')\r\n",
+					"dboIGE1.createOrReplaceTempView(\"dboIGE1\")\r\n",
+					"\r\n",
+					"#Purchase Orders Header\r\n",
+					"#Create DataFrame for the dboOPOR \r\n",
+					"dboOPOR = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboopor.parquet', format='parquet')\r\n",
+					"dboOPOR.createOrReplaceTempView(\"dboOPOR\")\r\n",
+					"\r\n",
+					"#Purchase Orders Line\r\n",
+					"#Create DataFrame for the dboPOR1 SAP LINE Table\r\n",
+					"dboPOR1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbopor1.parquet', format='parquet')\r\n",
+					"dboPOR1.createOrReplaceTempView(\"dboPOR1\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/Finance/01_STChartOfAccounts"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stchartofaccounts.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stchartofaccounts.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/Finance/02_STItems"
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stitems.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stitems.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/Finance/03_STBusinessPartners"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbusinnesspartner.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stbusinnesspartner.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/Finance/04_STSalesInvoices"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stsalesinvoice.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoice.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/Finance/05_STStockRevaluations"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ststockrevaluations.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/ststockrevaluations.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 24
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/Finance/06_STStockTransactions"
+				],
+				"execution_count": 25
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ststocktransactions.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/ststocktransactions.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/Finance/07_STDocuments"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdocuments.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stdocuments.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#Journal Header\r\n",
+					"#Create DataFrame for the dboOJDT SAP Table\r\n",
+					"dboOJDT = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboojdt.parquet', format='parquet')\r\n",
+					"dboOJDT.createOrReplaceTempView(\"dboOJDT\")\r\n",
+					"\r\n",
+					"#Journal Line\r\n",
+					"#Create DataFrame for the dboJDT1 SAP Table\r\n",
+					"dboJDT1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbojdt1.parquet', format='parquet')\r\n",
+					"dboJDT1.createOrReplaceTempView(\"dboJDT1\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the stchartofaccounts SAP Table\r\n",
+					"stchartofaccounts = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stchartofaccounts.parquet', format='parquet')\r\n",
+					"stchartofaccounts.createOrReplaceTempView(\"stchartofaccounts\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the stsalesinvoice SAP Table\r\n",
+					"stsalesinvoice = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoice.parquet', format='parquet')\r\n",
+					"stsalesinvoice.createOrReplaceTempView(\"stsalesinvoice\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the stitem SAP Table\r\n",
+					"stitem = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stitem.parquet', format='parquet')\r\n",
+					"stitem.createOrReplaceTempView(\"stitem\")"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/Finance/08_STManualJournals"
+				],
+				"execution_count": 34
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Write for STManualJournals happens in notebook 08_STManualJournals"
+				],
+				"execution_count": 35
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\r\n",
+					"#Create DataFrame for the stdocuments SAP Table\r\n",
+					"stdocuments = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stdocuments.parquet', format='parquet')\r\n",
+					"stdocuments.createOrReplaceTempView(\"stdocuments\")\r\n",
+					"\r\n",
+					"######################################################################## UNION\r\n",
+					"\r\n",
+					"#Create DataFrame for the stmanualjournal SAP Table\r\n",
+					"stmanualjournal = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stmanualjournal.parquet', format='parquet')\r\n",
+					"stmanualjournal.createOrReplaceTempView(\"stmanualjournal\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the stdirectposting SAP Table\r\n",
+					"stdirectposting = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stdirectposting.parquet', format='parquet')\r\n",
+					"stdirectposting.createOrReplaceTempView(\"stdirectposting\")\r\n",
+					"\r\n",
+					"######################################################################## UNION\r\n",
+					"\r\n",
+					"#Create DataFrame for the stgeneraljournal SAP Table\r\n",
+					"stgeneraljournal = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stgeneraljournal.parquet', format='parquet')\r\n",
+					"stgeneraljournal.createOrReplaceTempView(\"stgeneraljournal\")\r\n",
+					"\r\n",
+					"######################################################################## UNION\r\n",
+					"\r\n",
+					"#Create DataFrame for the ststocktransactions SAP Table\r\n",
+					"ststocktransactions = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/ststocktransactions.parquet', format='parquet')\r\n",
+					"ststocktransactions.createOrReplaceTempView(\"ststocktransactions\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the stdiscountjournal SAP Table\r\n",
+					"stdiscountjournal = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stdiscountjournal.parquet', format='parquet')\r\n",
+					"stdiscountjournal.createOrReplaceTempView(\"stdiscountjournal\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the stsalesinvoiceinventory SAP Table\r\n",
+					"stsalesinvoiceinventory = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoiceinventory.parquet', format='parquet')\r\n",
+					"stsalesinvoiceinventory.createOrReplaceTempView(\"stsalesinvoiceinventory\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the ststockrevaluations SAP Table\r\n",
+					"ststockrevaluations = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/ststockrevaluations.parquet', format='parquet')\r\n",
+					"ststockrevaluations.createOrReplaceTempView(\"ststockrevaluations\")\r\n",
+					"\r\n",
+					"######################################################################## UNION\r\n",
+					"\r\n",
+					"#Create DataFrame for the stpurchasepricevariance SAP Table\r\n",
+					"stpurchasepricevariance = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stpurchasepricevariance.parquet', format='parquet')\r\n",
+					"stpurchasepricevariance.createOrReplaceTempView(\"stpurchasepricevariance\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the stcostofgoods SAP Table\r\n",
+					"stcostofgoods = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stcostofgoods.parquet', format='parquet')\r\n",
+					"stcostofgoods.createOrReplaceTempView(\"stcostofgoods\")\r\n",
+					"\r\n",
+					"######################################################################## LEFT JOIN\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/Finance/09_STTransactions"
+				],
+				"execution_count": 37
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttransactions.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/sttransactions.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 38
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 39
+			}
+		]
+	}
+}

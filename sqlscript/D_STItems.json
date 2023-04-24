@@ -1,0 +1,20 @@
+{
+	"name": "D_STItems",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STItems') )\n    DROP EXTERNAL TABLE dbo.D_STItems\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STItems (\n\t[sap_itemgroup_itmsgrpcod] int,\n\t[sap_itemgroup_itmsgrpnam] nvarchar(4000),\n\t[sap_item_itemcode] nvarchar(4000),\n\t[sap_item_itemname] nvarchar(4000),\n\t[sap_item_cstgrpcode] int,\n\t[sap_item_vatgourpsa] nvarchar(4000),\n\t[sap_item_codebars] nvarchar(4000),\n\t[sap_item_prchseitem] nvarchar(4000),\n\t[sap_item_sellitem] nvarchar(4000),\n\t[sap_item_cardcode] nvarchar(4000),\n\t[sap_item_suppcatnum] nvarchar(4000),\n\t[sap_item_invntitem] nvarchar(4000),\n\t[sap_item_u_boy_tb_0] nvarchar(4000),\n\t[sap_item_u_svctype] nvarchar(4000),\n\t[sap_item_u_depot] nvarchar(4000),\n\n    \n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/stitems.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STItems \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

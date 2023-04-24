@@ -1,0 +1,20 @@
+{
+	"name": "T_STDocuments",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STDocuments') )\n    DROP EXTERNAL TABLE dbo.T_STDocuments\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STDocuments (\n\n\t[sap_documentsheader_docentry] int,\n\t[sap_documentsheader_docnum] int,\n\t[sap_documentsheader_doctype] nvarchar(4000),\n\t[sap_documentsheader_objtype] nvarchar(4000),\n\t[sap_documentsheader_postingdate] datetime2(7),\n\t[sap_documentsheader_duedate] datetime2(7),\n\t[sap_documentsheader_cardcode] nvarchar(4000),\n\t[sap_documentsheader_cardref] nvarchar(4000),\n\t[sap_documentsheader_discprcnt] numeric(18,2),\n\t[sap_documentsheader_discsum] numeric(18,2),\n\t[sap_documentsheader_doctotal] numeric(18,2),\n\t[sap_documentsheader_comments] nvarchar(4000),\n\t[sap_documentsheader_transid] int,\n\t[sap_documentsheader_u_expense_depot] nvarchar(4000),\n\t[sap_documentsline_linenum] int,\n\t[sap_documentsline_linestatus] nvarchar(4000),\n\t[sap_documentsline_itemcode] nvarchar(4000),\n\t[sap_documentsline_dscription] nvarchar(4000),\n\t[sap_documentsline_quantity] numeric(18,2),\n\t[sap_documentsline_openqty] numeric(18,2),\n\t[sap_documentsline_price] numeric(18,2),\n\t[sap_documentsline_rate] numeric(18,2),\n\t[sap_documentsline_discprcnt] numeric(18,2),\n\t[sap_documentsline_linetotal] numeric(18,2),\n\t[sap_documentsline_opensum] numeric(18,2),\n\t[sap_documentsline_pricebefdi] numeric(18,2),\n\t[sap_documentsline_docdate] datetime2(7),\n\t[sap_documentsline_project] nvarchar(4000),\n\t[sap_documentsline_vatprcnt] numeric(18,2),\n\t[sap_documentsline_vatgroup] nvarchar(4000),\n\t[sap_documentsline_vatamount] numeric(18,2),\n\t[sap_documentsline_u_reason] nvarchar(4000),\n\t[sap_documentsline_u_expenseitem] nvarchar(4000),\n\t[sap_documentsline_u_fueldate] datetime2(7),\n\t[sap_documentsline_acctcode] nvarchar(4000),\n\t[sap_documentsline_doccat] nvarchar(4000),\n\t[sap_documentsline_subdepotcode] nvarchar(4000),\n\t[sap_documentsline_u_rate] nvarchar(4000),\n\t[sap_documentsline_u_ir_number] int,\n\t[sap_documentsline_discsum] numeric(18,2),\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/stdocuments.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STDocuments \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,230 @@
+{
+	"name": "04_STSalesInvoices",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Finance"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "39979a84-0a4b-4a59-92ad-fd0cf5c9e808"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Create DataFrame for the dboOINV SAP Table\r\n",
+					"# dboOINV = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOINV.parquet', format='parquet')\r\n",
+					"# dboOINV.createOrReplaceTempView(\"dboOINV\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboINV1 SAP Table\r\n",
+					"# dboINV1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboINV1.parquet', format='parquet')\r\n",
+					"# dboINV1.createOrReplaceTempView(\"dboINV1\")\r\n",
+					""
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stsalesinvoice\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    oinv.docentry as sap_salesinvoiceheader_docentry\r\n",
+					"    ,oinv.docnum as sap_salesinvoiceheader_docnum\r\n",
+					"    ,oinv.doctype as sap_salesinvoiceheader_doctype\r\n",
+					"    ,oinv.canceled as sap_salesinvoiceheader_canceled\r\n",
+					"    ,oinv.objtype as sap_salesinvoiceheader_objtype\r\n",
+					"    ,oinv.docdate as sap_salesinvoiceheader_docdate\r\n",
+					"    ,oinv.docduedate as sap_salesinvoiceheader_docduedate\r\n",
+					"    ,oinv.cardcode as sap_salesinvoiceheader_cardcode\r\n",
+					"    ,oinv.cardname as sap_salesinvoiceheader_cardname\r\n",
+					"    ,oinv.numatcard as sap_salesinvoiceheader_numatcard\r\n",
+					"    ,oinv.discprcnt as sap_salesinvoiceheader_discprcnt\r\n",
+					"    ,oinv.vatsum as sap_salesinvoiceheader_vatsum\r\n",
+					"    ,oinv.discsum as sap_salesinvoiceheader_discsum\r\n",
+					"    ,oinv.doctotal as sap_salesinvoiceheader_doctotal\r\n",
+					"    ,oinv.comments as sap_salesinvoiceheader_comments\r\n",
+					"    ,oinv.transid as sap_salesinvoiceheader_transid\r\n",
+					"    ,oinv.usersign as sap_salesinvoiceheader_usersign\r\n",
+					"    ,oinv.u_depot as sap_salesinvoiceheader_u_depot\r\n",
+					"    ,oinv.u_usercode as sap_salesinvoiceheader_u_usercode\r\n",
+					"    ,oinv.u_expense_depot as sap_salesinvoiceheader_u_expense_depot\r\n",
+					"    ,oinv.u_transaction_date as sap_salesinvoiceheader_u_transaction_date\r\n",
+					"    ,oinv.rounddif as sap_salesinvoiceheader_rounddif\r\n",
+					"    ,oinv.rounding as sap_salesinvoiceheader_rounding\r\n",
+					"    ,inv1.linenum as sap_salesinvoiceline_linenum\r\n",
+					"    ,inv1.linestatus as sap_salesinvoiceline_linestatus\r\n",
+					"    ,inv1.itemcode as sap_salesinvoiceline_itemcode\r\n",
+					"    ,inv1.dscription as sap_salesinvoiceline_dscription\r\n",
+					"    ,inv1.quantity as sap_salesinvoiceline_quantity\r\n",
+					"    ,inv1.openqty as sap_salesinvoiceline_openqty\r\n",
+					"    ,inv1.price as sap_salesinvoiceline_price\r\n",
+					"    ,inv1.rate as sap_salesinvoiceline_rate\r\n",
+					"    ,inv1.discprcnt as sap_salesinvoiceline_discprcnt\r\n",
+					"    ,inv1.linetotal as sap_salesinvoiceline_linetotal\r\n",
+					"    ,inv1.opensum as sap_salesinvoiceline_opensum\r\n",
+					"    ,inv1.pricebefdi as sap_salesinvoiceline_pricebefdi\r\n",
+					"    ,inv1.docdate as sap_salesinvoiceline_docdate\r\n",
+					"    ,inv1.project as sap_salesinvoiceline_project\r\n",
+					"    ,inv1.vatprcnt as sap_salesinvoiceline_vatprcnt\r\n",
+					"    ,inv1.volume as sap_salesinvoiceline_volume\r\n",
+					"    ,inv1.vatgroup as sap_salesinvoiceline_vatgroup\r\n",
+					"    ,inv1.vatsum as sap_salesinvoiceline_vatsum\r\n",
+					"    ,inv1.grssprofit as sap_salesinvoiceline_grssprofit\r\n",
+					"    ,inv1.u_reason as sap_salesinvoiceline_u_reason\r\n",
+					"    ,inv1.u_lane as sap_salesinvoiceline_u_lane\r\n",
+					"    ,inv1.u_expenseitem as sap_salesinvoiceline_u_expenseitem\r\n",
+					"    ,inv1.u_fueldate as sap_salesinvoiceline_u_fueldate\r\n",
+					"    ,inv1.acctcode as sap_salesinvoiceline_acctcode\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dboOINV oinv\r\n",
+					"LEFT JOIN  dboINV1 inv1 on inv1.docentry = oinv.docentry"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stsalesinvoice = spark.sql(\"SELECT * FROM stsalesinvoice\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stsalesinvoice.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoice.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

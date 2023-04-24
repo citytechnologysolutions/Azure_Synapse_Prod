@@ -1,0 +1,20 @@
+{
+	"name": "T_STStockRevaluations",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STStockRevaluations') )\n    DROP EXTERNAL TABLE dbo.T_STStockRevaluations\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STStockRevaluations (\n\t[sap_stockrevaluationsheader_docentry] int,\n\t[sap_stockrevaluationsheader_transid] int,\n\t[sap_stockrevaluationsheader_docnum] int,\n\t[sap_stockrevaluationsheader_postingdate] datetime2(7),\n\t[sap_stockrevaluationsheader_comments] nvarchar(4000),\n\t[sap_stockrevaluationsheader_objtype] nvarchar(4000),\n\t[sap_stockrevaluationsline_linenum] int,\n\t[sap_stockrevaluationsline_dscription] nvarchar(4000),\n\t[sap_stockrevaluationsline_itemcode] nvarchar(4000),\n\t[sap_stockrevaluationsline_subdepotcode] nvarchar(4000),\n\t[sap_stockrevaluationsline_linetotal] numeric(18,2),\n\t[sap_stockrevaluationsline_acctcode] nvarchar(4000),\n\t[sap_stockrevaluationsline_doccat] nvarchar(4000),\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/ststockrevaluations.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STStockRevaluations \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

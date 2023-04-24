@@ -1,0 +1,197 @@
+{
+	"name": "03_STBusinessPartners",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Finance"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "97addf42-a85b-4269-9a97-fc31e613d3ef"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Create DataFrame for the dboOCRD SAP Table\r\n",
+					"# dboOCRD = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOCRD.parquet', format='parquet')\r\n",
+					"# dboOCRD.createOrReplaceTempView(\"dboOCRD\")\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stbusinnesspartner\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    ocrd.cardcode as sap_businesspartners_cardcode\r\n",
+					"    ,ocrd.cardname  as sap_businesspartners_cardname \r\n",
+					"    ,ocrd.cardtype as sap_businesspartners_cardtype\r\n",
+					"    ,ocrd.groupcode as sap_businesspartners_groupcode\r\n",
+					"    ,ocrd.cmpprivate as sap_businesspartners_cmpprivate\r\n",
+					"    ,ocrd.groupnum as sap_businesspartners_groupnum\r\n",
+					"    ,ocrd.creditline as sap_businesspartners_creditline\r\n",
+					"    ,ocrd.debtline as sap_businesspartners_debtline\r\n",
+					"    ,ocrd.discount as sap_businesspartners_discount\r\n",
+					"    ,ocrd.vatstatus as sap_businesspartners_vatstatus\r\n",
+					"    ,ocrd.lictradnum as sap_businesspartners_lictradnum\r\n",
+					"    ,ocrd.city as sap_businesspartners_city\r\n",
+					"    ,ocrd.u_boy_tb_0 as sap_businesspartners_u_boy_tb_0\r\n",
+					"    ,ocrd.u_creditapp as sap_businesspartners_u_creditapp\r\n",
+					"    ,ocrd.u_creditref as sap_businesspartners_u_creditref\r\n",
+					"    ,ocrd.u_creditcontract as sap_businesspartners_u_creditcontract\r\n",
+					"    ,ocrd.u_bee as sap_businesspartners_u_bee\r\n",
+					"    ,ocrd.u_depotmanager as sap_businesspartners_u_depotmanager\r\n",
+					"    ,ocrd.u_branchmanager as sap_businesspartners_u_branchmanager\r\n",
+					"    ,ocrd.u_petty_cash as sap_businesspartners_u_petty_cash\r\n",
+					"\r\n",
+					"FROM dboOCRD ocrd\r\n",
+					""
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stbusinnesspartner = spark.sql(\"SELECT * FROM stbusinnesspartner\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stbusinnesspartner.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stbusinnesspartner.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

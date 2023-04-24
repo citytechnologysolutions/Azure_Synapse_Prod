@@ -1,0 +1,1333 @@
+{
+	"name": "07_STDocuments",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Finance"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "76f32eef-ebfa-4708-a77a-4c0a4394a817"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": 55
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Sales Invoice\r\n",
+					"# #Create DataFrame for the dboOINV SAP HEADER Table\r\n",
+					"# dboOINV = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOINV.parquet', format='parquet')\r\n",
+					"# dboOINV.createOrReplaceTempView(\"dboOINV\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboINV1 SAP LINE Table\r\n",
+					"# dboINV1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboINV1.parquet', format='parquet')\r\n",
+					"# dboINV1.createOrReplaceTempView(\"dboINV1\")\r\n",
+					"\r\n",
+					"# #Sales Credit\r\n",
+					"# #Create DataFrame for the dboORIN SAP HEADER Table\r\n",
+					"# dboORIN = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboORIN.parquet', format='parquet')\r\n",
+					"# dboORIN.createOrReplaceTempView(\"dboORIN\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboRIN1 SAP LINE Table\r\n",
+					"# dboRIN1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboRIN1.parquet', format='parquet')\r\n",
+					"# dboRIN1.createOrReplaceTempView(\"dboRIN1\")\r\n",
+					"\r\n",
+					"# #Purchase Invoice\r\n",
+					"# #Create DataFrame for the dboOPCH SAP HEADER Table\r\n",
+					"# dboOPCH = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOPCH.parquet', format='parquet')\r\n",
+					"# dboOPCH.createOrReplaceTempView(\"dboOPCH\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboPCH1 SAP LINE Table\r\n",
+					"# dboPCH1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboPCH1.parquet', format='parquet')\r\n",
+					"# dboPCH1.createOrReplaceTempView(\"dboPCH1\")\r\n",
+					"\r\n",
+					"# #Purchase Credit\r\n",
+					"# #Create DataFrame for the dboORPC SAP HEADER Table\r\n",
+					"# dboORPC = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboORPC.parquet', format='parquet')\r\n",
+					"# dboORPC.createOrReplaceTempView(\"dboORPC\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboRPC1 SAP LINE Table\r\n",
+					"# dboRPC1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboRPC1.parquet', format='parquet')\r\n",
+					"# dboRPC1.createOrReplaceTempView(\"dboRPC1\")\r\n",
+					"\r\n",
+					"# #Goods Receipt Note\r\n",
+					"# #Create DataFrame for the dboOPDN SAP HEADER Table\r\n",
+					"# dboOPDN = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOPDN.parquet', format='parquet')\r\n",
+					"# dboOPDN.createOrReplaceTempView(\"dboOPDN\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboPDN1 SAP LINE Table\r\n",
+					"# dboPDN1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboPDN1.parquet', format='parquet')\r\n",
+					"# dboPDN1.createOrReplaceTempView(\"dboPDN1\")\r\n",
+					"\r\n",
+					"# #Goods Return\r\n",
+					"# #Create DataFrame for the dboORPD SAP HEADER Table\r\n",
+					"# dboORPD = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboORPD.parquet', format='parquet')\r\n",
+					"# dboORPD.createOrReplaceTempView(\"dboORPD\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboRPD1 SAP LINE Table\r\n",
+					"# dboRPD1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboRPD1.parquet', format='parquet')\r\n",
+					"# dboRPD1.createOrReplaceTempView(\"dboRPD1\")\r\n",
+					"\r\n",
+					"# #Goods Issue\r\n",
+					"# #Create DataFrame for the dboOIGE SAP HEADER Table\r\n",
+					"# dboOIGE = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOIGE.parquet', format='parquet')\r\n",
+					"# dboOIGE.createOrReplaceTempView(\"dboOIGE\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboIGE1 SAP LINE Table\r\n",
+					"# dboIGE1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboIGE1.parquet', format='parquet')\r\n",
+					"# dboIGE1.createOrReplaceTempView(\"dboIGE1\")\r\n",
+					"\r\n",
+					"# #Purchase Orders\r\n",
+					"# #Create DataFrame for the dboOPOR SAP HEADER Table\r\n",
+					"# dboOPOR = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOPOR.parquet', format='parquet')\r\n",
+					"# dboOPOR.createOrReplaceTempView(\"dboOPOR\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboPOR1 SAP LINE Table\r\n",
+					"# dboPOR1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboPOR1.parquet', format='parquet')\r\n",
+					"# dboPOR1.createOrReplaceTempView(\"dboPOR1\")"
+				],
+				"execution_count": 56
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"--NEGETIVE VALUES\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stpurchaseorder\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    opor.docentry as sap_purchaseorderheader_docentry\r\n",
+					"    ,opor.docnum as sap_purchaseorderheader_docnum\r\n",
+					"    ,opor.doctype as sap_purchaseorderheader_doctype\r\n",
+					"    -- ,opor.canceled as sap_purchaseorderheader_canceled\r\n",
+					"    ,opor.objtype as sap_purchaseorderheader_objtype\r\n",
+					"    ,opor.docdate as sap_purchaseorderheader_postingdate\r\n",
+					"    ,opor.docduedate as sap_purchaseorderheader_duedate\r\n",
+					"    ,opor.cardcode as sap_purchaseorderheader_cardcode\r\n",
+					"    -- ,opor.cardname as sap_purchaseorderheader_cardname\r\n",
+					"    ,opor.numatcard as sap_purchaseorderheader_cardref\r\n",
+					"    ,opor.discprcnt as sap_purchaseorderheader_discprcnt\r\n",
+					"    ,(opor.discsum *-1) as sap_purchaseorderheader_discsum\r\n",
+					"    ,(opor.doctotal*-1) as sap_purchaseorderheader_doctotal\r\n",
+					"    ,opor.comments as sap_purchaseorderheader_comments\r\n",
+					"    ,opor.transid as sap_purchaseorderheader_transid\r\n",
+					"    -- ,opor.usersign as sap_purchaseorderheader_usersign\r\n",
+					"    -- ,opor.u_depot as sap_purchaseorderheader_u_depot\r\n",
+					"    -- ,opor.u_usercode as sap_purchaseorderheader_u_usercode\r\n",
+					"    ,opor.u_expense_depot as sap_purchaseorderheader_u_expense_depot\r\n",
+					"    -- ,opor.u_transaction_date as sap_purchaseorderheader_u_transaction_date\r\n",
+					"    -- ,(opor.rounddif*-1) as sap_purchaseorderheader_rounddif\r\n",
+					"    -- ,opor.rounding as sap_purchaseorderheader_rounding\r\n",
+					"    -- ,por1.docentry as sap_purchaseorderline_docentry\r\n",
+					"    ,por1.linenum as sap_purchaseorderline_linenum\r\n",
+					"    ,por1.linestatus as sap_purchaseorderline_linestatus\r\n",
+					"    ,por1.itemcode as sap_purchaseorderline_itemcode\r\n",
+					"    ,por1.dscription as sap_purchaseorderline_dscription\r\n",
+					"    ,(por1.quantity*-1) as sap_purchaseorderline_quantity\r\n",
+					"    ,(por1.openqty*-1) as sap_purchaseorderline_openqty\r\n",
+					"    ,por1.price as sap_purchaseorderline_price\r\n",
+					"    ,(por1.rate*-1) as sap_purchaseorderline_rate\r\n",
+					"    ,por1.discprcnt as sap_purchaseorderline_discprcnt\r\n",
+					"    ,(por1.linetotal*-1) as sap_purchaseorderline_linetotal\r\n",
+					"    ,(por1.opensum*-1) as sap_purchaseorderline_opensum\r\n",
+					"    ,por1.pricebefdi as sap_purchaseorderline_pricebefdi\r\n",
+					"    ,por1.docdate as sap_purchaseorderline_docdate\r\n",
+					"    ,por1.project as sap_purchaseorderline_project\r\n",
+					"    ,por1.vatprcnt as sap_purchaseorderline_vatprcnt\r\n",
+					"    -- ,(por1.volume*-1) as sap_purchaseorderline_volume\r\n",
+					"    ,por1.vatgroup as sap_purchaseorderline_vatgroup\r\n",
+					"    ,(por1.vatsum*-1) as sap_purchaseorderline_vatamount\r\n",
+					"    -- ,(por1.grssprofit*-1) as sap_purchaseorderline_grssprofit\r\n",
+					"    ,por1.u_reason as sap_purchaseorderline_u_reason\r\n",
+					"    -- ,por1.u_lane as sap_purchaseorderline_u_lane\r\n",
+					"    ,por1.u_expenseitem as sap_purchaseorderline_u_expenseitem\r\n",
+					"    ,por1.u_fueldate as sap_purchaseorderline_u_fueldate\r\n",
+					"    ,por1.acctcode as sap_purchaseorderline_acctcode\r\n",
+					"    ,'purchaseorder' as sap_purchaseorderline_doccat\r\n",
+					"    ,RIGHT(LEFT(por1.itemcode,5),3) as sap_purchaseorderline_subdepotcode\r\n",
+					"    ,por1.u_rate as sap_purchaseorderline_u_rate\r\n",
+					"    ,por1.u_ir_number as sap_purchaseorderline_u_ir_number\r\n",
+					"    ,0 as sap_purchaseorderline_discsum\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dboOPOR opor\r\n",
+					"LEFT JOIN dboPOR1 por1 on por1.docentry = opor.docentry\r\n",
+					"WHERE opor.canceled = 'N'"
+				],
+				"execution_count": 57
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stpurchaseorder = spark.sql(\"SELECT * FROM stpurchaseorder\")\r\n",
+					"stpurchaseorder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stpurchaseorder.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 58
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stsalesinvoice_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    oinv.docnum\r\n",
+					"    ,(oinv.discsum*-1)/COUNT(inv1.linenum) as discsum\r\n",
+					"\r\n",
+					"FROM dboOINV oinv\r\n",
+					"LEFT JOIN dboINV1 inv1 on inv1.docentry = oinv.docentry\r\n",
+					"\r\n",
+					"GROUP BY oinv.docnum, oinv.discsum\r\n",
+					""
+				],
+				"execution_count": 59
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stsalesinvoice_tmp = spark.sql(\"SELECT * FROM stsalesinvoice_tmp\")"
+				],
+				"execution_count": 60
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stsalesinvoice\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    oinv.docentry as sap_salesinvoiceheader_docentry\r\n",
+					"    ,oinv.docnum as sap_salesinvoiceheader_docnum\r\n",
+					"    ,oinv.doctype as sap_salesinvoiceheader_doctype\r\n",
+					"    -- ,oinv.canceled as sap_salesinvoiceheader_canceled\r\n",
+					"    ,oinv.objtype as sap_salesinvoiceheader_objtype\r\n",
+					"    ,oinv.docdate as sap_salesinvoiceheader_postingdate\r\n",
+					"    ,oinv.docduedate as sap_salesinvoiceheader_duedate\r\n",
+					"    ,oinv.cardcode as sap_salesinvoiceheader_cardcode\r\n",
+					"    -- ,oinv.cardname as sap_salesinvoiceheader_cardname\r\n",
+					"    ,oinv.numatcard as sap_salesinvoiceheader_cardref\r\n",
+					"    ,oinv.discprcnt as sap_salesinvoiceheader_discprcnt\r\n",
+					"    ,oinv.discsum as sap_salesinvoiceheader_discsum\r\n",
+					"    ,oinv.doctotal as sap_salesinvoiceheader_doctotal\r\n",
+					"    ,oinv.comments as sap_salesinvoiceheader_comments\r\n",
+					"    ,oinv.transid as sap_salesinvoiceheader_transid\r\n",
+					"    -- ,oinv.usersign as sap_salesinvoiceheader_usersign\r\n",
+					"    -- ,oinv.u_depot as sap_salesinvoiceheader_u_depot\r\n",
+					"    -- ,oinv.u_usercode as sap_salesinvoiceheader_u_usercode\r\n",
+					"    ,oinv.u_expense_depot as sap_salesinvoiceheader_u_expense_depot\r\n",
+					"    -- ,oinv.u_transaction_date as sap_salesinvoiceheader_u_transaction_date\r\n",
+					"    -- ,oinv.rounddif as sap_salesinvoiceheader_rounddif\r\n",
+					"    -- ,oinv.rounding as sap_salesinvoiceheader_rounding\r\n",
+					"    -- ,inv1.docentry as sap_salesinvoiceline_docentry\r\n",
+					"    ,inv1.linenum as sap_salesinvoiceline_linenum\r\n",
+					"    ,inv1.linestatus as sap_salesinvoiceline_linestatus\r\n",
+					"    ,inv1.itemcode as sap_salesinvoiceline_itemcode\r\n",
+					"    ,inv1.dscription as sap_salesinvoiceline_dscription\r\n",
+					"    ,inv1.quantity as sap_salesinvoiceline_quantity\r\n",
+					"    ,inv1.openqty as sap_salesinvoiceline_openqty\r\n",
+					"    ,inv1.price as sap_salesinvoiceline_price\r\n",
+					"    ,inv1.rate as sap_salesinvoiceline_rate\r\n",
+					"    ,inv1.discprcnt as sap_salesinvoiceline_discprcnt\r\n",
+					"    ,inv1.linetotal as sap_salesinvoiceline_linetotal\r\n",
+					"    ,inv1.opensum as sap_salesinvoiceline_opensum\r\n",
+					"    ,inv1.pricebefdi as sap_salesinvoiceline_pricebefdi\r\n",
+					"    ,inv1.docdate as sap_salesinvoiceline_docdate\r\n",
+					"    ,inv1.project as sap_salesinvoiceline_project\r\n",
+					"    ,inv1.vatprcnt as sap_salesinvoiceline_vatprcnt\r\n",
+					"    -- ,inv1.volume as sap_salesinvoiceline_volume\r\n",
+					"    ,inv1.vatgroup as sap_salesinvoiceline_vatgroup\r\n",
+					"    ,inv1.vatsum as sap_salesinvoiceline_vatamount\r\n",
+					"    -- ,inv1.grssprofit as sap_salesinvoiceline_grssprofit\r\n",
+					"    ,inv1.u_reason as sap_salesinvoiceline_u_reason\r\n",
+					"    -- ,inv1.u_lane as sap_salesinvoiceline_u_lane\r\n",
+					"    ,inv1.u_expenseitem as sap_salesinvoiceline_u_expenseitem\r\n",
+					"    ,inv1.u_fueldate as sap_salesinvoiceline_u_fueldate\r\n",
+					"    ,inv1.acctcode as sap_salesinvoiceline_acctcode\r\n",
+					"    ,'salesinvoice' as sap_salesinvoiceline_doccat\r\n",
+					"    ,RIGHT(LEFT(inv1.itemcode,5),3) as sap_salesinvoiceline_subdepotcode\r\n",
+					"    ,inv1.u_rate as sap_salesinvoiceline_u_rate\r\n",
+					"    ,inv1.u_ir_number as sap_salesinvoiceline_u_ir_number\r\n",
+					"    ,t.discsum as sap_salesinvoiceline_discsum\r\n",
+					"\r\n",
+					"FROM dboOINV oinv\r\n",
+					"LEFT JOIN dboINV1 inv1 on inv1.docentry = oinv.docentry\r\n",
+					"LEFT JOIN stsalesinvoice_tmp t on t.docnum = oinv.docnum\r\n",
+					"WHERE oinv.canceled = 'N'"
+				],
+				"execution_count": 61
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stsalesinvoice = spark.sql(\"SELECT * FROM stsalesinvoice\")\r\n",
+					"stsalesinvoice.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoice.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 62
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stsalescredit_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    orin.docnum\r\n",
+					"    ,(orin.discsum)/COUNT(rin1.linenum) as discsum\r\n",
+					"\r\n",
+					"FROM dboORIN orin\r\n",
+					"LEFT JOIN dboRIN1 rin1 on rin1.docentry = orin.docentry\r\n",
+					"\r\n",
+					"GROUP BY orin.docnum, orin.discsum"
+				],
+				"execution_count": 63
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stsalescredit_tmp = spark.sql(\"SELECT * FROM stsalescredit_tmp\")"
+				],
+				"execution_count": 64
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"--NEGETIVE VALUES\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stsalescredit\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    orin.docentry as sap_salescreditheader_docentry\r\n",
+					"    ,orin.docnum as sap_salescreditheader_docnum\r\n",
+					"    ,orin.doctype as sap_salescreditheader_doctype\r\n",
+					"    -- ,orin.canceled as sap_salescreditheader_canceled\r\n",
+					"    ,orin.objtype as sap_salescreditheader_objtype\r\n",
+					"    ,orin.docdate as sap_salescreditheader_postingdate\r\n",
+					"    ,orin.docduedate as sap_salescreditheader_duedate\r\n",
+					"    ,orin.cardcode as sap_salescreditheader_cardcode\r\n",
+					"    -- ,orin.cardname as sap_salescreditheader_cardname\r\n",
+					"    ,orin.numatcard as sap_salescreditheader_cardref\r\n",
+					"    ,orin.discprcnt as sap_salescreditheader_discprcnt\r\n",
+					"    ,(orin.discsum*-1) as sap_salescreditheader_discsum\r\n",
+					"    ,(orin.doctotal*-1) as sap_salescreditheader_doctotal\r\n",
+					"    ,orin.comments as sap_salescreditheader_comments\r\n",
+					"    ,orin.transid as sap_salescreditheader_transid\r\n",
+					"    -- ,orin.usersign as sap_salescreditheader_usersign\r\n",
+					"    -- ,orin.u_depot as sap_salescreditheader_u_depot\r\n",
+					"    -- ,orin.u_usercode as sap_salescreditheader_u_usercode\r\n",
+					"    ,orin.u_expense_depot as sap_salescreditheader_u_expense_depot\r\n",
+					"    -- ,orin.u_transaction_date as sap_salescreditheader_u_transaction_date\r\n",
+					"    -- ,orin.rounddif as sap_salescreditheader_rounddif\r\n",
+					"    -- ,orin.rounding as sap_salescreditheader_rounding\r\n",
+					"    -- ,rin1.docentry as sap_salescreditline_docentry\r\n",
+					"    ,rin1.linenum as sap_salescreditline_linenum\r\n",
+					"    ,rin1.linestatus as sap_salescreditline_linestatus\r\n",
+					"    ,rin1.itemcode as sap_salescreditline_itemcode\r\n",
+					"    ,rin1.dscription as sap_salescreditline_dscription\r\n",
+					"    ,(rin1.quantity*-1) as sap_salescreditline_quantity\r\n",
+					"    ,(rin1.openqty*-1) as sap_salescreditline_openqty\r\n",
+					"    ,rin1.price as sap_salescreditline_price\r\n",
+					"    ,(rin1.rate*-1) as sap_salescreditline_rate\r\n",
+					"    ,rin1.discprcnt as sap_salescreditline_discprcnt\r\n",
+					"    ,(rin1.linetotal*-1) as sap_salescreditline_linetotal\r\n",
+					"    ,(rin1.opensum*-1) as sap_salescreditline_opensum\r\n",
+					"    ,rin1.pricebefdi as sap_salescreditline_pricebefdi\r\n",
+					"    ,rin1.docdate as sap_salescreditline_docdate\r\n",
+					"    ,rin1.project as sap_salescreditline_project\r\n",
+					"    ,rin1.vatprcnt as sap_salescreditline_vatprcnt\r\n",
+					"    -- ,(rin1.volume*-1) as sap_salescreditline_volume\r\n",
+					"    ,rin1.vatgroup as sap_salescreditline_vatgroup\r\n",
+					"    ,(rin1.vatsum*-1) as sap_salescreditline_vatamount\r\n",
+					"    -- ,(rin1.grssprofit*-1) as sap_salescreditline_grssprofit\r\n",
+					"    ,rin1.u_reason as sap_salescreditline_u_reason\r\n",
+					"    -- ,rin1.u_lane as sap_salescreditline_u_lane\r\n",
+					"    ,rin1.u_expenseitem as sap_salescreditline_u_expenseitem\r\n",
+					"    ,rin1.u_fueldate as sap_salescreditline_u_fueldate\r\n",
+					"    ,rin1.acctcode as sap_salescreditline_acctcode\r\n",
+					"    ,'salescredit' as sap_salescreditline_doccat\r\n",
+					"    ,Right(LEFT(rin1.itemcode,5),3) as sap_salescreditline_subdepotcode\r\n",
+					"    ,rin1.u_rate as sap_salescreditline_u_rate\r\n",
+					"    ,rin1.u_ir_number as sap_salescreditline_u_ir_number\r\n",
+					"    ,t.discsum as sap_salescreditline_discsum\r\n",
+					"\r\n",
+					"FROM dboORIN orin\r\n",
+					"LEFT JOIN dboRIN1 rin1 on rin1.docentry = orin.docentry\r\n",
+					"LEFT JOIN stsalescredit_tmp t on t.docnum = orin.docnum\r\n",
+					"WHERE orin.canceled = 'N'"
+				],
+				"execution_count": 65
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stsalescredit = spark.sql(\"SELECT * FROM stsalescredit\")\r\n",
+					"stsalescredit.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stsalescredit.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 66
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stpurchaseinvoice_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    opch.docnum\r\n",
+					"    ,(opch.discsum)/COUNT(pch1.linenum) as discsum\r\n",
+					"\r\n",
+					"FROM dboOPCH opch\r\n",
+					"LEFT JOIN dboPCH1 pch1 on pch1.docentry = opch.docentry\r\n",
+					"GROUP BY opch.docnum, opch.discsum"
+				],
+				"execution_count": 67
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stpurchaseinvoice_tmp = spark.sql(\"SELECT * FROM stpurchaseinvoice_tmp\")"
+				],
+				"execution_count": 68
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"--NEGETIVE VALUES\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stpurchaseinvoice\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    opch.docentry as sap_purchaseinvoiceheader_docentry\r\n",
+					"    ,opch.docnum as sap_purchaseinvoiceheader_docnum\r\n",
+					"    ,opch.doctype as sap_purchaseinvoiceheader_doctype\r\n",
+					"    -- ,opch.canceled as sap_purchaseinvoiceheader_canceled\r\n",
+					"    ,opch.objtype as sap_purchaseinvoiceheader_objtype\r\n",
+					"    ,opch.docdate as sap_purchaseinvoiceheader_postingdate\r\n",
+					"    ,opch.docduedate as sap_purchaseinvoiceheader_duedate\r\n",
+					"    ,opch.cardcode as sap_purchaseinvoiceheader_cardcode\r\n",
+					"    -- ,opch.cardname as sap_purchaseinvoiceheader_cardname\r\n",
+					"    ,opch.numatcard as sap_purchaseinvoiceheader_cardref\r\n",
+					"    ,opch.discprcnt as sap_purchaseinvoiceheader_discprcnt\r\n",
+					"    ,(opch.discsum*-1) as sap_purchaseinvoiceheader_discsum\r\n",
+					"    ,(opch.doctotal*-1) as sap_purchaseinvoiceheader_doctotal\r\n",
+					"    ,opch.comments as sap_purchaseinvoiceheader_comments\r\n",
+					"    ,opch.transid as sap_purchaseinvoiceheader_transid\r\n",
+					"    -- ,opch.usersign as sap_purchaseinvoiceheader_usersign\r\n",
+					"    -- ,opch.u_depot as sap_purchaseinvoiceheader_u_depot\r\n",
+					"    -- ,opch.u_usercode as sap_purchaseinvoiceheader_u_usercode\r\n",
+					"    ,opch.u_expense_depot as sap_purchaseinvoiceheader_u_expense_depot\r\n",
+					"    -- ,opch.u_transaction_date as sap_purchaseinvoiceheader_u_transaction_date\r\n",
+					"    -- ,opch.rounddif as sap_purchaseinvoiceheader_rounddif\r\n",
+					"    -- ,opch.rounding as sap_purchaseinvoiceheader_rounding\r\n",
+					"    -- ,pch1.docentry as sap_purchaseinvoiceline_docentry\r\n",
+					"    ,pch1.linenum as sap_purchaseinvoiceline_linenum\r\n",
+					"    ,pch1.linestatus as sap_purchaseinvoiceline_linestatus\r\n",
+					"    ,pch1.itemcode as sap_purchaseinvoiceline_itemcode\r\n",
+					"    ,pch1.dscription as sap_purchaseinvoiceline_dscription\r\n",
+					"    ,(pch1.quantity*-1) as sap_purchaseinvoiceline_quantity\r\n",
+					"    ,(pch1.openqty*-1) as sap_purchaseinvoiceline_openqty\r\n",
+					"    ,pch1.price as sap_purchaseinvoiceline_price\r\n",
+					"    ,(pch1.rate*-1) as sap_purchaseinvoiceline_rate\r\n",
+					"    ,pch1.discprcnt as sap_purchaseinvoiceline_discprcnt\r\n",
+					"    ,(pch1.linetotal*-1) as sap_purchaseinvoiceline_linetotal\r\n",
+					"    ,(pch1.opensum*-1) as sap_purchaseinvoiceline_opensum\r\n",
+					"    ,pch1.pricebefdi as sap_purchaseinvoiceline_pricebefdi\r\n",
+					"    ,pch1.docdate as sap_purchaseinvoiceline_docdate\r\n",
+					"    ,pch1.project as sap_purchaseinvoiceline_project\r\n",
+					"    ,pch1.vatprcnt as sap_purchaseinvoiceline_vatprcnt\r\n",
+					"    -- ,(pch1.volume*-1) as sap_purchaseinvoiceline_volume\r\n",
+					"    ,pch1.vatgroup as sap_purchaseinvoiceline_vatgroup\r\n",
+					"    ,(pch1.vatsum*-1) as sap_purchaseinvoiceline_vatamount\r\n",
+					"    -- ,(pch1.grssprofit*-1) as sap_purchaseinvoiceline_grssprofit\r\n",
+					"    ,pch1.u_reason as sap_purchaseinvoiceline_u_reason\r\n",
+					"    -- ,pch1.u_lane as sap_purchaseinvoiceline_u_lane\r\n",
+					"    ,pch1.u_expenseitem as sap_purchaseinvoiceline_u_expenseitem\r\n",
+					"    ,pch1.u_fueldate as sap_purchaseinvoiceline_u_fueldate\r\n",
+					"    ,pch1.acctcode as sap_purchaseinvoiceline_acctcode\r\n",
+					"    ,'purchaseinvoice' as sap_purchaseinvoiceline_doccat\r\n",
+					"    ,Right(LEFT(pch1.itemcode,5),3) as sap_purchaseinvoiceline_subdepotcode\r\n",
+					"    ,pch1.u_rate as sap_purchaseinvoiceline_u_rate\r\n",
+					"    ,pch1.u_ir_number as sap_purchaseinvoiceline_u_ir_number\r\n",
+					"    ,t.discsum as sap_purchaseinvoiceline_discsum\r\n",
+					"    \r\n",
+					"FROM dboOPCH opch\r\n",
+					"LEFT JOIN dboPCH1 pch1 on pch1.docentry = opch.docentry\r\n",
+					"LEFT JOIN stpurchaseinvoice_tmp t on t.docnum = opch.docnum\r\n",
+					"WHERE opch.canceled = 'N'"
+				],
+				"execution_count": 69
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stpurchaseinvoice = spark.sql(\"SELECT * FROM stpurchaseinvoice\")\r\n",
+					"stpurchaseinvoice.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stpurchaseinvoice.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 70
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stpurchasecredit_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    orpc.docnum\r\n",
+					"    ,(orpc.discsum*-1)/COUNT(rpc1.linenum) as discsum\r\n",
+					"\r\n",
+					"FROM dboORPC orpc\r\n",
+					"LEFT JOIN dboRPC1 rpc1 on rpc1.docentry = orpc.docentry\r\n",
+					"GROUP BY orpc.docnum, orpc.discsum"
+				],
+				"execution_count": 71
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stpurchasecredit_tmp = spark.sql(\"SELECT * FROM stpurchasecredit_tmp\")"
+				],
+				"execution_count": 72
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stpurchasecredit\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    orpc.docentry as sap_purchasecreditheader_docentry\r\n",
+					"    ,orpc.docnum as sap_purchasecreditheader_docnum\r\n",
+					"    ,orpc.doctype as sap_purchasecreditheader_doctype\r\n",
+					"    -- ,orpc.canceled as sap_purchasecreditheader_canceled\r\n",
+					"    ,orpc.objtype as sap_purchasecreditheader_objtype\r\n",
+					"    ,orpc.docdate as sap_purchasecreditheader_postingdate\r\n",
+					"    ,orpc.docduedate as sap_purchasecreditheader_duedate\r\n",
+					"    ,orpc.cardcode as sap_purchasecreditheader_cardcode\r\n",
+					"    -- ,orpc.cardname as sap_purchasecreditheader_cardname\r\n",
+					"    ,orpc.numatcard as sap_purchasecreditheader_cardref\r\n",
+					"    ,orpc.discprcnt as sap_purchasecreditheader_discprcnt\r\n",
+					"    ,orpc.discsum as sap_purchasecreditheader_discsum\r\n",
+					"    ,orpc.doctotal as sap_purchasecreditheader_doctotal\r\n",
+					"    ,orpc.comments as sap_purchasecreditheader_comments\r\n",
+					"    ,orpc.transid as sap_purchasecreditheader_transid\r\n",
+					"    -- ,orpc.usersign as sap_purchasecreditheader_usersign\r\n",
+					"    -- ,orpc.u_depot as sap_purchasecreditheader_u_depot\r\n",
+					"    -- ,orpc.u_usercode as sap_purchasecreditheader_u_usercode\r\n",
+					"    ,orpc.u_expense_depot as sap_purchasecreditheader_u_expense_depot\r\n",
+					"    -- ,orpc.u_transaction_date as sap_purchasecreditheader_u_transaction_date\r\n",
+					"    -- ,orpc.rounddif as sap_purchasecreditheader_rounddif\r\n",
+					"    -- ,orpc.rounding as sap_purchasecreditheader_rounding\r\n",
+					"    -- ,rpc1.docentry as sap_purchasecreditline_docentry\r\n",
+					"    ,rpc1.linenum as sap_purchasecreditline_linenum\r\n",
+					"    ,rpc1.linestatus as sap_purchasecreditline_linestatus\r\n",
+					"    ,rpc1.itemcode as sap_purchasecreditline_itemcode\r\n",
+					"    ,rpc1.dscription as sap_purchasecreditline_dscription\r\n",
+					"    ,rpc1.quantity as sap_purchasecreditline_quantity\r\n",
+					"    ,rpc1.openqty as sap_purchasecreditline_openqty\r\n",
+					"    ,rpc1.price as sap_purchasecreditline_price\r\n",
+					"    ,rpc1.rate as sap_purchasecreditline_rate\r\n",
+					"    ,rpc1.discprcnt as sap_purchasecreditline_discprcnt\r\n",
+					"    ,rpc1.linetotal as sap_purchasecreditline_linetotal\r\n",
+					"    ,rpc1.opensum as sap_purchasecreditline_opensum\r\n",
+					"    ,rpc1.pricebefdi as sap_purchasecreditline_pricebefdi\r\n",
+					"    ,rpc1.docdate as sap_purchasecreditline_docdate\r\n",
+					"    ,rpc1.project as sap_purchasecreditline_project\r\n",
+					"    ,rpc1.vatprcnt as sap_purchasecreditline_vatprcnt\r\n",
+					"    -- ,rpc1.volume as sap_purchasecreditline_volume\r\n",
+					"    ,rpc1.vatgroup as sap_purchasecreditline_vatgroup\r\n",
+					"    ,rpc1.vatsum as sap_purchasecreditline_vatamount\r\n",
+					"    -- ,rpc1.grssprofit as sap_purchasecreditline_grssprofit\r\n",
+					"    ,rpc1.u_reason as sap_purchasecreditline_u_reason\r\n",
+					"    -- ,rpc1.u_lane as sap_purchasecreditline_u_lane\r\n",
+					"    ,rpc1.u_expenseitem as sap_purchasecreditline_u_expenseitem\r\n",
+					"    ,rpc1.u_fueldate as sap_purchasecreditline_u_fueldate\r\n",
+					"    ,rpc1.acctcode as sap_purchasecreditline_acctcode\r\n",
+					"    ,'purchasecredit' as sap_purchasecreditline_doccat\r\n",
+					"    ,Right(LEFT(rpc1.itemcode,5),3) as sap_purchasecreditline_subdepotcode\r\n",
+					"    ,rpc1.u_rate as sap_purchasecreditline_u_rate\r\n",
+					"    ,rpc1.u_ir_number as sap_purchasecreditline_u_ir_number\r\n",
+					"    ,t.discsum as sap_purchasecreditline_discsum\r\n",
+					"\r\n",
+					"FROM dboORPC orpc\r\n",
+					"LEFT JOIN dboRPC1 rpc1 on rpc1.docentry = orpc.docentry\r\n",
+					"LEFT JOIN stpurchasecredit_tmp t on t.docnum = orpc.docnum\r\n",
+					"WHERE orpc.canceled = 'N'"
+				],
+				"execution_count": 73
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stpurchasecredit = spark.sql(\"SELECT * FROM stpurchasecredit\")\r\n",
+					"stpurchasecredit.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stpurchasecredit.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 74
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stgoodsreceiptnote_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    opdn.docnum\r\n",
+					"    ,(opdn.discsum)/COUNT(opd1.linenum) as discsum\r\n",
+					"\r\n",
+					"FROM dboOPDN opdn\r\n",
+					"LEFT JOIN dboPDN1 opd1 on opd1.docentry = opdn.docentry\r\n",
+					"GROUP BY opdn.docnum, opdn.discsum"
+				],
+				"execution_count": 75
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stgoodsreceiptnote_tmp = spark.sql(\"SELECT * FROM stgoodsreceiptnote_tmp\")"
+				],
+				"execution_count": 76
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"--NEGETIVE VALUES\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stgoodsreceiptnote\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    opdn.docentry as sap_goodsreceiptnoteheader_docentry\r\n",
+					"    ,opdn.docnum as sap_goodsreceiptnoteheader_docnum\r\n",
+					"    ,opdn.doctype as sap_goodsreceiptnoteheader_doctype\r\n",
+					"    -- ,opdn.canceled as sap_goodsreceiptnoteheader_canceled\r\n",
+					"    ,opdn.objtype as sap_goodsreceiptnoteheader_objtype\r\n",
+					"    ,opdn.docdate as sap_goodsreceiptnoteheader_postingdate\r\n",
+					"    ,opdn.docduedate as sap_goodsreceiptnoteheader_duedate\r\n",
+					"    ,opdn.cardcode as sap_goodsreceiptnoteheader_cardcode\r\n",
+					"    -- ,opdn.cardname as sap_goodsreceiptnoteheader_cardname\r\n",
+					"    ,opdn.numatcard as sap_goodsreceiptnoteheader_cardref\r\n",
+					"    ,opdn.discprcnt as sap_goodsreceiptnoteheader_discprcnt\r\n",
+					"    ,(opdn.discsum*-1) as sap_goodsreceiptnoteheader_discsum\r\n",
+					"    ,(opdn.doctotal*-1) as sap_goodsreceiptnoteheader_doctotal\r\n",
+					"    ,opdn.comments as sap_goodsreceiptnoteheader_comments\r\n",
+					"    ,opdn.transid as sap_goodsreceiptnoteheader_transid\r\n",
+					"    -- ,opdn.usersign as sap_goodsreceiptnoteheader_usersign\r\n",
+					"    -- ,opdn.u_depot as sap_goodsreceiptnoteheader_u_depot\r\n",
+					"    -- ,opdn.u_usercode as sap_goodsreceiptnoteheader_u_usercode\r\n",
+					"    ,opdn.u_expense_depot as sap_goodsreceiptnoteheader_u_expense_depot\r\n",
+					"    -- ,opdn.u_transaction_date as sap_goodsreceiptnoteheader_u_transaction_date\r\n",
+					"    -- ,opdn.rounddif as sap_goodsreceiptnoteheader_rounddif\r\n",
+					"    -- ,opdn.rounding as sap_goodsreceiptnoteheader_rounding\r\n",
+					"    -- ,pdn1.docentry as sap_goodsreceiptnoteline_docentry\r\n",
+					"    ,pdn1.linenum as sap_goodsreceiptnoteline_linenum\r\n",
+					"    ,pdn1.linestatus as sap_goodsreceiptnoteline_linestatus\r\n",
+					"    ,pdn1.itemcode as sap_goodsreceiptnoteline_itemcode\r\n",
+					"    ,pdn1.dscription as sap_goodsreceiptnoteline_dscription\r\n",
+					"    ,(pdn1.quantity*-1) as sap_goodsreceiptnoteline_quantity\r\n",
+					"    ,(pdn1.openqty*-1) as sap_goodsreceiptnoteline_openqty\r\n",
+					"    ,pdn1.price as sap_goodsreceiptnoteline_price\r\n",
+					"    ,(pdn1.rate*-1) as sap_goodsreceiptnoteline_rate\r\n",
+					"    ,pdn1.discprcnt as sap_goodsreceiptnoteline_discprcnt\r\n",
+					"    ,(pdn1.linetotal*-1) as sap_goodsreceiptnoteline_linetotal\r\n",
+					"    ,(pdn1.opensum*-1) as sap_goodsreceiptnoteline_opensum\r\n",
+					"    ,pdn1.pricebefdi as sap_goodsreceiptnoteline_pricebefdi\r\n",
+					"    ,pdn1.docdate as sap_goodsreceiptnoteline_docdate\r\n",
+					"    ,pdn1.project as sap_goodsreceiptnoteline_project\r\n",
+					"    ,pdn1.vatprcnt as sap_goodsreceiptnoteline_vatprcnt\r\n",
+					"    -- ,(pdn1.volume*-1) as sap_goodsreceiptnoteline_volume\r\n",
+					"    ,pdn1.vatgroup as sap_goodsreceiptnoteline_vatgroup\r\n",
+					"    ,(pdn1.vatsum*-1) as sap_goodsreceiptnoteline_vatamount\r\n",
+					"    -- ,(pdn1.grssprofit*-1) as sap_goodsreceiptnoteline_grssprofit\r\n",
+					"    ,pdn1.u_reason as sap_goodsreceiptnoteline_u_reason\r\n",
+					"    -- ,pdn1.u_lane as sap_goodsreceiptnoteline_u_lane\r\n",
+					"    ,pdn1.u_expenseitem as sap_goodsreceiptnoteline_u_expenseitem\r\n",
+					"    ,pdn1.u_fueldate as sap_goodsreceiptnoteline_u_fueldate\r\n",
+					"    ,pdn1.acctcode as sap_goodsreceiptnoteline_acctcode\r\n",
+					"    ,'goodsreceiptnote' as sap_goodsreceiptnoteline_doccat\r\n",
+					"    ,Right(LEFT(pdn1.itemcode,5),3) as sap_goodsreceiptnoteline_subdepotcode\r\n",
+					"    ,pdn1.u_rate as sap_goodsreceiptnoteline_u_rate\r\n",
+					"    ,pdn1.u_ir_number as sap_goodsreceiptnoteline_u_ir_number\r\n",
+					"    ,t.discsum as sap_goodsreceiptnoteline_discsum\r\n",
+					"\r\n",
+					"FROM dboOPDN opdn\r\n",
+					"LEFT JOIN dboPDN1 pdn1 on pdn1.docentry = opdn.docentry\r\n",
+					"LEFT JOIN stgoodsreceiptnote_tmp t on t.docnum = opdn.docnum\r\n",
+					"WHERE opdn.canceled = 'N' \r\n",
+					"AND pdn1.linestatus = 'O'"
+				],
+				"execution_count": 77
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stgoodsreceiptnote = spark.sql(\"SELECT * FROM stgoodsreceiptnote\")\r\n",
+					"stgoodsreceiptnote.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stgoodsreceiptnote.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 78
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stgoodsreturn_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    orpd.docnum\r\n",
+					"    ,(orpd.discsum*-1)/COUNT(rpd1.linenum) as discsum\r\n",
+					"\r\n",
+					"FROM dboORPD orpd\r\n",
+					"LEFT JOIN dboRPD1 rpd1 on rpd1.docentry = orpd.docentry\r\n",
+					"GROUP BY orpd.docnum, orpd.discsum"
+				],
+				"execution_count": 79
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stgoodsreturn_tmp = spark.sql(\"SELECT * FROM stgoodsreturn_tmp\")"
+				],
+				"execution_count": 80
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stgoodsreturn\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    orpd.docentry as sap_goodsreturnheader_docentry\r\n",
+					"    ,orpd.docnum as sap_goodsreturnheader_docnum\r\n",
+					"    ,orpd.doctype as sap_goodsreturnheader_doctype\r\n",
+					"    -- ,orpd.canceled as sap_goodsreturnheader_canceled\r\n",
+					"    ,orpd.objtype as sap_goodsreturnheader_objtype\r\n",
+					"    ,orpd.docdate as sap_goodsreturnheader_postingdate\r\n",
+					"    ,orpd.docduedate as sap_goodsreturnheader_duedate\r\n",
+					"    ,orpd.cardcode as sap_goodsreturnheader_cardcode\r\n",
+					"    -- ,orpd.cardname as sap_goodsreturnheader_cardname\r\n",
+					"    ,orpd.numatcard as sap_goodsreturnheader_cardref\r\n",
+					"    ,orpd.discprcnt as sap_goodsreturnheader_discprcnt\r\n",
+					"    ,orpd.discsum as sap_goodsreturnheader_discsum\r\n",
+					"    ,orpd.doctotal as sap_goodsreturnheader_doctotal\r\n",
+					"    ,orpd.comments as sap_goodsreturnheader_comments\r\n",
+					"    ,orpd.transid as sap_goodsreturnheader_transid\r\n",
+					"    -- ,orpd.usersign as sap_goodsreturnheader_usersign\r\n",
+					"    -- ,orpd.u_depot as sap_goodsreturnheader_u_depot\r\n",
+					"    -- ,orpd.u_usercode as sap_goodsreturnheader_u_usercode\r\n",
+					"    ,orpd.u_expense_depot as sap_goodsreturnheader_u_expense_depot\r\n",
+					"    -- ,orpd.u_transaction_date as sap_goodsreturnheader_u_transaction_date\r\n",
+					"    -- ,orpd.rounddif as sap_goodsreturnheader_rounddif\r\n",
+					"    -- ,orpd.rounding as sap_goodsreturnheader_rounding\r\n",
+					"    -- ,rpd1.docentry as sap_goodsreturnline_docentry\r\n",
+					"    ,rpd1.linenum as sap_goodsreturnline_linenum\r\n",
+					"    ,rpd1.linestatus as sap_goodsreturnline_linestatus\r\n",
+					"    ,rpd1.itemcode as sap_goodsreturnline_itemcode\r\n",
+					"    ,rpd1.dscription as sap_goodsreturnline_dscription\r\n",
+					"    ,rpd1.quantity as sap_goodsreturnline_quantity\r\n",
+					"    ,rpd1.openqty as sap_goodsreturnline_openqty\r\n",
+					"    ,rpd1.price as sap_goodsreturnline_price\r\n",
+					"    ,rpd1.rate as sap_goodsreturnline_rate\r\n",
+					"    ,rpd1.discprcnt as sap_goodsreturnline_discprcnt\r\n",
+					"    ,rpd1.linetotal as sap_goodsreturnline_linetotal\r\n",
+					"    ,rpd1.opensum as sap_goodsreturnline_opensum\r\n",
+					"    ,rpd1.pricebefdi as sap_goodsreturnline_pricebefdi\r\n",
+					"    ,rpd1.docdate as sap_goodsreturnline_docdate\r\n",
+					"    ,rpd1.project as sap_goodsreturnline_project\r\n",
+					"    ,rpd1.vatprcnt as sap_goodsreturnline_vatprcnt\r\n",
+					"    -- ,rpd1.volume as sap_goodsreturnline_volume\r\n",
+					"    ,rpd1.vatgroup as sap_goodsreturnline_vatgroup\r\n",
+					"    ,rpd1.vatsum as sap_goodsreturnline_vatamount\r\n",
+					"    -- ,rpd1.grssprofit as sap_goodsreturnline_grssprofit\r\n",
+					"    ,rpd1.u_reason as sap_goodsreturnline_u_reason\r\n",
+					"    -- ,rpd1.u_lane as sap_goodsreturnline_u_lane\r\n",
+					"    ,rpd1.u_expenseitem as sap_goodsreturnline_u_expenseitem\r\n",
+					"    ,rpd1.u_fueldate as sap_goodsreturnline_u_fueldate\r\n",
+					"    ,rpd1.acctcode as sap_goodsreturnline_acctcode\r\n",
+					"    ,'goodsreturn' as sap_goodsreturnline_doccat\r\n",
+					"    ,Right(LEFT(rpd1.itemcode,5),3) as sap_goodsreturnline_subdepotcode\r\n",
+					"    ,rpd1.u_rate as sap_goodsreturnline_u_rate\r\n",
+					"    ,rpd1.u_ir_number as sap_goodsreturnline_u_ir_number\r\n",
+					"    ,t.discsum as sap_goodsreturnline_discsum\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dboORPD orpd\r\n",
+					"LEFT JOIN dboRPD1 rpd1 on rpd1.docentry = orpd.docentry\r\n",
+					"LEFT JOIN stgoodsreturn_tmp t on t.docnum = orpd.docnum\r\n",
+					"WHERE orpd.canceled = 'N' \r\n",
+					""
+				],
+				"execution_count": 81
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stgoodsreturn = spark.sql(\"SELECT * FROM stgoodsreturn\")\r\n",
+					"stgoodsreturn.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stgoodsreturn.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 82
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdocuments = stsalesinvoice.unionAll(stsalescredit).unionAll(stpurchaseinvoice).unionAll(stpurchasecredit).unionAll(stgoodsreceiptnote).unionAll(stgoodsreturn).unionAll(stpurchaseorder)"
+				],
+				"execution_count": 83
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdocuments = stdocuments.withColumnRenamed(\"sap_salesinvoiceheader_docentry\",\"sap_documentsheader_docentry\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_docnum\",\"sap_documentsheader_docnum\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_doctype\",\"sap_documentsheader_doctype\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_objtype\",\"sap_documentsheader_objtype\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_postingdate\",\"sap_documentsheader_postingdate\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_duedate\",\"sap_documentsheader_duedate\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_cardcode\",\"sap_documentsheader_cardcode\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_cardref\",\"sap_documentsheader_cardref\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_discprcnt\",\"sap_documentsheader_discprcnt\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_discsum\",\"sap_documentsheader_discsum\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_doctotal\",\"sap_documentsheader_doctotal\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_comments\",\"sap_documentsheader_comments\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_transid\",\"sap_documentsheader_transid\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_u_expense_depot\",\"sap_documentsheader_u_expense_depot\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_linenum\",\"sap_documentsline_linenum\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_linestatus\",\"sap_documentsline_linestatus\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_itemcode\",\"sap_documentsline_itemcode\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_dscription\",\"sap_documentsline_dscription\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_quantity\",\"sap_documentsline_quantity\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_openqty\",\"sap_documentsline_openqty\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_price\",\"sap_documentsline_price\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_rate\",\"sap_documentsline_rate\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_discprcnt\",\"sap_documentsline_discprcnt\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_linetotal\",\"sap_documentsline_linetotal\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_opensum\",\"sap_documentsline_opensum\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_pricebefdi\",\"sap_documentsline_pricebefdi\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_docdate\",\"sap_documentsline_docdate\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_project\",\"sap_documentsline_project\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_vatprcnt\",\"sap_documentsline_vatprcnt\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_vatgroup\",\"sap_documentsline_vatgroup\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_vatamount\",\"sap_documentsline_vatamount\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_u_reason\",\"sap_documentsline_u_reason\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_u_expenseitem\",\"sap_documentsline_u_expenseitem\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_u_fueldate\",\"sap_documentsline_u_fueldate\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_acctcode\",\"sap_documentsline_acctcode\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_doccat\",\"sap_documentsline_doccat\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_subdepotcode\",\"sap_documentsline_subdepotcode\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_u_rate\",\"sap_documentsline_u_rate\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_u_ir_number\",\"sap_documentsline_u_ir_number\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceline_discsum\",\"sap_documentsline_discsum\")"
+				],
+				"execution_count": 84
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdocuments.createOrReplaceTempView(\"stdocuments\")"
+				],
+				"execution_count": 85
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdocuments = spark.sql(\"SELECT * FROM stdocuments\")"
+				],
+				"execution_count": 86
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stdocuments.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stdocuments.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 88
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

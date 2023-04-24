@@ -1,0 +1,20 @@
+{
+	"name": "T_STStockTransactions",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STStockTransactions') )\n    DROP EXTERNAL TABLE dbo.T_STStockTransactions\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STStockTransactions (\n\t[sap_stocktransactionsheader_docentry] int,\n\t[sap_stocktransactionsheader_docnum] int,\n\t[sap_stocktransactionsheader_doctype] nvarchar(4000),\n\t[sap_stocktransactionsheader_objtype] int,\n\t[sap_stocktransactionsheader_postingdate] datetime2(7),\n\t[sap_stocktransactionsheader_duedate] datetime2(7),\n\t[sap_stocktransactionsheader_cardcode] nvarchar(4000),\n\t[sap_stocktransactionsheader_cardref] nvarchar(4000),\n\t[sap_stocktransactionsheader_discprcnt] numeric(18,2),\n\t[sap_stocktransactionsheader_discsum] numeric(18,2),\n\t[sap_stocktransactionsheader_doctotal] numeric(18,2),\n\t[sap_stocktransactionsheader_comments] nvarchar(4000),\n\t[sap_stocktransactionsheader_transid] int,\n\t[sap_stocktransactionsheader_u_expense_depot] nvarchar(4000),\n\t[sap_stocktransactionsline_linenum] int,\n\t[sap_stocktransactionsline_linestatus] nvarchar(4000),\n\t[sap_stocktransactionsline_itemcode] nvarchar(4000),\n\t[sap_stocktransactionsline_dscription] nvarchar(4000),\n\t[sap_stocktransactionsline_quantity] numeric(18,2),\n\t[sap_stocktransactionsline_openqty] numeric(18,2),\n\t[sap_stocktransactionsline_price] numeric(18,2),\n\t[sap_stocktransactionsline_rate] numeric(18,2),\n\t[sap_stocktransactionsline_discprcnt] numeric(18,2),\n\t[sap_stocktransactionsline_linetotal] numeric(18,2),\n\t[sap_stocktransactionsline_opensum] numeric(18,2),\n\t[sap_stocktransactionsline_pricebefdi] numeric(18,2),\n\t[sap_stocktransactionsline_docdate] datetime2(7),\n\t[sap_stocktransactionsline_project] nvarchar(4000),\n\t[sap_stocktransactionsline_vatprcnt] numeric(18,2),\n\t[sap_stocktransactionsline_vatgroup] nvarchar(4000),\n\t[sap_stocktransactionsline_vatamount] numeric(18,2),\n\t[sap_stocktransactionsline_u_reason] nvarchar(4000),\n\t[sap_stocktransactionsline_u_expenseitem] nvarchar(4000),\n\t[sap_stocktransactionsline_u_fueldate] datetime2(7),\n\t[sap_stocktransactionsline_acctcode] nvarchar(4000),\n\t[sap_stocktransactionsline_doccat] nvarchar(4000),\n\t[sap_stocktransactionsline_subdepotcode] nvarchar(4000),\n\t[sap_stocktransactionsline_discsum] numeric(18,2),\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/ststocktransactions.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STStockTransactions \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

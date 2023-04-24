@@ -1,0 +1,250 @@
+{
+	"name": "10_STJournals",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Finance"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "a2f6ba2f-add2-43f4-a166-aefc7e40a1f1"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Create DataFrame for the dboOJDT SAP Table\r\n",
+					"# dboOJDT = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOJDT.parquet', format='parquet')\r\n",
+					"# dboOJDT.createOrReplaceTempView(\"dboOJDT\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboJDT1 SAP Table\r\n",
+					"# dboJDT1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboJDT1.parquet', format='parquet')\r\n",
+					"# dboJDT1.createOrReplaceTempView(\"dboJDT1\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stchartofaccounts SAP Table\r\n",
+					"# stchartofaccounts = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stchartofaccounts.parquet', format='parquet')\r\n",
+					"# stchartofaccounts.createOrReplaceTempView(\"stchartofaccounts\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stsalesinvoice SAP Table\r\n",
+					"# stsalesinvoice = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoice.parquet', format='parquet')\r\n",
+					"# stsalesinvoice.createOrReplaceTempView(\"stsalesinvoice\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stitem SAP Table\r\n",
+					"# stitem = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stitem.parquet', format='parquet')\r\n",
+					"# stitem.createOrReplaceTempView(\"stitem\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stdocuments SAP Table\r\n",
+					"# stdocuments = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stdocuments.parquet', format='parquet')\r\n",
+					"# stdocuments.createOrReplaceTempView(\"stdocuments\")\r\n",
+					""
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stjournals\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    ojdt.refdate as sap_journalsheader_postingdate\r\n",
+					"    ,ojdt.duedate as sap_journalsheader_duedate\r\n",
+					"    ,ojdt.loctotal as sap_journalsheader_doctotal\r\n",
+					"    ,'J' as sap_journalsheader_doctype\r\n",
+					"    ,ojdt.transid as sap_journalsheader_transid\r\n",
+					"    ,jdt1.line_id as sap_journalsline_linenum\r\n",
+					"    ,jdt1.account as sap_journalsline_acctcode\r\n",
+					"    ,ojdt.transtype as sap_journalsheader_objtype\r\n",
+					"    ,jdt1.project as sap_journalsline_project\r\n",
+					"    ,jdt1.vatgroup as sap_journalsline_vatgroup\r\n",
+					"    ,jdt1.vatrate as sap_journalsline_vatrate\r\n",
+					"    ,jdt1.vatamount as sap_journalsline_vatamount\r\n",
+					"    ,jdt1.linememo as sap_journalsline_description\r\n",
+					"    ,jdt1.ref1 as sap_journalsline_jnlref1\r\n",
+					"    ,jdt1.ref2 as sap_journalsline_jnlref2\r\n",
+					"    ,jdt1.u_depot as sap_journalsline_subdepotcode\r\n",
+					"    ,CASE \r\n",
+					"        --JOURNAL\r\n",
+					"        WHEN (coa.sap_account_groupmask IN (1)) THEN sum((jdt1.debit-jdt1.credit))\r\n",
+					"        WHEN (coa.sap_account_groupmask IN (2,3,4,5,6,8)) THEN sum((jdt1.credit-jdt1.debit))\r\n",
+					"        ELSE NULL \r\n",
+					"    END as  sap_journalsline_linetotal\r\n",
+					"    ,CASE \r\n",
+					"        WHEN (coa.sap_account_groupmask IN (1,2,3,4,5,6,8)) THEN 'journal'\r\n",
+					"        ELSE NULL \r\n",
+					"    END as  sap_journalsline_doccat\r\n",
+					"    ,si.sap_salesinvoiceline_itemcode as sap_journalsline_itemcode\r\n",
+					"    ,CASE \r\n",
+					"        WHEN (si.sap_salesinvoiceheader_transid = ojdt.transid \r\n",
+					"            AND (ojdt.transtype = 13 AND coa.sap_account_groupmask IN (5,6,7,8)) \r\n",
+					"            AND si.sap_salesinvoiceheader_canceled = 'N') THEN sap_salesinvoiceheader_cardcode\r\n",
+					"        WHEN (d.sap_documentsheader_transid = ojdt.transid AND coa.sap_account_groupmask IN (1,2,3,4,5,6,8)) THEN d.sap_documentsheader_cardcode\r\n",
+					"        ELSE NULL\r\n",
+					"    END sap_journalsheader_cardcode\r\n",
+					"    ,CASE \r\n",
+					"        WHEN (si.sap_salesinvoiceheader_transid = ojdt.transid \r\n",
+					"            AND (ojdt.transtype = 13 AND coa.sap_account_groupmask IN (5,6,7,8)) \r\n",
+					"            AND si.sap_salesinvoiceheader_canceled = 'N') THEN sap_salesinvoiceheader_numatcard\r\n",
+					"        WHEN (d.sap_documentsheader_transid = ojdt.transid AND coa.sap_account_groupmask IN (1,2,3,4,5,6,8)) THEN d.sap_documentsheader_numatcard\r\n",
+					"        ELSE NULL\r\n",
+					"    END sap_journalsheader_cardref\r\n",
+					"   \r\n",
+					"FROM dboOJDT ojdt\r\n",
+					"LEFT JOIN dboJDT1 jdt1 on jdt1.transid = ojdt.transid\r\n",
+					"LEFT JOIN stchartofaccounts coa on coa.sap_account_acctcode = jdt1.account\r\n",
+					"LEFT JOIN stsalesinvoice si on si.sap_salesinvoiceheader_transid = jdt1.transid \r\n",
+					"    AND (ojdt.transtype = 13 AND coa.sap_account_groupmask IN (5,6,7,8)) \r\n",
+					"    AND si.sap_salesinvoiceheader_canceled = 'N'\r\n",
+					"LEFT JOIN stitem i on i.sap_item_itemcode = si.sap_salesinvoiceline_itemcode \r\n",
+					"    AND (ojdt.transtype = 13 AND coa.sap_account_groupmask IN (5,6,7,8))\r\n",
+					"LEFT JOIN stdocuments d on d.sap_documentsheader_transid = jdt1.transid \r\n",
+					"    AND coa.sap_account_groupmask IN (1,2,3,4,5,6,8) AND d.sap_documentsline_doccat NOT IN ('journal','purchaseorder')\r\n",
+					"GROUP BY\r\n",
+					"    ojdt.memo\r\n",
+					"    ,ojdt.transtype\r\n",
+					"    ,ojdt.duedate\r\n",
+					"    ,ojdt.loctotal\r\n",
+					"    ,coa.sap_account_groupmask\r\n",
+					"    ,coa.sap_account_acctname\r\n",
+					"    ,coa.sap_account_segment_0\r\n",
+					"    ,coa.sap_account_segment_1\r\n",
+					"    ,coa.sap_account_segment_2\r\n",
+					"    ,ojdt.refdate\r\n",
+					"    ,ojdt.doctype\r\n",
+					"    ,ojdt.transid\r\n",
+					"    ,jdt1.line_id\r\n",
+					"    ,jdt1.account\r\n",
+					"    ,jdt1.transtype\r\n",
+					"    ,jdt1.refdate\r\n",
+					"    ,jdt1.project\r\n",
+					"    ,jdt1.vatgroup\r\n",
+					"    ,jdt1.vatrate\r\n",
+					"    ,jdt1.vatamount\r\n",
+					"    ,jdt1.linememo\r\n",
+					"    ,jdt1.ref1\r\n",
+					"    ,jdt1.ref2\r\n",
+					"    ,jdt1.baseref\r\n",
+					"    ,jdt1.u_depot\r\n",
+					"    ,si.sap_salesinvoiceline_itemcode\r\n",
+					"    ,si.sap_salesinvoiceheader_doctype\r\n",
+					"    ,si.sap_salesinvoiceheader_transid\r\n",
+					"    ,si.sap_salesinvoiceheader_canceled\r\n",
+					"    ,si.sap_salesinvoiceheader_cardcode\r\n",
+					"    ,si.sap_salesinvoiceheader_numatcard\r\n",
+					"    ,d.sap_documentsheader_transid\r\n",
+					"    ,d.sap_documentsheader_cardcode\r\n",
+					"    ,d.sap_documentsheader_numatcard\r\n",
+					"    ,i.sap_item_invntitem\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stjournals = spark.sql(\"SELECT * FROM stjournals\")\r\n",
+					"# stjournals.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stjournals.parquet', mode = \"overwrite\")\r\n",
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

@@ -1,0 +1,798 @@
+{
+	"name": "09_STTransactions",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Finance"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "1ede9846-f0e8-43b8-9606-e1513908996c"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": 206
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Create DataFrame for the stdocuments SAP Table\r\n",
+					"# stdocuments = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stdocuments.parquet', format='parquet')\r\n",
+					"# stdocuments.createOrReplaceTempView(\"stdocuments\")\r\n",
+					"\r\n",
+					"# ######################################################################## UNION\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stmanualjournal SAP Table\r\n",
+					"# stmanualjournal = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stmanualjournal.parquet', format='parquet')\r\n",
+					"# stmanualjournal.createOrReplaceTempView(\"stmanualjournal\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stdirectposting SAP Table\r\n",
+					"# stdirectposting = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stdirectposting.parquet', format='parquet')\r\n",
+					"# stdirectposting.createOrReplaceTempView(\"stdirectposting\")\r\n",
+					"\r\n",
+					"# ######################################################################## UNION\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stgeneraljournal SAP Table\r\n",
+					"# stgeneraljournal = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stgeneraljournal.parquet', format='parquet')\r\n",
+					"# stgeneraljournal.createOrReplaceTempView(\"stgeneraljournal\")\r\n",
+					"\r\n",
+					"# ######################################################################## UNION\r\n",
+					"\r\n",
+					"# #Create DataFrame for the ststocktransactions SAP Table\r\n",
+					"# ststocktransactions = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/ststocktransactions.parquet', format='parquet')\r\n",
+					"# ststocktransactions.createOrReplaceTempView(\"ststocktransactions\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stdiscountjournal SAP Table\r\n",
+					"# stdiscountjournal = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stdiscountjournal.parquet', format='parquet')\r\n",
+					"# stdiscountjournal.createOrReplaceTempView(\"stdiscountjournal\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stsalesinvoiceinventory SAP Table\r\n",
+					"# stsalesinvoiceinventory = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoiceinventory.parquet', format='parquet')\r\n",
+					"# stsalesinvoiceinventory.createOrReplaceTempView(\"stsalesinvoiceinventory\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the ststockrevaluations SAP Table\r\n",
+					"# ststockrevaluations = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/ststockrevaluations.parquet', format='parquet')\r\n",
+					"# ststockrevaluations.createOrReplaceTempView(\"ststockrevaluations\")\r\n",
+					"\r\n",
+					"# ######################################################################## UNION\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stpurchasepricevariance SAP Table\r\n",
+					"# stpurchasepricevariance = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stpurchasepricevariance.parquet', format='parquet')\r\n",
+					"# stpurchasepricevariance.createOrReplaceTempView(\"stpurchasepricevariance\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stcostofgoods SAP Table\r\n",
+					"# stcostofgoods = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stcostofgoods.parquet', format='parquet')\r\n",
+					"# stcostofgoods.createOrReplaceTempView(\"stcostofgoods\")\r\n",
+					"\r\n",
+					"\r\n",
+					"# ######################################################################## LEFT JOIN\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stchartofaccounts SAP Table\r\n",
+					"# stchartofaccounts = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stchartofaccounts.parquet', format='parquet')\r\n",
+					"# stchartofaccounts.createOrReplaceTempView(\"stchartofaccounts\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stitems SAP Table\r\n",
+					"# stitems = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stitems.parquet', format='parquet')\r\n",
+					"# stitems.createOrReplaceTempView(\"stitems\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 207
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": true,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdocuments = stdocuments.withColumnRenamed(\"sap_documentsheader_docentry\",\"sap_transactionsheader_docentry\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_docnum\",\"sap_transactionsheader_docnum\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_doctype\",\"sap_transactionsheader_doctype\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_objtype\",\"sap_transactionsheader_objtype\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_postingdate\",\"sap_transactionsheader_postingdate\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_duedate\",\"sap_transactionsheader_duedate\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_cardcode\",\"sap_transactionsheader_cardcode\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_cardref\",\"sap_transactionsheader_cardref\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_discprcnt\",\"sap_transactionsheader_discprcnt\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_discsum\",\"sap_transactionsheader_discsum\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_doctotal\",\"sap_transactionsheader_doctotal\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_comments\",\"sap_transactionsheader_comments\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_transid\",\"sap_transactionsheader_transid\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsheader_u_expense_depot\",\"sap_transactionsheader_u_expense_depot\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_linenum\",\"sap_transactionsline_linenum\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_linestatus\",\"sap_transactionsline_linestatus\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_itemcode\",\"sap_transactionsline_itemcode\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_dscription\",\"sap_transactionsline_dscription\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_quantity\",\"sap_transactionsline_quantity\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_openqty\",\"sap_transactionsline_openqty\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_price\",\"sap_transactionsline_price\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_rate\",\"sap_transactionsline_rate\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_discprcnt\",\"sap_transactionsline_discprcnt\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_linetotal\",\"sap_transactionsline_linetotal\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_opensum\",\"sap_transactionsline_opensum\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_pricebefdi\",\"sap_transactionsline_pricebefdi\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_docdate\",\"sap_transactionsline_docdate\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_project\",\"sap_transactionsline_project\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_vatprcnt\",\"sap_transactionsline_vatprcnt\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_vatgroup\",\"sap_transactionsline_vatgroup\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_vatamount\",\"sap_transactionsline_vatamount\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_u_reason\",\"sap_transactionsline_u_reason\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_u_expenseitem\",\"sap_transactionsline_u_expenseitem\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_u_fueldate\",\"sap_transactionsline_u_fueldate\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_acctcode\",\"sap_transactionsline_acctcode\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_doccat\",\"sap_transactionsline_doccat\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_subdepotcode\",\"sap_transactionsline_subdepotcode\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_u_rate\",\"sap_transactionsline_u_rate\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_u_ir_number\",\"sap_transactionsline_u_ir_number\")\\\r\n",
+					".withColumnRenamed(\"sap_documentsline_discsum\",\"sap_transactionsline_discsum\")\r\n",
+					""
+				],
+				"execution_count": 208
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": true,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stmanualjournal = stmanualjournal.withColumnRenamed(\"sap_manualjournalsheader_postingdate\",\"sap_transactionsheader_postingdate\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsheader_duedate\",\"sap_transactionsheader_duedate\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsheader_doctotal\",\"sap_transactionsheader_doctotal\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsheader_doctype\",\"sap_transactionsheader_doctype\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsheader_transid\",\"sap_transactionsheader_transid\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_linenum\",\"sap_transactionsline_linenum\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_acctcode\",\"sap_transactionsline_acctcode\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsheader_objtype\",\"sap_transactionsheader_objtype\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_project\",\"sap_transactionsline_project\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_vatgroup\",\"sap_transactionsline_vatgroup\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_vatrate\",\"sap_transactionsline_vatrate\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_vatamount\",\"sap_transactionsline_vatamount\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_description\",\"sap_transactionsline_description\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_jnlref1\",\"sap_transactionsline_jnlref1\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_jnlref2\",\"sap_transactionsline_jnlref2\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_subdepotcode\",\"sap_transactionsline_subdepotcode\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_linetotal\",\"sap_transactionsline_linetotal\")\\\r\n",
+					".withColumnRenamed(\"sap_manualjournalsline_doccat\",\"sap_transactionsline_doccat\")"
+				],
+				"execution_count": 209
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": true,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdirectposting = stdirectposting.withColumnRenamed(\"sap_directpostingheader_postingdate\",\"sap_transactionsheader_postingdate\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingheader_duedate\",\"sap_transactionsheader_duedate\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingheader_doctotal\",\"sap_transactionsheader_doctotal\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingheader_doctype\",\"sap_transactionsheader_doctype\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingheader_transid\",\"sap_transactionsheader_transid\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_linenum\",\"sap_transactionsline_linenum\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_acctcode\",\"sap_transactionsline_acctcode\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingheader_objtype\",\"sap_transactionsheader_objtype\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_project\",\"sap_transactionsline_project\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_vatgroup\",\"sap_transactionsline_vatgroup\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_vatrate\",\"sap_transactionsline_vatrate\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_vatamount\",\"sap_transactionsline_vatamount\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_description\",\"sap_transactionsline_description\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_jnlref1\",\"sap_transactionsline_jnlref1\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_jnlref2\",\"sap_transactionsline_jnlref2\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_subdepotcode\",\"sap_transactionsline_subdepotcode\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_linetotal\",\"sap_transactionsline_linetotal\")\\\r\n",
+					".withColumnRenamed(\"sap_directpostingline_doccat\",\"sap_transactionsline_doccat\")"
+				],
+				"execution_count": 210
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": true,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stgeneraljournal = stgeneraljournal.withColumnRenamed(\"sap_generaljournalheader_postingdate\",\"sap_transactionsheader_postingdate\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalheader_duedate\",\"sap_transactionsheader_duedate\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalheader_doctotal\",\"sap_transactionsheader_doctotal\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalheader_doctype\",\"sap_transactionsheader_doctype\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalheader_transid\",\"sap_transactionsheader_transid\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_linenum\",\"sap_transactionsline_linenum\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_acctcode\",\"sap_transactionsline_acctcode\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalheader_objtype\",\"sap_transactionsheader_objtype\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_project\",\"sap_transactionsline_project\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_vatgroup\",\"sap_transactionsline_vatgroup\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_vatrate\",\"sap_transactionsline_vatrate\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_vatamount\",\"sap_transactionsline_vatamount\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_description\",\"sap_transactionsline_description\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_jnlref1\",\"sap_transactionsline_jnlref1\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_jnlref2\",\"sap_transactionsline_jnlref2\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_subdepotcode\",\"sap_transactionsline_subdepotcode\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_linetotal\",\"sap_transactionsline_linetotal\")\\\r\n",
+					".withColumnRenamed(\"sap_generaljournalline_doccat\",\"sap_transactionsline_doccat\")"
+				],
+				"execution_count": 211
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": true,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ststocktransactions = ststocktransactions.withColumnRenamed(\"sap_stocktransactionsheader_docentry\",\"sap_transactionsheader_docentry\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_docnum\",\"sap_transactionsheader_docnum\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_doctype\",\"sap_transactionsheader_doctype\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_objtype\",\"sap_transactionsheader_objtype\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_postingdate\",\"sap_transactionsheader_postingdate\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_duedate\",\"sap_transactionsheader_duedate\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_cardcode\",\"sap_transactionsheader_cardcode\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_cardref\",\"sap_transactionsheader_cardref\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_discprcnt\",\"sap_transactionsheader_discprcnt\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_discsum\",\"sap_transactionsheader_discsum\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_doctotal\",\"sap_transactionsheader_doctotal\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_comments\",\"sap_transactionsheader_comments\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_transid\",\"sap_transactionsheader_transid\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsheader_u_expense_depot\",\"sap_transactionsheader_u_expense_depot\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_linenum\",\"sap_transactionsline_linenum\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_linestatus\",\"sap_transactionsline_linestatus\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_itemcode\",\"sap_transactionsline_itemcode\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_dscription\",\"sap_transactionsline_dscription\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_quantity\",\"sap_transactionsline_quantity\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_openqty\",\"sap_transactionsline_openqty\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_price\",\"sap_transactionsline_price\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_rate\",\"sap_transactionsline_rate\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_discprcnt\",\"sap_transactionsline_discprcnt\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_linetotal\",\"sap_transactionsline_linetotal\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_opensum\",\"sap_transactionsline_opensum\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_pricebefdi\",\"sap_transactionsline_pricebefdi\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_docdate\",\"sap_transactionsline_docdate\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_project\",\"sap_transactionsline_project\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_vatprcnt\",\"sap_transactionsline_vatprcnt\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_vatgroup\",\"sap_transactionsline_vatgroup\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_vatamount\",\"sap_transactionsline_vatamount\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_u_reason\",\"sap_transactionsline_u_reason\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_u_expenseitem\",\"sap_transactionsline_u_expenseitem\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_u_fueldate\",\"sap_transactionsline_u_fueldate\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_acctcode\",\"sap_transactionsline_acctcode\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_doccat\",\"sap_transactionsline_doccat\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_subdepotcode\",\"sap_transactionsline_subdepotcode\")\\\r\n",
+					".withColumnRenamed(\"sap_stocktransactionsline_discsum\",\"sap_transactionsline_discsum\")"
+				],
+				"execution_count": 212
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": true,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdiscountjournal = stdiscountjournal.withColumnRenamed(\"sap_discountjournalheader_postingdate\",\"sap_transactionsheader_postingdate\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalheader_duedate\",\"sap_transactionsheader_duedate\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalheader_doctotal\",\"sap_transactionsheader_doctotal\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalheader_doctype\",\"sap_transactionsheader_doctype\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalheader_transid\",\"sap_transactionsheader_transid\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_linenum\",\"sap_transactionsline_linenum\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_acctcode\",\"sap_transactionsline_acctcode\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalheader_objtype\",\"sap_transactionsheader_objtype\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_project\",\"sap_transactionsline_project\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_vatgroup\",\"sap_transactionsline_vatgroup\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_vatrate\",\"sap_transactionsline_vatrate\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_vatamount\",\"sap_transactionsline_vatamount\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_description\",\"sap_transactionsline_description\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_jnlref1\",\"sap_transactionsline_jnlref1\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_jnlref2\",\"sap_transactionsline_jnlref2\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_subdepotcode\",\"sap_transactionsline_subdepotcode\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_linetotal\",\"sap_transactionsline_linetotal\")\\\r\n",
+					".withColumnRenamed(\"sap_discountjournalline_doccat\",\"sap_transactionsline_doccat\")"
+				],
+				"execution_count": 213
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": true,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stsalesinvoiceinventory = stsalesinvoiceinventory.withColumnRenamed(\"sap_salesinvoiceinventoryheader_postingdate\",\"sap_transactionsheader_postingdate\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryheader_duedate\",\"sap_transactionsheader_duedate\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryheader_doctotal\",\"sap_transactionsheader_doctotal\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryheader_doctype\",\"sap_transactionsheader_doctype\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryheader_transid\",\"sap_transactionsheader_transid\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_linenum\",\"sap_transactionsline_linenum\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_acctcode\",\"sap_transactionsline_acctcode\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryheader_objtype\",\"sap_transactionsheader_objtype\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_project\",\"sap_transactionsline_project\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_vatgroup\",\"sap_transactionsline_vatgroup\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_vatrate\",\"sap_transactionsline_vatrate\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_vatamount\",\"sap_transactionsline_vatamount\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_description\",\"sap_transactionsline_description\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_jnlref1\",\"sap_transactionsline_jnlref1\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_jnlref2\",\"sap_transactionsline_jnlref2\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_subdepotcode\",\"sap_transactionsline_subdepotcode\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_linetotal\",\"sap_transactionsline_linetotal\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_doccat\",\"sap_transactionsline_doccat\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_itemcode\",\"sap_transactionsline_itemcode\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryheader_cardcode\",\"sap_transactionsheader_cardcode\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryheader_cardref\",\"sap_transactionsheader_cardref\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceinventoryline_invntitem\",\"sap_transactionsline_invntitem\")\r\n",
+					""
+				],
+				"execution_count": 214
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": true,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ststockrevaluations = ststockrevaluations.withColumnRenamed(\"sap_stockrevaluationsheader_docentry\",\"sap_transactionsheader_docentry\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsheader_docnum\",\"sap_transactionsheader_docnum\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsheader_objtype\",\"sap_transactionsheader_objtype\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsheader_postingdate\",\"sap_transactionsheader_postingdate\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsheader_comments\",\"sap_transactionsheader_comments\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsheader_transid\",\"sap_transactionsheader_transid\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsline_linenum\",\"sap_transactionsline_linenum\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsline_itemcode\",\"sap_transactionsline_itemcode\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsline_dscription\",\"sap_transactionsline_dscription\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsline_linetotal\",\"sap_transactionsline_linetotal\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsline_acctcode\",\"sap_transactionsline_acctcode\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsline_doccat\",\"sap_transactionsline_doccat\")\\\r\n",
+					".withColumnRenamed(\"sap_stockrevaluationsline_subdepotcode\",\"sap_transactionsline_subdepotcode\")\r\n",
+					""
+				],
+				"execution_count": 215
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": true,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stpurchasepricevariance = stpurchasepricevariance.withColumnRenamed(\"sap_purchasepricevarianceheader_postingdate\",\"sap_transactionsheader_postingdate\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceheader_duedate\",\"sap_transactionsheader_duedate\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceheader_doctotal\",\"sap_transactionsheader_doctotal\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceheader_doctype\",\"sap_transactionsheader_doctype\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceheader_transid\",\"sap_transactionsheader_transid\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_linenum\",\"sap_transactionsline_linenum\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_acctcode\",\"sap_transactionsline_acctcode\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceheader_objtype\",\"sap_transactionsheader_objtype\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_project\",\"sap_transactionsline_project\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_vatgroup\",\"sap_transactionsline_vatgroup\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_vatrate\",\"sap_transactionsline_vatrate\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_vatamount\",\"sap_transactionsline_vatamount\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_description\",\"sap_transactionsline_description\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_jnlref1\",\"sap_transactionsline_jnlref1\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_jnlref2\",\"sap_transactionsline_jnlref2\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_subdepotcode\",\"sap_transactionsline_subdepotcode\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_linetotal\",\"sap_transactionsline_linetotal\")\\\r\n",
+					".withColumnRenamed(\"sap_purchasepricevarianceline_doccat\",\"sap_transactionsline_doccat\")"
+				],
+				"execution_count": 216
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": true,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stcostofgoods = stcostofgoods.withColumnRenamed(\"sap_costofgoodsheader_postingdate\",\"sap_transactionsheader_postingdate\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsheader_duedate\",\"sap_transactionsheader_duedate\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsheader_doctotal\",\"sap_transactionsheader_doctotal\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsheader_doctype\",\"sap_transactionsheader_doctype\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsheader_transid\",\"sap_transactionsheader_transid\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_linenum\",\"sap_transactionsline_linenum\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_acctcode\",\"sap_transactionsline_acctcode\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsheader_objtype\",\"sap_transactionsheader_objtype\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_project\",\"sap_transactionsline_project\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_vatgroup\",\"sap_transactionsline_vatgroup\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_vatrate\",\"sap_transactionsline_vatrate\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_vatamount\",\"sap_transactionsline_vatamount\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_description\",\"sap_transactionsline_description\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_jnlref1\",\"sap_transactionsline_jnlref1\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_jnlref2\",\"sap_transactionsline_jnlref2\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_subdepotcode\",\"sap_transactionsline_subdepotcode\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_linetotal\",\"sap_transactionsline_linetotal\")\\\r\n",
+					".withColumnRenamed(\"sap_costofgoodsline_doccat\",\"sap_transactionsline_doccat\")"
+				],
+				"execution_count": 217
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"transactions_tmp = stdocuments.unionByName(stmanualjournal, allowMissingColumns = True).unionByName(stdirectposting, allowMissingColumns = True).unionByName(stgeneraljournal, allowMissingColumns = True).unionByName(ststocktransactions, allowMissingColumns = True).unionByName(stdiscountjournal, allowMissingColumns = True).unionByName(stsalesinvoiceinventory, allowMissingColumns = True).unionByName(ststockrevaluations, allowMissingColumns = True).unionByName(stpurchasepricevariance, allowMissingColumns = True).unionByName(stcostofgoods, allowMissingColumns = True)\r\n",
+					"transactions_tmp.createOrReplaceTempView(\"transactions_tmp\")"
+				],
+				"execution_count": 218
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttransactions_tmp2\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    t.sap_transactionsheader_docentry \r\n",
+					"    ,t.sap_transactionsheader_docnum \r\n",
+					"    ,t.sap_transactionsheader_doctype \r\n",
+					"    ,t.sap_transactionsheader_objtype \r\n",
+					"    ,t.sap_transactionsheader_postingdate \r\n",
+					"    ,t.sap_transactionsheader_duedate \r\n",
+					"    ,t.sap_transactionsheader_cardcode \r\n",
+					"    ,t.sap_transactionsheader_cardref \r\n",
+					"    ,t.sap_transactionsheader_discprcnt \r\n",
+					"    ,t.sap_transactionsheader_discsum \r\n",
+					"    ,t.sap_transactionsheader_doctotal \r\n",
+					"    ,t.sap_transactionsheader_comments \r\n",
+					"    ,t.sap_transactionsheader_transid \r\n",
+					"    ,t.sap_transactionsheader_u_expense_depot \r\n",
+					"    ,t.sap_transactionsline_linenum \r\n",
+					"    ,t.sap_transactionsline_linestatus \r\n",
+					"    ,t.sap_transactionsline_itemcode \r\n",
+					"    ,t.sap_transactionsline_dscription \r\n",
+					"    ,t.sap_transactionsline_quantity \r\n",
+					"    ,t.sap_transactionsline_openqty \r\n",
+					"    ,t.sap_transactionsline_price \r\n",
+					"    ,t.sap_transactionsline_rate \r\n",
+					"    ,t.sap_transactionsline_discprcnt \r\n",
+					"    ,t.sap_transactionsline_linetotal\r\n",
+					"    -- ,(sap_transactionsline_linetotal+sap_transactionsline_discsum) as sap_transactionsline_linetotallessdiscount\r\n",
+					"    ,(sap_transactionsline_linetotal+(sap_transactionsline_linetotal*(sap_transactionsheader_discprcnt*-1/100))) as sap_transactionsline_linetotallessdiscount\r\n",
+					"    ,t.sap_transactionsline_opensum \r\n",
+					"    ,t.sap_transactionsline_pricebefdi \r\n",
+					"    ,t.sap_transactionsline_docdate \r\n",
+					"    ,t.sap_transactionsline_project \r\n",
+					"    ,t.sap_transactionsline_vatprcnt \r\n",
+					"    ,t.sap_transactionsline_vatgroup \r\n",
+					"    ,t.sap_transactionsline_vatamount \r\n",
+					"    ,t.sap_transactionsline_u_reason \r\n",
+					"    ,t.sap_transactionsline_u_expenseitem \r\n",
+					"    ,t.sap_transactionsline_u_fueldate \r\n",
+					"    ,t.sap_transactionsline_acctcode \r\n",
+					"    ,t.sap_transactionsline_doccat \r\n",
+					"    ,t.sap_transactionsline_subdepotcode \r\n",
+					"    ,t.sap_transactionsline_u_rate \r\n",
+					"    ,t.sap_transactionsline_u_ir_number \r\n",
+					"    ,t.sap_transactionsline_discsum \r\n",
+					"    ,t.sap_transactionsline_vatrate \r\n",
+					"    ,t.sap_transactionsline_description \r\n",
+					"    ,t.sap_transactionsline_jnlref1 \r\n",
+					"    ,t.sap_transactionsline_jnlref2 \r\n",
+					"    --,t.sap_transactionsline_invntitem \r\n",
+					"    ,i.sap_item_invntitem as sap_transactionsline_invntitem\r\n",
+					"    ,CASE \r\n",
+					"\t\tWHEN (t.sap_transactionsline_doccat = 'salesinvoice' and i.sap_item_invntitem = 'Y') THEN 1\r\n",
+					"\t\tWHEN (t.sap_transactionsline_doccat = 'goodsreturn' and c.sap_account_groupmask IN (5,6)) THEN 1\r\n",
+					"\t\tWHEN (t.sap_transactionsline_doccat NOT IN ('generaljournal','manualjournal','directposting') and c.sap_account_groupmask IN (1,2,3)) THEN 1\r\n",
+					"\t\tELSE 0\r\n",
+					"\tEND as exclude\r\n",
+					"\r\n",
+					"FROM transactions_tmp t\r\n",
+					"LEFT JOIN stchartofaccounts c on c.sap_account_acctcode = t.sap_transactionsline_acctcode\r\n",
+					"LEFT JOIN stitems i on i.sap_item_itemcode = t.sap_transactionsline_itemcode\r\n",
+					"WHERE c.sap_account_accttype <> 'COST RECOVERY'\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 219
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttransactions_tmp2 = spark.sql(\"SELECT * FROM sttransactions_tmp2\")"
+				],
+				"execution_count": 220
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttransactions\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"  t.sap_transactionsheader_docentry \r\n",
+					"  ,t.sap_transactionsheader_docnum \r\n",
+					"  ,t.sap_transactionsheader_doctype \r\n",
+					"  ,t.sap_transactionsheader_objtype \r\n",
+					"  ,t.sap_transactionsheader_postingdate \r\n",
+					"  ,t.sap_transactionsheader_duedate \r\n",
+					"  ,t.sap_transactionsheader_cardcode \r\n",
+					"  ,t.sap_transactionsheader_cardref \r\n",
+					"  ,t.sap_transactionsheader_discprcnt \r\n",
+					"  ,t.sap_transactionsheader_discsum \r\n",
+					"  ,t.sap_transactionsheader_doctotal \r\n",
+					"  ,t.sap_transactionsheader_comments \r\n",
+					"  ,t.sap_transactionsheader_transid \r\n",
+					"  ,t.sap_transactionsheader_u_expense_depot \r\n",
+					"  ,t.sap_transactionsline_linenum \r\n",
+					"  ,t.sap_transactionsline_linestatus \r\n",
+					"  ,t.sap_transactionsline_itemcode \r\n",
+					"  ,t.sap_transactionsline_dscription \r\n",
+					"  ,t.sap_transactionsline_quantity \r\n",
+					"  ,t.sap_transactionsline_openqty \r\n",
+					"  ,t.sap_transactionsline_price \r\n",
+					"  ,t.sap_transactionsline_rate \r\n",
+					"  ,t.sap_transactionsline_discprcnt \r\n",
+					"  ,t.sap_transactionsline_linetotal\r\n",
+					"  ,t.sap_transactionsline_linetotallessdiscount\r\n",
+					"  ,t.sap_transactionsline_opensum \r\n",
+					"  ,t.sap_transactionsline_pricebefdi \r\n",
+					"  ,t.sap_transactionsline_docdate \r\n",
+					"  ,t.sap_transactionsline_project \r\n",
+					"  ,t.sap_transactionsline_vatprcnt \r\n",
+					"  ,t.sap_transactionsline_vatgroup \r\n",
+					"  ,t.sap_transactionsline_vatamount \r\n",
+					"  ,t.sap_transactionsline_u_reason \r\n",
+					"  ,t.sap_transactionsline_u_expenseitem \r\n",
+					"  ,t.sap_transactionsline_u_fueldate \r\n",
+					"  ,t.sap_transactionsline_acctcode \r\n",
+					"  ,t.sap_transactionsline_doccat \r\n",
+					"  ,t.sap_transactionsline_subdepotcode \r\n",
+					"  ,t.sap_transactionsline_u_rate \r\n",
+					"  ,t.sap_transactionsline_u_ir_number \r\n",
+					"  ,t.sap_transactionsline_discsum \r\n",
+					"  ,t.sap_transactionsline_vatrate \r\n",
+					"  ,t.sap_transactionsline_description \r\n",
+					"  ,t.sap_transactionsline_jnlref1 \r\n",
+					"  ,t.sap_transactionsline_jnlref2 \r\n",
+					"  ,t.sap_transactionsline_invntitem \r\n",
+					"\r\n",
+					"FROM sttransactions_tmp2 t\r\n",
+					"WHERE t.exclude = 0\r\n",
+					""
+				],
+				"execution_count": 222
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttransactions = spark.sql(\"SELECT * FROM sttransactions\")"
+				],
+				"execution_count": 223
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# sttransactions.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/sttransactions.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 225
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 226
+			}
+		]
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "D_STChartOfAccounts",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STChartOfAccounts') )\n    DROP EXTERNAL TABLE dbo.D_STChartOfAccounts\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STChartOfAccounts (\n[sap_account_acctcode] nvarchar(4000),\n[sap_account_acctname] nvarchar(4000),\n[sap_account_accttype] nvarchar(4000),\n[sap_account_segment_0] nvarchar(4000),\n[sap_account_segment_1] nvarchar(4000),\n[sap_account_segment_2] nvarchar(4000),\n[sap_account_groupmask] int,\n[sap_account_fathernum] nvarchar(4000),\n[sap_account_frozenfor] nvarchar(4000),\n[sap_account_postable] nvarchar(4000),\n[sap_account_level5name] nvarchar(4000),\n[sap_account_level4name] nvarchar(4000),\n[sap_account_fathernum2] nvarchar(4000),\n[sap_account_level3name] nvarchar(4000),\n[sap_account_fathernum3] nvarchar(4000),\n[sap_account_level2name] nvarchar(4000),\n[sap_account_fathernum4] nvarchar(4000),\n[sap_account_level1name] nvarchar(4000),\n[sap_account_fathernum5] nvarchar(4000)\n\n    \n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/stchartofaccounts.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STChartOfAccounts \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

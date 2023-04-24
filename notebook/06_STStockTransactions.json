@@ -1,0 +1,898 @@
+{
+	"name": "06_STStockTransactions",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Finance"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "86a6f26f-6d7c-4a30-861f-6b39c7c96316"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Stock\r\n",
+					"# #Create DataFrame for the dboOINM SAP HEADER Table\r\n",
+					"# dboOINM = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOINM.parquet', format='parquet')\r\n",
+					"# dboOINM.createOrReplaceTempView(\"dboOINM\")\r\n",
+					"\r\n",
+					"# #Goods Issue\r\n",
+					"# #Create DataFrame for the dboOIGE SAP HEADER Table\r\n",
+					"# dboOIGE = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOIGE.parquet', format='parquet')\r\n",
+					"# dboOIGE.createOrReplaceTempView(\"dboOIGE\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboIGE1 SAP LINE Table\r\n",
+					"# dboIGE1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboIGE1.parquet', format='parquet')\r\n",
+					"# dboIGE1.createOrReplaceTempView(\"dboIGE1\")\r\n",
+					"\r\n",
+					"# #Goods Receipt\r\n",
+					"# #Create DataFrame for the dboOIGN SAP HEADER Table\r\n",
+					"# dboOIGN = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOIGN.parquet', format='parquet')\r\n",
+					"# dboOIGN.createOrReplaceTempView(\"dboOIGN\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboIGN1 SAP LINE Table\r\n",
+					"# dboIGN1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboIGN1.parquet', format='parquet')\r\n",
+					"# dboIGN1.createOrReplaceTempView(\"dboIGN1\")\r\n",
+					""
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"ststocktransactions_gr\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    oinm.transnum as sap_stocktransactions_transid\r\n",
+					"    ,oinm.transtype as sap_stocktransactions_objtype\r\n",
+					"    ,'I' as sap_stocktransactions_doctype\r\n",
+					"    ,oinm.createdby as sap_stocktransactions_createdby\r\n",
+					"    ,CAST(TRIM(oinm.base_ref) AS INT) as sap_stocktransactions_docnum\r\n",
+					"    ,oinm.doclinenum as sap_stocktransactions_doclinenum\r\n",
+					"    ,oinm.docdate as sap_stocktransactions_postingdate\r\n",
+					"    ,oinm.docduedate as sap_stocktransactions_duedate\r\n",
+					"    ,oinm.cardcode as sap_stocktransactions_cardcode\r\n",
+					"    ,oinm.cardname as sap_stocktransactions_cardname\r\n",
+					"    ,oinm.itemcode as sap_stocktransactions_itemcode\r\n",
+					"    ,oinm.dscription as sap_stocktransactions_dscription\r\n",
+					"    ,oinm.vendornum as sap_stocktransactions_vendornum\r\n",
+					"    ,oinm.warehouse as sap_stocktransactions_warehouse\r\n",
+					"    ,oinm.prjcode as sap_stocktransactions_project\r\n",
+					"    ,oinm.calcprice as sap_stocktransactions_calcprice\r\n",
+					"    ,oinm.transvalue as sap_stocktransactions_linetotal\r\n",
+					"    ,oinm.invntact as sap_stocktransactions_invntact\r\n",
+					"    -- ,oinm.doffdecacc as sap_stocktransactions_doffdecacc\r\n",
+					"    ,oinm.ioffincacc as sap_stocktransactions_acctcode\r\n",
+					"    ,sum(oinm.inqty) as sap_stocktransactions_inqty\r\n",
+					"    ,sum(oinm.outqty) as sap_stocktransactions_outqty\r\n",
+					"    ,(sum(oinm.inqty)-sum(oinm.outqty)) as sap_stocktransactions_qty\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dboOINM oinm\r\n",
+					"WHERE oinm.transtype = 59\r\n",
+					"GROUP BY\r\n",
+					"    oinm.transnum \r\n",
+					"    ,oinm.transtype\r\n",
+					"    ,oinm.createdby\r\n",
+					"    ,oinm.base_ref \r\n",
+					"    ,oinm.doclinenum\r\n",
+					"    ,oinm.docdate \r\n",
+					"    ,oinm.docduedate\r\n",
+					"    ,oinm.cardcode \r\n",
+					"    ,oinm.cardname \r\n",
+					"    ,oinm.itemcode \r\n",
+					"    ,oinm.dscription\r\n",
+					"    ,oinm.vendornum\r\n",
+					"    ,oinm.warehouse \r\n",
+					"    ,oinm.prjcode \r\n",
+					"    ,oinm.calcprice \r\n",
+					"    ,oinm.transvalue\r\n",
+					"    ,oinm.invntact\r\n",
+					"    ,oinm.doffdecacc\r\n",
+					"    ,oinm.ioffincacc\r\n",
+					""
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ststocktransactions_gr = spark.sql(\"SELECT * FROM ststocktransactions_gr\")"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stgoodsreceipt_tmp2\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    oign.docnum\r\n",
+					"    ,(oign.discsum*-1)/COUNT(ign1.linenum) as discsum\r\n",
+					"\r\n",
+					"FROM dboOIGN oign\r\n",
+					"LEFT JOIN dboIGN1 ign1 on ign1.docentry = oign.docentry\r\n",
+					"GROUP BY oign.docnum, oign.discsum"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stgoodsreceipt_tmp2 = spark.sql(\"SELECT * FROM stgoodsreceipt_tmp2\")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stgoodsreceipt_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    oign.docentry as sap_goodsreceiptheader_docentry\r\n",
+					"    ,oign.docnum as sap_goodsreceiptheader_docnum\r\n",
+					"    ,oign.doctype as sap_goodsreceiptheader_doctype\r\n",
+					"    -- ,oign.canceled as sap_goodsreceiptheader_canceled\r\n",
+					"    ,oign.objtype as sap_goodsreceiptheader_objtype\r\n",
+					"    ,oign.docdate as sap_goodsreceiptheader_postingdate\r\n",
+					"    ,oign.docduedate as sap_goodsreceiptheader_duedate\r\n",
+					"    ,oign.cardcode as sap_goodsreceiptheader_cardcode\r\n",
+					"    -- ,oign.cardname as sap_goodsreceiptheader_cardname\r\n",
+					"    ,oign.numatcard as sap_goodsreceiptheader_cardref\r\n",
+					"    ,oign.discprcnt as sap_goodsreceiptheader_discprcnt\r\n",
+					"    ,oign.discsum as sap_goodsreceiptheader_discsum\r\n",
+					"    ,oign.doctotal as sap_goodsreceiptheader_doctotal\r\n",
+					"    ,oign.comments as sap_goodsreceiptheader_comments\r\n",
+					"    ,oign.transid as sap_goodsreceiptheader_transid\r\n",
+					"    -- ,oign.usersign as sap_goodsreceiptheader_usersign\r\n",
+					"    -- ,oign.u_depot as sap_goodsreceiptheader_u_depot\r\n",
+					"    -- ,oign.u_usercode as sap_goodsreceiptheader_u_usercode\r\n",
+					"    ,oign.u_expense_depot as sap_goodsreceiptheader_u_expense_depot\r\n",
+					"    -- ,oign.u_transaction_date as sap_goodsreceiptheader_u_transaction_date\r\n",
+					"    -- ,oign.rounddif as sap_goodsreceiptheader_rounddif\r\n",
+					"    -- ,oign.rounding as sap_goodsreceiptheader_rounding\r\n",
+					"    -- ,ign1.docentry as sap_goodsreceiptline_docentry\r\n",
+					"    ,ign1.linenum as sap_goodsreceiptline_linenum\r\n",
+					"    ,ign1.linestatus as sap_goodsreceiptline_linestatus\r\n",
+					"    ,ign1.itemcode as sap_goodsreceiptline_itemcode\r\n",
+					"    ,ign1.dscription as sap_goodsreceiptline_dscription\r\n",
+					"    ,ign1.quantity as sap_goodsreceiptline_quantity\r\n",
+					"    ,ign1.openqty as sap_goodsreceiptline_openqty\r\n",
+					"    ,ign1.price as sap_goodsreceiptline_price\r\n",
+					"    ,ign1.rate as sap_goodsreceiptline_rate\r\n",
+					"    ,ign1.discprcnt as sap_goodsreceiptline_discprcnt\r\n",
+					"    ,ign1.linetotal as sap_goodsreceiptline_linetotal\r\n",
+					"    ,ign1.opensum as sap_goodsreceiptline_opensum\r\n",
+					"    ,ign1.pricebefdi as sap_goodsreceiptline_pricebefdi\r\n",
+					"    ,ign1.docdate as sap_goodsreceiptline_docdate\r\n",
+					"    ,ign1.project as sap_goodsreceiptline_project\r\n",
+					"    ,ign1.vatprcnt as sap_goodsreceiptline_vatprcnt\r\n",
+					"    -- ,ign1.volume as sap_goodsreceiptline_volume\r\n",
+					"    ,ign1.vatgroup as sap_goodsreceiptline_vatgroup\r\n",
+					"    ,ign1.vatsum as sap_goodsreceiptline_vatamount\r\n",
+					"    -- ,ign1.grssprofit as sap_goodsreceiptline_grssprofit\r\n",
+					"    ,ign1.u_reason as sap_goodsreceiptline_u_reason\r\n",
+					"    -- ,ign1.u_lane as sap_goodsreceiptline_u_lane\r\n",
+					"    ,ign1.u_expenseitem as sap_goodsreceiptline_u_expenseitem\r\n",
+					"    ,ign1.u_fueldate as sap_goodsreceiptline_u_fueldate\r\n",
+					"    ,ign1.acctcode as sap_goodsreceiptline_acctcode\r\n",
+					"    ,'goodsreceipt' as sap_goodsreceiptline_doccat\r\n",
+					"    ,Right(LEFT(ign1.u_expenseitem,5),3) as sap_goodsreceiptline_subdepotcode\r\n",
+					"    ,t.discsum as sap_goodsreceiptline_discsum\r\n",
+					"\r\n",
+					"FROM dboOIGN oign\r\n",
+					"LEFT JOIN dboIGN1 ign1 on ign1.docentry = oign.docentry\r\n",
+					"LEFT JOIN stgoodsreceipt_tmp2 t on t.docnum = oign.docnum\r\n",
+					""
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stgoodsreceipt_tmp = spark.sql(\"SELECT * FROM stgoodsreceipt_tmp\")"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"ststocktransactions_gr2\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    gr.sap_goodsreceiptheader_docentry as sap_stocktransactionsheader_docentry\r\n",
+					"    ,sgr.sap_stocktransactions_docnum as sap_stocktransactionsheader_docnum\r\n",
+					"    ,sgr.sap_stocktransactions_doctype as sap_stocktransactionsheader_doctype\r\n",
+					"    -- ,gr.sap_goodsreceiptheader_canceled as sap_stocktransactionsheader_canceled\r\n",
+					"    ,sgr.sap_stocktransactions_objtype as sap_stocktransactionsheader_objtype\r\n",
+					"    ,sgr.sap_stocktransactions_postingdate as sap_stocktransactionsheader_postingdate\r\n",
+					"    ,sgr.sap_stocktransactions_duedate as sap_stocktransactionsheader_duedate\r\n",
+					"    ,sgr.sap_stocktransactions_cardcode as sap_stocktransactionsheader_cardcode\r\n",
+					"    -- ,sgr.sap_stocktransactions_cardname as sap_stocktransactionsheader_cardname\r\n",
+					"    ,gr.sap_goodsreceiptheader_cardref as sap_stocktransactionsheader_cardref\r\n",
+					"    ,gr.sap_goodsreceiptheader_discprcnt as sap_stocktransactionsheader_discprcnt\r\n",
+					"    ,gr.sap_goodsreceiptheader_discsum as sap_stocktransactionsheader_discsum\r\n",
+					"    ,gr.sap_goodsreceiptheader_doctotal as sap_stocktransactionsheader_doctotal\r\n",
+					"    ,gr.sap_goodsreceiptheader_comments as sap_stocktransactionsheader_comments\r\n",
+					"    ,sgr.sap_stocktransactions_transid as sap_stocktransactionsheader_transid\r\n",
+					"    -- ,gr.sap_goodsreceiptheader_usersign as sap_stocktransactionsheader_usersign\r\n",
+					"    -- ,gr.sap_goodsreceiptheader_u_depot as sap_stocktransactionsheader_u_depot\r\n",
+					"    -- ,gr.sap_goodsreceiptheader_u_usercode as sap_stocktransactionsheader_u_usercode\r\n",
+					"    ,gr.sap_goodsreceiptheader_u_expense_depot as sap_stocktransactionsheader_u_expense_depot\r\n",
+					"    -- ,gr.sap_goodsreceiptheader_u_transaction_date as sap_stocktransactionsheader_u_transaction_date\r\n",
+					"    -- ,gr.sap_goodsreceiptheader_rounddif as sap_stocktransactionsheader_rounddif\r\n",
+					"    -- ,gr.sap_goodsreceiptheader_rounding as sap_stocktransactionsheader_rounding\r\n",
+					"    -- ,gr.sap_goodsreceiptline_docentry as sap_stocktransactionsline_docentry\r\n",
+					"    ,gr.sap_goodsreceiptline_linenum as sap_stocktransactionsline_linenum\r\n",
+					"    ,gr.sap_goodsreceiptline_linestatus as sap_stocktransactionsline_linestatus\r\n",
+					"    ,sgr.sap_stocktransactions_itemcode as sap_stocktransactionsline_itemcode\r\n",
+					"    ,sgr.sap_stocktransactions_dscription as sap_stocktransactionsline_dscription\r\n",
+					"    ,gr.sap_goodsreceiptline_quantity as sap_stocktransactionsline_quantity\r\n",
+					"    ,gr.sap_goodsreceiptline_openqty as sap_stocktransactionsline_openqty\r\n",
+					"    ,gr.sap_goodsreceiptline_price as sap_stocktransactionsline_price\r\n",
+					"    ,gr.sap_goodsreceiptline_rate as sap_stocktransactionsline_rate\r\n",
+					"    ,gr.sap_goodsreceiptline_discprcnt as sap_stocktransactionsline_discprcnt\r\n",
+					"    ,sgr.sap_stocktransactions_linetotal as sap_stocktransactionsline_linetotal\r\n",
+					"    ,gr.sap_goodsreceiptline_opensum as sap_stocktransactionsline_opensum\r\n",
+					"    ,gr.sap_goodsreceiptline_pricebefdi as sap_stocktransactionsline_pricebefdi\r\n",
+					"    ,gr.sap_goodsreceiptline_docdate as sap_stocktransactionsline_docdate\r\n",
+					"    ,sgr.sap_stocktransactions_project as sap_stocktransactionsline_project\r\n",
+					"    ,gr.sap_goodsreceiptline_vatprcnt as sap_stocktransactionsline_vatprcnt\r\n",
+					"    -- ,gr.sap_goodsreceiptline_volume as sap_stocktransactionsline_volume\r\n",
+					"    ,gr.sap_goodsreceiptline_vatgroup as sap_stocktransactionsline_vatgroup\r\n",
+					"    ,gr.sap_goodsreceiptline_vatamount as sap_stocktransactionsline_vatamount\r\n",
+					"    -- ,gr.sap_goodsreceiptline_grssprofit as sap_stocktransactionsline_grssprofit\r\n",
+					"    ,gr.sap_goodsreceiptline_u_reason as sap_stocktransactionsline_u_reason\r\n",
+					"    -- ,gr.sap_goodsreceiptline_u_lane as sap_stocktransactionsline_u_lane\r\n",
+					"    ,gr.sap_goodsreceiptline_u_expenseitem as sap_stocktransactionsline_u_expenseitem\r\n",
+					"    ,gr.sap_goodsreceiptline_u_fueldate as sap_stocktransactionsline_u_fueldate\r\n",
+					"    ,sgr.sap_stocktransactions_acctcode as sap_stocktransactionsline_acctcode\r\n",
+					"    ,gr.sap_goodsreceiptline_doccat as sap_stocktransactionsline_doccat\r\n",
+					"    ,gr.sap_goodsreceiptline_subdepotcode as sap_stocktransactionsline_subdepotcode\r\n",
+					"    ,gr.sap_goodsreceiptline_discsum as sap_stocktransactionsline_discsum\r\n",
+					"\r\n",
+					"FROM ststocktransactions_gr sgr\r\n",
+					"LEFT JOIN stgoodsreceipt_tmp gr on gr.sap_goodsreceiptheader_docnum = sgr.sap_stocktransactions_docnum\r\n",
+					"AND gr.sap_goodsreceiptline_linenum = sgr.sap_stocktransactions_doclinenum\r\n",
+					""
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ststocktransactions_gr2 = spark.sql(\"SELECT * FROM ststocktransactions_gr2\")"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"ststocktransactions_gi\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    oinm.transnum as sap_stocktransactions_transid\r\n",
+					"    ,oinm.transtype as sap_stocktransactions_objtype\r\n",
+					"    ,'I' as sap_stocktransactions_doctype\r\n",
+					"    ,oinm.createdby as sap_stocktransactions_createdby\r\n",
+					"    ,CAST(TRIM(oinm.base_ref) AS INT) as sap_stocktransactions_docnum\r\n",
+					"    ,oinm.doclinenum as sap_stocktransactions_doclinenum\r\n",
+					"    ,oinm.docdate as sap_stocktransactions_postingdate\r\n",
+					"    ,oinm.docduedate as sap_stocktransactions_duedate\r\n",
+					"    ,oinm.cardcode as sap_stocktransactions_cardcode\r\n",
+					"    ,oinm.cardname as sap_stocktransactions_cardname\r\n",
+					"    ,oinm.itemcode as sap_stocktransactions_itemcode\r\n",
+					"    ,oinm.dscription as sap_stocktransactions_dscription\r\n",
+					"    ,oinm.vendornum as sap_stocktransactions_vendornum\r\n",
+					"    ,oinm.warehouse as sap_stocktransactions_warehouse\r\n",
+					"    ,oinm.prjcode as sap_stocktransactions_project\r\n",
+					"    ,oinm.calcprice as sap_stocktransactions_calcprice\r\n",
+					"    ,oinm.transvalue as sap_stocktransactions_linetotal\r\n",
+					"    ,oinm.invntact as sap_stocktransactions_invntact\r\n",
+					"    ,oinm.doffdecacc as sap_stocktransactions_acctcode\r\n",
+					"    -- ,oinm.ioffincacc as sap_stocktransactions_ioffincacc\r\n",
+					"    ,sum(oinm.inqty) as sap_stocktransactions_inqty\r\n",
+					"    ,sum(oinm.outqty) as sap_stocktransactions_outqty\r\n",
+					"    ,(sum(oinm.outqty)-sum(oinm.inqty)) as sap_stocktransactions_qty\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dboOINM oinm\r\n",
+					"WHERE oinm.transtype = 60\r\n",
+					"GROUP BY\r\n",
+					"    oinm.transnum \r\n",
+					"    ,oinm.transtype\r\n",
+					"    ,oinm.createdby\r\n",
+					"    ,oinm.base_ref \r\n",
+					"    ,oinm.doclinenum\r\n",
+					"    ,oinm.docdate \r\n",
+					"    ,oinm.docduedate\r\n",
+					"    ,oinm.cardcode \r\n",
+					"    ,oinm.cardname \r\n",
+					"    ,oinm.itemcode \r\n",
+					"    ,oinm.dscription\r\n",
+					"    ,oinm.vendornum\r\n",
+					"    ,oinm.warehouse \r\n",
+					"    ,oinm.prjcode \r\n",
+					"    ,oinm.calcprice \r\n",
+					"    ,oinm.transvalue\r\n",
+					"    ,oinm.invntact\r\n",
+					"    ,oinm.doffdecacc\r\n",
+					"    ,oinm.ioffincacc\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ststocktransactions_gi = spark.sql(\"SELECT * FROM ststocktransactions_gi\")"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stgoodsissue_tmp2\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    oige.docnum\r\n",
+					"    ,(oige.discsum)/COUNT(ige1.linenum) as discsum\r\n",
+					"FROM dboOIGE oige\r\n",
+					"LEFT JOIN dboIGE1 ige1 on ige1.docentry = oige.docentry\r\n",
+					"GROUP BY oige.docnum, oige.discsum"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stgoodsissue_tmp2 = spark.sql(\"SELECT * FROM stgoodsissue_tmp2\")"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stgoodsissue_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    oige.docentry as sap_goodsissueheader_docentry\r\n",
+					"    ,oige.docnum as sap_goodsissueheader_docnum\r\n",
+					"    ,oige.doctype as sap_goodsissueheader_doctype\r\n",
+					"    -- ,oige.canceled as sap_goodsissueheader_canceled\r\n",
+					"    ,oige.objtype as sap_goodsissueheader_objtype\r\n",
+					"    ,oige.docdate as sap_goodsissueheader_postingdate\r\n",
+					"    ,oige.docduedate as sap_goodsissueheader_duedate\r\n",
+					"    ,oige.cardcode as sap_goodsissueheader_cardcode\r\n",
+					"    -- ,oige.cardname as sap_goodsissueheader_cardname\r\n",
+					"    ,oige.numatcard as sap_goodsissueheader_cardref\r\n",
+					"    ,oige.discprcnt as sap_goodsissueheader_discprcnt\r\n",
+					"    ,oige.discsum as sap_goodsissueheader_discsum\r\n",
+					"    ,oige.doctotal as sap_goodsissueheader_doctotal\r\n",
+					"    ,oige.comments as sap_goodsissueheader_comments\r\n",
+					"    ,oige.transid as sap_goodsissueheader_transid\r\n",
+					"    -- ,oige.usersign as sap_goodsissueheader_usersign\r\n",
+					"    -- ,oige.u_depot as sap_goodsissueheader_u_depot\r\n",
+					"    -- ,oige.u_usercode as sap_goodsissueheader_u_usercode\r\n",
+					"    ,oige.u_expense_depot as sap_goodsissueheader_u_expense_depot\r\n",
+					"    -- ,oige.u_transaction_date as sap_goodsissueheader_u_transaction_date\r\n",
+					"    -- ,oige.rounddif as sap_goodsissueheader_rounddif\r\n",
+					"    -- ,oige.rounding as sap_goodsissueheader_rounding\r\n",
+					"    -- ,ige1.docentry as sap_goodsissueline_docentry\r\n",
+					"    ,ige1.linenum as sap_goodsissueline_linenum\r\n",
+					"    ,ige1.linestatus as sap_goodsissueline_linestatus\r\n",
+					"    ,ige1.itemcode as sap_goodsissueline_itemcode\r\n",
+					"    ,ige1.dscription as sap_goodsissueline_dscription\r\n",
+					"    ,ige1.quantity as sap_goodsissueline_quantity\r\n",
+					"    ,ige1.openqty as sap_goodsissueline_openqty\r\n",
+					"    ,ige1.price as sap_goodsissueline_price\r\n",
+					"    ,ige1.rate as sap_goodsissueline_rate\r\n",
+					"    ,ige1.discprcnt as sap_goodsissueline_discprcnt\r\n",
+					"    ,ige1.linetotal as sap_goodsissueline_linetotal\r\n",
+					"    ,ige1.opensum as sap_goodsissueline_opensum\r\n",
+					"    ,ige1.pricebefdi as sap_goodsissueline_pricebefdi\r\n",
+					"    ,ige1.docdate as sap_goodsissueline_docdate\r\n",
+					"    ,ige1.project as sap_goodsissueline_project\r\n",
+					"    ,ige1.vatprcnt as sap_goodsissueline_vatprcnt\r\n",
+					"    -- ,ige1.volume as sap_goodsissueline_volume\r\n",
+					"    ,ige1.vatgroup as sap_goodsissueline_vatgroup\r\n",
+					"    ,ige1.vatsum as sap_goodsissueline_vatamount\r\n",
+					"    -- ,ige1.grssprofit as sap_goodsissueline_grssprofit\r\n",
+					"    ,ige1.u_reason as sap_goodsissueline_u_reason\r\n",
+					"    -- ,ige1.u_lane as sap_goodsissueline_u_lane\r\n",
+					"    ,ige1.u_expenseitem as sap_goodsissueline_u_expenseitem\r\n",
+					"    ,ige1.u_fueldate as sap_goodsissueline_u_fueldate\r\n",
+					"    ,ige1.acctcode as sap_goodsissueline_acctcode\r\n",
+					"    ,'goodsissue' as sap_goodsissueline_doccat\r\n",
+					"    ,Right(LEFT(ige1.u_expenseitem,5),3) as sap_goodsissueline_subdepotcode\r\n",
+					"    ,t.discsum as sap_goodsissueline_discsum\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dboOIGE oige\r\n",
+					"LEFT JOIN dboIGE1 ige1 on ige1.docentry = oige.docentry\r\n",
+					"LEFT JOIN stgoodsissue_tmp2 t on t.docnum = oige.docnum\r\n",
+					""
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stgoodsissue_tmp = spark.sql(\"SELECT * FROM stgoodsissue_tmp\")"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"ststocktransactions_gi2\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    gi.sap_goodsissueheader_docentry as sap_stocktransactionsheader_docentry\r\n",
+					"    ,sgi.sap_stocktransactions_docnum as sap_stocktransactionsheader_docnum\r\n",
+					"    ,gi.sap_goodsissueheader_doctype as sap_stocktransactionsheader_doctype\r\n",
+					"    -- ,gi.sap_goodsissueheader_canceled as sap_stocktransactionsheader_canceled\r\n",
+					"    ,sgi.sap_stocktransactions_objtype as sap_stocktransactionsheader_objtype\r\n",
+					"    ,sgi.sap_stocktransactions_postingdate as sap_stocktransactionsheader_postingdate\r\n",
+					"    ,sgi.sap_stocktransactions_duedate as sap_stocktransactionsheader_duedate\r\n",
+					"    ,sgi.sap_stocktransactions_cardcode as sap_stocktransactionsheader_cardcode\r\n",
+					"    -- ,sgi.sap_stocktransactions_cardname as sap_stocktransactionsheader_cardname\r\n",
+					"    ,gi.sap_goodsissueheader_cardref as sap_stocktransactionsheader_cardref\r\n",
+					"    ,gi.sap_goodsissueheader_discprcnt as sap_stocktransactionsheader_discprcnt\r\n",
+					"    ,gi.sap_goodsissueheader_discsum as sap_stocktransactionsheader_discsum\r\n",
+					"    ,gi.sap_goodsissueheader_doctotal as sap_stocktransactionsheader_doctotal\r\n",
+					"    ,gi.sap_goodsissueheader_comments as sap_stocktransactionsheader_comments\r\n",
+					"    ,sgi.sap_stocktransactions_transid as sap_stocktransactionsheader_transid\r\n",
+					"    -- ,gi.sap_goodsissueheader_usersign as sap_stocktransactionsheader_usersign\r\n",
+					"    -- ,gi.sap_goodsissueheader_u_depot as sap_stocktransactionsheader_u_depot\r\n",
+					"    -- ,gi.sap_goodsissueheader_u_usercode as sap_stocktransactionsheader_u_usercode\r\n",
+					"    ,gi.sap_goodsissueheader_u_expense_depot as sap_stocktransactionsheader_u_expense_depot\r\n",
+					"    -- ,gi.sap_goodsissueheader_u_transaction_date as sap_stocktransactionsheader_u_transaction_date\r\n",
+					"    -- ,gi.sap_goodsissueheader_rounddif as sap_stocktransactionsheader_rounddif\r\n",
+					"    -- ,gi.sap_goodsissueheader_rounding as sap_stocktransactionsheader_rounding\r\n",
+					"    -- ,gi.sap_goodsissueline_docentry as sap_stocktransactionsline_docentry\r\n",
+					"    ,gi.sap_goodsissueline_linenum as sap_stocktransactionsline_linenum\r\n",
+					"    ,gi.sap_goodsissueline_linestatus as sap_stocktransactionsline_linestatus\r\n",
+					"    ,sgi.sap_stocktransactions_itemcode as sap_stocktransactionsline_itemcode\r\n",
+					"    ,sgi.sap_stocktransactions_dscription as sap_stocktransactionsline_dscription\r\n",
+					"    ,gi.sap_goodsissueline_quantity as sap_stocktransactionsline_quantity\r\n",
+					"    ,gi.sap_goodsissueline_openqty as sap_stocktransactionsline_openqty\r\n",
+					"    ,gi.sap_goodsissueline_price as sap_stocktransactionsline_price\r\n",
+					"    ,gi.sap_goodsissueline_rate as sap_stocktransactionsline_rate\r\n",
+					"    ,gi.sap_goodsissueline_discprcnt as sap_stocktransactionsline_discprcnt\r\n",
+					"    ,sgi.sap_stocktransactions_linetotal as sap_stocktransactionsline_linetotal\r\n",
+					"    ,gi.sap_goodsissueline_opensum as sap_stocktransactionsline_opensum\r\n",
+					"    ,gi.sap_goodsissueline_pricebefdi as sap_stocktransactionsline_pricebefdi\r\n",
+					"    ,gi.sap_goodsissueline_docdate as sap_stocktransactionsline_docdate\r\n",
+					"    ,sgi.sap_stocktransactions_project as sap_stocktransactionsline_project\r\n",
+					"    ,gi.sap_goodsissueline_vatprcnt as sap_stocktransactionsline_vatprcnt\r\n",
+					"    -- ,gi.sap_goodsissueline_volume as sap_stocktransactionsline_volume\r\n",
+					"    ,gi.sap_goodsissueline_vatgroup as sap_stocktransactionsline_vatgroup\r\n",
+					"    ,gi.sap_goodsissueline_vatamount as sap_stocktransactionsline_vatamount\r\n",
+					"    -- ,gi.sap_goodsissueline_grssprofit as sap_stocktransactionsline_grssprofit\r\n",
+					"    ,gi.sap_goodsissueline_u_reason as sap_stocktransactionsline_u_reason\r\n",
+					"    -- ,gi.sap_goodsissueline_u_lane as sap_stocktransactionsline_u_lane\r\n",
+					"    ,gi.sap_goodsissueline_u_expenseitem as sap_stocktransactionsline_u_expenseitem\r\n",
+					"    ,gi.sap_goodsissueline_u_fueldate as sap_stocktransactionsline_u_fueldate\r\n",
+					"    ,sgi.sap_stocktransactions_acctcode as sap_stocktransactionsline_acctcode\r\n",
+					"    ,gi.sap_goodsissueline_doccat as sap_stocktransactionsline_doccat\r\n",
+					"    ,gi.sap_goodsissueline_subdepotcode as sap_stocktransactionsline_subdepotcode\r\n",
+					"    ,gi.sap_goodsissueline_discsum as sap_stocktransactionsline_discsum\r\n",
+					"\r\n",
+					"FROM ststocktransactions_gi sgi\r\n",
+					"LEFT JOIN stgoodsissue_tmp gi on gi.sap_goodsissueheader_docnum = sgi.sap_stocktransactions_docnum\r\n",
+					"AND gi.sap_goodsissueline_linenum = sgi.sap_stocktransactions_doclinenum\r\n",
+					""
+				],
+				"execution_count": 24
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ststocktransactions_gi2 = spark.sql(\"SELECT * FROM ststocktransactions_gi2\")"
+				],
+				"execution_count": 25
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stocktransactions = ststocktransactions_gi2.unionByName(ststocktransactions_gr2, allowMissingColumns = True)\r\n",
+					"stocktransactions.createOrReplaceTempView(\"stocktransactions\")"
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"ststocktransactions\r\n",
+					"AS\r\n",
+					"SELECT * \r\n",
+					"FROM stocktransactions"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ststocktransactions = spark.sql(\"SELECT * FROM ststocktransactions\")"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# ststocktransactions.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/ststocktransactions.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

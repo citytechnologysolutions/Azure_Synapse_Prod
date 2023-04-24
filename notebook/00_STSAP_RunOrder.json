@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "d98a9bd7-a889-483f-b5ac-12dd993976e7"
+				"spark.autotune.trackingId": "67545758-223b-45e6-b0f5-c2cf79637b51"
 			}
 		},
 		"metadata": {
@@ -66,7 +66,7 @@
 					"\r\n",
 					"# ' + StorageAccount + '"
 				],
-				"execution_count": 2
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -222,7 +222,7 @@
 					"dboPOR1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dbopor1.parquet', format='parquet')\r\n",
 					"dboPOR1.createOrReplaceTempView(\"dboPOR1\")"
 				],
-				"execution_count": 4
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -241,7 +241,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Finance/01_STChartOfAccounts"
 				],
-				"execution_count": 15
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -259,7 +259,7 @@
 				"source": [
 					"stchartofaccounts.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stchartofaccounts.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 16
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -278,7 +278,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Finance/02_STItems"
 				],
-				"execution_count": 17
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -296,7 +296,7 @@
 				"source": [
 					"stitems.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stitems.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 18
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -315,7 +315,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Finance/03_STBusinessPartners"
 				],
-				"execution_count": 19
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -333,7 +333,7 @@
 				"source": [
 					"stbusinnesspartner.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stbusinnesspartner.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 20
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -352,7 +352,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Finance/04_STSalesInvoices"
 				],
-				"execution_count": 21
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -370,7 +370,7 @@
 				"source": [
 					"stsalesinvoice.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoice.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 22
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -389,7 +389,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Finance/05_STStockRevaluations"
 				],
-				"execution_count": 23
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -407,7 +407,7 @@
 				"source": [
 					"ststockrevaluations.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/ststockrevaluations.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 24
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -426,7 +426,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Finance/06_STStockTransactions"
 				],
-				"execution_count": 25
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -444,7 +444,7 @@
 				"source": [
 					"ststocktransactions.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/ststocktransactions.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 26
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -463,7 +463,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Finance/07_STDocuments"
 				],
-				"execution_count": 27
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -481,7 +481,7 @@
 				"source": [
 					"stdocuments.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stdocuments.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 28
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -516,10 +516,10 @@
 					"stsalesinvoice.createOrReplaceTempView(\"stsalesinvoice\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the stitem SAP Table\r\n",
-					"stitem = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stitem.parquet', format='parquet')\r\n",
+					"stitem = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/FINANCE/stitems.parquet', format='parquet')\r\n",
 					"stitem.createOrReplaceTempView(\"stitem\")"
 				],
-				"execution_count": 31
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -538,7 +538,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Finance/08_STManualJournals"
 				],
-				"execution_count": 34
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -556,7 +556,7 @@
 				"source": [
 					"# Write for STManualJournals happens in notebook 08_STManualJournals"
 				],
-				"execution_count": 35
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -574,7 +574,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": null
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -642,7 +642,7 @@
 					"######################################################################## LEFT JOIN\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -661,7 +661,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Finance/09_STTransactions"
 				],
-				"execution_count": 37
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -679,7 +679,7 @@
 				"source": [
 					"sttransactions.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/sttransactions.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 38
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -697,7 +697,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 39
+				"execution_count": 25
 			}
 		]
 	}

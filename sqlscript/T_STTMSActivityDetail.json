@@ -1,0 +1,20 @@
+{
+	"name": "T_STTMSActivityDetail",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STTMSActivityDetail') )\n    DROP EXTERNAL TABLE dbo.T_STTMSActivityDetail\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STTMSActivityDetail (\n[tms_activity_tripid] bigint,\n[tms_activity_tripdriverid] nvarchar(4000),\n[tms_activity_tripdrivername] nvarchar(4000),\n[tms_activity_tripvehicleid] nvarchar(4000),\n[tms_activity_tripvehiclefleetcode] nvarchar(4000),\n[tms_activity_triptrailer1id] nvarchar(4000),\n[tms_activity_triptrailer1fleetcode] nvarchar(4000),\n[tms_activity_triptrailer2id] nvarchar(4000),\n[tms_activity_triptrailer2fleetcode] nvarchar(4000),\n[tms_activity_triptrailersize] nvarchar(4000),\n[tms_activity_tripstatus] nvarchar(4000),\n[tms_activity_tripparenetrouteid] bigint,\n[tms_activity_tripparentroute] nvarchar(4000),\n[tms_activity_tripopsrouteid] bigint,\n[tms_activity_tripopsroute] nvarchar(4000),\n[tms_activity_tripdispatchdate] date,\n[tms_activity_triptransporter] nvarchar(4000),\n[tms_activity_tripsource] nvarchar(4000),\n[tms_activity_bookingid] bigint,\n[tms_activity_bookingtype] nvarchar(4000),\n[tms_activity_bookingtrailersize] nvarchar(4000),\n[tms_activity_bookingcubicvolume] float,\n[tms_activity_directbooking] int,\n[tms_activity_localbooking] int,\n[tms_activity_bookingsource] nvarchar(4000),\n\n\n\n\n)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/sttmsactivitydetail.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t);\n\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STTMSActivityDetail \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "b24c7c73-05a3-45f9-ac3d-00656bbfebf7"
+				"spark.autotune.trackingId": "66b2a0af-2393-4a2d-a822-8a46d96ca16e"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -65,29 +65,29 @@
 					}
 				},
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
-				"execution_count": null
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"#Create DataFrame for the sstloadchild LMS Table\r\n",
-					"sstloadchild = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstloadchild.parquet', format='parquet')\r\n",
-					"sstloadchild.createOrReplaceTempView(\"sstloadchild\")\r\n",
+					"# #Create DataFrame for the sstloadchild LMS Table\r\n",
+					"# sstloadchild = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstloadchild.parquet', format='parquet')\r\n",
+					"# sstloadchild.createOrReplaceTempView(\"sstloadchild\")\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -168,16 +168,22 @@
 					"    ,lms_loads_httpcode as lms_loadchild_httpcode\r\n",
 					"    ,lms_loads_parentloadid as lms_loadchild_parentloadid\r\n",
 					"    ,lms_loads_mrpobversion as lms_loadchild_mrpobversion\r\n",
-					"    ,lms_parcelbyload_loadid as lms_loadchild_loadid\r\n",
-					"    ,lms_parcelbyload_aggweight as lms_loadchild_aggweight\r\n",
-					"    ,lms_parcelbyload_aggchargeweight as lms_loadchild_aggchargeweight\r\n",
-					"    ,lms_parcelbyload_aggvolweight as lms_loadchild_aggvolweight\r\n",
-					"    ,lms_parcelbyload_aggvolumiserweight as lms_loadchild_aggvolumiserweight\r\n",
-					"    ,lms_parcelbyload_noparcels as lms_loadchild_noparcels\r\n",
+					"    ,lms_parcelbyload_aggrweight as lms_loadchild_aggrweight\r\n",
+					"    ,lms_parcelbyload_aggrchargeweight as lms_loadchild_aggrchargeweight\r\n",
+					"    ,lms_parcelbyload_aggrvolweight as lms_loadchild_aggrvolweight\r\n",
+					"    ,lms_parcelbyload_aggrvolumiserweight as lms_loadchild_aggrvolumiserweight\r\n",
+					"    ,lms_parcelbyload_aggrmaxweight as lms_loadchild_aggrmaxweight\r\n",
+					"    ,lms_parcelbyload_aggrnoparcels as lms_loadchild_aggrnoparcels\r\n",
+					"    ,lms_parcelbyload_aggrweight as lms_loadchild_aggrweightexclspecdel\r\n",
+					"    ,lms_parcelbyload_aggrchargeweight as lms_loadchild_aggrchargeweightexclspecdel\r\n",
+					"    ,lms_parcelbyload_aggrvolweight as lms_loadchild_aggrvolweightexclspecdel\r\n",
+					"    ,lms_parcelbyload_aggrvolumiserweight as lms_loadchild_aggrvolumiserweightexclspecdel\r\n",
+					"    ,lms_parcelbyload_aggrmaxweight as lms_loadchild_aggrmaxweightexclspecdel\r\n",
+					"    ,lms_parcelbyload_aggrnoparcels as lms_loadchild_aggrnoparcelsexclspecdel\r\n",
 					"\r\n",
 					"FROM sstloadchild"
 				],
-				"execution_count": 6
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -195,7 +201,7 @@
 				"source": [
 					"stloadchild = spark.sql(\"SELECT * FROM stloadchild\")"
 				],
-				"execution_count": 7
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -215,7 +221,7 @@
 					"\r\n",
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 8
+				"execution_count": 5
 			}
 		]
 	}

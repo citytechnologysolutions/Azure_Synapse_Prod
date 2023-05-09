@@ -1,0 +1,197 @@
+{
+	"name": "11_STDocumentTypes",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Finance"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "6b8de23b-0550-4da2-91be-06236ef3c380"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Create DataFrame for the sttransactionssummary SAP Table\r\n",
+					"# sttransactionssummary = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet', format='parquet')\r\n",
+					"# sttransactionssummary.createOrReplaceTempView(\"sttransactionssummary\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stdocumentcategories\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT \r\n",
+					"   t.sap_transactionsline_doccat \r\n",
+					"  ,CASE \r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'generaljournal' THEN 'General Journal'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'manualjournal' THEN 'Manual Journal'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'purchaseorder' THEN 'Purchase Order'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'purchaseinvoice' THEN 'Purchase Invoice'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'goodsissue' THEN 'Goods Issue'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'salesinvoice' THEN 'Sales Invoice'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'salescredit' THEN 'Sales Credit'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'directposting' THEN 'Direct Posting'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'purchasepricevariance' THEN 'Purchase Price Variance'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'goodsreceiptnote' THEN 'Goods Receipt Note'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'goodsreceipt' THEN 'Goods Receipt'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'stockrevaluation' THEN 'Stock Revaluation'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'purchasecredit' THEN 'Purchase Credit'\r\n",
+					"      WHEN t.sap_transactionsline_doccat  = 'discountjournal' THEN 'Discount Journal'\r\n",
+					"\t\t  ELSE NULL\r\n",
+					"\tEND as sap_transactionsline_doccatname\r\n",
+					"\r\n",
+					"FROM sttransactionssummary t\r\n",
+					"ORDER BY t.sap_transactionsline_doccat \r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdocumentcategories = spark.sql(\"SELECT * FROM stdocumentcategories\")"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stdocumentcategories.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stdocumentcategories.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 13
+			}
+		]
+	}
+}

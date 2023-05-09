@@ -1,0 +1,20 @@
+{
+	"name": "D_STFinanceDates",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STFinanceDates') )\n    DROP EXTERNAL TABLE dbo.D_STFinanceDates\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STFinanceDates (\n[date_dim_id] int,\n[sap_transactionsheader_postingdate] date,\n[epoch] bigint,\n[actual_year] int,\n[actual_year_month] nvarchar(4000),\n[actual_month_name] nvarchar(4000),\n[actual_month_number] nvarchar(4000),\n[actual_day_name] nvarchar(4000),\n[actual_day_of_week] int,\n[is_week_day] int,\n[actual_day_of_month] int,\n[is_last_day_of_month] int,\n[last_day_of_month] nvarchar(4000),\n[actual_day_of_year] int,\n[actual_week_of_year] int,\n[actual_quarter_of_year] int,\n[fiscal_year] int,\n[fiscal_year_month] nvarchar(4000),\n[fiscal_month_sort] int,\n[actual_month_sort] int,\n\n\n    \n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/stfinancedates.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STFinanceDates \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

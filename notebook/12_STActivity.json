@@ -1,0 +1,1128 @@
+{
+	"name": "12_STActivity",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Finance"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "ApacheSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "2fc47464-c24d-4656-8aaf-4280cdcc694d"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Create DataFrame for the stconsignment LMS Table\r\n",
+					"# stconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stconsignment.parquet', format='parquet')\r\n",
+					"# stconsignment.createOrReplaceTempView(\"stconsignment\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stlocation LMS Table\r\n",
+					"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
+					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stzone LMS Table\r\n",
+					"# stzone = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stzone.parquet', format='parquet')\r\n",
+					"# stzone.createOrReplaceTempView(\"stzone\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stsroute LMS Table\r\n",
+					"# stsroute = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', format='parquet')\r\n",
+					"# stsroute.createOrReplaceTempView(\"stsroute\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stbillcustomer LMS Table\r\n",
+					"# stbillcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbillcustomer.parquet', format='parquet')\r\n",
+					"# stbillcustomer.createOrReplaceTempView(\"stbillcustomer\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stdeliverypickupcustomer LMS Table\r\n",
+					"# stdeliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', format='parquet')\r\n",
+					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stlmstrack LMS Table\r\n",
+					"# stlmstrack = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', format='parquet')\r\n",
+					"# stlmstrack.createOrReplaceTempView(\"stlmstrack\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stloadchild LMS Table\r\n",
+					"# stloadchild = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', format='parquet')\r\n",
+					"# stloadchild.createOrReplaceTempView(\"stloadchild\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the storder LMS Table\r\n",
+					"# storder = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/storder.parquet', format='parquet')\r\n",
+					"# storder.createOrReplaceTempView(\"storder\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stparcel LMS Table\r\n",
+					"# stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', format='parquet')\r\n",
+					"# stparcel.createOrReplaceTempView(\"stparcel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the sttrip LMS Table\r\n",
+					"# sttrip = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', format='parquet')\r\n",
+					"# sttrip.createOrReplaceTempView(\"sttrip\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the sttrip LMS Table\r\n",
+					"# sttrip = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', format='parquet')\r\n",
+					"# sttrip.createOrReplaceTempView(\"sttrip\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stbooking LMS Table\r\n",
+					"# stbooking = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', format='parquet')\r\n",
+					"# stbooking.createOrReplaceTempView(\"stbooking\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbopeoplebasic MD Table\r\n",
+					"# dbopeoplebasic = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplebasic.parquet', format='parquet')\r\n",
+					"# dbopeoplebasic.createOrReplaceTempView(\"dbopeoplebasic\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbovehiclebasic MD Table\r\n",
+					"# dbovehiclebasic = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclebasic.parquet', format='parquet')\r\n",
+					"# dbovehiclebasic.createOrReplaceTempView(\"dbovehiclebasic\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbopeoplebasic MD Table\r\n",
+					"# dbopeoplebasic = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplebasic.parquet', format='parquet')\r\n",
+					"# dbopeoplebasic.createOrReplaceTempView(\"dbopeoplebasic\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbovehicle LMS Table\r\n",
+					"# dbovehicle = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbovehicle.parquet', format='parquet')\r\n",
+					"# dbovehicle.createOrReplaceTempView(\"dbovehicle\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodriver LMS Table\r\n",
+					"# dbodriver = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodriver.parquet', format='parquet')\r\n",
+					"# dbodriver.createOrReplaceTempView(\"dbodriver\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolhroutes LMS Table\r\n",
+					"# dbolhroutes = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_routes.parquet', format='parquet')\r\n",
+					"# dbolhroutes.createOrReplaceTempView(\"dbolhroutes\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the publicroute LMS Table\r\n",
+					"# publicroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicroute.parquet', format='parquet')\r\n",
+					"# publicroute.createOrReplaceTempView(\"publicroute\")\r\n",
+					""
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# import os\r\n",
+					"# import pandas as pd\r\n",
+					"# import numpy as np\r\n",
+					"# from pyspark.sql.types import StructType, StructField, DoubleType, StringType, DecimalType\r\n",
+					"# from pyspark.sql.functions import col, to_timestamp"
+				],
+				"execution_count": 81
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# # Variables\r\n",
+					"# var_File_Path = \"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Avis_Files/AvisUsage.xlsx\"\r\n",
+					"# var_File_Page = \"AvisUsage\"\r\n",
+					"\r\n",
+					"# # Processing\r\n",
+					"# excel_file = pd.ExcelFile(var_File_Path)\r\n",
+					"# excel_file_page = pd.read_excel(excel_file, var_File_Page,  engine='openpyxl')"
+				],
+				"execution_count": 65
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"excel_file_page = excel_file_page.astype({'Reg. No':'string','Fleet No':'string','FuelCompany':'string','Time':'string','Voucher No':'string','FuelStation':'string','Pickup Type':'string','Account':'string','Cost Centre':'string','Division':'string','Make':'string','Range':'string','Model':'string','Consum. Norm':'string'})"
+				],
+				"execution_count": 71
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"excel_file_page = excel_file_page.fillna(\"NULL\")"
+				],
+				"execution_count": 73
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stkmsandlts_tmp = spark.createDataFrame(excel_file_page)"
+				],
+				"execution_count": 75
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stkmsandlts_tmp = stkmsandlts_tmp.withColumnRenamed(\"Reg. No\",\"excel_kmsandlts_registrationnumber\")\\\r\n",
+					".withColumnRenamed(\"Fleet No\",\"excel_kmsandlts_fleetcode\")\\\r\n",
+					".withColumnRenamed(\"Date\",\"excel_kmsandlts_date\")\\\r\n",
+					".withColumnRenamed(\"Time\",\"excel_kmsandlts_time\")\\\r\n",
+					".withColumnRenamed(\"FuelCompany\",\"excel_kmsandlts_fuelcompany\")\\\r\n",
+					".withColumnRenamed(\"Voucher No\",\"excel_kmsandlts_voucherno\")\\\r\n",
+					".withColumnRenamed(\"FuelStation\",\"excel_kmsandlts_fuelstation\")\\\r\n",
+					".withColumnRenamed(\"PreviousOdo\",\"excel_kmsandlts_previousodo\")\\\r\n",
+					".withColumnRenamed(\"Odo\",\"excel_kmsandlts_odo\")\\\r\n",
+					".withColumnRenamed(\"Trip Km\",\"excel_kmsandlts_tripkm\")\\\r\n",
+					".withColumnRenamed(\"Consum/100\",\"excel_kmsandlts_consumptionper100kms\")\\\r\n",
+					".withColumnRenamed(\"Consum/Unit\",\"excel_kmsandlts_consumptionperunit\")\\\r\n",
+					".withColumnRenamed(\"L Loss\",\"excel_kmsandlts_ltsloss\")\\\r\n",
+					".withColumnRenamed(\"R Loss\",\"excel_kmsandlts_randsloss\")\\\r\n",
+					".withColumnRenamed(\"TripLitres\",\"excel_kmsandlts_triplts\")\\\r\n",
+					".withColumnRenamed(\"Price Per Unit\",\"excel_kmsandlts_priceperunit\")\\\r\n",
+					".withColumnRenamed(\"Fuel Amount\",\"excel_kmsandlts_fuelamount\")\\\r\n",
+					".withColumnRenamed(\"Pickup Type\",\"excel_kmsandlts_pickuptype\")\\\r\n",
+					".withColumnRenamed(\"Account\",\"excel_kmsandlts_account\")\\\r\n",
+					".withColumnRenamed(\"Cost Centre\",\"excel_kmsandlts_costcentre\")\\\r\n",
+					".withColumnRenamed(\"Division\",\"excel_kmsandlts_division\")\\\r\n",
+					".withColumnRenamed(\"Make\",\"excel_kmsandlts_make\")\\\r\n",
+					".withColumnRenamed(\"Range\",\"excel_kmsandlts_range\")\\\r\n",
+					".withColumnRenamed(\"Model\",\"excel_kmsandlts_model\")\\\r\n",
+					".withColumnRenamed(\"Consum. Norm\",\"excel_kmsandlts_consumptionexpected\")"
+				],
+				"execution_count": 87
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stkmsandlts_tmp = stkmsandlts_tmp.withColumn('excel_kmsandlts_previousodo', col('excel_kmsandlts_previousodo').cast('int'))\\\r\n",
+					".withColumn('excel_kmsandlts_odo', col('excel_kmsandlts_odo').cast('int'))\\\r\n",
+					".withColumn('excel_kmsandlts_tripkm', col('excel_kmsandlts_tripkm').cast('int'))\\\r\n",
+					".withColumn('excel_kmsandlts_consumptionper100kms', col('excel_kmsandlts_consumptionper100kms').cast(DecimalType(18,2)))\\\r\n",
+					".withColumn('excel_kmsandlts_consumptionperunit', col('excel_kmsandlts_consumptionperunit').cast(DecimalType(18,2)))\\\r\n",
+					".withColumn('excel_kmsandlts_ltsloss', col('excel_kmsandlts_ltsloss').cast(DecimalType(18,2)))\\\r\n",
+					".withColumn('excel_kmsandlts_randsloss', col('excel_kmsandlts_randsloss').cast(DecimalType(18,2)))\\\r\n",
+					".withColumn('excel_kmsandlts_priceperunit', col('excel_kmsandlts_priceperunit').cast(DecimalType(18,2)))\\\r\n",
+					".withColumn('excel_kmsandlts_fuelamount', col('excel_kmsandlts_fuelamount').cast(DecimalType(18,2)))\\\r\n",
+					".withColumn('excel_kmsandlts_consumptionexpected', col('excel_kmsandlts_consumptionexpected').cast(DecimalType(18,2)))"
+				],
+				"execution_count": 88
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stkmsandlts_tmp.createOrReplaceTempView(\"stkmsandlts_tmp\")"
+				],
+				"execution_count": 89
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stkmsandlts\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"excel_kmsandlts_registrationnumber\r\n",
+					",excel_kmsandlts_fleetcode\r\n",
+					",to_date(excel_kmsandlts_date,'yyyy-MM-dd') as excel_kmsandlts_date\r\n",
+					",excel_kmsandlts_time\r\n",
+					",excel_kmsandlts_fuelcompany\r\n",
+					",excel_kmsandlts_voucherno\r\n",
+					",excel_kmsandlts_fuelstation\r\n",
+					",excel_kmsandlts_previousodo\r\n",
+					",excel_kmsandlts_odo\r\n",
+					",excel_kmsandlts_tripkm\r\n",
+					",excel_kmsandlts_consumptionper100kms\r\n",
+					",excel_kmsandlts_consumptionperunit\r\n",
+					",excel_kmsandlts_ltsloss\r\n",
+					",excel_kmsandlts_randsloss\r\n",
+					",excel_kmsandlts_triplts\r\n",
+					",excel_kmsandlts_priceperunit\r\n",
+					",excel_kmsandlts_fuelamount\r\n",
+					",excel_kmsandlts_pickuptype\r\n",
+					",excel_kmsandlts_account\r\n",
+					",excel_kmsandlts_costcentre\r\n",
+					",excel_kmsandlts_division\r\n",
+					",excel_kmsandlts_make\r\n",
+					",excel_kmsandlts_range\r\n",
+					",excel_kmsandlts_model\r\n",
+					",excel_kmsandlts_consumptionexpected\r\n",
+					"FROM stkmsandlts_tmp"
+				],
+				"execution_count": 90
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stkmsandlts = spark.sql(\"SELECT * FROM stkmsandlts\")"
+				],
+				"execution_count": 91
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stkmsandlts.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stkmsandlts.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 94
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttmsactivitydetail\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"t.tms_trip_id as tms_activity_tripid\r\n",
+					",t.tms_trip_driverid  as tms_activity_tripdriverid\r\n",
+					",t.tms_trip_drivername  as tms_activity_tripdrivername\r\n",
+					",t.tms_trip_vehicleid  as tms_activity_tripvehicleid\r\n",
+					",t.tms_trip_vehiclefleetcode as tms_activity_tripvehiclefleetcode\r\n",
+					",t.tms_trip_trailerid  as tms_activity_triptrailer1id\r\n",
+					",t.tms_trip_trailer1fleetcode as tms_activity_triptrailer1fleetcode\r\n",
+					",t.tms_trip_sectrailerid  as tms_activity_triptrailer2id\r\n",
+					",t.tms_trip_trailer2fleetcode as tms_activity_triptrailer2fleetcode\r\n",
+					",t.tms_trip_trailersize  as tms_activity_triptrailersize\r\n",
+					",t.tms_trip_status as tms_activity_tripstatus\r\n",
+					",t.tms_trip_routeid as tms_activity_tripparenetrouteid\r\n",
+					",pr.name as tms_activity_tripparentroute\r\n",
+					",t.tms_trip_opsrouteid as tms_activity_tripopsrouteid\r\n",
+					",CASE\r\n",
+					"    WHEN t.tms_trip_source = 'v1' THEN UPPER(sr.description)\r\n",
+					"    WHEN t.tms_trip_source = 'v2' THEN UPPER(sr1.name)\r\n",
+					" END tms_activity_tripopsroute\r\n",
+					",to_date(t.tms_trip_dispatchdate) as tms_activity_tripdispatchdate\r\n",
+					",upper(t.tms_trip_transporter) as tms_activity_triptransporter\r\n",
+					",t.tms_trip_source as tms_activity_tripsource\r\n",
+					"\r\n",
+					"\r\n",
+					",b.tms_booking_id as tms_activity_bookingid\r\n",
+					",b.tms_booking_type as tms_activity_bookingtype\r\n",
+					",b.tms_booking_trailersize as tms_activity_bookingtrailersize\r\n",
+					",b.tms_booking_cubicvolume as tms_activity_bookingcubicvolume\r\n",
+					",b.tms_booking_directbooking as tms_activity_directbooking\r\n",
+					",b.tms_booking_local as tms_activity_localbooking\r\n",
+					",b.tms_booking_source as tms_activity_bookingsource\r\n",
+					"\r\n",
+					"FROM sttrip t\r\n",
+					"LEFT JOIN dbovehicle v1 on (v1.id)*-1 = t.tms_trip_vehicleid and t.tms_trip_source = 'v1'\r\n",
+					"LEFT JOIN dbovehicle t1 on (t1.id)*-1 = t.tms_trip_trailerid and t.tms_trip_source = 'v1'\r\n",
+					"LEFT JOIN dbovehicle t2 on (t2.id)*-1 = t.tms_trip_sectrailerid and t.tms_trip_source = 'v1'\r\n",
+					"LEFT JOIN dbovehiclebasic vbv  on vbv.uid = t.tms_trip_vehicleid and t.tms_trip_source = 'v2'\r\n",
+					"LEFT JOIN dbovehiclebasic vbt1  on vbt1.uid = t.tms_trip_trailerid and t.tms_trip_source = 'v2'\r\n",
+					"LEFT JOIN dbovehiclebasic vbt2  on vbt2.uid = t.tms_trip_sectrailerid and t.tms_trip_source = 'v2'\r\n",
+					"LEFT JOIN publicroute pr on pr.id = t.tms_trip_routeid \r\n",
+					"LEFT JOIN dbolhroutes sr on (sr.id)*-1 = t.tms_trip_opsrouteid and t.tms_trip_source = 'v1'\r\n",
+					"LEFT JOIN publicroute sr1 on sr1.id = t.tms_trip_opsrouteid and t.tms_trip_source = 'v2'\r\n",
+					"LEFT JOIN stbooking b on b.tms_booking_tripid = t.tms_trip_id\r\n",
+					"LEFT JOIN dbodriver d on (d.id)*-1 = t.tms_trip_driverid and t.tms_trip_source = 'v1'\r\n",
+					"LEFT JOIN dbopeoplebasic pb on pb.uid = t.tms_trip_driverid and t.tms_trip_source = 'v2'\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttmsactivitydetail = spark.sql(\"SELECT * FROM sttmsactivitydetail\")"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# sttmsactivitydetail.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/sttmsactivitydetail.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttmsactivitysummary\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"tms_activity_tripid\r\n",
+					",tms_activity_bookingid\r\n",
+					",tms_activity_tripdrivername\r\n",
+					",tms_activity_tripstatus\r\n",
+					",tms_activity_tripopsroute\r\n",
+					",tms_activity_tripdispatchdate\r\n",
+					",tms_activity_tripsource\r\n",
+					",tms_activity_directbooking\r\n",
+					",tms_activity_localbooking\r\n",
+					",tms_activity_triptrailersize\r\n",
+					",tms_activity_triptransporter\r\n",
+					",sum(tms_activity_bookingcubicvolume) as tms_activity_aggrbookingcubicvolume\r\n",
+					",count(tms_activity_bookingid) as tms_activity_aggrbookingid\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM sttmsactivitydetail\r\n",
+					"GROUP BY \r\n",
+					"tms_activity_tripid\r\n",
+					",tms_activity_bookingid\r\n",
+					",tms_activity_tripdrivername\r\n",
+					",tms_activity_tripstatus\r\n",
+					",tms_activity_tripopsroute\r\n",
+					",tms_activity_tripdispatchdate\r\n",
+					",tms_activity_tripsource\r\n",
+					",tms_activity_triptrailersize\r\n",
+					",tms_activity_triptransporter\r\n",
+					",tms_activity_directbooking\r\n",
+					",tms_activity_localbooking\r\n",
+					""
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttmsactivitysummary = spark.sql(\"SELECT * FROM sttmsactivitysummary\")"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# sttmsactivitysummary.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/sttmsactivitysummary.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stactivityconsignedto\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    c.lms_consignment_id as lms_activity_transid\r\n",
+					"    ,'consignmentid' as lms_activity_transidtype\r\n",
+					"    ,to_date(c.lms_consignment_cdate,'yyyy-MM-dd') as lms_activity_date\r\n",
+					"    ,c.lms_consignment_billcust as lms_activity_billcustid\r\n",
+					"    ,bc.lms_customer_name as lms_activity_billcustname\r\n",
+					"    --,'' as lms_activity_fromlocation\r\n",
+					"    ,l.lms_location_description as lms_activity_location\r\n",
+					"    ,'consignment' as lms_activity_movementtype\r\n",
+					"    ,'' as lms_activity_linehualbookingid\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrweight) as lms_activity_aggrweight\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrchargeweight) as lms_activity_aggrchargeweight\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrvolweight) as lms_activity_aggrvolweight\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrvolumiserweight) as lms_activity_aggrvolumiserweight\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrmaxweight) as lms_activity_aggrmaxweight\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrnoparcels) as lms_activity_aggrnoparcels\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrweightexclspecdel) as lms_activity_aggrweightexclspecdel\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrchargeweightexclspecdel) as lms_activity_aggrchargeweightexclspecdel\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrvolweightexclspecdel) as lms_activity_aggrvolweightexclspecdel\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrvolumiserweightexclspecdel) as lms_activity_aggrvolumiserweightexclspecdel\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrmaxweightexclspecdel) as lms_activity_aggrmaxweightexclspecdel\r\n",
+					"    ,(c.lms_parcelbyconsignment_aggrnoparcelsexclspecdel) as lms_activity_aggrnoparcelsexclspecdel\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM stconsignment c\r\n",
+					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id = c.lms_consignment_billcust\r\n",
+					"LEFT JOIN stdeliverypickupcustomer dpc on dpc.lms_customer_id = c.lms_consignment_delivercustid\r\n",
+					"LEFT JOIN stsroute sr on sr.lms_sroute_id = dpc.lms_customer_srouteid\r\n",
+					"LEFT JOIN stzone z on z.lms_zone_id = sr.lms_sroute_zoneid\r\n",
+					"LEFT JOIN stlocation l on l.lms_location_id = z.lms_zone_locid\r\n",
+					"-- LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
+					"\r\n",
+					"WHERE to_date(c.lms_consignment_cdate,'yyyy-MM-dd') >= '2016-04-01'\r\n",
+					""
+				],
+				"execution_count": 81
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stactivityconsignedto = spark.sql(\"SELECT * FROM stactivityconsignedto\")"
+				],
+				"execution_count": 82
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## stactivityconsignedto.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stactivityconsignedto.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 83
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stactivityhandled_tmp1\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     lc.lms_loadchild_id as lms_activity_transid\r\n",
+					"    ,'loadid' as lms_activity_transidtype\r\n",
+					"    ,to_date(lms_track_opendt,'yyyy-MM-dd') as lms_activity_date\r\n",
+					"    ,p.lms_parcel_orderbillcustid as lms_activity_billcustid\r\n",
+					"    ,bc.lms_customer_name as lms_activity_billcustname\r\n",
+					"    ,CASE \r\n",
+					"        WHEN lms_track_tracktypeid = 2 THEN 'linehaul' \r\n",
+					"        WHEN lms_track_tracktypeid = 6 THEN 'distribution'\r\n",
+					"        ELSE '' \r\n",
+					"    END as lms_activity_movementtype\r\n",
+					"    ,lc.lms_loadchild_masterloadid as lms_activity_linehualbookingid\r\n",
+					"    ,fl.lms_location_description as lms_activity_location\r\n",
+					"    --,tl.lms_location_description as lms_activity_tolocation\r\n",
+					"    ,SUM(p.lms_parcel_weight) as lms_activity_aggrweight\r\n",
+					"    ,SUM(p.lms_parcel_chargeweight) as lms_activity_aggrchargeweight\r\n",
+					"    ,SUM(p.lms_parcel_volweight) as lms_activity_aggrvolweight\r\n",
+					"    ,SUM(p.lms_parcel_volumiserweight) as lms_activity_aggrvolumiserweight\r\n",
+					"    ,SUM(p.lms_parcel_volumiserweight) as lms_activity_aggrmaxweight\r\n",
+					"    ,COUNT(p.lms_parcel_id) as lms_activity_aggrnoparcels\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM stlmstrack t\r\n",
+					"LEFT JOIN stparcel p on p.lms_parcel_id = t.lms_track_parcelid\r\n",
+					"LEFT JOIN stloadchild lc on lc.lms_loadchild_id = t.lms_track_loadid\r\n",
+					"LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
+					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id = p.lms_parcel_orderbillcustid\r\n",
+					"LEFT JOIN stlocation fl on fl.lms_location_id = t.lms_track_fromlocid\r\n",
+					"LEFT JOIN stlocation tl on tl.lms_location_id = t.lms_track_tolocid\r\n",
+					"\r\n",
+					"WHERE t.lms_track_tracktypeid in (2,6)\r\n",
+					"AND o.lms_order_specdel <> 1\r\n",
+					"AND to_date(t.lms_track_opendt,'yyyy-MM-dd') >= '2016-04-01'\r\n",
+					"\r\n",
+					"GROUP BY\r\n",
+					"     lc.lms_loadchild_id\r\n",
+					"    ,to_date(t.lms_track_opendt,'yyyy-MM-dd')\r\n",
+					"    ,p.lms_parcel_orderbillcustid\r\n",
+					"    ,bc.lms_customer_name\r\n",
+					"    ,lc.lms_loadchild_masterloadid\r\n",
+					"    ,fl.lms_location_description\r\n",
+					"    ,tl.lms_location_description\r\n",
+					"    ,t.lms_track_tracktypeid\r\n",
+					""
+				],
+				"execution_count": 84
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stactivityhandled_tmp2\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     lc.lms_loadchild_id as lms_activity_transid\r\n",
+					"    ,'loadid' as lms_activity_transidtype\r\n",
+					"    ,to_date(lms_track_opendt,'yyyy-MM-dd') as lms_activity_date\r\n",
+					"    ,p.lms_parcel_orderbillcustid as lms_activity_billcustid\r\n",
+					"    ,bc.lms_customer_name as lms_activity_billcustname\r\n",
+					"    ,CASE \r\n",
+					"        WHEN lms_track_tracktypeid = 2 THEN 'linehaul' \r\n",
+					"        WHEN lms_track_tracktypeid = 6 THEN 'distribution'\r\n",
+					"        ELSE '' \r\n",
+					"    END as lms_activity_movementtype\r\n",
+					"    ,lc.lms_loadchild_masterloadid as lms_activity_linehualbookingid\r\n",
+					"    ,fl.lms_location_description as lms_activity_location\r\n",
+					"    --,tl.lms_location_description as lms_activity_tolocation\r\n",
+					"    ,SUM(p.lms_parcel_weight) as lms_activity_aggrweightexclspecdel\r\n",
+					"    ,SUM(p.lms_parcel_chargeweight) as lms_activity_aggrchargeweightexclspecdel\r\n",
+					"    ,SUM(p.lms_parcel_volweight) as lms_activity_aggrvolweightexclspecdel\r\n",
+					"    ,SUM(p.lms_parcel_volumiserweight) as lms_activity_aggrvolumiserweightexclspecdel\r\n",
+					"    ,SUM(p.lms_parcel_volumiserweight) as lms_activity_aggrmaxweightexclspecdel\r\n",
+					"    ,COUNT(p.lms_parcel_id) as lms_activity_aggrnoparcelsexclspecdel\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM stlmstrack t\r\n",
+					"LEFT JOIN stparcel p on p.lms_parcel_id = t.lms_track_parcelid\r\n",
+					"LEFT JOIN stloadchild lc on lc.lms_loadchild_id = t.lms_track_loadid\r\n",
+					"LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
+					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id = p.lms_parcel_orderbillcustid\r\n",
+					"LEFT JOIN stlocation fl on fl.lms_location_id = t.lms_track_fromlocid\r\n",
+					"LEFT JOIN stlocation tl on tl.lms_location_id = t.lms_track_tolocid\r\n",
+					"\r\n",
+					"WHERE t.lms_track_tracktypeid in (2,6)\r\n",
+					"AND o.lms_order_specdel <> 1\r\n",
+					"AND to_date(p.lms_parcel_pdate,'yyyy-MM-dd') >= '2016-04-01'\r\n",
+					"AND t.lms_track_specdel = 0\r\n",
+					"\r\n",
+					"GROUP BY\r\n",
+					"     lc.lms_loadchild_id\r\n",
+					"    ,to_date(t.lms_track_opendt,'yyyy-MM-dd')\r\n",
+					"    ,p.lms_parcel_orderbillcustid\r\n",
+					"    ,bc.lms_customer_name\r\n",
+					"    ,lc.lms_loadchild_masterloadid\r\n",
+					"    ,fl.lms_location_description\r\n",
+					"    ,tl.lms_location_description\r\n",
+					"    ,t.lms_track_tracktypeid\r\n",
+					"    ,t.lms_track_specdel"
+				],
+				"execution_count": 85
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stactivityhandled_tmp1 = spark.sql(\"SELECT * FROM stactivityhandled_tmp1\")\r\n",
+					"stactivityhandled_tmp2 = spark.sql(\"SELECT * FROM stactivityhandled_tmp2\")"
+				],
+				"execution_count": 86
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stactivityhandled\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     t1.lms_activity_transid\r\n",
+					"    ,t1.lms_activity_transidtype\r\n",
+					"    ,t1.lms_activity_date\r\n",
+					"    ,t1.lms_activity_billcustid\r\n",
+					"    ,t1.lms_activity_billcustname\r\n",
+					"    ,t1.lms_activity_movementtype\r\n",
+					"    ,t1.lms_activity_linehualbookingid\r\n",
+					"    --,t1.lms_activity_fromlocation\r\n",
+					"    ,t1.lms_activity_location\r\n",
+					"    ,CAST(t1.lms_activity_aggrweight AS decimal(18,2)) as lms_activity_aggrweight\r\n",
+					"    ,CAST(t1.lms_activity_aggrchargeweight AS decimal(18,2)) as lms_activity_aggrchargeweight\r\n",
+					"    ,CAST(t1.lms_activity_aggrvolweight AS decimal(18,2)) as lms_activity_aggrvolweight\r\n",
+					"    ,CAST(t1.lms_activity_aggrvolumiserweight AS decimal(18,2)) as lms_activity_aggrvolumiserweight\r\n",
+					"    ,CAST(t1.lms_activity_aggrmaxweight AS decimal(18,2)) as lms_activity_aggrmaxweight\r\n",
+					"    ,t1.lms_activity_aggrnoparcels\r\n",
+					"    ,CAST(t2.lms_activity_aggrweightexclspecdel AS decimal(18,2)) as lms_activity_aggrweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_activity_aggrchargeweightexclspecdel AS decimal(18,2)) as lms_activity_aggrchargeweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_activity_aggrvolweightexclspecdel AS decimal(18,2)) as lms_activity_aggrvolweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_activity_aggrvolumiserweightexclspecdel AS decimal(18,2)) as lms_activity_aggrvolumiserweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_activity_aggrmaxweightexclspecdel AS decimal(18,2)) as lms_activity_aggrmaxweightexclspecdel\r\n",
+					"    ,t2.lms_activity_aggrnoparcelsexclspecdel\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM stactivityhandled_tmp1 t1\r\n",
+					"LEFT JOIN stactivityhandled_tmp2 t2 on t2.lms_activity_transid = t1.lms_activity_transid\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 87
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stactivityhandled = spark.sql(\"SELECT * FROM stactivityhandled\")"
+				],
+				"execution_count": 88
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## stactivityhandled.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stactivityhandled.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 89
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stactivitydetail = stactivityhandled.unionByName(stactivityconsignedto, allowMissingColumns = True)\r\n",
+					"stactivitydetail.createOrReplaceTempView(\"stactivitydetail\")"
+				],
+				"execution_count": 90
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stactivitydetail.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stactivitydetail.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 91
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stactivitysummary\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"lms_activity_date\r\n",
+					",lms_activity_movementtype\r\n",
+					",lms_activity_location\r\n",
+					",CAST(SUM(lms_activity_aggrweight) AS decimal(18,2)) as lms_activity_aggrweight\r\n",
+					",CAST(SUM(lms_activity_aggrchargeweight) AS decimal(18,2)) as lms_activity_aggrchargeweight\r\n",
+					",CAST(SUM(lms_activity_aggrvolweight) AS decimal(18,2)) as lms_activity_aggrvolweight\r\n",
+					",CAST(SUM(lms_activity_aggrvolumiserweight) AS decimal(18,2)) as lms_activity_aggrvolumiserweight\r\n",
+					",CAST(SUM(lms_activity_aggrmaxweight) AS decimal(18,2)) as lms_activity_aggrmaxweight\r\n",
+					",SUM(lms_activity_aggrnoparcels) lms_activity_aggrnoparcels\r\n",
+					",CAST(SUM(lms_activity_aggrweightexclspecdel) AS decimal(18,2)) as lms_activity_aggrweightexclspecdel\r\n",
+					",CAST(SUM(lms_activity_aggrchargeweightexclspecdel) AS decimal(18,2)) as lms_activity_aggrchargeweightexclspecdel\r\n",
+					",CAST(SUM(lms_activity_aggrvolweightexclspecdel) AS decimal(18,2)) as lms_activity_aggrvolweightexclspecdel\r\n",
+					",CAST(SUM(lms_activity_aggrvolumiserweightexclspecdel) AS decimal(18,2)) as lms_activity_aggrvolumiserweightexclspecdel\r\n",
+					",CAST(SUM(lms_activity_aggrmaxweightexclspecdel) AS decimal(18,2)) as lms_activity_aggrmaxweightexclspecdel\r\n",
+					",SUM(lms_activity_aggrnoparcelsexclspecdel) lms_activity_aggrnoparcelsexclspecdel\r\n",
+					"\r\n",
+					"FROM stactivitydetail\r\n",
+					"GROUP BY\r\n",
+					"lms_activity_date\r\n",
+					",lms_activity_movementtype\r\n",
+					",lms_activity_location\r\n",
+					""
+				],
+				"execution_count": 92
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stactivitysummary = spark.sql(\"SELECT * FROM stactivitysummary\")"
+				],
+				"execution_count": 93
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stactivitysummary.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stactivitysummary.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 94
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 95
+			}
+		]
+	}
+}

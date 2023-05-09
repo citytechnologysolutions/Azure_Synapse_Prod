@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2c9112ff-5672-4599-ad25-1ccd7a85177c"
+				"spark.autotune.trackingId": "2fb3c94d-9af5-484f-9471-d461a2966a28"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -77,7 +77,7 @@
 					"\r\n",
 					"# ' + StorageAccount + '"
 				],
-				"execution_count": null
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -102,7 +102,7 @@
 					"# sstconsignmentunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
 					"# sstconsignmentunion.createOrReplaceTempView(\"sstconsignmentunion\")"
 				],
-				"execution_count": 1
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -142,25 +142,32 @@
 					"    ,o.UserID as lms_order_userid\r\n",
 					"    ,o.Appointment as lms_order_appointment\r\n",
 					"    ,o.DeliverBy as lms_order_deliverby\r\n",
-					"    ,o.DConfirmed as lms_order_onfirmed\r\n",
-					"    ,o.DComment as lms_order_omment\r\n",
-					"    ,o.DRefNo as lms_order_efno\r\n",
-					"    ,o.DueDate as lms_order_edate\r\n",
-					"    ,o.BatchNo as lms_order_tchno\r\n",
-					"    ,o.CustAccID as lms_order_staccid\r\n",
-					"    ,o.Airfreightflag as lms_order_rfreightflag\r\n",
-					"    ,o.SpecDel as lms_order_ecdel\r\n",
-					"    ,pbo.lms_parcelbyorder_aggweight\r\n",
-					"    ,pbo.lms_parcelbyorder_aggchargeweight\r\n",
-					"    ,pbo.lms_parcelbyorder_aggvolweight\r\n",
-					"    ,pbo.lms_parcelbyorder_aggvolumiserweight\r\n",
-					"    ,pbo.lms_parcelbyorder_noparcels\r\n",
+					"    ,o.DConfirmed as lms_order_dconfirmed\r\n",
+					"    ,o.DComment as lms_order_dcomment\r\n",
+					"    ,o.DRefNo as lms_order_drefno\r\n",
+					"    ,o.DueDate as lms_order_duedate\r\n",
+					"    ,o.BatchNo as lms_order_batchno\r\n",
+					"    ,o.CustAccID as lms_order_custaccid\r\n",
+					"    ,o.Airfreightflag as lms_order_airfreightflag\r\n",
+					"    ,o.SpecDel as lms_order_specdel\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrweight\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrchargeweight\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrvolweight\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrvolumiserweight\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrmaxweight\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrnoparcels\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrweightexclspecdel\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrchargeweightexclspecdel\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrvolweightexclspecdel\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrvolumiserweightexclspecdel\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrmaxweightexclspecdel\r\n",
+					"    ,pbo.lms_parcelbyorder_aggrnoparcelsexclspecdel\r\n",
 					"\r\n",
 					"FROM dboorder o\r\n",
 					"LEFT JOIN sstparcelbyorder pbo on pbo.lms_parcelbyorder_orderid =  o.id\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -219,7 +226,7 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"storder\r\n",
+					"storder_tmp3\r\n",
 					"AS\r\n",
 					"SELECT \r\n",
 					"    o.*\r\n",
@@ -232,6 +239,7 @@
 					"        WHEN o2.lms_order_maxpoddate is null then 0  \r\n",
 					"        ELSE DATE_PART('day', o2.lms_order_maxpoddate - o.lms_order_hodate)\r\n",
 					"    END as lms_order_actualleaddays\r\n",
+					"    ,to_timestamp((cast(to_date(o.lms_order_hodate,'yyyy-MM-dd') as string)||' 23:59:59.999')) lms_order_hodateroundup\r\n",
 					"\r\n",
 					"FROM storder_tmp1 o\r\n",
 					"LEFT JOIN storder_tmp2 o2 ON o2.orderid = o.lms_order_id"
@@ -252,7 +260,7 @@
 					}
 				},
 				"source": [
-					"storder = spark.sql(\"SELECT * FROM storder\")"
+					"storder_tmp3 = spark.sql(\"SELECT * FROM storder_tmp3\")"
 				],
 				"execution_count": 7
 			},
@@ -270,10 +278,143 @@
 					}
 				},
 				"source": [
-					"# storder.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/storder.parquet', mode = \"overwrite\")\r\n",
-					"print(\"SUCCESS\")"
+					"from pyspark.sql.functions import *"
 				],
 				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"storder_tmp3=storder_tmp3.withColumn('orderagedifferenceinseconds',col(\"lms_order_maxpoddate\").cast(\"long\") - col('lms_order_hodateroundup').cast(\"long\"))"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"storder_tmp3.createOrReplaceTempView(\"storder_tmp3\")"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"storder\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    *\r\n",
+					"    ,CASE \r\n",
+					"        WHEN lms_order_hodate is null THEN 'Not Ordered'\r\n",
+					"        WHEN lms_order_maxpoddate is null THEN 'Not Delivered'\r\n",
+					"        WHEN (orderagedifferenceinseconds/24) < 12 THEN '< 12 hrs'\r\n",
+					"        WHEN (orderagedifferenceinseconds/24) < 24 THEN '< 24 hrs'\r\n",
+					"        WHEN (orderagedifferenceinseconds/24) < 48 THEN '< 2 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/24) < 72 THEN '< 3 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/24) < 96 THEN '< 4 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/24) < 120 THEN '< 5 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/24) < 144 THEN '< 6 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/24) < 168 THEN '< 7 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/24) > 168 THEN '> 7 days'\r\n",
+					"        ELSE NULL\r\n",
+					"    END as lms_order_age\r\n",
+					"\r\n",
+					"FROM storder_tmp3\r\n",
+					""
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"storder = spark.sql(\"SELECT * FROM storder\")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# storder.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/storder.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 14
 			}
 		]
 	}

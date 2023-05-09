@@ -7,25 +7,25 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2551f44a-cf0f-44a4-be30-c8213f6bc3b5"
+				"spark.autotune.trackingId": "9b81eca9-a743-46cf-93e3-63aaf6ac82bd"
 			}
 		},
 		"metadata": {
 			"saveOutput": true,
-			"enableDebugMode": false,
+			"enableDebugMode": true,
 			"kernelspec": {
 				"name": "synapse_pyspark",
 				"display_name": "Synapse PySpark"
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -58,15 +58,17 @@
 					"if 'prod' in Environment:\r\n",
 					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
 					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
 					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
 					"else:\r\n",
 					"    StorageAccount = 'citylogisticsstorage'\r\n",
 					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
 					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
 					"# ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -94,7 +96,7 @@
 					"dbopeoplepersonal = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplepersonal.parquet', format='parquet')\r\n",
 					"dbopeoplepersonal.createOrReplaceTempView(\"dbopeoplepersonal\")"
 				],
-				"execution_count": 2
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -113,7 +115,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/MasterData/STMDPeople"
 				],
-				"execution_count": 3
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -129,9 +131,9 @@
 					}
 				},
 				"source": [
-					"stmdpeople.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stmdpeople.parquet', mode = \"overwrite\")"
+					"stmdpeople.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/MD/stmdpeople.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 4
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -167,7 +169,7 @@
 					"dbovehicletracking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicletracking.parquet', format='parquet')\r\n",
 					"dbovehicletracking.createOrReplaceTempView(\"dbovehicletracking\")"
 				],
-				"execution_count": 5
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -186,7 +188,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/MasterData/STMDVehicle"
 				],
-				"execution_count": 6
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -202,9 +204,67 @@
 					}
 				},
 				"source": [
-					"stmdvehicle.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stmdvehicle.parquet', mode = \"overwrite\")"
+					"stmdvehicle.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/MD/stmdvehicle.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 7
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#Create DataFrame for the dbodepot MD Table\r\n",
+					"dbodepot = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbodepot.parquet', format='parquet')\r\n",
+					"dbodepot.createOrReplaceTempView(\"dbodepot\")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/MasterData/STMDDepot"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stmddepot.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/MD/stmddepot.parquet', mode = \"overwrite\")\r\n",
+					"stmdsapdepot.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stmdsapdepot.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 15
 			}
 		]
 	}

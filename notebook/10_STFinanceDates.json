@@ -1,0 +1,255 @@
+{
+	"name": "10_STFinanceDates",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Finance"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "000d57bc-c3d6-47ab-80d3-427c61abf5da"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import *\r\n",
+					"beginDate = '2016-04-01'\r\n",
+					"\r\n",
+					"(\r\n",
+					"  spark.sql(f\"select explode(sequence(to_date('{beginDate}'), current_date(), interval 1 day)) as calendarDate\").createOrReplaceTempView('dates')\r\n",
+					")"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stfinancedates\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"\r\n",
+					"  year(calendarDate) * 10000 + month(calendarDate) * 100 + day(calendarDate) AS date_dim_id,\r\n",
+					"  CalendarDate AS sap_transactionsheader_postingdate,\r\n",
+					"  to_unix_timestamp(calendarDate) AS epoch,\r\n",
+					"  year(calendarDate) AS actual_year,\r\n",
+					"  year(calendarDate)||'-'||date_format(calendarDate,'MM') AS actual_year_month,\r\n",
+					"  date_format(calendarDate, 'MMMM') as actual_month_name,\r\n",
+					"  date_format(calendarDate,'MM')as actual_month_number,\r\n",
+					"  date_format(calendarDate, 'EEEE') as actual_day_name,\r\n",
+					"  dayofweek(calendarDate) AS actual_day_of_week,\r\n",
+					"  case\r\n",
+					"    when weekday(calendarDate) < 5 then 1\r\n",
+					"    else 0\r\n",
+					"  end as is_week_day,\r\n",
+					"  dayofmonth(calendarDate) as actual_day_of_month,\r\n",
+					"  case\r\n",
+					"    when calendarDate = last_day(calendarDate) then 1\r\n",
+					"    else 0\r\n",
+					"  end as is_last_day_of_month,\r\n",
+					"  date_format(last_day(calendarDate),'dd') AS last_day_of_month,\r\n",
+					"  dayofyear(calendarDate) as actual_day_of_year,\r\n",
+					"  weekofyear(calendarDate) as actual_week_of_year,\r\n",
+					"  quarter(calendarDate) as actual_quarter_of_year,\r\n",
+					"  /* Use fiscal periods needed by organization fiscal calendar */\r\n",
+					"  case\r\n",
+					"    when month(calendarDate) >= 4 then year(calendarDate) + 1\r\n",
+					"    else year(calendarDate)\r\n",
+					"  end as fiscal_year,\r\n",
+					"  case\r\n",
+					"    when month(calendarDate) >= 4 then (year(calendarDate) + 1)||'-'||date_format(calendarDate,'MM')\r\n",
+					"    else year(calendarDate)||'-'||date_format(calendarDate,'MM')\r\n",
+					"  end as fiscal_year_month,\r\n",
+					"  case\r\n",
+					"    when month(calendarDate) = 4 then 1\r\n",
+					"    when month(calendarDate) = 5 then 2\r\n",
+					"    when month(calendarDate) = 6 then 3\r\n",
+					"    when month(calendarDate) = 7 then 4\r\n",
+					"    when month(calendarDate) = 8 then 5\r\n",
+					"    when month(calendarDate) = 9 then 6\r\n",
+					"    when month(calendarDate) = 10 then 7\r\n",
+					"    when month(calendarDate) = 11 then 8\r\n",
+					"    when month(calendarDate) = 12 then 9\r\n",
+					"    when month(calendarDate) = 1 then 10\r\n",
+					"    when month(calendarDate) = 2 then 11\r\n",
+					"    when month(calendarDate) = 3 then 12\r\n",
+					"    else 0\r\n",
+					"  end as fiscal_month_sort,\r\n",
+					"  month(calendarDate) as actual_month_sort\r\n",
+					"\r\n",
+					"from\r\n",
+					"  dates\r\n",
+					"order by\r\n",
+					"\r\n",
+					"  year(calendarDate) desc,  case\r\n",
+					"    when month(calendarDate) = 4 then 1\r\n",
+					"    when month(calendarDate) = 5 then 2\r\n",
+					"    when month(calendarDate) = 6 then 3\r\n",
+					"    when month(calendarDate) = 7 then 4\r\n",
+					"    when month(calendarDate) = 8 then 5\r\n",
+					"    when month(calendarDate) = 9 then 6\r\n",
+					"    when month(calendarDate) = 10 then 7\r\n",
+					"    when month(calendarDate) = 11 then 8\r\n",
+					"    when month(calendarDate) = 12 then 9\r\n",
+					"    when month(calendarDate) = 1 then 10\r\n",
+					"    when month(calendarDate) = 2 then 11\r\n",
+					"    when month(calendarDate) = 3 then 12\r\n",
+					"    else 0\r\n",
+					"  end,calendarDate  asc\r\n",
+					""
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stfinancedates = spark.sql(\"SELECT * FROM stfinancedates\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stfinancedates.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stfinancedates.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stfinancedates.dtypes"
+				],
+				"execution_count": 9
+			}
+		]
+	}
+}

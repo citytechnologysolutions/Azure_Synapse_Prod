@@ -1,0 +1,20 @@
+{
+	"name": "D_STDepotMap",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STDepotMap') )\n    DROP EXTERNAL TABLE dbo.D_STDepotMap\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STDepotMap (\n[excel_depotmap_locationid] int,\n[excel_depotmap_locationdescription]nvarchar(4000),\n[excel_depotmap_parentdepot]nvarchar(4000),\n[excel_depotmap_subdepot]nvarchar(4000),\n\n    \n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/stdepotmap.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STDepotMap \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

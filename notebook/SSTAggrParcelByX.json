@@ -2,12 +2,12 @@
 	"name": "SSTAggrParcelByX",
 	"properties": {
 		"folder": {
-			"name": "TRANSFORM/01 SEMI-STRUCTURED/LMS Aggr"
+			"name": "TRANSFORM/01 SEMI-STRUCTURED/02_LMS Aggr"
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "ApacheSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -15,17 +15,17 @@
 			"driverCores": 8,
 			"executorMemory": "56g",
 			"executorCores": 8,
-			"numExecutors": 2,
+			"numExecutors": 1,
 			"conf": {
-				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "2",
-				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "9f59b32f-bf70-4c31-a61a-ff1521734a21"
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "9b0ce149-d16e-45d4-828e-0f86b38c112a"
 			}
 		},
 		"metadata": {
 			"saveOutput": true,
-			"enableDebugMode": false,
+			"enableDebugMode": true,
 			"kernelspec": {
 				"name": "synapse_pyspark",
 				"display_name": "Synapse PySpark"
@@ -34,19 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.1",
 				"nodeCount": 10,
 				"cores": 8,
 				"memory": 56,
-				"automaticScaleJobs": false
+				"automaticScaleJobs": true
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -65,19 +65,19 @@
 					}
 				},
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
-				"execution_count": null
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -102,61 +102,13 @@
 					"# sstparcelunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
 					"# sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the ssttrack LMS Table\r\n",
-					"# ssttrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/ssttrack.parquet', format='parquet')\r\n",
-					"# ssttrack.createOrReplaceTempView(\"ssttrack\")"
-				],
-				"execution_count": 15
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "sparksql"
-					},
-					"collapsed": false
-				},
-				"source": [
-					"%%sql\r\n",
-					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"sstparcelbyorder \r\n",
-					"AS\r\n",
-					"SELECT \r\n",
-					"     P.orderid as lms_parcelbyorder_orderid\r\n",
-					"    ,Sum(P.weight) as lms_parcelbyorder_aggweight\r\n",
-					"    ,Sum(P.chargeweight) as lms_parcelbyorder_aggchargeweight\r\n",
-					"    ,Sum(P.volweight) as lms_parcelbyorder_aggvolweight\r\n",
-					"    ,Sum(P.volumiserweight) as lms_parcelbyorder_aggvolumiserweight\r\n",
-					"    ,Count(P.id) as lms_parcelbyorder_noparcels\r\n",
-					"FROM sstparcelunion P\r\n",
-					"GROUP BY P.orderid"
-				],
-				"execution_count": 2
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"sstparcelbyorder = spark.sql(\"SELECT * FROM sstparcelbyorder\")"
+					"# #Create DataFrame for the ssttrackunion LMS Table\r\n",
+					"# ssttrackunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
+					"# ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboorder LMS Table\r\n",
+					"# dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"# dboorder.createOrReplaceTempView(\"dboorder\")"
 				],
 				"execution_count": 3
 			},
@@ -174,7 +126,7 @@
 					}
 				},
 				"source": [
-					"# sstparcelbyorder.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', mode = \"overwrite\")"
+					"from pyspark.sql.functions import greatest"
 				],
 				"execution_count": 4
 			},
@@ -198,17 +150,18 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"sstparcelbywaybill \r\n",
+					"sstparcelbyorder_tmp1\r\n",
 					"AS\r\n",
 					"SELECT \r\n",
-					"     P.waybillid as lms_parcelbywaybill_waybillid\r\n",
-					"    ,Sum(P.weight) as lms_parcelbywaybill_aggweight\r\n",
-					"    ,Sum(P.chargeweight) as lms_parcelbywaybill_aggchargeweight\r\n",
-					"    ,Sum(P.volweight) as lms_parcelbywaybill_aggvolweight\r\n",
-					"    ,Sum(P.volumiserweight) as lms_parcelbywaybill_aggvolumiserweight\r\n",
-					"    ,Count(P.id) as lms_parcelbywaybill_noparcels\r\n",
+					"     P.orderid as lms_parcelbyorder_orderid\r\n",
+					"    ,Sum(P.weight) as lms_parcelbyorder_aggrweight\r\n",
+					"    ,Sum(P.chargeweight) as lms_parcelbyorder_aggrchargeweight\r\n",
+					"    ,Sum(P.volweight) as lms_parcelbyorder_aggrvolweight\r\n",
+					"    ,Sum(P.volumiserweight) as lms_parcelbyorder_aggrvolumiserweight\r\n",
+					"    ,Sum(greatest(P.volumiserweight,P.weight,P.chargeweight,P.volumiserweight)) as lms_parcelbyorder_aggrmaxweight \r\n",
+					"    ,Count(P.id) as lms_parcelbyorder_aggrnoparcels\r\n",
 					"FROM sstparcelunion P\r\n",
-					"GROUP BY P.waybillid"
+					"GROUP BY P.orderid"
 				],
 				"execution_count": 5
 			},
@@ -223,10 +176,29 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
 				},
 				"source": [
-					"sstparcelbywaybill = spark.sql(\"SELECT * FROM sstparcelbywaybill\")"
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbyorder_tmp2\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     P.orderid as lms_parcelbyorder_orderid\r\n",
+					"    ,Sum(P.weight) as lms_parcelbyorder_aggrweightexclspecdel\r\n",
+					"    ,Sum(P.chargeweight) as lms_parcelbyorder_aggrchargeweightexclspecdel\r\n",
+					"    ,Sum(P.volweight) as lms_parcelbyorder_aggrvolweightexclspecdel\r\n",
+					"    ,Sum(P.volumiserweight) as lms_parcelbyorder_aggrvolumiserweightexclspecdel\r\n",
+					"    ,Sum(greatest(P.volumiserweight,P.weight,P.chargeweight,P.volumiserweight)) as lms_parcelbyorder_aggrmaxweightexclspecdel\r\n",
+					"    ,Count(P.id) as lms_parcelbyorder_aggrnoparcelsexclspecdel\r\n",
+					"FROM sstparcelunion P\r\n",
+					"LEFT JOIN dboorder o on o.id = p.orderid\r\n",
+					"WHERE o.specdel = 0\r\n",
+					"GROUP BY P.orderid"
 				],
 				"execution_count": 6
 			},
@@ -244,7 +216,8 @@
 					}
 				},
 				"source": [
-					"# sstparcelbywaybill.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbywaybill.parquet', mode = \"overwrite\")"
+					"sstparcelbyorder_tmp1 = spark.sql(\"SELECT * FROM sstparcelbyorder_tmp1\")\r\n",
+					"sstparcelbyorder_tmp2 = spark.sql(\"SELECT * FROM sstparcelbyorder_tmp2\")"
 				],
 				"execution_count": 7
 			},
@@ -268,19 +241,363 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"sstparcelbyconsignment \r\n",
+					"sstparcelbyorder\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     t1.lms_parcelbyorder_orderid\r\n",
+					"    ,CAST(t1.lms_parcelbyorder_aggrweight AS decimal(28,2)) as lms_parcelbyorder_aggrweight\r\n",
+					"    ,CAST(t1.lms_parcelbyorder_aggrchargeweight AS decimal(28,2)) as lms_parcelbyorder_aggrchargeweight\r\n",
+					"    ,CAST(t1.lms_parcelbyorder_aggrvolweight AS decimal(28,2)) as lms_parcelbyorder_aggrvolweight\r\n",
+					"    ,CAST(t1.lms_parcelbyorder_aggrvolumiserweight AS decimal(28,2)) as lms_parcelbyorder_aggrvolumiserweight\r\n",
+					"    ,CAST(t1.lms_parcelbyorder_aggrmaxweight  AS decimal(28,2)) as lms_parcelbyorder_aggrmaxweight\r\n",
+					"    ,t1.lms_parcelbyorder_aggrnoparcels\r\n",
+					"    ,CAST(t2.lms_parcelbyorder_aggrweightexclspecdel AS decimal(28,2)) as lms_parcelbyorder_aggrweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyorder_aggrchargeweightexclspecdel AS decimal(28,2)) as lms_parcelbyorder_aggrchargeweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyorder_aggrvolweightexclspecdel AS decimal(28,2)) as lms_parcelbyorder_aggrvolweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyorder_aggrvolumiserweightexclspecdel AS decimal(28,2)) as lms_parcelbyorder_aggrvolumiserweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyorder_aggrmaxweightexclspecdel AS decimal(28,2)) as lms_parcelbyorder_aggrmaxweightexclspecdel\r\n",
+					"    ,t2.lms_parcelbyorder_aggrnoparcelsexclspecdel\r\n",
+					"FROM sstparcelbyorder_tmp1 t1\r\n",
+					"LEFT JOIN sstparcelbyorder_tmp2 t2 on t2.lms_parcelbyorder_orderid = t1.lms_parcelbyorder_orderid\r\n",
+					""
+				],
+				"execution_count": 165
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbyorder = spark.sql(\"SELECT * FROM sstparcelbyorder\")"
+				],
+				"execution_count": 166
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# sstparcelbyorder.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 167
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbywaybill_tmp1\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     P.waybillid as lms_parcelbywaybill_waybillid\r\n",
+					"    ,Sum(P.weight) as lms_parcelbywaybill_aggrweight\r\n",
+					"    ,Sum(P.chargeweight) as lms_parcelbywaybill_aggrchargeweight\r\n",
+					"    ,Sum(P.volweight) as lms_parcelbywaybill_aggrvolweight\r\n",
+					"    ,Sum(P.volumiserweight) as lms_parcelbywaybill_aggrvolumiserweight\r\n",
+					"    ,Sum(greatest(P.volumiserweight,P.weight,P.chargeweight,P.volumiserweight)) as lms_parcelbywaybill_aggrmaxweight \r\n",
+					"    ,Count(P.id) as lms_parcelbywaybill_aggrnoparcels\r\n",
+					"FROM sstparcelunion P\r\n",
+					"GROUP BY P.waybillid"
+				],
+				"execution_count": 168
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbywaybill_tmp2\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     P.waybillid as lms_parcelbywaybill_waybillid\r\n",
+					"    ,Sum(P.weight) as lms_parcelbywaybill_aggrweightexclspecdel\r\n",
+					"    ,Sum(P.chargeweight) as lms_parcelbywaybill_aggrchargeweightexclspecdel\r\n",
+					"    ,Sum(P.volweight) as lms_parcelbywaybill_aggrvolweightexclspecdel\r\n",
+					"    ,Sum(P.volumiserweight) as lms_parcelbywaybill_aggrvolumiserweightexclspecdel\r\n",
+					"    ,Sum(greatest(P.volumiserweight,P.weight,P.chargeweight,P.volumiserweight)) as lms_parcelbywaybill_aggrmaxweightexclspecdel\r\n",
+					"    ,Count(P.id) as lms_parcelbywaybill_aggrnoparcelsexclspecdel\r\n",
+					"FROM sstparcelunion P\r\n",
+					"LEFT JOIN dboorder o on o.id = p.orderid\r\n",
+					"WHERE o.specdel = 0\r\n",
+					"GROUP BY P.waybillid"
+				],
+				"execution_count": 169
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbywaybill_tmp1 = spark.sql(\"SELECT * FROM sstparcelbywaybill_tmp1\")\r\n",
+					"sstparcelbywaybill_tmp2 = spark.sql(\"SELECT * FROM sstparcelbywaybill_tmp2\")"
+				],
+				"execution_count": 170
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbywaybill\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     t1.lms_parcelbywaybill_waybillid\r\n",
+					"    ,CAST(t1.lms_parcelbywaybill_aggrweight AS decimal(28,2)) as lms_parcelbywaybill_aggrweight\r\n",
+					"    ,CAST(t1.lms_parcelbywaybill_aggrchargeweight AS decimal(28,2)) as lms_parcelbywaybill_aggrchargeweight\r\n",
+					"    ,CAST(t1.lms_parcelbywaybill_aggrvolweight AS decimal(28,2)) as lms_parcelbywaybill_aggrvolweight\r\n",
+					"    ,CAST(t1.lms_parcelbywaybill_aggrvolumiserweight AS decimal(28,2)) as lms_parcelbywaybill_aggrvolumiserweight\r\n",
+					"    ,CAST(t1.lms_parcelbywaybill_aggrmaxweight AS decimal(28,2)) as lms_parcelbywaybill_aggrmaxweight\r\n",
+					"    ,t1.lms_parcelbywaybill_aggrnoparcels\r\n",
+					"    ,CAST(t2.lms_parcelbywaybill_aggrweightexclspecdel AS decimal(28,2)) as lms_parcelbywaybill_aggrweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbywaybill_aggrchargeweightexclspecdel AS decimal(28,2)) as lms_parcelbywaybill_aggrchargeweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbywaybill_aggrvolweightexclspecdel AS decimal(28,2)) as lms_parcelbywaybill_aggrvolweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbywaybill_aggrvolumiserweightexclspecdel AS decimal(28,2)) as lms_parcelbywaybill_aggrvolumiserweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbywaybill_aggrmaxweightexclspecdel AS decimal(28,2)) as lms_parcelbywaybill_aggrmaxweightexclspecdel\r\n",
+					"    ,t2.lms_parcelbywaybill_aggrnoparcelsexclspecdel\r\n",
+					"FROM sstparcelbywaybill_tmp1 t1\r\n",
+					"LEFT JOIN sstparcelbywaybill_tmp2 t2 on t2.lms_parcelbywaybill_waybillid = t1.lms_parcelbywaybill_waybillid"
+				],
+				"execution_count": 171
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbywaybill = spark.sql(\"SELECT * FROM sstparcelbywaybill\")"
+				],
+				"execution_count": 172
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# sstparcelbywaybill.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbywaybill.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 173
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbyconsignment_tmp1\r\n",
 					"AS\r\n",
 					"SELECT \r\n",
 					"     P.consignid as lms_parcelbyconsignment_consignid\r\n",
-					"    ,Sum(P.weight) as lms_parcelbyconsignment_aggweight\r\n",
-					"    ,Sum(P.chargeweight) as lms_parcelbyconsignment_aggchargeweight\r\n",
-					"    ,Sum(P.volweight) as lms_parcelbyconsignment_aggvolweight\r\n",
-					"    ,Sum(P.volumiserweight) as lms_parcelbyconsignment_aggvolumiserweight\r\n",
-					"    ,Count(P.id) as lms_parcelbyconsignment_noparcels\r\n",
+					"    ,Sum(P.weight) as lms_parcelbyconsignment_aggrweight\r\n",
+					"    ,Sum(P.chargeweight) as lms_parcelbyconsignment_aggrchargeweight\r\n",
+					"    ,Sum(P.volweight) as lms_parcelbyconsignment_aggrvolweight\r\n",
+					"    ,Sum(P.volumiserweight) as lms_parcelbyconsignment_aggrvolumiserweight\r\n",
+					"    ,Sum(greatest(P.volumiserweight,P.weight,P.chargeweight,P.volumiserweight)) as lms_parcelbyconsignment_aggrmaxweight\r\n",
+					"    ,Count(P.id) as lms_parcelbyconsignment_aggrnoparcels\r\n",
 					"FROM sstparcelunion P\r\n",
 					"GROUP BY P.consignid"
 				],
-				"execution_count": 7
+				"execution_count": 174
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbyconsignment_tmp2\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     P.consignid as lms_parcelbyconsignment_consignid\r\n",
+					"    ,Sum(P.weight) as lms_parcelbyconsignment_aggrweightexclspecdel\r\n",
+					"    ,Sum(P.chargeweight) as lms_parcelbyconsignment_aggrchargeweightexclspecdel\r\n",
+					"    ,Sum(P.volweight) as lms_parcelbyconsignment_aggrvolweightexclspecdel\r\n",
+					"    ,Sum(P.volumiserweight) as lms_parcelbyconsignment_aggrvolumiserweightexclspecdel\r\n",
+					"    ,Sum(greatest(P.volumiserweight,P.weight,P.chargeweight,P.volumiserweight)) as lms_parcelbyconsignment_aggrmaxweightexclspecdel\r\n",
+					"    ,Count(P.id) as lms_parcelbyconsignment_aggrnoparcelsexclspecdel\r\n",
+					"FROM sstparcelunion P\r\n",
+					"LEFT JOIN dboorder o on o.id = p.orderid\r\n",
+					"WHERE o.specdel = 0\r\n",
+					"GROUP BY P.consignid"
+				],
+				"execution_count": 175
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbyconsignment_tmp1 = spark.sql(\"SELECT * FROM sstparcelbyconsignment_tmp1\")\r\n",
+					"sstparcelbyconsignment_tmp2 = spark.sql(\"SELECT * FROM sstparcelbyconsignment_tmp2\")"
+				],
+				"execution_count": 176
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbyconsignment\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     t1.lms_parcelbyconsignment_consignid\r\n",
+					"    ,CAST(t1.lms_parcelbyconsignment_aggrweight AS decimal(28,2)) as lms_parcelbyconsignment_aggrweight\r\n",
+					"    ,CAST(t1.lms_parcelbyconsignment_aggrchargeweight AS decimal(28,2)) as lms_parcelbyconsignment_aggrchargeweight\r\n",
+					"    ,CAST(t1.lms_parcelbyconsignment_aggrvolweight AS decimal(28,2)) as lms_parcelbyconsignment_aggrvolweight\r\n",
+					"    ,CAST(t1.lms_parcelbyconsignment_aggrvolumiserweight AS decimal(28,2)) as lms_parcelbyconsignment_aggrvolumiserweight\r\n",
+					"    ,CAST(t1.lms_parcelbyconsignment_aggrmaxweight AS decimal(28,2)) as lms_parcelbyconsignment_aggrmaxweight\r\n",
+					"    ,t1.lms_parcelbyconsignment_aggrnoparcels\r\n",
+					"    ,CAST(t2.lms_parcelbyconsignment_aggrweightexclspecdel AS decimal(28,2)) as lms_parcelbyconsignment_aggrweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyconsignment_aggrchargeweightexclspecdel AS decimal(28,2)) as lms_parcelbyconsignment_aggrchargeweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyconsignment_aggrvolweightexclspecdel AS decimal(28,2)) as lms_parcelbyconsignment_aggrvolweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyconsignment_aggrvolumiserweightexclspecdel AS decimal(28,2)) as lms_parcelbyconsignment_aggrvolumiserweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyconsignment_aggrmaxweightexclspecdel AS decimal(28,2)) as lms_parcelbyconsignment_aggrmaxweightexclspecdel\r\n",
+					"    ,t2.lms_parcelbyconsignment_aggrnoparcelsexclspecdel \r\n",
+					"FROM sstparcelbyconsignment_tmp1 t1\r\n",
+					"LEFT JOIN sstparcelbyconsignment_tmp2 t2 on t2.lms_parcelbyconsignment_consignid = t1.lms_parcelbyconsignment_consignid"
+				],
+				"execution_count": 177
 			},
 			{
 				"cell_type": "code",
@@ -298,7 +615,7 @@
 				"source": [
 					"sstparcelbyconsignment = spark.sql(\"SELECT * FROM sstparcelbyconsignment\")"
 				],
-				"execution_count": 8
+				"execution_count": 178
 			},
 			{
 				"cell_type": "code",
@@ -316,7 +633,7 @@
 				"source": [
 					"# sstparcelbyconsignment.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": 179
 			},
 			{
 				"cell_type": "code",
@@ -338,19 +655,116 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"sstparcelbyload \r\n",
+					"sstparcelbyload_tmp1 \r\n",
 					"AS\r\n",
 					"SELECT \r\n",
-					"     T.lms_track_loadid as lms_parcelbyload_loadid\r\n",
-					"    ,Sum(T.lms_parcel_weight) as lms_parcelbyload_aggweight\r\n",
-					"    ,Sum(T.lms_parcel_chargeweight) as lms_parcelbyload_aggchargeweight\r\n",
-					"    ,Sum(T.lms_parcel_volweight) as lms_parcelbyload_aggvolweight\r\n",
-					"    ,Sum(T.lms_parcel_volumiserweight) as lms_parcelbyload_aggvolumiserweight\r\n",
-					"    ,Count(T.lms_track_parcelid) as lms_parcelbyload_noparcels\r\n",
-					"FROM ssttrack T\r\n",
-					"GROUP BY T.lms_track_loadid"
+					"     T.loadid as lms_parcelbyload_loadid\r\n",
+					"    ,Sum(T.weight) as lms_parcelbyload_aggrweight\r\n",
+					"    ,Sum(T.chargeweight) as lms_parcelbyload_aggrchargeweight\r\n",
+					"    ,Sum(T.volweight) as lms_parcelbyload_aggrvolweight\r\n",
+					"    ,Sum(T.volumiserweight) as lms_parcelbyload_aggrvolumiserweight\r\n",
+					"    ,Sum(greatest(T.volumiserweight,T.weight,T.chargeweight,T.volumiserweight)) as lms_parcelbyload_aggrmaxweight\r\n",
+					"    ,Count(T.parcelid) as lms_parcelbyload_aggrnoparcels\r\n",
+					"FROM ssttrackunion T\r\n",
+					"GROUP BY T.loadid"
 				],
-				"execution_count": 19
+				"execution_count": 180
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbyload_tmp2\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     T.loadid as lms_parcelbyload_loadid\r\n",
+					"    ,Sum(T.weight) as lms_parcelbyload_aggrweightexclspecdel\r\n",
+					"    ,Sum(T.chargeweight) as lms_parcelbyload_aggrchargeweightexclspecdel\r\n",
+					"    ,Sum(T.volweight) as lms_parcelbyload_aggrvolweightexclspecdel\r\n",
+					"    ,Sum(T.volumiserweight) as lms_parcelbyload_aggrvolumiserweightexclspecdel\r\n",
+					"    ,Sum(greatest(T.volumiserweight,T.weight,T.chargeweight,T.volumiserweight)) as lms_parcelbyload_aggrmaxweightexclspecdel\r\n",
+					"    ,Count(T.id) as lms_parcelbyload_aggrnoparcelsexclspecdel\r\n",
+					"FROM ssttrackunion T\r\n",
+					"WHERE T.specdel = 0\r\n",
+					"GROUP BY T.loadid"
+				],
+				"execution_count": 181
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstparcelbyload_tmp1 = spark.sql(\"SELECT * FROM sstparcelbyload_tmp1\")\r\n",
+					"sstparcelbyload_tmp2 = spark.sql(\"SELECT * FROM sstparcelbyload_tmp2\")"
+				],
+				"execution_count": 182
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstparcelbyload\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     t1.lms_parcelbyload_loadid\r\n",
+					"    ,CAST(t1.lms_parcelbyload_aggrweight AS decimal(28,2)) AS lms_parcelbyload_aggrweight\r\n",
+					"    ,CAST(t1.lms_parcelbyload_aggrchargeweight  AS decimal(28,2)) AS lms_parcelbyload_aggrchargeweight\r\n",
+					"    ,CAST(t1.lms_parcelbyload_aggrvolweight  AS decimal(28,2)) AS lms_parcelbyload_aggrvolweight\r\n",
+					"    ,CAST(t1.lms_parcelbyload_aggrvolumiserweight  AS decimal(28,2)) AS lms_parcelbyload_aggrvolumiserweight\r\n",
+					"    ,CAST(t1.lms_parcelbyload_aggrmaxweight  AS decimal(28,2)) AS lms_parcelbyload_aggrmaxweight\r\n",
+					"    ,t1.lms_parcelbyload_aggrnoparcels\r\n",
+					"    ,CAST(t2.lms_parcelbyload_aggrweightexclspecdel  AS decimal(28,2)) AS lms_parcelbyload_aggrweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyload_aggrchargeweightexclspecdel  AS decimal(28,2)) AS lms_parcelbyload_aggrchargeweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyload_aggrvolweightexclspecdel  AS decimal(28,2)) AS lms_parcelbyload_aggrvolweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyload_aggrvolumiserweightexclspecdel  AS decimal(28,2)) AS lms_parcelbyload_aggvolumiserweightexclspecdel\r\n",
+					"    ,CAST(t2.lms_parcelbyload_aggrmaxweightexclspecdel  AS decimal(28,2)) AS lms_parcelbyload_aggrmaxweightexclspecdel\r\n",
+					"    ,t2.lms_parcelbyload_aggrnoparcelsexclspecdel\r\n",
+					"FROM sstparcelbyload_tmp1 t1\r\n",
+					"LEFT JOIN sstparcelbyload_tmp2 t2 on t2.lms_parcelbyload_loadid = t1.lms_parcelbyload_loadid"
+				],
+				"execution_count": 183
 			},
 			{
 				"cell_type": "code",
@@ -368,7 +782,7 @@
 				"source": [
 					"sstparcelbyload = spark.sql(\"SELECT * FROM sstparcelbyload\")"
 				],
-				"execution_count": 20
+				"execution_count": 184
 			},
 			{
 				"cell_type": "code",
@@ -386,7 +800,7 @@
 				"source": [
 					"# sstparcelbyload.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyload.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 13
+				"execution_count": 185
 			}
 		]
 	}

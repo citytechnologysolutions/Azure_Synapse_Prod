@@ -1,0 +1,20 @@
+{
+	"name": "D_STMDSapDepot",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STMDSapDepot') )\n    DROP EXTERNAL TABLE dbo.D_STMDSapDepot\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STMDSapDepot (\n\n    [md_depot_id] bigint,\n    [md_depot_parentdepotcode] nvarchar(4000),\n\t[sap_transactionsline_subdepotcode] nvarchar(4000),\n\t[md_depot_depotname] nvarchar(4000),\n\t[md_depot_division] nvarchar(4000),\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/stmdsapdepot.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STMDSapDepot \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "Fin Dim_Dates SoR - STSAP",
+	"properties": {
+		"folder": {
+			"name": "Archive"
+		},
+		"content": {
+			"query": "DROP EXTERNAL TABLE DIM_Dates;\n\nIF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'synapse_citylogisticsstorage_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [synapse_citylogisticsstorage_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://synapse@citylogisticsstorage.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE DIM_Dates (\n\t[Posting_Date] nvarchar(4000),\n\t[Posting_DateTime] nvarchar(4000),\n\t[Day_of_Week] nvarchar(4000),\n\t[WeekEnd] int,\n\t[Posting_MonthEndDate] nvarchar(4000),\n\t[Posting_MonthStartDate] nvarchar(4000),\n\t[Posting_MonthNo] nvarchar(4000),\n\t[Posting_Year] int,\n\t[Posting_Period] nvarchar(4000),\n\t[Posting_Month] nvarchar(4000),\n\t[Fin_MonthNo] int,\n\t[Fin_Year] int,\n\t[TmpWeek] int,\n\t[Min1stWeek] nvarchar(4000),\n\t[FirstWeek] int,\n\t[Posting_WeekNo] bigint,\n\t[Holiday] int,\n\t[Working_Day] int\n\t)\n\tWITH (\n\tLOCATION = 'DataLake/Structured/Dimensions/DIM_DATES.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.DIM_Dates\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

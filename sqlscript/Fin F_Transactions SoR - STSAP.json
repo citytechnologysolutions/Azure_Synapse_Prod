@@ -1,0 +1,20 @@
+{
+	"name": "Fin F_Transactions SoR - STSAP",
+	"properties": {
+		"folder": {
+			"name": "Archive"
+		},
+		"content": {
+			"query": "DROP EXTERNAL TABLE F_Transactions;\n\nCREATE EXTERNAL TABLE F_Transactions (\n\t[SubDepotCode] nvarchar(4000),\n\t[Depot_Code] nvarchar(4000),\n\t[Customer_Code_KEY] nvarchar(4000),\n\t[Customer_Reference] nvarchar(4000),\n\t[Posting_Date] date,\n\t[Posting_DateTime] datetime2(7),\n\t[DocEntry] int,\n\t[Document_Category] nvarchar(4000),\n\t[Document_Number] nvarchar(4000),\n\t[Document_Type] nvarchar(4000),\n\t[Goods_Receipt_Number_KEY] nvarchar(4000),\n\t[Item_Code_KEY] nvarchar(4000),\n\t[Line_Total] numeric(38,6),\n\t[Supplier_Code_KEY] nvarchar(4000),\n\t[Supplier_Reference] nvarchar(4000),\n\t[System_Account_Code_KEY] nvarchar(4000),\n\t[Transaction_Detail] nvarchar(4000),\n\t[TransId] int,\n\t[Type] nvarchar(4000),\n\t[IR_Number] int,\n\t[SubIntRecovery_Daily_Budget_Total] float,\n\t[HorseFlag] nvarchar(4000)\n\t)\n\tWITH (\n\tLOCATION = 'DataLake/Structured/Facts/F_TRANSACTIONS_Transformed.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_Transactions\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

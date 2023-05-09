@@ -21,7 +21,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "607356b1-d814-4bd0-96bb-28e3986aa822"
+				"spark.autotune.trackingId": "3f29e69d-410e-4e57-81da-4dd400922f7a"
 			}
 		},
 		"metadata": {
@@ -53,6 +53,19 @@
 		},
 		"cells": [
 			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"<mark>**THIS NOTEBOOK SAVES INLINE NOT IN THE RUNTIME**</mark>"
+				]
+			},
+			{
 				"cell_type": "code",
 				"metadata": {
 					"jupyter": {
@@ -66,19 +79,19 @@
 					}
 				},
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 118
 			},
 			{
 				"cell_type": "code",
@@ -104,7 +117,7 @@
 					"# stitem.createOrReplaceTempView(\"stitem\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -320,7 +333,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 96
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -377,13 +390,14 @@
 					"    ,coa.sap_account_segment_0\r\n",
 					"    ,coa.sap_account_segment_1\r\n",
 					"    ,coa.sap_account_segment_2\r\n",
+					"    ,coa.sap_account_level1name\r\n",
 					"\r\n",
 					"FROM dboOJDT ojdt\r\n",
 					"LEFT JOIN dboJDT1 jdt1 on jdt1.transid = ojdt.transid\r\n",
 					"LEFT JOIN stchartofaccounts coa on coa.sap_account_acctcode = jdt1.account\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 79
 			},
 			{
 				"cell_type": "code",
@@ -401,7 +415,7 @@
 				"source": [
 					"stmanualjournals_tmp = spark.sql(\"SELECT * FROM stmanualjournals_tmp\")"
 				],
-				"execution_count": 98
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -472,7 +486,7 @@
 					"    ,sap_manualjournalsline_subdepotcode\r\n",
 					""
 				],
-				"execution_count": 99
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -490,7 +504,7 @@
 				"source": [
 					"stpurchasepricevariance = spark.sql(\"SELECT * FROM stpurchasepricevariance\")"
 				],
-				"execution_count": 100
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -526,7 +540,7 @@
 					".withColumnRenamed(\"sap_manualjournalsline_doccat\",\"sap_purchasepricevarianceline_doccat\")\r\n",
 					""
 				],
-				"execution_count": 101
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -542,9 +556,9 @@
 					}
 				},
 				"source": [
-					"stpurchasepricevariance.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stpurchasepricevariance.parquet', mode = \"overwrite\")"
+					"# stpurchasepricevariance.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stpurchasepricevariance.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 102
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -614,7 +628,7 @@
 					"    ,sap_manualjournalsline_jnlref2\r\n",
 					"    ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 103
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -632,7 +646,7 @@
 				"source": [
 					"stcostofgoods = spark.sql(\"SELECT * FROM stcostofgoods\")"
 				],
-				"execution_count": 104
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -668,7 +682,7 @@
 					".withColumnRenamed(\"sap_manualjournalsline_doccat\",\"sap_costofgoodsline_doccat\")\r\n",
 					""
 				],
-				"execution_count": 105
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -684,9 +698,9 @@
 					}
 				},
 				"source": [
-					"stcostofgoods.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stcostofgoods.parquet', mode = \"overwrite\")"
+					"# stcostofgoods.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stcostofgoods.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 106
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -765,7 +779,7 @@
 					"    ,i.sap_item_invntitem\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -783,7 +797,7 @@
 				"source": [
 					"stsalesinvoiceinventory = spark.sql(\"SELECT * FROM stsalesinvoiceinventory\")"
 				],
-				"execution_count": 108
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -823,7 +837,7 @@
 					".withColumnRenamed(\"sap_manualjournalsline_invntitem\",\"sap_salesinvoiceinventoryline_invntitem\")\r\n",
 					""
 				],
-				"execution_count": 109
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -839,9 +853,9 @@
 					}
 				},
 				"source": [
-					"stsalesinvoiceinventory.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoiceinventory.parquet', mode = \"overwrite\")"
+					"# stsalesinvoiceinventory.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoiceinventory.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 110
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -910,7 +924,7 @@
 					"    ,sap_manualjournalsline_jnlref2\r\n",
 					"    ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 111
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -928,7 +942,7 @@
 				"source": [
 					"stdiscountjournal = spark.sql(\"SELECT * FROM stdiscountjournal\")"
 				],
-				"execution_count": 112
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -963,7 +977,7 @@
 					".withColumnRenamed(\"sap_manualjournalsline_linetotal\",\"sap_discountjournalline_linetotal\")\\\r\n",
 					".withColumnRenamed(\"sap_manualjournalsline_doccat\",\"sap_discountjournalline_doccat\")"
 				],
-				"execution_count": 113
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -979,9 +993,9 @@
 					}
 				},
 				"source": [
-					"stdiscountjournal.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stdiscountjournal.parquet', mode = \"overwrite\")"
+					"# stdiscountjournal.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stdiscountjournal.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 114
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -1032,9 +1046,11 @@
 					"    -- ,i.sap_item_invntitem as sap_manualjournalsline_invntitem\r\n",
 					"\r\n",
 					"FROM stmanualjournals_tmp\r\n",
-					"WHERE sap_manualjournalsheader_objtype in (30,-4)\r\n",
+					"WHERE (sap_manualjournalsheader_objtype in (30,-4)\r\n",
 					"AND CONCAT(sap_account_segment_0,sap_account_segment_1,sap_account_segment_2) NOT IN ('572110ADHDO','511120ADHDO','571170ADHDO')\r\n",
-					"AND sap_account_groupmask in (5,6,7,8)\r\n",
+					"AND sap_account_groupmask in (5,6,7,8))\r\n",
+					"AND sap_account_level1name NOT IN ('ASSETS','CAPITAL AND RESERVES','LIABILITIES')\r\n",
+					"AND (CONCAT(sap_manualjournalsheader_objtype,sap_account_groupmask) <> 307)\r\n",
 					"\r\n",
 					"GROUP BY\r\n",
 					"    sap_manualjournalsheader_postingdate\r\n",
@@ -1052,9 +1068,11 @@
 					"    ,sap_manualjournalsline_description\r\n",
 					"    ,sap_manualjournalsline_jnlref1\r\n",
 					"    ,sap_manualjournalsline_jnlref2\r\n",
-					"    ,sap_manualjournalsline_subdepotcode"
+					"    ,sap_manualjournalsline_subdepotcode\r\n",
+					"\r\n",
+					""
 				],
-				"execution_count": 115
+				"execution_count": 112
 			},
 			{
 				"cell_type": "code",
@@ -1105,9 +1123,10 @@
 					"    -- ,i.sap_item_invntitem as sap_manualjournalsline_invntitem\r\n",
 					"\r\n",
 					"FROM stmanualjournals_tmp\r\n",
-					"WHERE sap_manualjournalsheader_objtype in (30)\r\n",
+					"WHERE (sap_manualjournalsheader_objtype in (30)\r\n",
 					"AND CONCAT(sap_account_segment_0,sap_account_segment_1,sap_account_segment_2) NOT IN ('572110ADHDO','511120ADHDO','571170ADHDO')\r\n",
-					"AND sap_account_groupmask in (4)\r\n",
+					"AND sap_account_groupmask in (4))\r\n",
+					"AND sap_account_level1name NOT IN ('ASSETS','CAPITAL AND RESERVES','LIABILITIES')\r\n",
 					"GROUP BY\r\n",
 					"    sap_manualjournalsheader_postingdate\r\n",
 					"    ,sap_manualjournalsheader_duedate\r\n",
@@ -1126,7 +1145,7 @@
 					"    ,sap_manualjournalsline_jnlref2\r\n",
 					"    ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 116
+				"execution_count": 113
 			},
 			{
 				"cell_type": "code",
@@ -1145,7 +1164,7 @@
 					"stmanualjournal1 = spark.sql(\"SELECT * FROM stmanualjournal1\")\r\n",
 					"stmanualjournal2 = spark.sql(\"SELECT * FROM stmanualjournal2\")"
 				],
-				"execution_count": 117
+				"execution_count": 114
 			},
 			{
 				"cell_type": "code",
@@ -1163,7 +1182,7 @@
 				"source": [
 					"stmanualjournal = stmanualjournal1.unionByName(stmanualjournal2, allowMissingColumns = True)"
 				],
-				"execution_count": 118
+				"execution_count": 115
 			},
 			{
 				"cell_type": "code",
@@ -1181,7 +1200,7 @@
 				"source": [
 					"stmanualjournal.createOrReplaceTempView(\"stmanualjournal\")"
 				],
-				"execution_count": 119
+				"execution_count": 116
 			},
 			{
 				"cell_type": "code",
@@ -1197,9 +1216,9 @@
 					}
 				},
 				"source": [
-					"stmanualjournal.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stmanualjournal.parquet', mode = \"overwrite\")"
+					"# stmanualjournal.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stmanualjournal.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 120
+				"execution_count": 117
 			},
 			{
 				"cell_type": "code",
@@ -1270,7 +1289,7 @@
 					"    ,sap_manualjournalsline_jnlref2\r\n",
 					"    ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 121
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -1341,7 +1360,7 @@
 					"    ,sap_manualjournalsline_jnlref2\r\n",
 					"    ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 122
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -1412,7 +1431,7 @@
 					"    ,sap_manualjournalsline_jnlref2\r\n",
 					"    ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 123
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -1483,7 +1502,7 @@
 					"    ,sap_manualjournalsline_jnlref2\r\n",
 					"    ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 124
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",
@@ -1504,7 +1523,7 @@
 					"stdirectposting3 = spark.sql(\"SELECT * FROM stdirectposting3\")\r\n",
 					"stdirectposting4 = spark.sql(\"SELECT * FROM stdirectposting4\")"
 				],
-				"execution_count": 125
+				"execution_count": 36
 			},
 			{
 				"cell_type": "code",
@@ -1522,7 +1541,7 @@
 				"source": [
 					"stdirectposting = stdirectposting1.unionByName(stdirectposting2, allowMissingColumns = True).unionByName(stdirectposting3, allowMissingColumns = True).unionByName(stdirectposting4, allowMissingColumns = True)"
 				],
-				"execution_count": 126
+				"execution_count": 37
 			},
 			{
 				"cell_type": "code",
@@ -1557,7 +1576,7 @@
 					".withColumnRenamed(\"sap_manualjournalsline_linetotal\",\"sap_directpostingline_linetotal\")\\\r\n",
 					".withColumnRenamed(\"sap_manualjournalsline_doccat\",\"sap_directpostingline_doccat\")"
 				],
-				"execution_count": 127
+				"execution_count": 38
 			},
 			{
 				"cell_type": "code",
@@ -1573,15 +1592,15 @@
 					}
 				},
 				"source": [
-					"stdirectposting.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stdirectposting.parquet', mode = \"overwrite\")"
+					"# stdirectposting.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stdirectposting.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 128
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
 				"metadata": {
 					"jupyter": {
-						"source_hidden": false,
+						"source_hidden": true,
 						"outputs_hidden": false
 					},
 					"nteract": {
@@ -1589,69 +1608,66 @@
 							"deleting": false
 						}
 					},
-					"microsoft": {
-						"language": "sparksql"
-					},
 					"collapsed": false
 				},
 				"source": [
-					"%%sql\r\n",
-					"--ASSETS\r\n",
-					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"stgeneraljournal1\r\n",
-					"AS\r\n",
-					"SELECT\r\n",
-					"    sap_manualjournalsheader_postingdate\r\n",
-					"    ,sap_manualjournalsheader_duedate\r\n",
-					"    ,sap_manualjournalsheader_doctotal\r\n",
-					"    ,sap_manualjournalsheader_doctype\r\n",
-					"    ,sap_manualjournalsheader_transid\r\n",
-					"    ,sap_manualjournalsline_linenum\r\n",
-					"    ,sap_manualjournalsline_acctcode\r\n",
-					"    ,sap_manualjournalsheader_objtype\r\n",
-					"    ,sap_manualjournalsline_project\r\n",
-					"    ,sap_manualjournalsline_vatgroup\r\n",
-					"    ,sap_manualjournalsline_vatrate\r\n",
-					"    ,sap_manualjournalsline_vatamount\r\n",
-					"    ,sap_manualjournalsline_description\r\n",
-					"    ,sap_manualjournalsline_jnlref1\r\n",
-					"    ,sap_manualjournalsline_jnlref2\r\n",
-					"    ,sap_manualjournalsline_subdepotcode\r\n",
-					"    ,SUM(sap_manualjournalsline_debit-sap_manualjournalsline_credit) as sap_manualjournalsline_linetotal\r\n",
-					"    ,'generaljournal' as  sap_manualjournalsline_doccat\r\n",
+					"# -- %%sql\r\n",
+					"# -- --ASSETS\r\n",
+					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
+					"# -- stgeneraljournal1\r\n",
+					"# -- AS\r\n",
+					"# -- SELECT\r\n",
+					"# --     sap_manualjournalsheader_postingdate\r\n",
+					"# --     ,sap_manualjournalsheader_duedate\r\n",
+					"# --     ,sap_manualjournalsheader_doctotal\r\n",
+					"# --     ,sap_manualjournalsheader_doctype\r\n",
+					"# --     ,sap_manualjournalsheader_transid\r\n",
+					"# --     ,sap_manualjournalsline_linenum\r\n",
+					"# --     ,sap_manualjournalsline_acctcode\r\n",
+					"# --     ,sap_manualjournalsheader_objtype\r\n",
+					"# --     ,sap_manualjournalsline_project\r\n",
+					"# --     ,sap_manualjournalsline_vatgroup\r\n",
+					"# --     ,sap_manualjournalsline_vatrate\r\n",
+					"# --     ,sap_manualjournalsline_vatamount\r\n",
+					"# --     ,sap_manualjournalsline_description\r\n",
+					"# --     ,sap_manualjournalsline_jnlref1\r\n",
+					"# --     ,sap_manualjournalsline_jnlref2\r\n",
+					"# --     ,sap_manualjournalsline_subdepotcode\r\n",
+					"# --     ,SUM(sap_manualjournalsline_debit-sap_manualjournalsline_credit) as sap_manualjournalsline_linetotal\r\n",
+					"# --     ,'generaljournal' as  sap_manualjournalsline_doccat\r\n",
 					"\r\n",
-					"    -- ,si.sap_salesinvoiceline_itemcode as sap_manualjournalsline_itemcode\r\n",
-					"    -- ,as sap_manualjournalsheader_cardcode\r\n",
-					"    -- ,as sap_manualjournalsheader_cardref\r\n",
-					"    -- ,i.sap_item_invntitem as sap_manualjournalsline_invntitem\r\n",
+					"# --     -- ,si.sap_salesinvoiceline_itemcode as sap_manualjournalsline_itemcode\r\n",
+					"# --     -- ,as sap_manualjournalsheader_cardcode\r\n",
+					"# --     -- ,as sap_manualjournalsheader_cardref\r\n",
+					"# --     -- ,i.sap_item_invntitem as sap_manualjournalsline_invntitem\r\n",
 					"\r\n",
-					"FROM stmanualjournals_tmp\r\n",
-					"WHERE sap_account_groupmask in (1)\r\n",
-					"GROUP BY\r\n",
-					"    sap_manualjournalsheader_postingdate\r\n",
-					"    ,sap_manualjournalsheader_duedate\r\n",
-					"    ,sap_manualjournalsheader_doctotal\r\n",
-					"    ,sap_manualjournalsheader_doctype\r\n",
-					"    ,sap_manualjournalsheader_transid\r\n",
-					"    ,sap_manualjournalsline_linenum\r\n",
-					"    ,sap_manualjournalsline_acctcode\r\n",
-					"    ,sap_manualjournalsheader_objtype\r\n",
-					"    ,sap_manualjournalsline_project\r\n",
-					"    ,sap_manualjournalsline_vatgroup\r\n",
-					"    ,sap_manualjournalsline_vatrate\r\n",
-					"    ,sap_manualjournalsline_vatamount\r\n",
-					"    ,sap_manualjournalsline_description\r\n",
-					"    ,sap_manualjournalsline_jnlref1\r\n",
-					"    ,sap_manualjournalsline_jnlref2\r\n",
-					"    ,sap_manualjournalsline_subdepotcode"
+					"# -- FROM stmanualjournals_tmp\r\n",
+					"# -- WHERE sap_account_groupmask in (1)\r\n",
+					"# -- GROUP BY\r\n",
+					"# --     sap_manualjournalsheader_postingdate\r\n",
+					"# --     ,sap_manualjournalsheader_duedate\r\n",
+					"# --     ,sap_manualjournalsheader_doctotal\r\n",
+					"# --     ,sap_manualjournalsheader_doctype\r\n",
+					"# --     ,sap_manualjournalsheader_transid\r\n",
+					"# --     ,sap_manualjournalsline_linenum\r\n",
+					"# --     ,sap_manualjournalsline_acctcode\r\n",
+					"# --     ,sap_manualjournalsheader_objtype\r\n",
+					"# --     ,sap_manualjournalsline_project\r\n",
+					"# --     ,sap_manualjournalsline_vatgroup\r\n",
+					"# --     ,sap_manualjournalsline_vatrate\r\n",
+					"# --     ,sap_manualjournalsline_vatamount\r\n",
+					"# --     ,sap_manualjournalsline_description\r\n",
+					"# --     ,sap_manualjournalsline_jnlref1\r\n",
+					"# --     ,sap_manualjournalsline_jnlref2\r\n",
+					"# --     ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 129
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
 				"metadata": {
 					"jupyter": {
-						"source_hidden": false,
+						"source_hidden": true,
 						"outputs_hidden": false
 					},
 					"nteract": {
@@ -1659,69 +1675,66 @@
 							"deleting": false
 						}
 					},
-					"microsoft": {
-						"language": "sparksql"
-					},
 					"collapsed": false
 				},
 				"source": [
-					"%%sql\r\n",
-					"--LIABILITIES\r\n",
-					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"stgeneraljournal2\r\n",
-					"AS\r\n",
-					"SELECT\r\n",
-					"    sap_manualjournalsheader_postingdate\r\n",
-					"    ,sap_manualjournalsheader_duedate\r\n",
-					"    ,sap_manualjournalsheader_doctotal\r\n",
-					"    ,sap_manualjournalsheader_doctype\r\n",
-					"    ,sap_manualjournalsheader_transid\r\n",
-					"    ,sap_manualjournalsline_linenum\r\n",
-					"    ,sap_manualjournalsline_acctcode\r\n",
-					"    ,sap_manualjournalsheader_objtype\r\n",
-					"    ,sap_manualjournalsline_project\r\n",
-					"    ,sap_manualjournalsline_vatgroup\r\n",
-					"    ,sap_manualjournalsline_vatrate\r\n",
-					"    ,sap_manualjournalsline_vatamount\r\n",
-					"    ,sap_manualjournalsline_description\r\n",
-					"    ,sap_manualjournalsline_jnlref1\r\n",
-					"    ,sap_manualjournalsline_jnlref2\r\n",
-					"    ,sap_manualjournalsline_subdepotcode\r\n",
-					"    ,SUM(sap_manualjournalsline_credit-sap_manualjournalsline_debit) as sap_manualjournalsline_linetotal\r\n",
-					"    ,'generaljournal' as  sap_manualjournalsline_doccat\r\n",
+					"# -- %%sql\r\n",
+					"# -- --LIABILITIES\r\n",
+					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
+					"# -- stgeneraljournal2\r\n",
+					"# -- AS\r\n",
+					"# -- SELECT\r\n",
+					"# --     sap_manualjournalsheader_postingdate\r\n",
+					"# --     ,sap_manualjournalsheader_duedate\r\n",
+					"# --     ,sap_manualjournalsheader_doctotal\r\n",
+					"# --     ,sap_manualjournalsheader_doctype\r\n",
+					"# --     ,sap_manualjournalsheader_transid\r\n",
+					"# --     ,sap_manualjournalsline_linenum\r\n",
+					"# --     ,sap_manualjournalsline_acctcode\r\n",
+					"# --     ,sap_manualjournalsheader_objtype\r\n",
+					"# --     ,sap_manualjournalsline_project\r\n",
+					"# --     ,sap_manualjournalsline_vatgroup\r\n",
+					"# --     ,sap_manualjournalsline_vatrate\r\n",
+					"# --     ,sap_manualjournalsline_vatamount\r\n",
+					"# --     ,sap_manualjournalsline_description\r\n",
+					"# --     ,sap_manualjournalsline_jnlref1\r\n",
+					"# --     ,sap_manualjournalsline_jnlref2\r\n",
+					"# --     ,sap_manualjournalsline_subdepotcode\r\n",
+					"# --     ,SUM(sap_manualjournalsline_credit-sap_manualjournalsline_debit) as sap_manualjournalsline_linetotal\r\n",
+					"# --     ,'generaljournal' as  sap_manualjournalsline_doccat\r\n",
 					"\r\n",
-					"    -- ,si.sap_salesinvoiceline_itemcode as sap_manualjournalsline_itemcode\r\n",
-					"    -- ,as sap_manualjournalsheader_cardcode\r\n",
-					"    -- ,as sap_manualjournalsheader_cardref\r\n",
-					"    -- ,i.sap_item_invntitem as sap_manualjournalsline_invntitem\r\n",
+					"# --     -- ,si.sap_salesinvoiceline_itemcode as sap_manualjournalsline_itemcode\r\n",
+					"# --     -- ,as sap_manualjournalsheader_cardcode\r\n",
+					"# --     -- ,as sap_manualjournalsheader_cardref\r\n",
+					"# --     -- ,i.sap_item_invntitem as sap_manualjournalsline_invntitem\r\n",
 					"\r\n",
-					"FROM stmanualjournals_tmp\r\n",
-					"WHERE sap_account_groupmask in (2)\r\n",
-					"GROUP BY\r\n",
-					"    sap_manualjournalsheader_postingdate\r\n",
-					"    ,sap_manualjournalsheader_duedate\r\n",
-					"    ,sap_manualjournalsheader_doctotal\r\n",
-					"    ,sap_manualjournalsheader_doctype\r\n",
-					"    ,sap_manualjournalsheader_transid\r\n",
-					"    ,sap_manualjournalsline_linenum\r\n",
-					"    ,sap_manualjournalsline_acctcode\r\n",
-					"    ,sap_manualjournalsheader_objtype\r\n",
-					"    ,sap_manualjournalsline_project\r\n",
-					"    ,sap_manualjournalsline_vatgroup\r\n",
-					"    ,sap_manualjournalsline_vatrate\r\n",
-					"    ,sap_manualjournalsline_vatamount\r\n",
-					"    ,sap_manualjournalsline_description\r\n",
-					"    ,sap_manualjournalsline_jnlref1\r\n",
-					"    ,sap_manualjournalsline_jnlref2\r\n",
-					"    ,sap_manualjournalsline_subdepotcode"
+					"# -- FROM stmanualjournals_tmp\r\n",
+					"# -- WHERE sap_account_groupmask in (2)\r\n",
+					"# -- GROUP BY\r\n",
+					"# --     sap_manualjournalsheader_postingdate\r\n",
+					"# --     ,sap_manualjournalsheader_duedate\r\n",
+					"# --     ,sap_manualjournalsheader_doctotal\r\n",
+					"# --     ,sap_manualjournalsheader_doctype\r\n",
+					"# --     ,sap_manualjournalsheader_transid\r\n",
+					"# --     ,sap_manualjournalsline_linenum\r\n",
+					"# --     ,sap_manualjournalsline_acctcode\r\n",
+					"# --     ,sap_manualjournalsheader_objtype\r\n",
+					"# --     ,sap_manualjournalsline_project\r\n",
+					"# --     ,sap_manualjournalsline_vatgroup\r\n",
+					"# --     ,sap_manualjournalsline_vatrate\r\n",
+					"# --     ,sap_manualjournalsline_vatamount\r\n",
+					"# --     ,sap_manualjournalsline_description\r\n",
+					"# --     ,sap_manualjournalsline_jnlref1\r\n",
+					"# --     ,sap_manualjournalsline_jnlref2\r\n",
+					"# --     ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 130
+				"execution_count": 41
 			},
 			{
 				"cell_type": "code",
 				"metadata": {
 					"jupyter": {
-						"source_hidden": false,
+						"source_hidden": true,
 						"outputs_hidden": false
 					},
 					"nteract": {
@@ -1729,63 +1742,60 @@
 							"deleting": false
 						}
 					},
-					"microsoft": {
-						"language": "sparksql"
-					},
 					"collapsed": false
 				},
 				"source": [
-					"%%sql\r\n",
-					"--CAPITAL AND RESERVES\r\n",
-					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"stgeneraljournal3\r\n",
-					"AS\r\n",
-					"SELECT\r\n",
-					"    sap_manualjournalsheader_postingdate\r\n",
-					"    ,sap_manualjournalsheader_duedate\r\n",
-					"    ,sap_manualjournalsheader_doctotal\r\n",
-					"    ,sap_manualjournalsheader_doctype\r\n",
-					"    ,sap_manualjournalsheader_transid\r\n",
-					"    ,sap_manualjournalsline_linenum\r\n",
-					"    ,sap_manualjournalsline_acctcode\r\n",
-					"    ,sap_manualjournalsheader_objtype\r\n",
-					"    ,sap_manualjournalsline_project\r\n",
-					"    ,sap_manualjournalsline_vatgroup\r\n",
-					"    ,sap_manualjournalsline_vatrate\r\n",
-					"    ,sap_manualjournalsline_vatamount\r\n",
-					"    ,sap_manualjournalsline_description\r\n",
-					"    ,sap_manualjournalsline_jnlref1\r\n",
-					"    ,sap_manualjournalsline_jnlref2\r\n",
-					"    ,sap_manualjournalsline_subdepotcode\r\n",
-					"    ,SUM(sap_manualjournalsline_credit-sap_manualjournalsline_debit) as sap_manualjournalsline_linetotal\r\n",
-					"    ,'generaljournal' as  sap_manualjournalsline_doccat\r\n",
+					"# -- %%sql\r\n",
+					"# -- --CAPITAL AND RESERVES\r\n",
+					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
+					"# -- stgeneraljournal3\r\n",
+					"# -- AS\r\n",
+					"# -- SELECT\r\n",
+					"# --     sap_manualjournalsheader_postingdate\r\n",
+					"# --     ,sap_manualjournalsheader_duedate\r\n",
+					"# --     ,sap_manualjournalsheader_doctotal\r\n",
+					"# --     ,sap_manualjournalsheader_doctype\r\n",
+					"# --     ,sap_manualjournalsheader_transid\r\n",
+					"# --     ,sap_manualjournalsline_linenum\r\n",
+					"# --     ,sap_manualjournalsline_acctcode\r\n",
+					"# --     ,sap_manualjournalsheader_objtype\r\n",
+					"# --     ,sap_manualjournalsline_project\r\n",
+					"# --     ,sap_manualjournalsline_vatgroup\r\n",
+					"# --     ,sap_manualjournalsline_vatrate\r\n",
+					"# --     ,sap_manualjournalsline_vatamount\r\n",
+					"# --     ,sap_manualjournalsline_description\r\n",
+					"# --     ,sap_manualjournalsline_jnlref1\r\n",
+					"# --     ,sap_manualjournalsline_jnlref2\r\n",
+					"# --     ,sap_manualjournalsline_subdepotcode\r\n",
+					"# --     ,SUM(sap_manualjournalsline_credit-sap_manualjournalsline_debit) as sap_manualjournalsline_linetotal\r\n",
+					"# --     ,'generaljournal' as  sap_manualjournalsline_doccat\r\n",
 					"\r\n",
-					"    -- ,si.sap_salesinvoiceline_itemcode as sap_manualjournalsline_itemcode\r\n",
-					"    -- ,as sap_manualjournalsheader_cardcode\r\n",
-					"    -- ,as sap_manualjournalsheader_cardref\r\n",
-					"    -- ,i.sap_item_invntitem as sap_manualjournalsline_invntitem\r\n",
+					"# --     -- ,si.sap_salesinvoiceline_itemcode as sap_manualjournalsline_itemcode\r\n",
+					"# --     -- ,as sap_manualjournalsheader_cardcode\r\n",
+					"# --     -- ,as sap_manualjournalsheader_cardref\r\n",
+					"# --     -- ,i.sap_item_invntitem as sap_manualjournalsline_invntitem\r\n",
 					"\r\n",
-					"FROM stmanualjournals_tmp\r\n",
-					"WHERE sap_account_groupmask in (3)\r\n",
-					"GROUP BY\r\n",
-					"    sap_manualjournalsheader_postingdate\r\n",
-					"    ,sap_manualjournalsheader_duedate\r\n",
-					"    ,sap_manualjournalsheader_doctotal\r\n",
-					"    ,sap_manualjournalsheader_doctype\r\n",
-					"    ,sap_manualjournalsheader_transid\r\n",
-					"    ,sap_manualjournalsline_linenum\r\n",
-					"    ,sap_manualjournalsline_acctcode\r\n",
-					"    ,sap_manualjournalsheader_objtype\r\n",
-					"    ,sap_manualjournalsline_project\r\n",
-					"    ,sap_manualjournalsline_vatgroup\r\n",
-					"    ,sap_manualjournalsline_vatrate\r\n",
-					"    ,sap_manualjournalsline_vatamount\r\n",
-					"    ,sap_manualjournalsline_description\r\n",
-					"    ,sap_manualjournalsline_jnlref1\r\n",
-					"    ,sap_manualjournalsline_jnlref2\r\n",
-					"    ,sap_manualjournalsline_subdepotcode"
+					"# -- FROM stmanualjournals_tmp\r\n",
+					"# -- WHERE sap_account_groupmask in (3)\r\n",
+					"# -- GROUP BY\r\n",
+					"# --     sap_manualjournalsheader_postingdate\r\n",
+					"# --     ,sap_manualjournalsheader_duedate\r\n",
+					"# --     ,sap_manualjournalsheader_doctotal\r\n",
+					"# --     ,sap_manualjournalsheader_doctype\r\n",
+					"# --     ,sap_manualjournalsheader_transid\r\n",
+					"# --     ,sap_manualjournalsline_linenum\r\n",
+					"# --     ,sap_manualjournalsline_acctcode\r\n",
+					"# --     ,sap_manualjournalsheader_objtype\r\n",
+					"# --     ,sap_manualjournalsline_project\r\n",
+					"# --     ,sap_manualjournalsline_vatgroup\r\n",
+					"# --     ,sap_manualjournalsline_vatrate\r\n",
+					"# --     ,sap_manualjournalsline_vatamount\r\n",
+					"# --     ,sap_manualjournalsline_description\r\n",
+					"# --     ,sap_manualjournalsline_jnlref1\r\n",
+					"# --     ,sap_manualjournalsline_jnlref2\r\n",
+					"# --     ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 131
+				"execution_count": 42
 			},
 			{
 				"cell_type": "code",
@@ -1855,7 +1865,7 @@
 					"    ,sap_manualjournalsline_jnlref2\r\n",
 					"    ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 132
+				"execution_count": 43
 			},
 			{
 				"cell_type": "code",
@@ -1925,7 +1935,7 @@
 					"    ,sap_manualjournalsline_jnlref2\r\n",
 					"    ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 133
+				"execution_count": 44
 			},
 			{
 				"cell_type": "code",
@@ -1996,7 +2006,7 @@
 					"    ,sap_manualjournalsline_jnlref2\r\n",
 					"    ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 134
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -2067,7 +2077,7 @@
 					"    ,sap_manualjournalsline_jnlref2\r\n",
 					"    ,sap_manualjournalsline_subdepotcode"
 				],
-				"execution_count": 135
+				"execution_count": 46
 			},
 			{
 				"cell_type": "code",
@@ -2083,15 +2093,15 @@
 					}
 				},
 				"source": [
-					"stgeneraljournal1 = spark.sql(\"SELECT * FROM stgeneraljournal1\")\r\n",
-					"stgeneraljournal2 = spark.sql(\"SELECT * FROM stgeneraljournal2\")\r\n",
-					"stgeneraljournal3 = spark.sql(\"SELECT * FROM stgeneraljournal3\")\r\n",
+					"# stgeneraljournal1 = spark.sql(\"SELECT * FROM stgeneraljournal1\")\r\n",
+					"# stgeneraljournal2 = spark.sql(\"SELECT * FROM stgeneraljournal2\")\r\n",
+					"# stgeneraljournal3 = spark.sql(\"SELECT * FROM stgeneraljournal3\")\r\n",
 					"stgeneraljournal4 = spark.sql(\"SELECT * FROM stgeneraljournal4\")\r\n",
 					"stgeneraljournal5 = spark.sql(\"SELECT * FROM stgeneraljournal5\")\r\n",
 					"stgeneraljournal6 = spark.sql(\"SELECT * FROM stgeneraljournal6\")\r\n",
 					"stgeneraljournal7 = spark.sql(\"SELECT * FROM stgeneraljournal7\")"
 				],
-				"execution_count": 136
+				"execution_count": 47
 			},
 			{
 				"cell_type": "code",
@@ -2107,9 +2117,9 @@
 					}
 				},
 				"source": [
-					"stgeneraljournal = stgeneraljournal1.unionByName(stgeneraljournal2, allowMissingColumns = True).unionByName(stgeneraljournal3, allowMissingColumns = True).unionByName(stgeneraljournal4, allowMissingColumns = True).unionByName(stgeneraljournal5, allowMissingColumns = True).unionByName(stgeneraljournal6, allowMissingColumns = True).unionByName(stgeneraljournal7, allowMissingColumns = True)"
+					"stgeneraljournal = stgeneraljournal4.unionByName(stgeneraljournal5, allowMissingColumns = True).unionByName(stgeneraljournal6, allowMissingColumns = True).unionByName(stgeneraljournal7, allowMissingColumns = True)"
 				],
-				"execution_count": 137
+				"execution_count": 48
 			},
 			{
 				"cell_type": "code",
@@ -2145,7 +2155,7 @@
 					".withColumnRenamed(\"sap_manualjournalsline_doccat\",\"sap_generaljournalline_doccat\")\r\n",
 					""
 				],
-				"execution_count": 138
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
@@ -2161,9 +2171,9 @@
 					}
 				},
 				"source": [
-					"stgeneraljournal.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stgeneraljournal.parquet', mode = \"overwrite\")"
+					"# stgeneraljournal.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stgeneraljournal.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 139
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -2181,7 +2191,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 140
+				"execution_count": 51
 			}
 		]
 	}

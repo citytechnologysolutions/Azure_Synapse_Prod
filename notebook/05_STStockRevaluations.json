@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "5f451d21-9edb-4dca-82ce-9ef05c514844"
+				"spark.autotune.trackingId": "b5003209-d5ec-46bc-b6f2-a9f9c9c5aed2"
 			}
 		},
 		"metadata": {
@@ -65,19 +65,19 @@
 					}
 				},
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -95,7 +95,7 @@
 					"# dboMRV2.createOrReplaceTempView(\"dboMRV2\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -132,18 +132,18 @@
 					"     -- ,mrv1.objtype as sap_stockrevaluationsline_objtype\r\n",
 					"     ,mrv1.itemcode as sap_stockrevaluationsline_itemcode\r\n",
 					"     ,Right(Left(mrv1.itemcode,5),3) as sap_stockrevaluationsline_subdepotcode\r\n",
-					"     ,mrv1.rtostock as sap_stockrevaluationsline_linetotal\r\n",
+					"     ,mrv2.rtostock as sap_stockrevaluationsline_linetotal\r\n",
 					"     ,mrv1.rincmacct as sap_stockrevaluationsline_acctcode\r\n",
 					"     --,mrv2.baseline as sap_stockrevaluationsline_baseline\r\n",
 					"     ,'stockrevaluation' as sap_stockrevaluationsline_doccat\r\n",
 					"\r\n",
 					"FROM dboOMRV omrv\r\n",
 					"LEFT JOIN dboMRV1 mrv1 on mrv1.docentry = omrv.docentry\r\n",
-					"LEFT JOIN dboMRV2 mrv2 on mrv2.docentry = omrv.docentry and mrv2.rtostock = mrv1.rtostock\r\n",
+					"LEFT JOIN dboMRV2 mrv2 on mrv2.docentry = omrv.docentry and mrv2.baseline = mrv1.linenum\r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -161,7 +161,7 @@
 				"source": [
 					"ststockrevaluations = spark.sql(\"SELECT * FROM ststockrevaluations\")"
 				],
-				"execution_count": 4
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -179,7 +179,7 @@
 				"source": [
 					"# ststockrevaluations.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/ststockrevaluations.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -197,7 +197,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": null
+				"execution_count": 12
 			}
 		]
 	}

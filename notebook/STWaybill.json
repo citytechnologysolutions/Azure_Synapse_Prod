@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "e8e2fc62-27e8-49ef-a762-2c0b6d3865f6"
+				"spark.autotune.trackingId": "792c0e19-db37-4935-b3d4-38e8bb97dda8"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -65,19 +65,19 @@
 					}
 				},
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
-				"execution_count": null
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -101,7 +101,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 1
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -188,11 +188,18 @@
 					"    ,w.LastUpdate as lms_waybill_lastupdate\r\n",
 					"    ,w.Dropsequence as lms_waybill_dropsequence\r\n",
 					"    ,w.Noofparcelssreturned as lms_waybill_noofparcelssreturned\r\n",
-					"    ,pbw.lms_parcelbywaybill_aggweight\r\n",
-					"    ,pbw.lms_parcelbywaybill_aggchargeweight\r\n",
-					"    ,pbw.lms_parcelbywaybill_aggvolweight\r\n",
-					"    ,pbw.lms_parcelbywaybill_aggvolumiserweight\r\n",
-					"    ,pbw.lms_parcelbywaybill_noparcels\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrchargeweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolumiserweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrmaxweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrnoparcels\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrchargeweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolumiserweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrmaxweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrnoparcelsexclspecdel\r\n",
 					"    ,d.id as orv_delivery_id\r\n",
 					"    ,d.did as orv_delivery_did\r\n",
 					"    ,d.waybillid as orv_delivery_waybillid\r\n",
@@ -289,7 +296,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -307,7 +314,7 @@
 				"source": [
 					"stwaybill = spark.sql(\"SELECT * FROM stwaybill\")"
 				],
-				"execution_count": 6
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -326,7 +333,7 @@
 					"# stwaybill.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', mode = \"overwrite\")\r\n",
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 7
+				"execution_count": 8
 			}
 		]
 	}

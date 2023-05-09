@@ -1,0 +1,20 @@
+{
+	"name": "T_STKMsandLTs",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STKMsandLTs') )\n    DROP EXTERNAL TABLE dbo.T_STKMsandLTs\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STKMsandLTs (\n[excel_kmsandlts_registrationnumber] nvarchar(4000),\n[excel_kmsandlts_fleetcode] nvarchar(4000),\n[excel_kmsandlts_date] date,\n[excel_kmsandlts_time] nvarchar(4000),\n[excel_kmsandlts_fuelcompany] nvarchar(4000),\n[excel_kmsandlts_voucherno] nvarchar(4000),\n[excel_kmsandlts_fuelstation] nvarchar(4000),\n[excel_kmsandlts_previousodo] int,\n[excel_kmsandlts_odo] int,\n[excel_kmsandlts_tripkm] int,\n[excel_kmsandlts_consumptionper100kms] numeric(18,2),\n[excel_kmsandlts_consumptionperunit] numeric(18,2),\n[excel_kmsandlts_ltsloss] numeric(18,2),\n[excel_kmsandlts_randsloss] numeric(18,2),\n[excel_kmsandlts_triplts] float,\n[excel_kmsandlts_priceperunit] numeric(18,2),\n[excel_kmsandlts_fuelamount] numeric(18,2),\n[excel_kmsandlts_pickuptype] nvarchar(4000),\n[excel_kmsandlts_account] nvarchar(4000),\n[excel_kmsandlts_costcentre] nvarchar(4000),\n[excel_kmsandlts_division] nvarchar(4000),\n[excel_kmsandlts_make] nvarchar(4000),\n[excel_kmsandlts_range] nvarchar(4000),\n[excel_kmsandlts_model] nvarchar(4000),\n[excel_kmsandlts_consumptionexpected] numeric(18,2),\n\n)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/stkmsandlts.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t);\n\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STKMsandLTs\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

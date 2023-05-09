@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "31de3d9a-4893-40ab-b50d-3d8339a65c47"
+				"spark.autotune.trackingId": "27ff3864-adb5-4698-97e3-99a5f16dd1f8"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -65,17 +65,17 @@
 					}
 				},
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
 				"execution_count": null
 			},
@@ -93,6 +93,10 @@
 					"# #Create DataFrame for the publicroute TMS Table\r\n",
 					"# publicroute = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicroute.parquet', format='parquet')\r\n",
 					"# publicroute.createOrReplaceTempView(\"publicroute\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolh_routes TMS Table\r\n",
+					"# dbolh_routes = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbolh_routes.parquet', format='parquet')\r\n",
+					"# dbolh_routes.createOrReplaceTempView(\"dbolh_routes\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the publicaddress TMS Table\r\n",
 					"# publicaddress = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicaddress.parquet', format='parquet')\r\n",
@@ -132,7 +136,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 45
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -1014,7 +1018,7 @@
 				"source": [
 					"stparentroute = spark.sql(\"SELECT * FROM stparentroute\")"
 				],
-				"execution_count": 37
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1054,30 +1058,116 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"stopsroute\r\n",
+					"stopsroute_tmp1\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					"    r.id as tms_parentroute_id\r\n",
-					"    ,r.name as tms_parentroute_name\r\n",
-					"    ,r.slug as tms_parentroute_slug\r\n",
-					"    ,r.parentroute as tms_parentroute_parentroute\r\n",
-					"    ,to_timestamp(r.insdate) as tms_parentroute_insdate\r\n",
-					"    ,to_timestamp(r.moddate) as tms_parentroute_moddate\r\n",
-					"    ,r.insby as tms_parentroute_insby\r\n",
-					"    ,r.status as tms_parentroute_status\r\n",
-					"    ,r.crossborder as tms_parentroute_crossborder\r\n",
-					"    ,r.roundtripdays as tms_parentroute_roundtripdays\r\n",
-					"    ,r.distance as tms_parentroute_distance\r\n",
-					"    ,r.duration as tms_parentroute_duration\r\n",
-					"    ,r.numofuse as tms_parentroute_numofuse\r\n",
-					"    ,r.legacyid as tms_parentroute_legacyid\r\n",
-					"    ,r.local as tms_parentroute_local\r\n",
+					"    r.id as tms_opsroute_id\r\n",
+					"    ,r.name as tms_opsroute_name\r\n",
+					"    ,r.slug as tms_opsroute_slug\r\n",
+					"    ,r.parentroute as tms_opsroute_parentroute\r\n",
+					"    ,to_timestamp(r.insdate) as tms_opsroute_insdate\r\n",
+					"    ,to_timestamp(r.moddate) as tms_opsroute_moddate\r\n",
+					"    ,r.insby as tms_opsroute_insby\r\n",
+					"    ,r.status as tms_opsroute_status\r\n",
+					"    ,r.crossborder as tms_opsroute_crossborder\r\n",
+					"    ,r.roundtripdays as tms_opsroute_roundtripdays\r\n",
+					"    ,r.distance as tms_opsroute_distance\r\n",
+					"    ,r.duration as tms_opsroute_duration\r\n",
+					"    ,r.numofuse as tms_opsroute_numofuse\r\n",
+					"    ,r.legacyid as tms_opsroute_legacyid\r\n",
+					"    ,r.local as tms_opsroute_local\r\n",
 					"\r\n",
 					"FROM publicroute r\r\n",
 					"WHERE r.parentroute is not null\r\n",
 					""
 				],
-				"execution_count": 39
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stopsroute_tmp1 = spark.sql(\"SELECT * FROM stopsroute_tmp1\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stopsroute_tmp2\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    (r.id)*-1 as tms_opsroute_id\r\n",
+					"    ,upper(r.description) as tms_opsroute_name\r\n",
+					"\r\n",
+					"FROM dbolh_routes r\r\n",
+					""
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stopsroute_tmp2 = spark.sql(\"SELECT * FROM stopsroute_tmp2\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stopsroute = stopsroute_tmp1.unionByName(stopsroute_tmp2, allowMissingColumns = True)\r\n",
+					"stopsroute.createOrReplaceTempView(\"stopsroute\")"
+				],
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -1095,7 +1185,7 @@
 				"source": [
 					"stopsroute = spark.sql(\"SELECT * FROM stopsroute\")"
 				],
-				"execution_count": 40
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -1113,7 +1203,7 @@
 				"source": [
 					"# stopsroute.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stopsroute.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 41
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",

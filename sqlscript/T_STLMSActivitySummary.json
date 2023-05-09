@@ -1,0 +1,20 @@
+{
+	"name": "T_STLMSActivitySummary",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STLMSActivitySummary') )\n    DROP EXTERNAL TABLE dbo.T_STLMSActivitySummary\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STLMSActivitySummary (\n[lms_activity_transidtype] nvarchar(4000),\n[lms_activity_date] date,\n[lms_activity_movementtype] nvarchar(4000),\n[lms_activity_location] nvarchar(4000),\n[lms_activity_aggrweight] numeric(18,2),\n[lms_activity_aggrchargeweight] numeric(18,2),\n[lms_activity_aggrvolweight] numeric(18,2),\n[lms_activity_aggrvolumiserweight] numeric(18,2),\n[lms_activity_aggrmaxweight] numeric(18,2),\n[lms_activity_aggrnoparcels] bigint,\n[lms_activity_aggrweightexclspecdel] numeric(18,2),\n[lms_activity_aggrchargeweightexclspecdel] numeric(18,2),\n[lms_activity_aggrvolweightexclspecdel] numeric(18,2),\n[lms_activity_aggrvolumiserweightexclspecdel] numeric(18,2),\n[lms_activity_aggrmaxweightexclspecdel] numeric(18,2),\n[lms_activity_aggrnoparcelsexclspecdel] bigint,\n\n\n)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/stactivitysummary.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t);\n\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STLMSActivitySummary \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

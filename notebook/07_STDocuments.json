@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "76f32eef-ebfa-4708-a77a-4c0a4394a817"
+				"spark.autotune.trackingId": "44bed1d6-99e4-4f0b-b331-eed58c0a0350"
 			}
 		},
 		"metadata": {
@@ -65,19 +65,19 @@
 					}
 				},
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 55
+				"execution_count": 114
 			},
 			{
 				"cell_type": "code",
@@ -154,7 +154,7 @@
 					"# dboPOR1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboPOR1.parquet', format='parquet')\r\n",
 					"# dboPOR1.createOrReplaceTempView(\"dboPOR1\")"
 				],
-				"execution_count": 56
+				"execution_count": 115
 			},
 			{
 				"cell_type": "code",
@@ -180,7 +180,8 @@
 					"stpurchaseorder\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					"    opor.docentry as sap_purchaseorderheader_docentry\r\n",
+					"    '' as sap_purchaseorderline_polookupid\r\n",
+					"    ,opor.docentry as sap_purchaseorderheader_docentry\r\n",
 					"    ,opor.docnum as sap_purchaseorderheader_docnum\r\n",
 					"    ,opor.doctype as sap_purchaseorderheader_doctype\r\n",
 					"    -- ,opor.canceled as sap_purchaseorderheader_canceled\r\n",
@@ -238,7 +239,7 @@
 					"LEFT JOIN dboPOR1 por1 on por1.docentry = opor.docentry\r\n",
 					"WHERE opor.canceled = 'N'"
 				],
-				"execution_count": 57
+				"execution_count": 116
 			},
 			{
 				"cell_type": "code",
@@ -257,7 +258,30 @@
 					"stpurchaseorder = spark.sql(\"SELECT * FROM stpurchaseorder\")\r\n",
 					"stpurchaseorder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stpurchaseorder.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 58
+				"execution_count": 117
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"select * from stpurchaseorder where (sap_purchaseorderline_polookupid) is not null limit 1000"
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -291,7 +315,7 @@
 					"GROUP BY oinv.docnum, oinv.discsum\r\n",
 					""
 				],
-				"execution_count": 59
+				"execution_count": 118
 			},
 			{
 				"cell_type": "code",
@@ -309,7 +333,7 @@
 				"source": [
 					"stsalesinvoice_tmp = spark.sql(\"SELECT * FROM stsalesinvoice_tmp\")"
 				],
-				"execution_count": 60
+				"execution_count": 119
 			},
 			{
 				"cell_type": "code",
@@ -334,8 +358,8 @@
 					"stsalesinvoice\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					"\r\n",
-					"    oinv.docentry as sap_salesinvoiceheader_docentry\r\n",
+					"    '' as sap_salesinvoiceline_polookupid\r\n",
+					"    ,oinv.docentry as sap_salesinvoiceheader_docentry\r\n",
 					"    ,oinv.docnum as sap_salesinvoiceheader_docnum\r\n",
 					"    ,oinv.doctype as sap_salesinvoiceheader_doctype\r\n",
 					"    -- ,oinv.canceled as sap_salesinvoiceheader_canceled\r\n",
@@ -393,7 +417,7 @@
 					"LEFT JOIN stsalesinvoice_tmp t on t.docnum = oinv.docnum\r\n",
 					"WHERE oinv.canceled = 'N'"
 				],
-				"execution_count": 61
+				"execution_count": 120
 			},
 			{
 				"cell_type": "code",
@@ -412,7 +436,7 @@
 					"stsalesinvoice = spark.sql(\"SELECT * FROM stsalesinvoice\")\r\n",
 					"stsalesinvoice.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoice.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 62
+				"execution_count": 121
 			},
 			{
 				"cell_type": "code",
@@ -445,7 +469,7 @@
 					"\r\n",
 					"GROUP BY orin.docnum, orin.discsum"
 				],
-				"execution_count": 63
+				"execution_count": 122
 			},
 			{
 				"cell_type": "code",
@@ -463,7 +487,7 @@
 				"source": [
 					"stsalescredit_tmp = spark.sql(\"SELECT * FROM stsalescredit_tmp\")"
 				],
-				"execution_count": 64
+				"execution_count": 123
 			},
 			{
 				"cell_type": "code",
@@ -489,7 +513,8 @@
 					"stsalescredit\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					"    orin.docentry as sap_salescreditheader_docentry\r\n",
+					"    '' as sap_salescreditline_polookupid\r\n",
+					"    ,orin.docentry as sap_salescreditheader_docentry\r\n",
 					"    ,orin.docnum as sap_salescreditheader_docnum\r\n",
 					"    ,orin.doctype as sap_salescreditheader_doctype\r\n",
 					"    -- ,orin.canceled as sap_salescreditheader_canceled\r\n",
@@ -547,7 +572,7 @@
 					"LEFT JOIN stsalescredit_tmp t on t.docnum = orin.docnum\r\n",
 					"WHERE orin.canceled = 'N'"
 				],
-				"execution_count": 65
+				"execution_count": 124
 			},
 			{
 				"cell_type": "code",
@@ -566,7 +591,7 @@
 					"stsalescredit = spark.sql(\"SELECT * FROM stsalescredit\")\r\n",
 					"stsalescredit.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stsalescredit.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 66
+				"execution_count": 125
 			},
 			{
 				"cell_type": "code",
@@ -598,7 +623,7 @@
 					"LEFT JOIN dboPCH1 pch1 on pch1.docentry = opch.docentry\r\n",
 					"GROUP BY opch.docnum, opch.discsum"
 				],
-				"execution_count": 67
+				"execution_count": 126
 			},
 			{
 				"cell_type": "code",
@@ -616,7 +641,7 @@
 				"source": [
 					"stpurchaseinvoice_tmp = spark.sql(\"SELECT * FROM stpurchaseinvoice_tmp\")"
 				],
-				"execution_count": 68
+				"execution_count": 127
 			},
 			{
 				"cell_type": "code",
@@ -642,7 +667,8 @@
 					"stpurchaseinvoice\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					"    opch.docentry as sap_purchaseinvoiceheader_docentry\r\n",
+					"    pch1.baseline||'_'||pch1.baseref  as sap_purchaseinvoiceline_polookupid\r\n",
+					"    ,opch.docentry as sap_purchaseinvoiceheader_docentry\r\n",
 					"    ,opch.docnum as sap_purchaseinvoiceheader_docnum\r\n",
 					"    ,opch.doctype as sap_purchaseinvoiceheader_doctype\r\n",
 					"    -- ,opch.canceled as sap_purchaseinvoiceheader_canceled\r\n",
@@ -700,7 +726,7 @@
 					"LEFT JOIN stpurchaseinvoice_tmp t on t.docnum = opch.docnum\r\n",
 					"WHERE opch.canceled = 'N'"
 				],
-				"execution_count": 69
+				"execution_count": 128
 			},
 			{
 				"cell_type": "code",
@@ -719,7 +745,7 @@
 					"stpurchaseinvoice = spark.sql(\"SELECT * FROM stpurchaseinvoice\")\r\n",
 					"stpurchaseinvoice.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stpurchaseinvoice.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 70
+				"execution_count": 129
 			},
 			{
 				"cell_type": "code",
@@ -751,7 +777,7 @@
 					"LEFT JOIN dboRPC1 rpc1 on rpc1.docentry = orpc.docentry\r\n",
 					"GROUP BY orpc.docnum, orpc.discsum"
 				],
-				"execution_count": 71
+				"execution_count": 130
 			},
 			{
 				"cell_type": "code",
@@ -769,7 +795,7 @@
 				"source": [
 					"stpurchasecredit_tmp = spark.sql(\"SELECT * FROM stpurchasecredit_tmp\")"
 				],
-				"execution_count": 72
+				"execution_count": 131
 			},
 			{
 				"cell_type": "code",
@@ -794,7 +820,8 @@
 					"stpurchasecredit\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					"    orpc.docentry as sap_purchasecreditheader_docentry\r\n",
+					"    '' as sap_purchasecreditinvoiceline_polookupid\r\n",
+					"    ,orpc.docentry as sap_purchasecreditheader_docentry\r\n",
 					"    ,orpc.docnum as sap_purchasecreditheader_docnum\r\n",
 					"    ,orpc.doctype as sap_purchasecreditheader_doctype\r\n",
 					"    -- ,orpc.canceled as sap_purchasecreditheader_canceled\r\n",
@@ -852,7 +879,7 @@
 					"LEFT JOIN stpurchasecredit_tmp t on t.docnum = orpc.docnum\r\n",
 					"WHERE orpc.canceled = 'N'"
 				],
-				"execution_count": 73
+				"execution_count": 132
 			},
 			{
 				"cell_type": "code",
@@ -871,7 +898,7 @@
 					"stpurchasecredit = spark.sql(\"SELECT * FROM stpurchasecredit\")\r\n",
 					"stpurchasecredit.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stpurchasecredit.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 74
+				"execution_count": 133
 			},
 			{
 				"cell_type": "code",
@@ -903,7 +930,7 @@
 					"LEFT JOIN dboPDN1 opd1 on opd1.docentry = opdn.docentry\r\n",
 					"GROUP BY opdn.docnum, opdn.discsum"
 				],
-				"execution_count": 75
+				"execution_count": 134
 			},
 			{
 				"cell_type": "code",
@@ -921,7 +948,7 @@
 				"source": [
 					"stgoodsreceiptnote_tmp = spark.sql(\"SELECT * FROM stgoodsreceiptnote_tmp\")"
 				],
-				"execution_count": 76
+				"execution_count": 135
 			},
 			{
 				"cell_type": "code",
@@ -947,7 +974,8 @@
 					"stgoodsreceiptnote\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					"    opdn.docentry as sap_goodsreceiptnoteheader_docentry\r\n",
+					"    '' as sap_goodsreceiptnoteline_polookupid\r\n",
+					"    ,opdn.docentry as sap_goodsreceiptnoteheader_docentry\r\n",
 					"    ,opdn.docnum as sap_goodsreceiptnoteheader_docnum\r\n",
 					"    ,opdn.doctype as sap_goodsreceiptnoteheader_doctype\r\n",
 					"    -- ,opdn.canceled as sap_goodsreceiptnoteheader_canceled\r\n",
@@ -1006,7 +1034,7 @@
 					"WHERE opdn.canceled = 'N' \r\n",
 					"AND pdn1.linestatus = 'O'"
 				],
-				"execution_count": 77
+				"execution_count": 136
 			},
 			{
 				"cell_type": "code",
@@ -1025,7 +1053,59 @@
 					"stgoodsreceiptnote = spark.sql(\"SELECT * FROM stgoodsreceiptnote\")\r\n",
 					"stgoodsreceiptnote.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stgoodsreceiptnote.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 78
+				"execution_count": 137
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stpolookup\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    pdn1.linenum||'_'||opdn.docnum as sap_polookup_polookupid\r\n",
+					"    ,pdn1.baseref as sap_polookup_baseref\r\n",
+					"    ,opdn.docnum as sap_polookup_docnum\r\n",
+					"    ,to_date(opdn.docdate,'yyyy-MM-dd') as sap_polookup_docdate\r\n",
+					"FROM dboOPDN opdn\r\n",
+					"LEFT JOIN dboPDN1 pdn1 on pdn1.docentry = opdn.docentry\r\n",
+					""
+				],
+				"execution_count": 138
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stpolookup = spark.sql(\"SELECT * FROM stpolookup\")\r\n",
+					"stpolookup.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stpolookup.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 139
 			},
 			{
 				"cell_type": "code",
@@ -1057,7 +1137,7 @@
 					"LEFT JOIN dboRPD1 rpd1 on rpd1.docentry = orpd.docentry\r\n",
 					"GROUP BY orpd.docnum, orpd.discsum"
 				],
-				"execution_count": 79
+				"execution_count": 140
 			},
 			{
 				"cell_type": "code",
@@ -1075,7 +1155,7 @@
 				"source": [
 					"stgoodsreturn_tmp = spark.sql(\"SELECT * FROM stgoodsreturn_tmp\")"
 				],
-				"execution_count": 80
+				"execution_count": 141
 			},
 			{
 				"cell_type": "code",
@@ -1100,7 +1180,8 @@
 					"stgoodsreturn\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					"    orpd.docentry as sap_goodsreturnheader_docentry\r\n",
+					"    '' as sap_goodsreturnline_polookupid\r\n",
+					"    ,orpd.docentry as sap_goodsreturnheader_docentry\r\n",
 					"    ,orpd.docnum as sap_goodsreturnheader_docnum\r\n",
 					"    ,orpd.doctype as sap_goodsreturnheader_doctype\r\n",
 					"    -- ,orpd.canceled as sap_goodsreturnheader_canceled\r\n",
@@ -1160,7 +1241,7 @@
 					"WHERE orpd.canceled = 'N' \r\n",
 					""
 				],
-				"execution_count": 81
+				"execution_count": 142
 			},
 			{
 				"cell_type": "code",
@@ -1179,7 +1260,7 @@
 					"stgoodsreturn = spark.sql(\"SELECT * FROM stgoodsreturn\")\r\n",
 					"stgoodsreturn.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stgoodsreturn.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 82
+				"execution_count": 143
 			},
 			{
 				"cell_type": "code",
@@ -1197,7 +1278,7 @@
 				"source": [
 					"stdocuments = stsalesinvoice.unionAll(stsalescredit).unionAll(stpurchaseinvoice).unionAll(stpurchasecredit).unionAll(stgoodsreceiptnote).unionAll(stgoodsreturn).unionAll(stpurchaseorder)"
 				],
-				"execution_count": 83
+				"execution_count": 144
 			},
 			{
 				"cell_type": "code",
@@ -1213,7 +1294,8 @@
 					}
 				},
 				"source": [
-					"stdocuments = stdocuments.withColumnRenamed(\"sap_salesinvoiceheader_docentry\",\"sap_documentsheader_docentry\")\\\r\n",
+					"stdocuments = stdocuments.withColumnRenamed(\"sap_salesinvoiceline_polookupid\",\"sap_documentsline_polookupid\")\\\r\n",
+					".withColumnRenamed(\"sap_salesinvoiceheader_docentry\",\"sap_documentsheader_docentry\")\\\r\n",
 					".withColumnRenamed(\"sap_salesinvoiceheader_docnum\",\"sap_documentsheader_docnum\")\\\r\n",
 					".withColumnRenamed(\"sap_salesinvoiceheader_doctype\",\"sap_documentsheader_doctype\")\\\r\n",
 					".withColumnRenamed(\"sap_salesinvoiceheader_objtype\",\"sap_documentsheader_objtype\")\\\r\n",
@@ -1254,7 +1336,7 @@
 					".withColumnRenamed(\"sap_salesinvoiceline_u_ir_number\",\"sap_documentsline_u_ir_number\")\\\r\n",
 					".withColumnRenamed(\"sap_salesinvoiceline_discsum\",\"sap_documentsline_discsum\")"
 				],
-				"execution_count": 84
+				"execution_count": 145
 			},
 			{
 				"cell_type": "code",
@@ -1272,7 +1354,7 @@
 				"source": [
 					"stdocuments.createOrReplaceTempView(\"stdocuments\")"
 				],
-				"execution_count": 85
+				"execution_count": 146
 			},
 			{
 				"cell_type": "code",
@@ -1290,7 +1372,7 @@
 				"source": [
 					"stdocuments = spark.sql(\"SELECT * FROM stdocuments\")"
 				],
-				"execution_count": 86
+				"execution_count": 147
 			},
 			{
 				"cell_type": "code",
@@ -1308,7 +1390,7 @@
 				"source": [
 					"# stdocuments.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stdocuments.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 88
+				"execution_count": 151
 			},
 			{
 				"cell_type": "code",
@@ -1326,7 +1408,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": null
+				"execution_count": 149
 			}
 		]
 	}

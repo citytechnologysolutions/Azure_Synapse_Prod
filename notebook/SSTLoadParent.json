@@ -2,25 +2,25 @@
 	"name": "SSTLoadParent",
 	"properties": {
 		"folder": {
-			"name": "TRANSFORM/01 SEMI-STRUCTURED/LMS + ORV"
+			"name": "TRANSFORM/01 SEMI-STRUCTURED/03_LMS + ORV"
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "f8a0b374-fe36-44f6-9f60-7cb5a0159aec"
+				"spark.autotune.trackingId": "fa6653f3-0b18-4ca7-9347-2630b9d4adcb"
 			}
 		},
 		"metadata": {
@@ -34,19 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
-				"automaticScaleJobs": false
+				"cores": 4,
+				"memory": 28
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -65,19 +64,19 @@
 					}
 				},
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
-				"execution_count": null
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -110,7 +109,7 @@
 					"# dbovehiclebasic = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclebasic.parquet', format='parquet')\r\n",
 					"# dbovehiclebasic.createOrReplaceTempView(\"dbovehiclebasic\")"
 				],
-				"execution_count": 1
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -136,18 +135,25 @@
 					"AS\r\n",
 					"SELECT \r\n",
 					"    lc.lms_loads_parentloadid as lms_loadchild_parentloadid\r\n",
-					"    ,sum(lc.lms_parcelbyload_aggweight) as lms_loadchild_aggweight\r\n",
-					"    ,sum(lc.lms_parcelbyload_aggchargeweight) as lms_loadchild_aggchargeweight\r\n",
-					"    ,sum(lc.lms_parcelbyload_aggvolweight) as lms_loadchild_aggvolweight\r\n",
-					"    ,sum(lc.lms_parcelbyload_aggvolumiserweight) as lms_loadchild_aggvolumiserweight\r\n",
-					"    ,sum(lc.lms_parcelbyload_noparcels) as lms_loadchild_noparcels\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrweight) as lms_loadchild_aggrweight\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrchargeweight) as lms_loadchild_aggrchargeweight\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrvolweight) as lms_loadchild_aggrvolweight\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrvolumiserweight) as lms_loadchild_aggrvolumiserweight\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrmaxweight) as lms_loadchild_aggrmaxweight\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrnoparcels) as lms_loadchild_aggrnoparcels\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrweightexclspecdel) as lms_loadchild_aggrweightexclspecdel\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrchargeweightexclspecdel) as lms_loadchild_aggrchargeweightexclspecdel\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrvolweightexclspecdel) as lms_loadchild_aggrvolweightexclspecdel\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrvolumiserweightexclspecdel) as lms_loadchild_aggrvolumiserweightexclspecdel\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrmaxweightexclspecdel) as lms_loadchild_aggrmaxweightexclspecdel\r\n",
+					"    ,sum(lc.lms_parcelbyload_aggrnoparcelsexclspecdel) as lms_loadchild_aggrnoparcelsexclspecdel\r\n",
 					"FROM sstloadchild lc \r\n",
 					"WHERE lc.lms_loads_parentloadid is not null\r\n",
 					"GROUP BY lc.lms_loads_parentloadid\r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -165,7 +171,7 @@
 				"source": [
 					"sstloadparent_tmp = spark.sql(\"SELECT * FROM sstloadparent_tmp\")"
 				],
-				"execution_count": 30
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -191,11 +197,18 @@
 					"AS\r\n",
 					"SELECT\r\n",
 					"    t.lms_loadchild_parentloadid as  lms_loadparent_parentloadid \r\n",
-					"    ,t.lms_loadchild_aggweight  as  lms_loadparent_aggweight \r\n",
-					"    ,t.lms_loadchild_aggchargeweight  as  lms_loadparent_aggchargeweight\r\n",
-					"    ,t.lms_loadchild_aggvolweight  as  lms_loadparent_aggvolweight\r\n",
-					"    ,t.lms_loadchild_aggvolumiserweight  as  lms_loadparent_aggvolumiserweight\r\n",
-					"    ,t.lms_loadchild_noparcels  as  lms_loadparent_noparcels\r\n",
+					"    ,t.lms_loadchild_aggrweight  as  lms_loadparent_aggrweight \r\n",
+					"    ,t.lms_loadchild_aggrchargeweight  as  lms_loadparent_aggrchargeweight\r\n",
+					"    ,t.lms_loadchild_aggrvolweight  as  lms_loadparent_aggrvolweight\r\n",
+					"    ,t.lms_loadchild_aggrvolumiserweight  as  lms_loadparent_aggrvolumiserweight\r\n",
+					"    ,t.lms_loadchild_aggrmaxweight  as  lms_loadparent_aggrmaxweight\r\n",
+					"    ,t.lms_loadchild_aggrnoparcels  as  lms_loadparent_aggrnoparcels\r\n",
+					"    ,t.lms_loadchild_aggrweightexclspecdel  as  lms_loadparent_aggrweightexclspecdel\r\n",
+					"    ,t.lms_loadchild_aggrchargeweightexclspecdel  as  lms_loadparent_aggrchargeweightexclspecdel\r\n",
+					"    ,t.lms_loadchild_aggrvolweightexclspecdel  as  lms_loadparent_aggrvolweightexclspecdel\r\n",
+					"    ,t.lms_loadchild_aggrvolumiserweightexclspecdel  as  lms_loadparent_aggrvolumiserweightexclspecdel\r\n",
+					"    ,t.lms_loadchild_aggrmaxweightexclspecdel  as  lms_loadparent_aggrmaxweightexclspecdel\r\n",
+					"    ,t.lms_loadchild_aggrnoparcelsexclspecdel  as  lms_loadparent_aggrnoparcelsexclspecdel\r\n",
 					"    ,d.id as orv_dispatch_id\r\n",
 					"    ,d.lmsid as orv_dispatch_lmsid\r\n",
 					"    ,d.vid as orv_dispatch_vid\r\n",
@@ -460,7 +473,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 36
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -478,7 +491,7 @@
 				"source": [
 					"sstloadparent = spark.sql(\"SELECT * FROM sstloadparent\")"
 				],
-				"execution_count": 38
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -496,7 +509,7 @@
 				"source": [
 					"# sstloadparent.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstloadparent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 39
+				"execution_count": 26
 			}
 		]
 	}

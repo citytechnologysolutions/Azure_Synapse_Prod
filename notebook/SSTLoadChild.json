@@ -2,25 +2,25 @@
 	"name": "SSTLoadChild",
 	"properties": {
 		"folder": {
-			"name": "TRANSFORM/01 SEMI-STRUCTURED/LMS + ORV"
+			"name": "TRANSFORM/01 SEMI-STRUCTURED/03_LMS + ORV"
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2a586d8b-18bd-46b8-81d4-01accba46d2c"
+				"spark.autotune.trackingId": "65a7ebe3-4a3d-453e-9b96-bc53bd9f9a7e"
 			}
 		},
 		"metadata": {
@@ -34,19 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
-				"automaticScaleJobs": false
+				"cores": 4,
+				"memory": 28
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -65,19 +64,19 @@
 					}
 				},
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
-				"execution_count": null
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -111,7 +110,7 @@
 					"# dbovehiclebasic.createOrReplaceTempView(\"dbovehiclebasic\")\r\n",
 					""
 				],
-				"execution_count": 1
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -193,11 +192,18 @@
 					"    ,l.parentloadid as lms_loads_parentloadid\r\n",
 					"    ,l.mrpobversion as lms_loads_mrpobversion\r\n",
 					"    ,pbl.lms_parcelbyload_loadid as lms_parcelbyload_loadid\r\n",
-					"    ,pbl.lms_parcelbyload_aggweight as lms_parcelbyload_aggweight\r\n",
-					"    ,pbl.lms_parcelbyload_aggchargeweight as lms_parcelbyload_aggchargeweight\r\n",
-					"    ,pbl.lms_parcelbyload_aggvolweight as lms_parcelbyload_aggvolweight\r\n",
-					"    ,pbl.lms_parcelbyload_aggvolumiserweight as lms_parcelbyload_aggvolumiserweight\r\n",
-					"    ,pbl.lms_parcelbyload_noparcels as lms_parcelbyload_noparcels\r\n",
+					"    ,pbl.lms_parcelbyload_aggrweight as lms_parcelbyload_aggrweight\r\n",
+					"    ,pbl.lms_parcelbyload_aggrchargeweight as lms_parcelbyload_aggrchargeweight\r\n",
+					"    ,pbl.lms_parcelbyload_aggrvolweight as lms_parcelbyload_aggrvolweight\r\n",
+					"    ,pbl.lms_parcelbyload_aggrvolumiserweight as lms_parcelbyload_aggrvolumiserweight\r\n",
+					"    ,pbl.lms_parcelbyload_aggrmaxweight as lms_parcelbyload_aggrmaxweight\r\n",
+					"    ,pbl.lms_parcelbyload_aggrnoparcels as lms_parcelbyload_aggrnoparcels\r\n",
+					"    ,pbl.lms_parcelbyload_aggrweight as lms_parcelbyload_aggrweightexclspecdel\r\n",
+					"    ,pbl.lms_parcelbyload_aggrchargeweight as lms_parcelbyload_aggrchargeweightexclspecdel\r\n",
+					"    ,pbl.lms_parcelbyload_aggrvolweight as lms_parcelbyload_aggrvolweightexclspecdel\r\n",
+					"    ,pbl.lms_parcelbyload_aggrvolumiserweight as lms_parcelbyload_aggrvolumiserweightexclspecdel\r\n",
+					"    ,pbl.lms_parcelbyload_aggrmaxweight as lms_parcelbyload_aggrmaxweightexclspecdel\r\n",
+					"    ,pbl.lms_parcelbyload_aggrnoparcels as lms_parcelbyload_aggrnoparcelsexclspecdel\r\n",
 					"    ,sr.id as lms_sroute_id\r\n",
 					"    ,sr.description as lms_sroute_description\r\n",
 					"    ,d.id as lms_driver_id\r\n",
@@ -350,7 +356,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -368,7 +374,7 @@
 				"source": [
 					"sstloadchild = spark.sql(\"SELECT * FROM sstloadchild\")"
 				],
-				"execution_count": null
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -386,7 +392,7 @@
 				"source": [
 					"# sstloadchild.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstloadchild.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 11
 			}
 		]
 	}

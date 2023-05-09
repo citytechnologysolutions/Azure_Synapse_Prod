@@ -1,0 +1,20 @@
+{
+	"name": "ST_F_CTS_O_Dispatch",
+	"properties": {
+		"folder": {
+			"name": "Archive"
+		},
+		"content": {
+			"query": "CREATE EXTERNAL TABLE dbo.F_CTS_O_Dispatch (\n\t[DispatchID] bigint,\n\t[DispatchSite] nvarchar(4000),\n\t[DispatchDate] date,\n\t[dispatch.vehicletype] int,\n\t[TotalTripTimeMin] numeric(10,2),\n\t[TotalTripTimeMHrs] numeric(10,2),\n\t[PlanTotalTripTimeMin] numeric(10,2),\n\t[PlanTotalTripTimeHrs] numeric(10,2),\n\t[TotalTripKms] numeric(10,2),\n\t[OdoKms] numeric(10,2),\n\t[PlanTotalTripKms] numeric(10,2),\n\t[VehicleType] int,\n\t[DropCnt] bigint,\n\t[WaybillCnt] bigint,\n\t[DropDistanceAvg] numeric(10,2),\n\t[DropDurationAvgMin] numeric(10,2),\n\t[DropDurationAvgHrs] numeric(10,2)\n\t)\n\tWITH (\n\tLOCATION = 'DataLake/Structured/Facts/F_CTS_O_Dispatch.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_CTS_O_Dispatch\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STCTS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

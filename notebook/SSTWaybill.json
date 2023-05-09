@@ -2,25 +2,25 @@
 	"name": "SSTWaybill",
 	"properties": {
 		"folder": {
-			"name": "TRANSFORM/01 SEMI-STRUCTURED/LMS + ORV"
+			"name": "TRANSFORM/01 SEMI-STRUCTURED/03_LMS + ORV"
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "d96c71c7-fcf0-4182-8edb-210dd2fcb3e3"
+				"spark.autotune.trackingId": "e54d75af-a13c-4175-87a0-1fea88b94fbe"
 			}
 		},
 		"metadata": {
@@ -34,19 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
-				"automaticScaleJobs": false
+				"cores": 4,
+				"memory": 28
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -65,19 +64,19 @@
 					}
 				},
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
-				"execution_count": null
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -130,7 +129,7 @@
 					"# sstparcelbywaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbywaybill.parquet', format='parquet')\r\n",
 					"# sstparcelbywaybill.createOrReplaceTempView(\"sstparcelbywaybill\")"
 				],
-				"execution_count": 3
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -250,11 +249,18 @@
 					"    ,ds.id as lms_deliverystatus_id\r\n",
 					"    ,ds.description as lms_deliverystatus_description\r\n",
 					"    ,pbw.lms_parcelbywaybill_waybillid as lms_parcelbywaybill_waybillid\r\n",
-					"    ,pbw.lms_parcelbywaybill_aggweight as lms_parcelbywaybill_aggweight\r\n",
-					"    ,pbw.lms_parcelbywaybill_aggchargeweight as lms_parcelbywaybill_aggchargeweight\r\n",
-					"    ,pbw.lms_parcelbywaybill_aggvolweight as lms_parcelbywaybill_aggvolweight\r\n",
-					"    ,pbw.lms_parcelbywaybill_aggvolumiserweight as lms_parcelbywaybill_aggvolumiserweight\r\n",
-					"    ,pbw.lms_parcelbywaybill_noparcels as lms_parcelbywaybill_noparcels\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrweight as lms_parcelbywaybill_aggrweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrchargeweight as lms_parcelbywaybill_aggrchargeweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolweight as lms_parcelbywaybill_aggrvolweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolumiserweight as lms_parcelbywaybill_aggrvolumiserweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrmaxweight as lms_parcelbywaybill_aggrmaxweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrnoparcels as lms_parcelbywaybill_aggrnoparcels\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrweightexclspecdel as lms_parcelbywaybill_aggrweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrchargeweightexclspecdel as lms_parcelbywaybill_aggrchargeweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolweightexclspecdel as lms_parcelbywaybill_aggrvolweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolumiserweightexclspecdel as lms_parcelbywaybill_aggrvolumiserweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrmaxweightexclspecdel as lms_parcelbywaybill_aggrmaxweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrnoparcelsexclspecdel as lms_parcelbywaybill_aggrnoparcelsexclspecdel\r\n",
 					"    ,d.id as orv_delivery_id\r\n",
 					"    ,d.did as orv_delivery_dispatchid\r\n",
 					"    ,d.waybillid as orv_delivery_waybillid\r\n",
@@ -371,7 +377,7 @@
 					"\"\"\")\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -389,7 +395,7 @@
 				"source": [
 					"sstwaybill.createOrReplaceTempView(\"sstwaybill\")"
 				],
-				"execution_count": 9
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -407,7 +413,7 @@
 				"source": [
 					"# sstwaybill.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstwaybill.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 12
+				"execution_count": 9
 			}
 		]
 	}

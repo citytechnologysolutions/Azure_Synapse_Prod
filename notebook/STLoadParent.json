@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "788df34c-c7b3-4f97-9851-e2418c67a62f"
+				"spark.autotune.trackingId": "3826dc99-85d4-42df-b8b9-8be069ce6d57"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -65,19 +65,19 @@
 					}
 				},
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
-				"execution_count": null
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -86,7 +86,7 @@
 					"# sstloadparent = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstloadparent.parquet', format='parquet')\r\n",
 					"# sstloadparent.createOrReplaceTempView(\"sstloadparent\")"
 				],
-				"execution_count": 20
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -112,11 +112,18 @@
 					"AS\r\n",
 					"SELECT \r\n",
 					"    lms_loadparent_parentloadid \r\n",
-					"    ,lms_loadparent_aggweight \r\n",
-					"    ,lms_loadparent_aggchargeweight\r\n",
-					"    ,lms_loadparent_aggvolweight\r\n",
-					"    ,lms_loadparent_aggvolumiserweight\r\n",
-					"    ,lms_loadparent_noparcels\r\n",
+					"    ,lms_loadparent_aggrweight \r\n",
+					"    ,lms_loadparent_aggrchargeweight\r\n",
+					"    ,lms_loadparent_aggrvolweight\r\n",
+					"    ,lms_loadparent_aggrvolumiserweight\r\n",
+					"    ,lms_loadparent_aggrmaxweight\r\n",
+					"    ,lms_loadparent_aggrnoparcels\r\n",
+					"    ,lms_loadparent_aggrweightexclspecdel \r\n",
+					"    ,lms_loadparent_aggrchargeweightexclspecdel\r\n",
+					"    ,lms_loadparent_aggrvolweightexclspecdel\r\n",
+					"    ,lms_loadparent_aggrvolumiserweightexclspecdel\r\n",
+					"    ,lms_loadparent_aggrmaxweightexclspecdel\r\n",
+					"    ,lms_loadparent_aggrnoparcelsexclspecdel\r\n",
 					"    ,orv_dispatch_id\r\n",
 					"    ,orv_dispatch_lmsid as orv_dispatch_lmsid\r\n",
 					"    ,orv_dispatch_vid as orv_dispatch_vid\r\n",
@@ -206,7 +213,7 @@
 					" \r\n",
 					"FROM sstloadparent"
 				],
-				"execution_count": 22
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -224,7 +231,7 @@
 				"source": [
 					"stloadparent = spark.sql(\"SELECT * FROM stloadparent\")"
 				],
-				"execution_count": 23
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -243,7 +250,7 @@
 					"# stloadparent.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")\r\n",
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 24
+				"execution_count": 7
 			}
 		]
 	}

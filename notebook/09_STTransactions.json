@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "37c95be6-de02-45fc-bc26-673bb8fc3af9"
+				"spark.autotune.trackingId": "c990bd33-8d3c-4534-a022-266678724773"
 			}
 		},
 		"metadata": {
@@ -862,6 +862,11 @@
 					"  ,t.sap_transactionsline_linetotal\r\n",
 					"  ,t.sap_transactionsline_linetotallessdiscount\r\n",
 					"  ,COALESCE(t.sap_transactionsline_linetotallessdiscount,t.sap_transactionsline_linetotal) as sap_transactionsline_linetotalfinal\r\n",
+					"  ,CASE \r\n",
+					"      WHEN \r\n",
+					"      t.sap_transactionsline_doccat in ('generaljournal','purchaseorder') THEN 0\r\n",
+					"      ELSE COALESCE(t.sap_transactionsline_linetotallessdiscount,t.sap_transactionsline_linetotal)\r\n",
+					"    END as sap_transactionsline_linetotalfinalexclgjpo\r\n",
 					"  ,t.sap_transactionsline_opensum \r\n",
 					"  ,t.sap_transactionsline_pricebefdi \r\n",
 					"  ,to_date(t.sap_transactionsline_docdate,'yyyy-MM-dd') as  sap_transactionsline_docdate\r\n",
@@ -976,6 +981,7 @@
 					"  ,sap_transactionsline_subdepotcode\r\n",
 					"  ,SUM(sap_transactionsline_linetotal) sap_transactionsline_linetotal\r\n",
 					"  ,SUM(sap_transactionsline_linetotalfinal) sap_transactionsline_linetotalfinal\r\n",
+					"  ,SUM(sap_transactionsline_linetotalfinal) sap_transactionsline_linetotalfinalexclgjpo\r\n",
 					"FROM sttransactionsdetail t\r\n",
 					"GROUP BY\r\n",
 					"\tsap_transactionsline_acctcode,\r\n",

@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "40169f10-f33c-491a-96ab-2dfe2f2a03b3"
+				"spark.autotune.trackingId": "de3463d5-2d4a-4331-81da-65cafa433cbd"
 			}
 		},
 		"metadata": {
@@ -65,19 +65,21 @@
 					}
 				},
 				"source": [
-					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"# if 'prod' in Environment:\r\n",
-					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"# else:\r\n",
-					"#     StorageAccount = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# # ' + StorageAccount + '"
+					"# ' + StorageAccount + '"
 				],
-				"execution_count": 15
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -93,35 +95,36 @@
 					}
 				},
 				"source": [
-					""
+					"from pyspark.sql.functions import *\r\n",
+					"import pandas as pd"
 				],
-				"execution_count": null
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"#create dataframe for the sstconsignemntunion lms table\r\n",
-					"sstconsignemntunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet/', format='parquet')\r\n",
+					"sstconsignemntunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet/', format='parquet')\r\n",
 					"sstconsignemntunion.createOrReplaceTempView(\"sstconsignemntunion\")\r\n",
 					"\r\n",
 					"#create dataframe for the sstparcelbyconsignment lms table\r\n",
-					"sstparcelbyconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', format='parquet')\r\n",
+					"sstparcelbyconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', format='parquet')\r\n",
 					"sstparcelbyconsignment.createOrReplaceTempView(\"sstparcelbyconsignment\")\r\n",
 					"\r\n",
 					"#create dataframe for the dbobill_consignmentr lms table\r\n",
-					"dbobill_consignmentr = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
+					"dbobill_consignmentr = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
 					"dbobill_consignmentr.createOrReplaceTempView(\"dbobill_consignmentr\")\r\n",
 					"\r\n",
 					"#create dataframe for the sstparcelunion lms table\r\n",
-					"sstparcelunion = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
 					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
 					"\r\n",
 					"#create dataframe for the dbowaybill lms table\r\n",
-					"dbowaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
+					"dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
 					"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
 					""
 				],
-				"execution_count": 16
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -177,71 +180,71 @@
 					"    ,pbc.lms_parcelbyconsignment_aggrvolumiserweightexclspecdel\r\n",
 					"    ,pbc.lms_parcelbyconsignment_aggrmaxweightexclspecdel\r\n",
 					"    ,pbc.lms_parcelbyconsignment_aggrnoparcelsexclspecdel\r\n",
-					"    ,bcr.id as lms_billconsignmentr_id\r\n",
-					"    ,bcr.ConsignID as lms_billconsignmentr_consignid\r\n",
-					"    ,bcr.UpdateDate as lms_billconsignmentr_updatedate\r\n",
-					"    ,bcr.PickUpRouteID as lms_billconsignmentr_pickuprouteid\r\n",
-					"    ,bcr.DeliverRouteID as lms_billconsignmentr_deliverrouteid\r\n",
-					"    ,bcr.ChargeWeight as lms_billconsignmentr_chargeweight\r\n",
-					"    ,bcr.NoOfParcels as lms_billconsignmentr_noofparcels\r\n",
-					"    ,bcr.TripDistance as lms_billconsignmentr_tripdistance\r\n",
-					"    ,bcr.ConsignmentValue as lms_billconsignmentr_consignmentvalue\r\n",
-					"    ,bcr.BillCust as lms_billconsignmentr_billcust\r\n",
-					"    ,bcr.RedFlag as lms_billconsignmentr_redflag\r\n",
-					"    ,bcr.UpdInd as lms_billconsignmentr_updind\r\n",
-					"    ,bcr.ServiceTypeID as lms_billconsignmentr_servicetypeid\r\n",
-					"    ,bcr.RouteMissingInd as lms_billconsignmentr_routemissingind\r\n",
-					"    ,bcr.ChargesCalcInd as lms_billconsignmentr_chargescalcind\r\n",
-					"    ,bcr.CDate1 as lms_billconsignmentr_cdate1\r\n",
-					"    ,bcr.InvalidPCode as lms_billconsignmentr_invalidpcode\r\n",
-					"    ,bcr.ProgramNo as lms_billconsignmentr_programno\r\n",
-					"    ,bcr.TotRate as lms_billconsignmentr_totrate\r\n",
-					"    ,bcr.RouteCharge as lms_billconsignmentr_routecharge\r\n",
-					"    ,bcr.MinWeight as lms_billconsignmentr_minweight\r\n",
-					"    ,bcr.MinRate as lms_billconsignmentr_minrate\r\n",
-					"    ,bcr.COrderNo as lms_billconsignmentr_corderno\r\n",
-					"    ,bcr.CustRef as lms_billconsignmentr_custref\r\n",
-					"    ,bcr.ManualUpdateFlag as lms_billconsignmentr_manualupdateflag\r\n",
-					"    ,bcr.PrevBillCustID as lms_billconsignmentr_prevbillcustid\r\n",
-					"    ,bcr.SpecDelVehicleID as lms_billconsignmentr_specdelvehicleid\r\n",
-					"    ,bcr.SpecDelMissingRouteFlag as lms_billconsignmentr_specdelmissingrouteflag\r\n",
-					"    ,bcr.OverBorderFlag as lms_billconsignmentr_overborderflag\r\n",
-					"    ,bcr.SameDeliverID as lms_billconsignmentr_samedeliverid\r\n",
-					"    ,bcr.CombineRouteCharge as lms_billconsignmentr_combineroutecharge\r\n",
-					"    ,bcr.WaybillID as lms_billconsignmentr_waybillid\r\n",
-					"    ,bcr.RouteLineCount as lms_billconsignmentr_routelinecount\r\n",
-					"    ,bcr.SameDelCount as lms_billconsignmentr_samedelcount\r\n",
-					"    ,bcr.AWeight as lms_billconsignmentr_aweight\r\n",
-					"    ,bcr.VWeight as lms_billconsignmentr_vweight\r\n",
-					"    ,bcr.CustRef3 as lms_billconsignmentr_custref3\r\n",
-					"    ,bcr.Units as lms_billconsignmentr_units\r\n",
-					"    ,bcr.TotSurcharges as lms_billconsignmentr_totsurcharges\r\n",
-					"    ,bcr.NoOfPallets as lms_billconsignmentr_noofpallets\r\n",
-					"    ,bcr.InvalidPUDel as lms_billconsignmentr_invalidpudel\r\n",
-					"    ,bcr.SharikaFlag as lms_billconsignmentr_sharikaflag\r\n",
-					"    ,bcr.SapID as lms_billconsignmentr_sapid\r\n",
-					"    ,bcr.TotFuelSurcharge as lms_billconsignmentr_totfuelsurcharge\r\n",
-					"    ,bcr.TotDocSurcharge as lms_billconsignmentr_totdocsurcharge\r\n",
-					"    ,bcr.TotOtherSurcharge as lms_billconsignmentr_totothersurcharge\r\n",
-					"    ,bcr.SpecDel as lms_billconsignmentr_specdel\r\n",
-					"    ,bcr.QuoteFlag as lms_billconsignmentr_quoteflag\r\n",
-					"    ,bcr.BillPeriod as lms_billconsignmentr_billperiod\r\n",
-					"    ,bcr.BillWeekR as lms_billconsignmentr_billweekr\r\n",
-					"    ,bcr.BillPeriodFlag as lms_billconsignmentr_billperiodflag\r\n",
-					"    ,bcr.SurhargeFlag as lms_billconsignmentr_surhargeflag\r\n",
-					"    ,bcr.RecalcFlag as lms_billconsignmentr_recalcflag\r\n",
-					"    ,bcr.QuoteMissingFlag as lms_billconsignmentr_quotemissingflag\r\n",
-					"    ,bcr.DeliverTypeID as lms_billconsignmentr_delivertypeid\r\n",
-					"    ,bcr.TotCovidSurcharge as lms_billconsignmentr_totcovidsurcharge\r\n",
+					"    -- ,bcr.id as lms_billconsignmentr_id\r\n",
+					"    -- ,bcr.ConsignID as lms_billconsignmentr_consignid\r\n",
+					"    -- ,bcr.UpdateDate as lms_billconsignmentr_updatedate\r\n",
+					"    -- ,bcr.PickUpRouteID as lms_billconsignmentr_pickuprouteid\r\n",
+					"    -- ,bcr.DeliverRouteID as lms_billconsignmentr_deliverrouteid\r\n",
+					"    -- ,bcr.ChargeWeight as lms_billconsignmentr_chargeweight\r\n",
+					"    -- ,bcr.NoOfParcels as lms_billconsignmentr_noofparcels\r\n",
+					"    -- ,bcr.TripDistance as lms_billconsignmentr_tripdistance\r\n",
+					"    -- ,bcr.ConsignmentValue as lms_billconsignmentr_consignmentvalue\r\n",
+					"    -- ,bcr.BillCust as lms_billconsignmentr_billcust\r\n",
+					"    -- ,bcr.RedFlag as lms_billconsignmentr_redflag\r\n",
+					"    -- ,bcr.UpdInd as lms_billconsignmentr_updind\r\n",
+					"    -- ,bcr.ServiceTypeID as lms_billconsignmentr_servicetypeid\r\n",
+					"    -- ,bcr.RouteMissingInd as lms_billconsignmentr_routemissingind\r\n",
+					"    -- ,bcr.ChargesCalcInd as lms_billconsignmentr_chargescalcind\r\n",
+					"    -- ,bcr.CDate1 as lms_billconsignmentr_cdate1\r\n",
+					"    -- ,bcr.InvalidPCode as lms_billconsignmentr_invalidpcode\r\n",
+					"    -- ,bcr.ProgramNo as lms_billconsignmentr_programno\r\n",
+					"    -- ,bcr.TotRate as lms_billconsignmentr_totrate\r\n",
+					"    -- ,bcr.RouteCharge as lms_billconsignmentr_routecharge\r\n",
+					"    -- ,bcr.MinWeight as lms_billconsignmentr_minweight\r\n",
+					"    -- ,bcr.MinRate as lms_billconsignmentr_minrate\r\n",
+					"    -- ,bcr.COrderNo as lms_billconsignmentr_corderno\r\n",
+					"    -- ,bcr.CustRef as lms_billconsignmentr_custref\r\n",
+					"    -- ,bcr.ManualUpdateFlag as lms_billconsignmentr_manualupdateflag\r\n",
+					"    -- ,bcr.PrevBillCustID as lms_billconsignmentr_prevbillcustid\r\n",
+					"    -- ,bcr.SpecDelVehicleID as lms_billconsignmentr_specdelvehicleid\r\n",
+					"    -- ,bcr.SpecDelMissingRouteFlag as lms_billconsignmentr_specdelmissingrouteflag\r\n",
+					"    -- ,bcr.OverBorderFlag as lms_billconsignmentr_overborderflag\r\n",
+					"    -- ,bcr.SameDeliverID as lms_billconsignmentr_samedeliverid\r\n",
+					"    -- ,bcr.CombineRouteCharge as lms_billconsignmentr_combineroutecharge\r\n",
+					"    -- ,bcr.WaybillID as lms_billconsignmentr_waybillid\r\n",
+					"    -- ,bcr.RouteLineCount as lms_billconsignmentr_routelinecount\r\n",
+					"    -- ,bcr.SameDelCount as lms_billconsignmentr_samedelcount\r\n",
+					"    -- ,bcr.AWeight as lms_billconsignmentr_aweight\r\n",
+					"    -- ,bcr.VWeight as lms_billconsignmentr_vweight\r\n",
+					"    -- ,bcr.CustRef3 as lms_billconsignmentr_custref3\r\n",
+					"    -- ,bcr.Units as lms_billconsignmentr_units\r\n",
+					"    -- ,bcr.TotSurcharges as lms_billconsignmentr_totsurcharges\r\n",
+					"    -- ,bcr.NoOfPallets as lms_billconsignmentr_noofpallets\r\n",
+					"    -- ,bcr.InvalidPUDel as lms_billconsignmentr_invalidpudel\r\n",
+					"    -- ,bcr.SharikaFlag as lms_billconsignmentr_sharikaflag\r\n",
+					"    -- ,bcr.SapID as lms_billconsignmentr_sapid\r\n",
+					"    -- ,bcr.TotFuelSurcharge as lms_billconsignmentr_totfuelsurcharge\r\n",
+					"    -- ,bcr.TotDocSurcharge as lms_billconsignmentr_totdocsurcharge\r\n",
+					"    -- ,bcr.TotOtherSurcharge as lms_billconsignmentr_totothersurcharge\r\n",
+					"    -- ,bcr.SpecDel as lms_billconsignmentr_specdel\r\n",
+					"    -- ,bcr.QuoteFlag as lms_billconsignmentr_quoteflag\r\n",
+					"    -- ,bcr.BillPeriod as lms_billconsignmentr_billperiod\r\n",
+					"    -- ,bcr.BillWeekR as lms_billconsignmentr_billweekr\r\n",
+					"    -- ,bcr.BillPeriodFlag as lms_billconsignmentr_billperiodflag\r\n",
+					"    -- ,bcr.SurhargeFlag as lms_billconsignmentr_surhargeflag\r\n",
+					"    -- ,bcr.RecalcFlag as lms_billconsignmentr_recalcflag\r\n",
+					"    -- ,bcr.QuoteMissingFlag as lms_billconsignmentr_quotemissingflag\r\n",
+					"    -- ,bcr.DeliverTypeID as lms_billconsignmentr_delivertypeid\r\n",
+					"    -- ,bcr.TotCovidSurcharge as lms_billconsignmentr_totcovidsurcharge\r\n",
 					"\r\n",
 					"FROM\r\n",
 					"sstconsignemntunion c\r\n",
 					"LEFT JOIN sstparcelbyconsignment pbc on c.id= pbc.lms_parcelbyconsignment_consignid\r\n",
-					"LEFT JOIN dbobill_consignmentr bcr on c.id= bcr.consignid\r\n",
+					"-- LEFT JOIN dbobill_consignmentr bcr on c.id= bcr.consignid\r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 17
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -275,7 +278,7 @@
 					"WHERE p.consignid is not null\r\n",
 					"GROUP BY p.consignid"
 				],
-				"execution_count": 18
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -315,7 +318,7 @@
 					"FROM stconsignment_tmp1 c\r\n",
 					"LEFT JOIN stconsignment_Tmp2 c2 ON c2.consignid = c.lms_consignment_id"
 				],
-				"execution_count": 19
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -333,7 +336,7 @@
 				"source": [
 					"stconsignment_tmp3 = spark.sql(\"SELECT * FROM stconsignment_tmp3\")"
 				],
-				"execution_count": 20
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -351,7 +354,7 @@
 				"source": [
 					"stconsignment_tmp4=stconsignment_tmp3.withColumn('consignagedifferenceinseconds',col(\"lms_consignment_maxpoddate\").cast(\"long\") - col('lms_consignment_cdateroundup').cast(\"long\"))"
 				],
-				"execution_count": 21
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -369,7 +372,7 @@
 				"source": [
 					"stconsignment_tmp4.createOrReplaceTempView(\"stconsignment_tmp4\")"
 				],
-				"execution_count": 22
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -413,7 +416,7 @@
 					"FROM stconsignment_tmp4\r\n",
 					""
 				],
-				"execution_count": 23
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -431,7 +434,7 @@
 				"source": [
 					"stconsignment = spark.sql(\"SELECT * FROM stconsignment\")"
 				],
-				"execution_count": 24
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -451,7 +454,7 @@
 					"\r\n",
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 25
+				"execution_count": 23
 			}
 		]
 	}

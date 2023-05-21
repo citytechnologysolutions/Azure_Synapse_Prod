@@ -74,7 +74,7 @@
 				}
 			},
 			{
-				"name": "ST_RunOrder",
+				"name": "STOPS_RunOrderDistribution",
 				"type": "SynapseNotebook",
 				"dependsOn": [
 					{
@@ -94,7 +94,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"notebook": {
-						"referenceName": "ST_RunOrder",
+						"referenceName": "STOPS_RunOrderDistribution",
 						"type": "NotebookReference"
 					},
 					"snapshot": true,
@@ -106,7 +106,85 @@
 					"conf": {
 						"spark.dynamicAllocation.enabled": true,
 						"spark.dynamicAllocation.minExecutors": 2,
-						"spark.dynamicAllocation.maxExecutors": 8
+						"spark.dynamicAllocation.maxExecutors": 3
+					},
+					"driverSize": "Medium",
+					"numExecutors": 2
+				}
+			},
+			{
+				"name": "STOPS_RunOrderLinehaul",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "STMD_RunOrder",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "STOPS_RunOrderLinehaul",
+						"type": "NotebookReference"
+					},
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "PRDSparkPool",
+						"type": "BigDataPoolReference"
+					},
+					"executorSize": "Medium",
+					"conf": {
+						"spark.dynamicAllocation.enabled": true,
+						"spark.dynamicAllocation.minExecutors": 2,
+						"spark.dynamicAllocation.maxExecutors": 3
+					},
+					"driverSize": "Medium",
+					"numExecutors": 2
+				}
+			},
+			{
+				"name": "STSAP_RunOrder",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "STMD_RunOrder",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "00_STSAP_RunOrder",
+						"type": "NotebookReference"
+					},
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "PRDSparkPool",
+						"type": "BigDataPoolReference"
+					},
+					"executorSize": "Medium",
+					"conf": {
+						"spark.dynamicAllocation.enabled": true,
+						"spark.dynamicAllocation.minExecutors": 2,
+						"spark.dynamicAllocation.maxExecutors": 3
 					},
 					"driverSize": "Medium",
 					"numExecutors": 2

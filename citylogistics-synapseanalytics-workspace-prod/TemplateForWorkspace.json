@@ -4576,15 +4576,6 @@
 	},
 	"resources": [
 		{
-			"name": "[concat(parameters('workspaceName'), '/TESTSparkPoolL')]",
-			"type": "Microsoft.Synapse/workspaces/bigDataPools",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/Avis Full Take-on')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -47166,7 +47157,7 @@
 						"spark.dynamicAllocation.enabled": "true",
 						"spark.dynamicAllocation.minExecutors": "1",
 						"spark.dynamicAllocation.maxExecutors": "4",
-						"spark.autotune.trackingId": "8badce5d-64ed-4af7-b862-2217f51faeff"
+						"spark.autotune.trackingId": "30c9e58c-22ff-427b-9f21-d0b28cc09354"
 					}
 				},
 				"metadata": {
@@ -47191,13 +47182,15 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"if 'prod' in Environment:\r\n",
@@ -47214,7 +47207,7 @@
 							"# ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 1
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -47234,7 +47227,7 @@
 							"import pandas as pd"
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 10
 					},
 					{
 						"cell_type": "code",
@@ -47272,7 +47265,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 3
+						"execution_count": 11
 					},
 					{
 						"cell_type": "code",
@@ -47292,7 +47285,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STConsignment"
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": 12
 					},
 					{
 						"cell_type": "code",
@@ -47311,7 +47304,7 @@
 							"stconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stconsignment.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 5
+						"execution_count": 13
 					},
 					{
 						"cell_type": "code",
@@ -47332,7 +47325,7 @@
 							"dbodc_transfer.createOrReplaceTempView(\"dbodc_transfer\")"
 						],
 						"outputs": [],
-						"execution_count": 6
+						"execution_count": 14
 					},
 					{
 						"cell_type": "code",
@@ -47349,10 +47342,10 @@
 							"collapsed": false
 						},
 						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STDCTranfer"
+							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STDCTransfer"
 						],
 						"outputs": [],
-						"execution_count": 7
+						"execution_count": 15
 					},
 					{
 						"cell_type": "code",
@@ -47371,7 +47364,7 @@
 							"stdctransfer.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdctransfer.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",

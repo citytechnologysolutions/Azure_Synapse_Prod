@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "61334ca5-971e-4e0a-aec9-1ecb96c031aa"
+				"spark.autotune.trackingId": "4c8cff45-3e72-4847-8af8-7e7a3e8b7096"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 19
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -99,7 +99,7 @@
 					"# sttransactionssummary = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet', format='parquet')\r\n",
 					"# sttransactionssummary.createOrReplaceTempView(\"sttransactionssummary\")"
 				],
-				"execution_count": 20
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -117,7 +117,7 @@
 				"source": [
 					"endDateDF = spark.sql(\"SELECT max(sap_transactionsheader_postingdate) as enddate FROM sttransactionssummary\")"
 				],
-				"execution_count": 21
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -135,7 +135,7 @@
 				"source": [
 					"endDate = endDateDF.first()['enddate']"
 				],
-				"execution_count": 22
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -159,7 +159,7 @@
 					"  spark.sql(f\"select explode(sequence(to_date('{beginDate}'), to_date('{endDate}'), interval 1 day)) as calendarDate\").createOrReplaceTempView('dates')\r\n",
 					")"
 				],
-				"execution_count": 23
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -254,7 +254,7 @@
 					"  end,calendarDate  asc\r\n",
 					""
 				],
-				"execution_count": 24
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -272,7 +272,7 @@
 				"source": [
 					"stfinancedates = spark.sql(\"SELECT * FROM stfinancedates\")"
 				],
-				"execution_count": 25
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",
@@ -290,7 +290,7 @@
 				"source": [
 					"# stfinancedates.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stfinancedates.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 28
+				"execution_count": 36
 			}
 		]
 	}

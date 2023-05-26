@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "008ffc78-957a-4f3e-855e-06e43c94ec6f"
+				"spark.autotune.trackingId": "f4bbbdfc-02ec-41e6-91b0-7b7be3896b25"
 			}
 		},
 		"metadata": {
@@ -69,24 +69,26 @@
 					"# if 'prod' in Environment:\r\n",
 					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
 					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
 					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
 					"# else:\r\n",
 					"#     StorageAccount = 'citylogisticsstorage'\r\n",
 					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
 					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 2
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"# #Create DataFrame for the sttransactionssummary SAP Table\r\n",
-					"# sttransactionssummary = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet', format='parquet')\r\n",
+					"# sttransactionssummary = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet', format='parquet')\r\n",
 					"# sttransactionssummary.createOrReplaceTempView(\"sttransactionssummary\")"
 				],
-				"execution_count": 4
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -137,7 +139,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 10
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -155,7 +157,7 @@
 				"source": [
 					"stdocumentcategories = spark.sql(\"SELECT * FROM stdocumentcategories\")"
 				],
-				"execution_count": 11
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -171,9 +173,9 @@
 					}
 				},
 				"source": [
-					"# stdocumentcategories.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stdocumentcategories.parquet', mode = \"overwrite\")"
+					"# stdocumentcategories.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stdocumentcategories.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 12
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -191,7 +193,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 13
+				"execution_count": 6
 			}
 		]
 	}

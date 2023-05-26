@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "9103f892-6193-4fe1-a0b1-009a58c3e126"
+				"spark.autotune.trackingId": "b5c5d99f-c5a7-4cfa-bf7c-ca977f20595b"
 			}
 		},
 		"metadata": {
@@ -93,11 +93,50 @@
 					}
 				},
 				"source": [
+					"# #Create DataFrame for the sttransactionssummary SAP Table\r\n",
+					"# sttransactionssummary = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet', format='parquet')\r\n",
+					"# sttransactionssummary.createOrReplaceTempView(\"sttransactionssummary\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"endDate = spark.sql(\"SELECT max(sap_transactionsheader_postingdate) FROM sttransactionssummary\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
 					"from pyspark.sql.functions import *\r\n",
 					"beginDate = '2016-04-01'\r\n",
 					"\r\n",
 					"(\r\n",
-					"  spark.sql(f\"select explode(sequence(to_date('{beginDate}'), current_date(), interval 1 day)) as calendarDate\").createOrReplaceTempView('dates')\r\n",
+					"  # spark.sql(f\"select explode(sequence(to_date('{beginDate}'), current_date(), interval 1 day)) as calendarDate\").createOrReplaceTempView('dates')\r\n",
+					"  spark.sql(f\"select explode(sequence(to_date('{beginDate}'), to_date('{endDate}'), interval 1 day)) as calendarDate\").createOrReplaceTempView('dates')\r\n",
 					")"
 				],
 				"execution_count": 2

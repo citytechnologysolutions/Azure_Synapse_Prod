@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "ecb636e4-0cf2-4d6c-9e40-ad8f706dfe19"
+				"spark.autotune.trackingId": "d28008e1-0f57-4d7b-aa32-55d33af42672"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -99,7 +99,7 @@
 					"# sttransactionssummary = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet', format='parquet')\r\n",
 					"# sttransactionssummary.createOrReplaceTempView(\"sttransactionssummary\")"
 				],
-				"execution_count": null
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -115,9 +115,27 @@
 					}
 				},
 				"source": [
-					"endDate = spark.sql(\"SELECT max(sap_transactionsheader_postingdate) FROM sttransactionssummary\")"
+					"endDateDF = spark.sql(\"SELECT max(sap_transactionsheader_postingdate) as enddate FROM sttransactionssummary\")"
 				],
-				"execution_count": null
+				"execution_count": 21
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"endDate = endDateDF.first()['enddate']"
+				],
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -141,7 +159,7 @@
 					"  spark.sql(f\"select explode(sequence(to_date('{beginDate}'), to_date('{endDate}'), interval 1 day)) as calendarDate\").createOrReplaceTempView('dates')\r\n",
 					")"
 				],
-				"execution_count": 2
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -236,7 +254,7 @@
 					"  end,calendarDate  asc\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -254,7 +272,7 @@
 				"source": [
 					"stfinancedates = spark.sql(\"SELECT * FROM stfinancedates\")"
 				],
-				"execution_count": 7
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -272,7 +290,7 @@
 				"source": [
 					"# stfinancedates.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stfinancedates.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 8
+				"execution_count": 28
 			}
 		]
 	}

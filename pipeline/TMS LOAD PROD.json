@@ -332,85 +332,6 @@
 										"value": "DateLoad",
 										"activities": [
 											{
-												"name": "Incr Load DF",
-												"type": "ExecuteDataFlow",
-												"dependsOn": [
-													{
-														"activity": "Copy New incremental data",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"dataflow": {
-														"referenceName": "IncrementalLoadDate DataFlow",
-														"type": "DataFlowReference",
-														"parameters": {
-															"cw_FolderName": {
-																"value": "'@{variables('FolderName')}'",
-																"type": "Expression"
-															},
-															"cw_FileName": {
-																"value": "'@{concat(item().Destination.FileName,'.parquet')}'",
-																"type": "Expression"
-															},
-															"cw_IncFolderName": {
-																"value": "'@{concat(variables('FolderName'),'_Incremental_Data')}'",
-																"type": "Expression"
-															},
-															"cw_IdField": {
-																"value": "'@{item().Increment.IdField}'",
-																"type": "Expression"
-															},
-															"ContainerName": {
-																"value": "'@{variables('ContainerName')}'",
-																"type": "Expression"
-															}
-														},
-														"linkedServiceParameters": {
-															"source1": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"source2": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"WritetoDataLake": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															}
-														}
-													},
-													"compute": {
-														"coreCount": 8,
-														"computeType": "General"
-													},
-													"traceLevel": "Fine"
-												}
-											},
-											{
 												"name": "Partition DF",
 												"type": "ExecuteDataFlow",
 												"dependsOn": [
@@ -487,7 +408,7 @@
 												"type": "Delete",
 												"dependsOn": [
 													{
-														"activity": "Incr Load DF",
+														"activity": "UnionSparkJob",
 														"dependencyConditions": [
 															"Succeeded"
 														]
@@ -788,6 +709,82 @@
 														"recursive": true,
 														"enablePartitionDiscovery": false
 													}
+												}
+											},
+											{
+												"name": "UnionSparkJob",
+												"type": "SynapseNotebook",
+												"dependsOn": [
+													{
+														"activity": "Copy New incremental data",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"notebook": {
+														"referenceName": "UnionSparkJob",
+														"type": "NotebookReference"
+													},
+													"parameters": {
+														"cw_FolderName": {
+															"value": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															}
+														},
+														"cw_FileName": {
+															"value": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															}
+														},
+														"cw_IncFolderName": {
+															"value": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															}
+														},
+														"cw_IdField": {
+															"value": {
+																"value": "@item().Increment.Partition",
+																"type": "Expression"
+															}
+														},
+														"ContainerName": {
+															"value": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															}
+														},
+														"DataLakeDF": {
+															"value": {
+																"value": "@replace(variables('DataLake'),'https://','')",
+																"type": "Expression"
+															}
+														}
+													},
+													"snapshot": true,
+													"sparkPool": {
+														"referenceName": "PRDSparkPool",
+														"type": "BigDataPoolReference"
+													},
+													"executorSize": "Medium",
+													"conf": {
+														"spark.dynamicAllocation.minExecutors": 1,
+														"spark.dynamicAllocation.maxExecutors": 4
+													},
+													"driverSize": "Medium",
+													"numExecutors": 1
 												}
 											}
 										]

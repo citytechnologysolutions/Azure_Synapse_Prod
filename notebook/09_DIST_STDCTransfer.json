@@ -1,8 +1,8 @@
 {
-	"name": "SSTConsignmentUnion",
+	"name": "09_DIST_STDCTransfer",
 	"properties": {
 		"folder": {
-			"name": "TRANSFORM/01 SEMI-STRUCTURED/01_LMS Union"
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "dd379d26-34d6-4db0-b565-d594af844601"
+				"spark.autotune.trackingId": "dfbac570-5205-4510-9979-7475583115e9"
 			}
 		},
 		"metadata": {
@@ -28,7 +28,7 @@
 			"enableDebugMode": false,
 			"kernelspec": {
 				"name": "synapse_pyspark",
-				"display_name": "Synapse PySpark"
+				"display_name": "python"
 			},
 			"language_info": {
 				"name": "python"
@@ -45,8 +45,7 @@
 				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
-				"memory": 28,
-				"automaticScaleJobs": false
+				"memory": 28
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -84,35 +83,11 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"# #Create DataFrame for the dboconsignment_archive LMS Table\r\n",
-					"# dboconsignment_archive = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment_archive.parquet', format='parquet')\r\n",
-					"# dboconsignment_archive.createOrReplaceTempView(\"dboconsignment_archive\")\r\n",
-					"\r\n",
-					"# #Create DataFrame for the dboconsignment LMS Table\r\n",
-					"# dboconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
-					"# dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
-					""
+					"# #Create DataFrame for the dbodc_transfer LMS Table\r\n",
+					"# dbodc_transfer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodc_transfer.parquet', format='parquet')\r\n",
+					"# dbodc_transfer.createOrReplaceTempView(\"dbodc_transfer\")"
 				],
-				"execution_count": 2
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"dboconsignmentunion = dboconsignment_archive.unionByName(dboconsignment, allowMissingColumns = True)\r\n",
-					"dboconsignmentunion.createOrReplaceTempView(\"dboconsignmentunion\")"
-				],
-				"execution_count": 3
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -128,18 +103,39 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
-					},
-					"collapsed": false
+					}
 				},
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"sstconsignmentunion\r\n",
+					"stdctransfer\r\n",
 					"AS\r\n",
-					"SELECT * \r\n",
-					"FROM dboconsignmentunion"
+					"SELECT \r\n",
+					"\r\n",
+					"    dct.id as lms_dctransfer_id\r\n",
+					"    ,dct.destinationstoreid as lms_dctransfer_destinationstoreid\r\n",
+					"    ,dct.transfercode as lms_dctransfer_transfercode\r\n",
+					"    ,dct.audittype as lms_dctransfer_audittype\r\n",
+					"    ,dct.qty as lms_dctransfer_qty\r\n",
+					"    ,dct.dc_prepackid as lms_dctransfer_dc_prepackid\r\n",
+					"    ,dct.acceptancedate as lms_dctransfer_acceptancedate\r\n",
+					"    ,dct.auditflag as lms_dctransfer_auditflag\r\n",
+					"    ,dct.audituserid as lms_dctransfer_audituserid\r\n",
+					"    ,dct.auditlocid as lms_dctransfer_auditlocid\r\n",
+					"    ,dct.counted as lms_dctransfer_counted\r\n",
+					"    ,dct.damagecount as lms_dctransfer_damagecount\r\n",
+					"    ,dct.uploaded as lms_dctransfer_uploaded\r\n",
+					"    ,dct.dc_torderid as lms_dctransfer_dc_torderid\r\n",
+					"    ,dct.duedate as lms_dctransfer_duedate\r\n",
+					"    ,dct.destinationlocationcode as lms_dctransfer_destinationlocationcode\r\n",
+					"    ,dct.destinationlocationtypecode as lms_dctransfer_destinationlocationtypecode\r\n",
+					"    ,dct.processfamilycode as lms_dctransfer_processfamilycode\r\n",
+					"    ,dct.grnversion as lms_dctransfer_grnversion\r\n",
+					"\r\n",
+					"FROM dbodc_transfer dct\r\n",
+					""
 				],
-				"execution_count": 4
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -155,9 +151,9 @@
 					}
 				},
 				"source": [
-					"sstconsignmentunion = spark.sql(\"SELECT * FROM sstconsignmentunion\")"
+					"stdctransfer = spark.sql(\"SELECT * FROM stdctransfer\")"
 				],
-				"execution_count": 5
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -173,9 +169,10 @@
 					}
 				},
 				"source": [
-					"# sstconsignmentunion.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', mode = \"overwrite\")"
+					"# stdctransfer.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdctransfer.parquet', mode = \"overwrite\")\r\n",
+					"print(\"SUCCESS\")"
 				],
-				"execution_count": 6
+				"execution_count": null
 			}
 		]
 	}

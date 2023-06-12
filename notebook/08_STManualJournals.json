@@ -8,7 +8,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -21,7 +21,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "3f29e69d-410e-4e57-81da-4dd400922f7a"
+				"spark.autotune.trackingId": "3f41eef8-370c-4af9-ba8e-1faaff164039"
 			}
 		},
 		"metadata": {
@@ -35,36 +35,23 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
 		"cells": [
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"<mark>**THIS NOTEBOOK SAVES INLINE NOT IN THE RUNTIME**</mark>"
-				]
-			},
 			{
 				"cell_type": "code",
 				"metadata": {
@@ -83,10 +70,12 @@
 					"# if 'prod' in Environment:\r\n",
 					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
 					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
 					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
 					"# else:\r\n",
 					"#     StorageAccount = 'citylogisticsstorage'\r\n",
 					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
 					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
 					"# # ' + StorageAccount + '"
@@ -97,23 +86,23 @@
 				"cell_type": "code",
 				"source": [
 					"# #Create DataFrame for the dboOJDT SAP Table\r\n",
-					"# dboOJDT = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOJDT.parquet', format='parquet')\r\n",
+					"# dboOJDT = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboOJDT.parquet', format='parquet')\r\n",
 					"# dboOJDT.createOrReplaceTempView(\"dboOJDT\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the dboJDT1 SAP Table\r\n",
-					"# dboJDT1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboJDT1.parquet', format='parquet')\r\n",
+					"# dboJDT1 = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/SAP/dboJDT1.parquet', format='parquet')\r\n",
 					"# dboJDT1.createOrReplaceTempView(\"dboJDT1\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the stchartofaccounts SAP Table\r\n",
-					"# stchartofaccounts = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stchartofaccounts.parquet', format='parquet')\r\n",
+					"# stchartofaccounts = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/stchartofaccounts.parquet', format='parquet')\r\n",
 					"# stchartofaccounts.createOrReplaceTempView(\"stchartofaccounts\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the stsalesinvoice SAP Table\r\n",
-					"# stsalesinvoice = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoice.parquet', format='parquet')\r\n",
+					"# stsalesinvoice = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/stsalesinvoice.parquet', format='parquet')\r\n",
 					"# stsalesinvoice.createOrReplaceTempView(\"stsalesinvoice\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the stitem SAP Table\r\n",
-					"# stitem = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stitem.parquet', format='parquet')\r\n",
+					"# stitem = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/stitem.parquet', format='parquet')\r\n",
 					"# stitem.createOrReplaceTempView(\"stitem\")\r\n",
 					""
 				],

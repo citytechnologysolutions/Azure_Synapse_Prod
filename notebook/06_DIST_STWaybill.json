@@ -1,0 +1,431 @@
+{
+	"name": "06_DIST_STWaybill",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "fc3a2c58-dd9b-44f3-852c-1f8fc71fc7e3"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Create DataFrame for the dbowaybill LMS Table\r\n",
+					"# dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
+					"# dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the sstparcelbywaybill LMS Table\r\n",
+					"# sstparcelbywaybill = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbywaybill.parquet', format='parquet')\r\n",
+					"# sstparcelbywaybill.createOrReplaceTempView(\"sstparcelbywaybill\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the publicdelivery ORV Table\r\n",
+					"# publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"# publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
+					"\r\n",
+					"# #create dataframe for the publicpod orv table\r\n",
+					"# publicpod = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
+					"# publicpod.createOrReplaceTempView(\"publicpod\")\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import *\r\n",
+					"from pyspark.sql.window import Window"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"partitionfirst=Window.partitionBy(\"did\").orderBy(col(\"did\").asc())"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pod_tmp = publicpod.withColumn(\"row_num\",row_number().over(partitionfirst))"
+				],
+				"execution_count": 33
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pod_tmp.createOrReplaceTempView(\"pod_tmp\")"
+				],
+				"execution_count": 34
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stwaybill\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    w.ID as lms_waybill_id\r\n",
+					"    ,w.date as lms_waybill_date\r\n",
+					"    ,w.CustomerID as lms_waybill_customerid\r\n",
+					"    ,w.BService as lms_waybill_bservice\r\n",
+					"    ,w.CService as lms_waybill_cservice\r\n",
+					"    ,w.OriginID as lms_waybill_originid\r\n",
+					"    ,w.DefUser as lms_waybill_defuser\r\n",
+					"    ,w.Distance as lms_waybill_distance\r\n",
+					"    ,w.CourierID as lms_waybill_courierid\r\n",
+					"    ,w.CourierWBNo as lms_waybill_courierwbno\r\n",
+					"    ,w.BillType as lms_waybill_billtype\r\n",
+					"    ,w.CapDate as lms_waybill_capdate\r\n",
+					"    ,w.OrderType as lms_waybill_ordertype\r\n",
+					"    ,w.BillCust as lms_waybill_billcust\r\n",
+					"    ,w.PickupCustID as lms_waybill_pickupcustid\r\n",
+					"    ,w.DeliverCustID as lms_waybill_delivercustid\r\n",
+					"    ,w.BillTo as lms_waybill_billto\r\n",
+					"    ,w.Claimable as lms_waybill_claimable\r\n",
+					"    ,w.Override as lms_waybill_override\r\n",
+					"    ,w.VehicleCapacity as lms_waybill_vehiclecapacity\r\n",
+					"    ,w.PODDate as lms_waybill_poddate\r\n",
+					"    ,w.Signee as lms_waybill_signee\r\n",
+					"    ,w.GRVNo as lms_waybill_grvno\r\n",
+					"    ,w.Endorsements as lms_waybill_endorsements\r\n",
+					"    ,w.LoadID as lms_waybill_loadid\r\n",
+					"    ,w.RouteID as lms_waybill_routeid\r\n",
+					"    ,w.mrpFlag as lms_waybill_mrpflag\r\n",
+					"    ,w.Printed as lms_waybill_printed\r\n",
+					"    ,w.SReasonID as lms_waybill_sreasonid\r\n",
+					"    ,w.HasPrinted as lms_waybill_hasprinted\r\n",
+					"    ,w.Site as lms_waybill_site\r\n",
+					"    ,w.DeliveryNo as lms_waybill_deliveryno\r\n",
+					"    ,w.CustAccID as lms_waybill_custaccid\r\n",
+					"    ,w.Scanned as lms_waybill_scanned\r\n",
+					"    ,w.UserID as lms_waybill_userid\r\n",
+					"    ,w.Autoprinted as lms_waybill_autoprinted\r\n",
+					"    ,w.cref as lms_waybill_cref\r\n",
+					"    ,w.UShort as lms_waybill_ushort\r\n",
+					"    ,w.Delays as lms_waybill_delays\r\n",
+					"    ,w.DeBriefed as lms_waybill_debriefed\r\n",
+					"    ,w.DeBriefDt as lms_waybill_debriefdt\r\n",
+					"    ,w.DBCtnsRet as lms_waybill_dbctnsret\r\n",
+					"    ,w.Uploaded as lms_waybill_uploaded\r\n",
+					"    ,w.ServiceExclude as lms_waybill_serviceexclude\r\n",
+					"    ,w.Failed as lms_waybill_failed\r\n",
+					"    ,w.DelayReasonID as lms_waybill_delayreasonid\r\n",
+					"    ,w.NotDebrievReasonID as lms_waybill_notdebrievreasonid\r\n",
+					"    ,w.DeliveryStatID as lms_waybill_deliverystatid\r\n",
+					"    ,w.ReasonGroupID as lms_waybill_reasongroupid\r\n",
+					"    ,w.eMailCust as lms_waybill_emailcust\r\n",
+					"    ,w.MobileIssueReportedID as lms_waybill_mobileissuereportedid\r\n",
+					"    ,w.isMobile as lms_waybill_ismobile\r\n",
+					"    ,w.CustComment as lms_waybill_custcomment\r\n",
+					"    ,w.CustFeedback as lms_waybill_custfeedback\r\n",
+					"    ,w.ReasonDetailID as lms_waybill_reasondetailid\r\n",
+					"    ,w.MobileComments as lms_waybill_mobilecomments\r\n",
+					"    ,w.InServiceReasonID as lms_waybill_inservicereasonid\r\n",
+					"    ,w.NotDebrievCom as lms_waybill_notdebrievcom\r\n",
+					"    ,w.LastUpdate as lms_waybill_lastupdate\r\n",
+					"    ,w.Dropsequence as lms_waybill_dropsequence\r\n",
+					"    ,w.Noofparcelssreturned as lms_waybill_noofparcelssreturned\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrchargeweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolumiserweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrmaxweight\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrnoparcels\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrchargeweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrvolumiserweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrmaxweightexclspecdel\r\n",
+					"    ,pbw.lms_parcelbywaybill_aggrnoparcelsexclspecdel\r\n",
+					"    ,d.id as orv_delivery_id\r\n",
+					"    ,d.did as orv_delivery_did\r\n",
+					"    ,d.waybillid as orv_delivery_waybillid\r\n",
+					"    ,d.address as orv_delivery_address\r\n",
+					"    ,d.town as orv_delivery_town\r\n",
+					"    ,d.province as orv_delivery_province\r\n",
+					"    ,d.country as orv_delivery_country\r\n",
+					"    ,d.lat as orv_delivery_lat\r\n",
+					"    ,d.lng as orv_delivery_lng\r\n",
+					"    ,d.placeid as orv_delivery_placeid\r\n",
+					"    ,d.what3words as orv_delivery_what3words\r\n",
+					"    ,d.zipcode as orv_delivery_zipcode\r\n",
+					"    ,to_timestamp(d.eta) as orv_delivery_eta\r\n",
+					"    ,to_timestamp(d.actualeta) as orv_delivery_actualeta\r\n",
+					"    ,to_timestamp(d.deliverydate) as orv_delivery_deliverydate\r\n",
+					"    ,to_timestamp(d.deliverby) as orv_delivery_deliverby\r\n",
+					"    ,d.deliveryorder as orv_delivery_deliveryorder\r\n",
+					"    ,to_timestamp(d.tsgeofenceenter) as orv_delivery_tsgeofenceenter\r\n",
+					"    ,to_timestamp(d.tsscanningstart) as orv_delivery_tsscanningstart\r\n",
+					"    ,to_timestamp(d.tsscanningstop) as orv_delivery_tsscanningstop\r\n",
+					"    ,to_timestamp(d.tspodsignature) as orv_delivery_tspodsignature\r\n",
+					"    ,d.aid as orv_delivery_aid\r\n",
+					"    ,d.numprcls as orv_delivery_numprcls\r\n",
+					"    ,d.geocodingstatus as orv_delivery_geocodingstatus\r\n",
+					"    ,to_timestamp(d.skipdate) as orv_delivery_skipdate\r\n",
+					"    ,d.skipreason as orv_delivery_skipreason\r\n",
+					"    ,d.status as orv_delivery_status\r\n",
+					"    ,d.partialmatch as orv_delivery_partialmatch\r\n",
+					"    ,d.approximated as orv_delivery_approximated\r\n",
+					"    ,d.lmsorder as orv_delivery_lmsorder\r\n",
+					"    ,d.optimizedorder as orv_delivery_optimizedorder\r\n",
+					"    ,d.seal as orv_delivery_seal\r\n",
+					"    ,d.customerinvoice as orv_delivery_customerinvoice\r\n",
+					"    ,d.customerdn as orv_delivery_customerdn\r\n",
+					"    ,d.grv as orv_delivery_grv\r\n",
+					"    ,d.chepslip as orv_delivery_chepslip\r\n",
+					"    ,d.cleandelivery as orv_delivery_cleandelivery\r\n",
+					"    ,d.trackingcode as orv_delivery_trackingcode\r\n",
+					"    ,d.mode as orv_delivery_mode\r\n",
+					"    ,d.customorder as orv_delivery_customorder\r\n",
+					"    ,d.verified as orv_delivery_verified\r\n",
+					"    ,d.altered as orv_delivery_altered\r\n",
+					"    ,d.orderid as orv_delivery_orderid\r\n",
+					"    ,d.mergeid as orv_delivery_mergeid\r\n",
+					"    ,d.orderref as orv_delivery_orderref\r\n",
+					"    ,d.drivernote as orv_delivery_drivernote\r\n",
+					"    ,d.guid as orv_delivery_guid\r\n",
+					"    ,d.timedefinite as orv_delivery_timedefinite\r\n",
+					"    ,d.orvcode as orv_delivery_orvcode\r\n",
+					"    ,d.vaid as orv_delivery_vaid\r\n",
+					"    ,to_timestamp(d.delegatedate) as orv_delivery_delegatedate\r\n",
+					"    ,d.delegatemode as orv_delivery_delegatemode\r\n",
+					"    ,d.debriefmode as orv_delivery_debriefmode\r\n",
+					"    ,d.debriefed as orv_delivery_debriefed\r\n",
+					"    ,to_timestamp(d.insdate) as orv_delivery_insdate\r\n",
+					"    ,d.reviseddebrief as orv_delivery_reviseddebrief\r\n",
+					"    ,d.lmsdebriefed as orv_delivery_lmsdebriefed\r\n",
+					"    ,to_timestamp(d.uncanceldate) as orv_delivery_uncanceldate\r\n",
+					"    ,to_timestamp(d.podlaterdate) as orv_delivery_podlaterdate\r\n",
+					"    ,to_timestamp(d.podmanualdate) as orv_delivery_podmanualdate\r\n",
+					"    ,d.manualdebriefreason as orv_delivery_manualdebriefreason\r\n",
+					"    ,d.submanualdebriefreason as orv_delivery_submanualdebriefreason\r\n",
+					"    ,d.outofgeofencereason as orv_delivery_outofgeofencereason\r\n",
+					"    ,to_timestamp(d.tsentergeofenceapp) as orv_delivery_tsentergeofenceapp\r\n",
+					"    ,to_timestamp(d.tsexitgeofenceapp) as orv_delivery_tsexitgeofenceapp\r\n",
+					"    ,d.comebacklater as orv_delivery_comebacklater\r\n",
+					"    ,d.uncancelusername as orv_delivery_uncancelusername\r\n",
+					"    ,d.cref as orv_delivery_cref\r\n",
+					"    ,d.division as orv_delivery_division\r\n",
+					"    ,d.descriptionofgoods as orv_delivery_descriptionofgoods\r\n",
+					"    ,d.skiplng as orv_delivery_skiplng\r\n",
+					"    ,d.skiplat as orv_delivery_skiplat\r\n",
+					"    ,d.courierid as orv_delivery_courierid\r\n",
+					"    ,d.posreason as orv_delivery_posreason\r\n",
+					"    ,to_timestamp(d.moddate) as orv_delivery_moddate\r\n",
+					"    ,d.mallid as orv_delivery_mallid\r\n",
+					"    ,d.mallgid as orv_delivery_mallgid\r\n",
+					"    ,d.lmsidskipreason as orv_delivery_lmsidskipreason\r\n",
+					"    ,d.deleteforimport as orv_delivery_deleteforimport\r\n",
+					"    ,d.podoutofgeofence as orv_delivery_podoutofgeofence\r\n",
+					"    ,d.originalcustomerid as orv_delivery_originalcustomerid\r\n",
+					"    ,p.id as orv_pod_id\r\n",
+					"\t,p.name as orv_pod_name\r\n",
+					"\t,to_timestamp(p.poddate) as orv_pod_poddate\r\n",
+					"\t,p.lat as orv_pod_lat\r\n",
+					"\t,p.lng as orv_pod_lng\r\n",
+					"\t,p.customerrating as orv_pod_customerrating\r\n",
+					"\t,p.customerfeedback as orv_pod_customerfeedback\r\n",
+					"\r\n",
+					"FROM dbowaybill w\r\n",
+					"LEFT JOIN sstparcelbywaybill pbw on pbw.lms_parcelbywaybill_waybillid =  w.id\r\n",
+					"LEFT JOIN publicdelivery d on d.waybillid =  w.id\r\n",
+					"LEFT JOIN pod_tmp p on p.did = d.id and row_num = 1\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stwaybill = spark.sql(\"SELECT * FROM stwaybill\")"
+				],
+				"execution_count": 37
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stwaybill.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 42
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

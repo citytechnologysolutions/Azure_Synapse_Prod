@@ -1,0 +1,253 @@
+{
+	"name": "07_DIST_STLoadChild",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "173baaa2-78e7-4c3c-b989-ae324528522f"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Create DataFrame for the dboloads LMS Table\r\n",
+					"# dboloads = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
+					"# dboloads.createOrReplaceTempView(\"dboloads\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the sstparcelbyload LMS Table\r\n",
+					"# sstparcelbyload = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyload.parquet', format='parquet')\r\n",
+					"# sstparcelbyload.createOrReplaceTempView(\"sstparcelbyload\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stloadchild\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    l.id as lms_loadchild_id\r\n",
+					"    ,l.routeid as lms_loadchild_routeid\r\n",
+					"    ,l.driverid as lms_loadchild_driverid\r\n",
+					"    ,l.sealno as lms_loadchild_sealno\r\n",
+					"    ,l.vehicleid as lms_loadchild_vehicleid\r\n",
+					"    ,l.ttypeid as lms_loadchild_ttypeid\r\n",
+					"    ,l.userid as lms_loadchild_userid\r\n",
+					"    ,l.ldate as lms_loadchild_ldate\r\n",
+					"    ,l.courierid as lms_loadchild_courierid\r\n",
+					"    ,l.site as lms_loadchild_site\r\n",
+					"    ,l.fromlocid as lms_loadchild_fromlocid\r\n",
+					"    ,l.tolocid as lms_loadchild_tolocid\r\n",
+					"    ,l.cdate as lms_loadchild_cdate\r\n",
+					"    ,l.trailer1 as lms_loadchild_trailer1\r\n",
+					"    ,l.trailer2 as lms_loadchild_trailer2\r\n",
+					"    ,l.cref as lms_loadchild_cref\r\n",
+					"    ,l.debriefed as lms_loadchild_debriefed\r\n",
+					"    ,l.mrpflag as lms_loadchild_mrpflag\r\n",
+					"    ,l.mrpcflag as lms_loadchild_mrpcflag\r\n",
+					"    ,l.finalflag as lms_loadchild_finalflag\r\n",
+					"    ,l.alidaflag as lms_loadchild_alidaflag\r\n",
+					"    ,l.puibts as lms_loadchild_puibts\r\n",
+					"    ,l.pucols as lms_loadchild_pucols\r\n",
+					"    ,l.planningref as lms_loadchild_planningref\r\n",
+					"    ,l.interfacedate as lms_loadchild_interfacedate\r\n",
+					"    ,l.nosealsret as lms_loadchild_nosealsret\r\n",
+					"    ,l.excludeopsi as lms_loadchild_excludeopsi\r\n",
+					"    ,l.dccref as lms_loadchild_dccref\r\n",
+					"    ,l.srouteid as lms_loadchild_srouteid\r\n",
+					"    ,l.fuellitres as lms_loadchild_fuellitres\r\n",
+					"    ,l.outsourcedcrew as lms_loadchild_outsourcedcrew\r\n",
+					"    ,l.masterloadid as lms_loadchild_masterloadid\r\n",
+					"    ,l.securitygatedespatched as lms_loadchild_securitygatedespatched\r\n",
+					"    ,l.securitygateuserid as lms_loadchild_securitygateuserid\r\n",
+					"    ,l.securitygatearrived as lms_loadchild_securitygatearrived\r\n",
+					"    ,l.securitygatearriveduserid as lms_loadchild_securitygatearriveduserid\r\n",
+					"    ,l.lastupdate as lms_loadchild_lastupdate\r\n",
+					"    ,l.bayno as lms_loadchild_bayno\r\n",
+					"    ,l.costs as lms_loadchild_costs\r\n",
+					"    ,l.estdeparturedatetime as lms_loadchild_estdeparturedatetime\r\n",
+					"    ,l.totalweight as lms_loadchild_totalweight\r\n",
+					"    ,l.ovrignore as lms_loadchild_ovrignore\r\n",
+					"    ,l.childloadid as lms_loadchild_childloadid\r\n",
+					"    ,l.orvcode as lms_loadchild_orvcode\r\n",
+					"    ,l.companyid as lms_loadchild_companyid\r\n",
+					"    ,l.editloaddate as lms_loadchild_editloaddate\r\n",
+					"    ,l.reopeneddate as lms_loadchild_reopeneddate\r\n",
+					"    ,l.reopeneduserid as lms_loadchild_reopeneduserid\r\n",
+					"    ,l.novehicle as lms_loadchild_novehicle\r\n",
+					"    ,l.mobilefeedbackreasonid as lms_loadchild_mobilefeedbackreasonid\r\n",
+					"    ,l.direct as lms_loadchild_direct\r\n",
+					"    ,l.noofpcls as lms_loadchild_noofpcls\r\n",
+					"    ,l.debriefdt as lms_loadchild_debriefdt\r\n",
+					"    ,l.httpcode as lms_loadchild_httpcode\r\n",
+					"    ,l.parentloadid as lms_loadchild_parentloadid\r\n",
+					"    ,l.mrpobversion as lms_loadchild_mrpobversion\r\n",
+					"    ,l.EffectiveLoadDurationMinutes as lms_loadchild_effectiveloaddurationminutes\r\n",
+					"    ,l.EffectiveOffLoadDurationMinutes as lms_loadchild_effectiveoffloaddurationminutes\r\n",
+					"    ,pbl.lms_parcelbyload_loadid as lms_loadchild_loadid\r\n",
+					"    ,pbl.lms_parcelbyload_aggrweight as lms_loadchild_aggrweight\r\n",
+					"    ,pbl.lms_parcelbyload_aggrchargeweight as lms_loadchild_aggrchargeweight\r\n",
+					"    ,pbl.lms_parcelbyload_aggrvolweight as lms_loadchild_aggrvolweight\r\n",
+					"    ,pbl.lms_parcelbyload_aggrvolumiserweight as lms_loadchild_aggrvolumiserweight\r\n",
+					"    ,pbl.lms_parcelbyload_aggrmaxweight as lms_loadchild_aggrmaxweight\r\n",
+					"    ,pbl.lms_parcelbyload_aggrnoparcels as lms_loadchild_aggrnoparcels\r\n",
+					"    ,pbl.lms_parcelbyload_aggrweight as lms_loadchild_aggrweightexclspecdel\r\n",
+					"    ,pbl.lms_parcelbyload_aggrchargeweight as lms_loadchild_aggrchargeweightexclspecdel\r\n",
+					"    ,pbl.lms_parcelbyload_aggrvolweight as lms_loadchild_aggrvolweightexclspecdel\r\n",
+					"    ,pbl.lms_parcelbyload_aggrvolumiserweight as lms_loadchild_aggrvolumiserweightexclspecdel\r\n",
+					"    ,pbl.lms_parcelbyload_aggrmaxweight as lms_loadchild_aggrmaxweightexclspecdel\r\n",
+					"    ,pbl.lms_parcelbyload_aggrnoparcels as lms_loadchild_aggrnoparcelsexclspecdel\r\n",
+					"\r\n",
+					"FROM dboloads l\r\n",
+					"LEFT JOIN sstparcelbyload pbl on pbl.lms_parcelbyload_loadid = l.id"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stloadchild = spark.sql(\"SELECT * FROM stloadchild\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stloadchild.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

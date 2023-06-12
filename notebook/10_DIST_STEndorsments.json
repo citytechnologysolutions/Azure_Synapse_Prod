@@ -1,8 +1,8 @@
 {
-	"name": "SSTConsignmentUnion",
+	"name": "10_DIST_STEndorsments",
 	"properties": {
 		"folder": {
-			"name": "TRANSFORM/01 SEMI-STRUCTURED/01_LMS Union"
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "dd379d26-34d6-4db0-b565-d594af844601"
+				"spark.autotune.trackingId": "c33f643b-e454-4659-b11e-80def2887f84"
 			}
 		},
 		"metadata": {
@@ -28,7 +28,7 @@
 			"enableDebugMode": false,
 			"kernelspec": {
 				"name": "synapse_pyspark",
-				"display_name": "Synapse PySpark"
+				"display_name": "python"
 			},
 			"language_info": {
 				"name": "python"
@@ -45,8 +45,7 @@
 				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
-				"memory": 28,
-				"automaticScaleJobs": false
+				"memory": 28
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -84,35 +83,24 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"# #Create DataFrame for the dboconsignment_archive LMS Table\r\n",
-					"# dboconsignment_archive = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment_archive.parquet', format='parquet')\r\n",
-					"# dboconsignment_archive.createOrReplaceTempView(\"dboconsignment_archive\")\r\n",
+					"# #create dataframe for the publicclaim orv table\r\n",
+					"# publicclaim = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicclaim.parquet', format='parquet')\r\n",
+					"# publicclaim.createOrReplaceTempView(\"publicclaim\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dboconsignment LMS Table\r\n",
-					"# dboconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
-					"# dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"# #create dataframe for the publicdelivery orv table\r\n",
+					"# publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"# publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbowbendorsement LMS Table\r\n",
+					"# dbowbendorsement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowbendorsement.parquet', format='parquet')\r\n",
+					"# dbowbendorsement.createOrReplaceTempView(\"dbowbendorsement\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodb_endorsement LMS Table\r\n",
+					"# dbodb_endorsement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_endorsement.parquet', format='parquet')\r\n",
+					"# dbodb_endorsement.createOrReplaceTempView(\"dbodb_endorsement\")\r\n",
 					""
 				],
-				"execution_count": 2
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"dboconsignmentunion = dboconsignment_archive.unionByName(dboconsignment, allowMissingColumns = True)\r\n",
-					"dboconsignmentunion.createOrReplaceTempView(\"dboconsignmentunion\")"
-				],
-				"execution_count": 3
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -128,18 +116,72 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
-					},
-					"collapsed": false
+					}
 				},
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"sstconsignmentunion\r\n",
+					"stendorsments_tmp\r\n",
 					"AS\r\n",
-					"SELECT * \r\n",
-					"FROM dboconsignmentunion"
+					"SELECT \r\n",
+					"    c.id\r\n",
+					"    ,c.delid\r\n",
+					"\t,c.claimtype\r\n",
+					"\t,to_timestamp(c.claimdate) as claimdate\r\n",
+					"\t,c.did\r\n",
+					"\t,c.parcelid\r\n",
+					"\t,c.barcode\r\n",
+					"\t,c.attachid\r\n",
+					"\t,c.note\r\n",
+					"    ,d.waybillid\r\n",
+					"    \r\n",
+					"FROM publicclaim c\r\n",
+					"LEFT JOIN publicdelivery d on d.id = c.delid"
 				],
-				"execution_count": 4
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stendorsments\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    e.ID as lms_db_endorsement_id\r\n",
+					"\t,e.Description as lms_db_endorsement_description\r\n",
+					"    ,er.ID as lms_wbendorsement_id\r\n",
+					"    ,er.Barcode as lms_wbendorsement_barcode\r\n",
+					"    ,er.WaybillID as lms_wbendorsement_waybillid\r\n",
+					"    ,et.id as orv_claim_id\r\n",
+					"    ,et.delid as orv_claim_delid\r\n",
+					"\t,et.claimtype as orv_claim_claimtype\r\n",
+					"\t,et.claimdate as orv_claim_claimdate\r\n",
+					"\t,et.did as orv_claim_did\r\n",
+					"\t,et.parcelid as orv_claim_parcelid\r\n",
+					"\t,et.barcode as orv_claim_barcode\r\n",
+					"\t,et.attachid as orv_claim_attachid\r\n",
+					"\t,et.note as orv_claim_note\r\n",
+					"    \r\n",
+					"FROM dbodb_endorsement e\r\n",
+					"LEFT JOIN dbowbendorsement er on er.EType = e.ID\r\n",
+					"LEFT JOIN stendorsments_tmp et on et.waybillid||'|'||et.barcode = er.WaybillID||'|'||er.barcode"
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -155,9 +197,9 @@
 					}
 				},
 				"source": [
-					"sstconsignmentunion = spark.sql(\"SELECT * FROM sstconsignmentunion\")"
+					"stendorsments = spark.sql(\"SELECT * FROM stendorsments\")"
 				],
-				"execution_count": 5
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -173,9 +215,10 @@
 					}
 				},
 				"source": [
-					"# sstconsignmentunion.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', mode = \"overwrite\")"
+					"# stendorsments.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stendorsments.parquet', mode = \"overwrite\")\r\n",
+					"print(\"SUCCESS\")"
 				],
-				"execution_count": 6
+				"execution_count": null
 			}
 		]
 	}

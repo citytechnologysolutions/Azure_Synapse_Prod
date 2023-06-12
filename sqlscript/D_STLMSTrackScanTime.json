@@ -1,0 +1,20 @@
+{
+	"name": "D_STLMSTrackScanTime",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Linehaul"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STLMSTrackScanTime') )\n    DROP EXTERNAL TABLE dbo.D_STLMSTrackScanTime\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STLMSTrackScanTime (\n    [lms_track_loadid] int,\n    [lms_loads_masterloadid] int,\n    [lms_track_firstscan] datetime2(7),\n    [lms_track_lastscan] datetime2(7),\n    [lms_track_loadtime] bigint,\n   \n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stlmstrackscantime.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STLMSTrackScanTime \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

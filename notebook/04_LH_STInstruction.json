@@ -1,0 +1,488 @@
+{
+	"name": "04_LH_STInstruction",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Linehaul"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "15c7b37e-f97b-41b5-a946-4d894e570388"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+				"name": "PRDSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				}
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Create DataFrame for the publicInstruction TMS Table\r\n",
+					"# publicInstruction = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicinstruction.parquet', format='parquet')\r\n",
+					"# publicInstruction.createOrReplaceTempView(\"publicInstruction\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboLHInstruction LMS Table\r\n",
+					"# dboLHInstruction = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_instruction.parquet', format='parquet')\r\n",
+					"# dboLHInstruction.createOrReplaceTempView(\"dboLHInstruction\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the publicLHInstruction LMS Table\r\n",
+					"# publicLHInstruction = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publiclhdelivery.parquet', format='parquet')\r\n",
+					"# publicLHInstruction.createOrReplaceTempView(\"publicLHInstruction\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stbooking TMSLMS combine Table\r\n",
+					"# stbooking = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', format='parquet')\r\n",
+					"# stbooking.createOrReplaceTempView(\"stbooking\")"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stinstruction_tms\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    i.id as tms_instruction_id\r\n",
+					"    ,i.bookingid as tms_instruction_bookingid\r\n",
+					"    ,i.addressid as tms_instruction_addressid\r\n",
+					"    ,i.instrtype as tms_instruction_instrtype\r\n",
+					"    ,i.onroute as tms_instruction_onroute\r\n",
+					"    ,i.onrouteid as tms_instruction_onrouteid\r\n",
+					"    ,i.sort as tms_instruction_sort\r\n",
+					"    ,i.onroutestatus as tms_instruction_onroutestatus\r\n",
+					"    ,i.note as tms_instruction_note\r\n",
+					"    ,i.citybranchid as tms_instruction_citybranchid\r\n",
+					"    ,i.citybranchname as tms_instruction_citybranchname\r\n",
+					"    ,to_timestamp(i.insdate) as tms_instruction_insdate\r\n",
+					"    ,to_timestamp(i.moddate) as tms_instruction_moddate\r\n",
+					"    ,i.insby as tms_instruction_insby\r\n",
+					"    ,CASE \r\n",
+					"        WHEN i.instrtype = \"pickup\" THEN tms_booking_pickupdate\r\n",
+					"        WHEN i.instrtype = \"delivery\" THEN tms_booking_deliverydate\r\n",
+					"    END as tms_instruction_bookingpickupdeliverydate\r\n",
+					"\r\n",
+					"FROM publicinstruction i\r\n",
+					"LEFT JOIN stbooking b on b.tms_booking_id = i.bookingid\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stinstruction_tms = spark.sql(\"SELECT * FROM stinstruction_tms\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stinstruction_lms \r\n",
+					"AS\r\n",
+					"\r\n",
+					"SELECT    \r\n",
+					"    CAST(CONCAT('-',CAST(i.id as string)) as int) as tms_instruction_id\r\n",
+					"    ,CAST(CONCAT('-',CAST(i.bookingid as string)) as int) as tms_instruction_bookingid\r\n",
+					"    ,CAST(CONCAT('-',CAST(i.addressid as string)) as int) as tms_instruction_addressid\r\n",
+					"    ,CASE\r\n",
+					"        WHEN i.instructiontypeid = 1 THEN 'pickup'\r\n",
+					"        ELSE 'delivery'    \r\n",
+					"    END as tms_instruction_instrtype\r\n",
+					"    ,null as tms_instruction_onroute\r\n",
+					"    ,null as tms_instruction_onrouteid\r\n",
+					"    ,i.sequence as tms_instruction_sort\r\n",
+					"    ,null as tms_instruction_onroutestatus\r\n",
+					"    ,null as tms_instruction_note\r\n",
+					"    ,null as tms_instruction_citybranchid\r\n",
+					"    ,null as tms_instruction_citybranchname\r\n",
+					"    ,i.createddate as tms_instruction_insdate\r\n",
+					"    ,i.createddate as tms_instruction_moddate\r\n",
+					"    ,CAST(CONCAT('-',CAST(i.userid as string)) as int) as tms_instruction_insby\r\n",
+					"    ,CASE \r\n",
+					"        WHEN i.instructiontypeid = 1 THEN tms_booking_pickupdate\r\n",
+					"        ELSE tms_booking_deliverydate\r\n",
+					"    END as tms_instruction_bookingpickupdeliverydate\r\n",
+					"\r\n",
+					"FROM dbolhinstruction i\r\n",
+					"LEFT JOIN stbooking b on b.tms_booking_id = CAST(CONCAT('-',CAST(i.bookingid as string)) as int)"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stinstruction_lms = spark.sql(\"SELECT * FROM stinstruction_lms\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stinstruction_tmp = stinstruction_lms.unionByName(stinstruction_tms, allowMissingColumns = True)\r\n",
+					"stinstruction_tmp.createOrReplaceTempView(\"stinstruction_tmp\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stinstruction_tmp2\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    si.tms_instruction_id\r\n",
+					"    ,si.tms_instruction_bookingid\r\n",
+					"    ,si.tms_instruction_addressid\r\n",
+					"    ,si.tms_instruction_instrtype\r\n",
+					"    ,si.tms_instruction_onroute\r\n",
+					"    ,si.tms_instruction_onrouteid\r\n",
+					"    ,si.tms_instruction_sort\r\n",
+					"    ,si.tms_instruction_onroutestatus\r\n",
+					"    ,si.tms_instruction_note\r\n",
+					"    ,si.tms_instruction_citybranchid\r\n",
+					"    ,si.tms_instruction_citybranchname\r\n",
+					"    ,si.tms_instruction_insdate\r\n",
+					"    ,si.tms_instruction_moddate\r\n",
+					"    ,si.tms_instruction_insby\r\n",
+					"    ,to_timestamp(si.tms_instruction_bookingpickupdeliverydate) as tms_instruction_bookingpickupdeliverydate\r\n",
+					"    ,i.id as orv_lhdelivery_id\r\n",
+					"    ,i.did as orv_lhdelivery_did\r\n",
+					"    ,i.lat as orv_lhdelivery_lat\r\n",
+					"    ,i.lng as orv_lhdelivery_lng\r\n",
+					"    ,to_timestamp(i.actualeta) as orv_lhdelivery_actualeta\r\n",
+					"    ,to_timestamp(i.eta) as orv_lhdelivery_eta\r\n",
+					"    ,to_timestamp(i.tsgeofenceenter) as orv_lhdelivery_tsgeofenceenter\r\n",
+					"    ,to_timestamp(i.tsdocuments) as orv_lhdelivery_tsdocuments\r\n",
+					"    ,i.customerref1 as orv_lhdelivery_customerref1\r\n",
+					"    ,i.customerref2 as orv_lhdelivery_customerref2\r\n",
+					"    ,i.trailersize as orv_lhdelivery_trailersize\r\n",
+					"    ,i.cargoweight as orv_lhdelivery_cargoweight\r\n",
+					"    ,i.cubicvolume as orv_lhdelivery_cubicvolume\r\n",
+					"    ,i.geocodingstatus as orv_lhdelivery_geocodingstatus\r\n",
+					"    ,i.status as orv_lhdelivery_status\r\n",
+					"    ,i.optimizedorder as orv_lhdelivery_optimizedorder\r\n",
+					"    ,i.triporder as orv_lhdelivery_triporder\r\n",
+					"    ,i.sequence as orv_lhdelivery_sequence\r\n",
+					"    ,i.bookingid as orv_lhdelivery_bookingid\r\n",
+					"    ,i.grv as orv_lhdelivery_grv\r\n",
+					"    ,i.chepslip as orv_lhdelivery_chepslip\r\n",
+					"    ,i.type as orv_lhdelivery_type\r\n",
+					"    ,to_timestamp(i.insdate) as orv_lhdelivery_insdate\r\n",
+					"    ,i.isdirect as orv_lhdelivery_isdirect\r\n",
+					"    ,i.notes as orv_lhdelivery_notes\r\n",
+					"    ,i.contactperson as orv_lhdelivery_contactperson\r\n",
+					"    ,i.contactnumber as orv_lhdelivery_contactnumber\r\n",
+					"    ,i.trailerfleetcode as orv_lhdelivery_trailerfleetcode\r\n",
+					"    ,i.primarycustomerid as orv_lhdelivery_primarycustomerid\r\n",
+					"    ,i.pcustomername as orv_lhdelivery_pcustomername\r\n",
+					"    ,i.pcustomeraccountnumber as orv_lhdelivery_pcustomeraccountnumber\r\n",
+					"    ,i.pcustomerrevenuecode as orv_lhdelivery_pcustomerrevenuecode\r\n",
+					"    ,i.secondarycustomerid as orv_lhdelivery_secondarycustomerid\r\n",
+					"    ,i.scustomername as orv_lhdelivery_scustomername\r\n",
+					"    ,i.scustomeraccountnumber as orv_lhdelivery_scustomeraccountnumber\r\n",
+					"    ,i.scustomerrevenuecode as orv_lhdelivery_scustomerrevenuecode\r\n",
+					"    ,to_timestamp(i.actiondate) as orv_lhdelivery_actiondate\r\n",
+					"    ,to_timestamp(i.tsgeofenceexit) as orv_lhdelivery_tsgeofenceexit\r\n",
+					"    ,i.pctmsid as orv_lhdelivery_pctmsid\r\n",
+					"    ,i.sctmsid as orv_lhdelivery_sctmsid\r\n",
+					"    ,i.customorder as orv_lhdelivery_customorder\r\n",
+					"    ,to_timestamp(i.skipdate) as orv_lhdelivery_skipdate\r\n",
+					"    ,i.skipreason as orv_lhdelivery_skipreason\r\n",
+					"    ,i.outofgeofencereason as orv_lhdelivery_outofgeofencereason\r\n",
+					"    ,to_timestamp(i.tsarrivedcustomer) as orv_lhdelivery_tsarrivedcustomer\r\n",
+					"    ,to_timestamp(i.tsdroppedoff) as orv_lhdelivery_tsdroppedoff\r\n",
+					"    ,to_timestamp(i.tsstartoffloading) as orv_lhdelivery_tsstartoffloading\r\n",
+					"    ,to_timestamp(i.tsstartloading) as orv_lhdelivery_tsstartloading\r\n",
+					"    ,to_timestamp(i.tsloaded) as orv_lhdelivery_tsloaded\r\n",
+					"    ,to_timestamp(i.tsfinishedoffloading) as orv_lhdelivery_tsfinishedoffloading\r\n",
+					"    ,to_timestamp(i.tsdocumnetshanddovedriver) as orv_lhdelivery_tsdocumnetshanddovedriver\r\n",
+					"    ,to_timestamp(i.tsleavingcustomer) as orv_lhdelivery_tsleavingcustomer\r\n",
+					"    ,i.actionsubtype as orv_lhdelivery_actionsubtype\r\n",
+					"    ,to_timestamp(i.tsstart) as orv_lhdelivery_tsstart\r\n",
+					"    ,i.signame as orv_lhdelivery_signame\r\n",
+					"    ,i.signcomment as orv_lhdelivery_signcomment\r\n",
+					"    ,to_timestamp(i.signdate) as orv_lhdelivery_signdate\r\n",
+					"    ,to_timestamp(i.tsendtate) as orv_lhdelivery_tsendtate\r\n",
+					"    ,to_timestamp(i.tsentergeofenceapp) as orv_lhdelivery_tsentergeofenceapp\r\n",
+					"    ,to_timestamp(i.tsexitgeofenceapp) as orv_lhdelivery_tsexitgeofenceapp\r\n",
+					"    ,i.tmsid as orv_lhdelivery_tmsid\r\n",
+					"    ,i.subtype as orv_lhdelivery_subtype\r\n",
+					"    ,i.needbotrailerver as orv_lhdelivery_needbotrailerver\r\n",
+					"    ,i.secondtrailerfleetcode as orv_lhdelivery_secondtrailerfleetcode\r\n",
+					"    ,i.trailerverlat as orv_lhdelivery_trailerverlat\r\n",
+					"    ,i.trailerverlng as orv_lhdelivery_trailerverlng\r\n",
+					"    ,i.tstrailerver as orv_lhdelivery_tstrailerver\r\n",
+					"    ,i.podlat as orv_lhdelivery_podlat\r\n",
+					"    ,i.podlng as orv_lhdelivery_podlng\r\n",
+					"    ,i.skiplat as orv_lhdelivery_skiplat\r\n",
+					"    ,i.skiplng as orv_lhdelivery_skiplng\r\n",
+					"    ,to_timestamp(i.uncanceldate) as orv_lhdelivery_uncanceldate\r\n",
+					"    --,i.citybranchname as orv_lhdelivery_citybranchname\r\n",
+					"\r\n",
+					"FROM stinstruction_tmp si\r\n",
+					"LEFT JOIN publiclhinstruction i on i.tmsid = si.tms_instruction_id\r\n",
+					""
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stinstruction_tmp2 = spark.sql(\"SELECT * FROM stinstruction_tmp2\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stinstruction\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"*\r\n",
+					",(to_unix_timestamp(orv_lhdelivery_tsleavingcustomer)-to_unix_timestamp(orv_lhdelivery_tsarrivedcustomer)) as tms_instruction_inputpickupduration\r\n",
+					",(to_unix_timestamp(orv_lhdelivery_tsloaded)-to_unix_timestamp(orv_lhdelivery_tsstartloading)) as tms_instruction_loadingduration\r\n",
+					",(to_unix_timestamp(orv_lhdelivery_tsgeofenceexit)-to_unix_timestamp(orv_lhdelivery_tsgeofenceenter)) as tms_instruction_geopickupduration\r\n",
+					",(to_unix_timestamp(orv_lhdelivery_tsendtate)-to_unix_timestamp(tms_instruction_insdate)) as tms_instruction_actionpickupduration\r\n",
+					",CASE \r\n",
+					"    WHEN orv_lhdelivery_tsarrivedcustomer is null THEN 'unknown'\r\n",
+					"    WHEN orv_lhdelivery_tsarrivedcustomer < tms_instruction_bookingpickupdeliverydate THEN 'inservice'\r\n",
+					"    ELSE 'outofservice'\r\n",
+					"END tms_instruction_driverinputservice        \r\n",
+					",CASE\r\n",
+					"    WHEN orv_lhdelivery_tsentergeofenceapp is null THEN 'unknown'\r\n",
+					"    WHEN orv_lhdelivery_tsentergeofenceapp < tms_instruction_bookingpickupdeliverydate THEN 'inservice'\r\n",
+					"    ELSE 'outofservice'   \r\n",
+					"END tms_instruction_geofenceservice\r\n",
+					"\r\n",
+					"FROM stinstruction_tmp2\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stinstruction = spark.sql(\"SELECT * FROM stinstruction\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stinstruction.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stinstruction.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

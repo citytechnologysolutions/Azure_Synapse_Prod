@@ -1,0 +1,897 @@
+{
+	"name": "08_LH_STTrip",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Linehaul"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "16159e11-4004-4348-a274-7791db26d4c6"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+				"name": "PRDSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				}
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Create DataFrame for the publictrip TMS Table\r\n",
+					"# publictrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publictrip.parquet', format='parquet')\r\n",
+					"# publictrip.createOrReplaceTempView(\"publictrip\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the publicdispatch ORV Table\r\n",
+					"# publicdispatch = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
+					"# publicdispatch.createOrReplaceTempView(\"publicdispatch\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolhtrip LMS Table\r\n",
+					"# dbolhtrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trip.parquet', format='parquet')\r\n",
+					"# dbolhtrip.createOrReplaceTempView(\"dbolhtrip\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolhtrackstatus LMS Table\r\n",
+					"# dbolhtrackstatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trackstatus.parquet', format='parquet')\r\n",
+					"# dbolhtrackstatus.createOrReplaceTempView(\"dbolhtrackstatus\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolhbookingspertrip TMS Table\r\n",
+					"# dbolhbookingspertrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_bookingspertrip.parquet', format='parquet')\r\n",
+					"# dbolhbookingspertrip.createOrReplaceTempView(\"dbolhbookingspertrip\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolhbooking TMS Table\r\n",
+					"# dbolhbooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_booking.parquet', format='parquet')\r\n",
+					"# dbolhbooking.createOrReplaceTempView(\"dbolhbooking\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolhtrailersize TMS Table\r\n",
+					"# dbolhtrailersize = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trailersize.parquet', format='parquet')\r\n",
+					"# dbolhtrailersize.createOrReplaceTempView(\"dbolhtrailersize\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolh_3pl TMS Table\r\n",
+					"# dbolh_3pl = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_3pl.parquet', format='parquet')\r\n",
+					"# dbolh_3pl.createOrReplaceTempView(\"dbolh_3pl\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbovehicle TMS Table\r\n",
+					"# dbovehicle = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbovehicle.parquet', format='parquet')\r\n",
+					"# dbovehicle.createOrReplaceTempView(\"dbovehicle\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodriver TMS Table\r\n",
+					"# dbodriver = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodriver.parquet', format='parquet')\r\n",
+					"# dbodriver.createOrReplaceTempView(\"dbodriver\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbovehiclebasic MD Table\r\n",
+					"# dbovehiclebasic = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclebasic.parquet', format='parquet')\r\n",
+					"# dbovehiclebasic.createOrReplaceTempView(\"dbovehiclebasic\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbopeoplebasic MD Table\r\n",
+					"# dbopeoplebasic = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplebasic.parquet', format='parquet')\r\n",
+					"# dbopeoplebasic.createOrReplaceTempView(\"dbopeoplebasic\")\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttrip_tms\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    lt.id as tms_trip_id\r\n",
+					"    ,lt.driverid as tms_trip_driverid\r\n",
+					"    ,UPPER(pb.firstname||'_'||pb.lastname) tms_trip_drivername\r\n",
+					"    ,lt.vehicleid as tms_trip_vehicleid\r\n",
+					"    ,vbv.fleetcode as tms_trip_vehiclefleetcode\r\n",
+					"    ,lt.trailerid as tms_trip_trailerid\r\n",
+					"    ,vbt1.fleetcode as tms_trip_trailer1fleetcode\r\n",
+					"    ,lt.sectrailerid as tms_trip_sectrailerid\r\n",
+					"    ,vbt2.fleetcode as tms_trip_trailer2fleetcode\r\n",
+					"    ,CAST(CAST(LEFT(vbt1.vehicletrailersize,2) AS int)+CAST(LEFT(vbt2.vehicletrailersize,2) AS int) AS STRING)||' '||'METER' as tms_trip_trailersize\r\n",
+					"    ,lt.status as tms_trip_status\r\n",
+					"    ,lt.routeid as tms_trip_routeid\r\n",
+					"    ,lt.opsrouteid as tms_trip_opsrouteid\r\n",
+					"    ,lt.startfromaddress as tms_trip_startfromaddress\r\n",
+					"    ,lt.startfromlat as tms_trip_startfromlat\r\n",
+					"    ,lt.startfromlng as tms_trip_startfromlng\r\n",
+					"    ,to_timestamp(lt.dispatchdate) as tms_trip_dispatchdate\r\n",
+					"    ,lt.stopaddress as tms_trip_stopaddress\r\n",
+					"    ,lt.stoplat as tms_trip_stoplat\r\n",
+					"    ,lt.stoplng as tms_trip_stoplng\r\n",
+					"    ,to_timestamp(lt.insdate) as tms_trip_insdate\r\n",
+					"    ,to_timestamp(lt.moddate) as tms_trip_moddate\r\n",
+					"    ,lt.insby as tms_trip_insby\r\n",
+					"    ,lt.onrouteid as tms_trip_onrouteid\r\n",
+					"    ,lt.uuid as tms_trip_uuid\r\n",
+					"    ,lt.insbyuser as tms_trip_insbyuser\r\n",
+					"    ,lt.thirdpartyid as tms_trip_thirdpartyid\r\n",
+					"    ,lt.timehash as tms_trip_timehash\r\n",
+					"    ,lt.onroutestatus as tms_trip_onroutestatus\r\n",
+					"    ,to_timestamp(lt.lastupdate) as tms_trip_lastupdate\r\n",
+					"    ,lt.lastlng as tms_trip_lastlng\r\n",
+					"    ,lt.lastlat as tms_trip_lastlat\r\n",
+					"    ,lt.controllerid as tms_trip_controllerid\r\n",
+					"    ,lt.trackstatus as tms_trip_trackstatus\r\n",
+					"    ,lt.lastrackid as tms_trip_lastrackid\r\n",
+					"    ,lt.customer as tms_trip_customer\r\n",
+					"    ,lt.bookings as tms_trip_bookings\r\n",
+					"    ,lt.controller as tms_trip_controller\r\n",
+					"    ,lt.transporter as tms_trip_transporter\r\n",
+					"    ,lt.legacyid as tms_trip_legacyid\r\n",
+					"    ,lt.originatedfrom as tms_trip_originatedfrom\r\n",
+					"    ,lt.local as tms_trip_local\r\n",
+					"    ,to_timestamp(lt.startdate) as tms_trip_startdate\r\n",
+					"    ,to_timestamp(lt.enddate) as tms_trip_enddate\r\n",
+					"    ,to_timestamp(lt.actualdeliverydate) as tms_trip_actualdeliverydate\r\n",
+					"    ,lt.note as tms_trip_note\r\n",
+					"    ,to_timestamp(lt.deliverydate) as tms_trip_deliverydate\r\n",
+					"    ,lt.internalexternal as tms_trip_internalexternal\r\n",
+					"    ,lt.pickupstartaddress as tms_trip_pickupstartaddress\r\n",
+					"    ,to_timestamp(lt.originaletadate) as tms_trip_originaletadate\r\n",
+					"    ,to_timestamp(lt.currentetadate) as tms_trip_currentetadate\r\n",
+					"    ,to_timestamp(lt.lastetaupdate) as tms_trip_lastetaupdate\r\n",
+					"    ,'v2' as tms_trip_source\r\n",
+					"\r\n",
+					"FROM publictrip lt\r\n",
+					"LEFT JOIN dbovehiclebasic vbv on vbv.uid = lt.vehicleid\r\n",
+					"LEFT JOIN dbovehiclebasic vbt1 on vbt1.uid = lt.trailerid\r\n",
+					"LEFT JOIN dbovehiclebasic vbt2 on vbt2.uid = lt.sectrailerid\r\n",
+					"LEFT JOIN dbopeoplebasic pb on pb.uid = lt.driverid\r\n",
+					""
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttrip_tms = spark.sql(\"SELECT * FROM sttrip_tms\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stthirdparty_tmp\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT\r\n",
+					"    bpt.tripid\r\n",
+					"    ,CASE \r\n",
+					"        WHEN lb.id = 65190 THEN 'TANZER TRANSPORT' \r\n",
+					"        WHEN lb.id = 70593 THEN 'TAURAS TRANS CC' \r\n",
+					"        WHEN lb.id = 72599 THEN 'TRANSSA TRASNPORTERS' \r\n",
+					"        ELSE lp.name\r\n",
+					"    END as name\r\n",
+					"FROM dbolhbooking lb \r\n",
+					"LEFT JOIN  dbolhbookingspertrip bpt on bpt.BookingID = lb.ID \r\n",
+					"LEFT JOIN  dbolh_3pl lp on lp.id = lb.3PL_ID \r\n",
+					"WHERE bpt.tripid>0\r\n",
+					"AND lb.allocationdate > '2020-08-31 23:59:59.999'\r\n",
+					"AND lb.bookingtypeid in (1,3)\r\n",
+					""
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stthirdparty_tmp = spark.sql(\"SELECT * FROM stthirdparty_tmp\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttrip_lms_tmp0\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT \r\n",
+					"t.id\r\n",
+					",t.trailerid\r\n",
+					",v.fleetno\r\n",
+					",CASE \t\r\n",
+					"\tWHEN lts.Description = '4 Meter' THEN 1\r\n",
+					"\tWHEN lts.Description = '6 Meter' THEN 2\r\n",
+					"\tWHEN lts.Description = '12 Meter' THEN 3\r\n",
+					"\tWHEN lts.Description = '15 Meter' THEN 4\r\n",
+					"\tWHEN lts.Description = '18 Meter' THEN 5\r\n",
+					"\t\r\n",
+					"END as Trailersize\r\n",
+					",CAST(LEFT(lts.Description,2) AS int) as sumsize\r\n",
+					",ROW_NUMBER() OVER (\r\n",
+					"          PARTITION BY CAST(LEFT(lts.Description,2) AS int) \r\n",
+					"          ORDER BY CAST(LEFT(lts.Description,2) AS int) DESC) rownum\r\n",
+					"\r\n",
+					"from dboLHTrip t \r\n",
+					"LEFT JOIN dbovehicle v on v.id = t.TrailerID\r\n",
+					"LEFT JOIN dbolhbookingspertrip lbpt on lbpt.TripID = t.ID \r\n",
+					"LEFT JOIN dbolhbooking lb on lb.id = lbpt.BookingID \r\n",
+					"LEFT JOIN dbolhtrailersize lts on lts.id =  lb.TrailerSizeID  \r\n",
+					"\r\n",
+					"WHERE lb.allocationdate > '2020-08-31 23:59:59.999'\r\n",
+					"AND lb.bookingtypeid in (1,3)\r\n",
+					"AND lbpt.tripid>0\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttrip_lms_tmp0 = spark.sql(\"SELECT * FROM sttrip_lms_tmp0\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttrip_lms_tmp1\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT \r\n",
+					"*\r\n",
+					"FROM sttrip_lms_tmp0\r\n",
+					"WHERE rownum = 1"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttrip_lms_tmp1 = spark.sql(\"SELECT * FROM sttrip_lms_tmp1\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttrip_lms_tmp2\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"DISTINCT\r\n",
+					"t.id\r\n",
+					",t.TrailerID\r\n",
+					",t.FleetNo\r\n",
+					",MAX(Trailersize) Trailersize\r\n",
+					",CASE \r\n",
+					"\tWHEN MAX(Trailersize) = 5 and sum(sumsize) > 18 THEN 18\r\n",
+					"\tWHEN MAX(Trailersize) = 4 and sum(sumsize) > 18 THEN 15\r\n",
+					"\tELSE SUM(sumsize)\r\n",
+					"END as sumsize\r\n",
+					"FROM sttrip_lms_tmp1 t\r\n",
+					"GROUP BY\r\n",
+					"t.id\r\n",
+					",t.TrailerID\r\n",
+					",t.FleetNo\r\n",
+					""
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttrip_lms_tmp2 = spark.sql(\"SELECT * FROM sttrip_lms_tmp2\")"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttrip_lms_tmp3\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT \r\n",
+					"lt.id\r\n",
+					",CASE \r\n",
+					"\tWHEN lbpt.tripid in (2188,5563,7070,7167,7557,8361,8543,8647,9231,10050,10161,11478,11495,13024,16738,16977,17105,17112,17436,17930,21970,39539,44340,44572,61574,62471) THEN 3\r\n",
+					"\tELSE lb.BookingTypeID \r\n",
+					"END as BookingTypeID\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dbolhbookingspertrip lbpt \r\n",
+					"LEFT JOIN dboLHTrip lt on lt.ID  = lbpt.tripid \r\n",
+					"LEFT JOIN dbolhbooking lb on lb.id = lbpt.bookingid\r\n",
+					"WHERE lb.BookingTypeID in (1,3)\r\n",
+					"AND lt.id IS NOT NULL\r\n",
+					"AND lb.allocationdate > '2020-08-31 23:59:59.999'\r\n",
+					"AND lb.bookingtypeid in (1,3)\r\n",
+					"AND lbpt.tripid >0"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttrip_lms_tmp3 = spark.sql(\"SELECT * FROM sttrip_lms_tmp3\")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttrip_lms_tmp4\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"a.id\r\n",
+					",trailerid\r\n",
+					",fleetno\r\n",
+					",trailersize\r\n",
+					",sumsize\r\n",
+					",bookingtypeid\r\n",
+					"FROM  sttrip_lms_tmp2 a\r\n",
+					"LEFT JOIN  sttrip_lms_tmp3 b on b.id = a.id\r\n",
+					"ORDER BY sumsize desc\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttrip_lms_tmp4 = spark.sql(\"SELECT * FROM sttrip_lms_tmp4\")"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttrip_lms\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    (lt.id)*-1 as tms_trip_id\r\n",
+					"    ,(x.driverid)*-1 as tms_trip_driverid\r\n",
+					"    ,UPPER((d.fname||'_'||d.surname)) tms_trip_drivername\r\n",
+					"    ,(x.vehicleid)*-1 as tms_trip_vehicleid\r\n",
+					"    ,v.fleetno as tms_trip_vehiclefleetcode\r\n",
+					"    ,(lt.trailerid)*-1 as tms_trip_trailerid\r\n",
+					"    ,t1.fleetno as tms_trip_trailer1fleetcode\r\n",
+					"    ,(x.trailer2id)*-1 as tms_trip_sectrailerid\r\n",
+					"    ,t2.fleetno as tms_trip_trailer2fleetcode\r\n",
+					"    ,CAST(lt.sumsize AS STRING)||' '||'METER' AS tms_trip_trailersize\r\n",
+					"    ,ts.description as tms_trip_status\r\n",
+					"    ,null as tms_trip_routeid\r\n",
+					"    ,(x.routeid)*-1 as tms_trip_opsrouteid\r\n",
+					"    ,x.dispatchaddress as tms_trip_startfromaddress\r\n",
+					"    ,x.dispatchlongitude as tms_trip_startfromlat\r\n",
+					"    ,x.dispatchlatitude as tms_trip_startfromlng\r\n",
+					"    ,to_timestamp(coalesce(x.dispatchdate,x.cdate)) as tms_trip_dispatchdate\r\n",
+					"    ,x.destinationaddress as tms_trip_stopaddress\r\n",
+					"    ,x.destinationlongitude as tms_trip_stoplat\r\n",
+					"    ,x.destinationlatitude as tms_trip_stoplng\r\n",
+					"    ,null as tms_trip_insdate\r\n",
+					"    ,null as tms_trip_moddate\r\n",
+					"    ,null as tms_trip_insby\r\n",
+					"    ,null as tms_trip_onrouteid\r\n",
+					"    ,(x.userid)*-1 as tms_trip_uuid\r\n",
+					"    ,null as tms_trip_insbyuser\r\n",
+					"    ,null as tms_trip_thirdpartyid\r\n",
+					"    ,null as tms_trip_timehash\r\n",
+					"    ,null as tms_trip_onroutestatus\r\n",
+					"    ,null as tms_trip_lastupdate\r\n",
+					"    ,null as tms_trip_lastlng\r\n",
+					"    ,null as tms_trip_lastlat\r\n",
+					"    ,null as tms_trip_controllerid\r\n",
+					"    ,null as tms_trip_trackstatus\r\n",
+					"    ,null as tms_trip_lastrackid\r\n",
+					"    ,null as tms_trip_customer\r\n",
+					"    ,null as tms_trip_bookings\r\n",
+					"    ,null as tms_trip_controller\r\n",
+					"    ,CASE \r\n",
+					"        WHEN lt.id in(68453,66450,61094) THEN 'CITY LINEHAUL'\r\n",
+					"        ELSE coalesce(tp.name,'CITY LINEHAUL') \r\n",
+					"    END as tms_trip_transporter\r\n",
+					"    ,null as tms_trip_legacyid\r\n",
+					"    ,null as tms_trip_originatedfrom\r\n",
+					"    ,null as tms_trip_local\r\n",
+					"    ,null as tms_trip_startdate\r\n",
+					"    ,null as tms_trip_enddate\r\n",
+					"    ,null as tms_trip_actualdeliverydate\r\n",
+					"    ,null as tms_trip_note\r\n",
+					"    ,null as tms_trip_deliverydate\r\n",
+					"    ,null as tms_trip_internalexternal\r\n",
+					"    ,null as tms_trip_originaletadate\r\n",
+					"    ,null as tms_trip_currentetadate\r\n",
+					"    ,null as tms_trip_lastetaupdate\r\n",
+					"    ,null as tms_trip_pickupstartaddress   \r\n",
+					"    ,'v1' as tms_trip_source\r\n",
+					"FROM sttrip_lms_tmp4 lt\r\n",
+					"LEFT JOIN dboLHTrip x on x.id = lt.id\r\n",
+					"LEFT JOIN dboLHTrackStatus ts on ts.id = x.tripstatusid\r\n",
+					"LEFT JOIN stthirdparty_tmp tp on tp.tripid = lt.id\r\n",
+					"-- LEFT JOIN dbolhbookingspertrip bpt on bpt.tripid = lt.id\r\n",
+					"-- LEFT JOIN dbolhbooking lb on lb.id = bpt.bookingid\r\n",
+					"LEFT JOIN dbovehicle v on v.id = x.vehicleid\r\n",
+					"LEFT JOIN dbovehicle t1 on t1.id = x.trailerid\r\n",
+					"LEFT JOIN dbovehicle t2 on t1.id = x.trailer2id\r\n",
+					"LEFT JOIN dbodriver d on d.id = x.driverid\r\n",
+					"\r\n",
+					"-- WHERE lb.allocationdate > '2020-08-31 23:59:59.999'\r\n",
+					"-- AND lb.bookingtypeid in (1,3)\r\n",
+					""
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttrip_lms = spark.sql(\"SELECT * FROM sttrip_lms\")"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttrip_tmp = sttrip_tms.unionByName(sttrip_lms, allowMissingColumns = True)\r\n",
+					"sttrip_tmp.createOrReplaceTempView(\"sttrip_tmp\")"
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttrip\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    st.*\r\n",
+					"    ,d.id as orv_dispatch_id\r\n",
+					"    ,d.lmsid as orv_dispatch_lmsid\r\n",
+					"    ,d.vid as orv_dispatch_vid\r\n",
+					"    ,d.did as orv_dispatch_did\r\n",
+					"    ,d.status as orv_dispatch_status\r\n",
+					"    ,to_timestamp(d.startdate) as orv_dispatch_startdate\r\n",
+					"    ,to_timestamp(d.stopdate) as orv_dispatch_stopdate\r\n",
+					"    ,d.vehicletype as orv_dispatch_vehicletype\r\n",
+					"    ,d.uid as orv_dispatch_uid\r\n",
+					"    ,to_timestamp(d.estdepdate) as orv_dispatch_estdepdate\r\n",
+					"    ,d.trailer as orv_dispatch_trailer\r\n",
+					"    ,d.trailer2 as orv_dispatch_trailer2\r\n",
+					"    ,d.fromlocid as orv_dispatch_fromlocid\r\n",
+					"    ,d.tolocid as orv_dispatch_tolocid\r\n",
+					"    ,d.site as orv_dispatch_site\r\n",
+					"    ,to_timestamp(d.lastupdate) as orv_dispatch_lastupdate\r\n",
+					"    ,d.etastatus as orv_dispatch_etastatus\r\n",
+					"    ,d.startinglat as orv_dispatch_startinglat\r\n",
+					"    ,d.startinglng as orv_dispatch_startinglng\r\n",
+					"    ,d.endinglat as orv_dispatch_endinglat\r\n",
+					"    ,d.endinglng as orv_dispatch_endinglng\r\n",
+					"    ,d.startingfrom as orv_dispatch_startingfrom\r\n",
+					"    ,d.goingto as orv_dispatch_goingto\r\n",
+					"    ,d.importissue as orv_dispatch_importissue\r\n",
+					"    ,to_timestamp(d.insdate) as orv_dispatch_insdate\r\n",
+					"    ,to_timestamp(d.estarrdate) as orv_dispatch_estarrdate\r\n",
+					"    ,d.duration as orv_dispatch_duration\r\n",
+					"    ,d.distance as orv_dispatch_distance\r\n",
+					"    ,d.cost as orv_dispatch_cost\r\n",
+					"    ,d.stoplat as orv_dispatch_stoplat\r\n",
+					"    ,d.stoplng as orv_dispatch_stoplng\r\n",
+					"    ,d.stopreason as orv_dispatch_stopreason\r\n",
+					"    ,d.startodo as orv_dispatch_startodo\r\n",
+					"    ,d.stopodo as orv_dispatch_stopodo\r\n",
+					"    ,d.expduration as orv_dispatch_expduration\r\n",
+					"    ,d.expdistance as orv_dispatch_expdistance\r\n",
+					"    ,d.expcost as orv_dispatch_expcost\r\n",
+					"    ,d.collectionid as orv_dispatch_collectionid\r\n",
+					"    ,d.crew as orv_dispatch_crew\r\n",
+					"    ,d.crewnames as orv_dispatch_crewnames\r\n",
+					"    ,d.bocloseuid as orv_dispatch_bocloseuid\r\n",
+					"    ,d.routing as orv_dispatch_routing\r\n",
+					"    ,d.swapct as orv_dispatch_swapct\r\n",
+					"    ,d.debriefed as orv_dispatch_debriefed\r\n",
+					"    ,d.debriefnotes as orv_dispatch_debriefnotes\r\n",
+					"    ,d.bopin as orv_dispatch_bopin\r\n",
+					"    ,d.cpicost as orv_dispatch_cpicost\r\n",
+					"    ,d.labourcost as orv_dispatch_labourcost\r\n",
+					"    ,d.maintcost as orv_dispatch_maintcost\r\n",
+					"    ,d.inscost as orv_dispatch_inscost\r\n",
+					"    ,d.tollcost as orv_dispatch_tollcost\r\n",
+					"    ,d.fuelcost as orv_dispatch_fuelcost\r\n",
+					"    ,d.internal as orv_dispatch_internal\r\n",
+					"    ,d.childids as orv_dispatch_childids\r\n",
+					"    ,d.guid as orv_dispatch_guid\r\n",
+					"    ,d.timedefinite as orv_dispatch_timedefinite\r\n",
+					"    ,d.orvcode as orv_dispatch_orvcode\r\n",
+					"    ,to_timestamp(d.tsstopdepoenter) as orv_dispatch_tsstopdepoenter\r\n",
+					"    ,to_timestamp(d.tsstartdepoexit) as orv_dispatch_tsstartdepoexit\r\n",
+					"    ,d.reroutect as orv_dispatch_reroutect\r\n",
+					"    ,to_timestamp(d.actualarrdate) as orv_dispatch_actualarrdate\r\n",
+					"    ,d.physicalstartlat as orv_dispatch_physicalstartlat\r\n",
+					"    ,d.physicalstartlng as orv_dispatch_physicalstartlng\r\n",
+					"    ,to_timestamp(d.tsstartdepoexitapp) as orv_dispatch_tsstartdepoexitapp\r\n",
+					"    ,to_timestamp(d.tsstopdepoenterapp) as orv_dispatch_tsstopdepoenterapp\r\n",
+					"    ,to_timestamp(d.uncanceldate) as orv_dispatch_uncanceldate\r\n",
+					"    ,d.uncancelusername as orv_dispatch_uncancelusername\r\n",
+					"    ,d.lmsdebrifed as orv_dispatch_lmsdebrifed\r\n",
+					"    ,d.reviseddebrief as orv_dispatch_reviseddebrief\r\n",
+					"    ,d.lhtransporter as orv_dispatch_lhtransporter\r\n",
+					"    ,d.triptype as orv_dispatch_triptype\r\n",
+					"    ,d.startreason as orv_dispatch_startreason\r\n",
+					"    ,d.route as orv_dispatch_route\r\n",
+					"    ,d.tmstraileridentify as orv_dispatch_tmstraileridentify\r\n",
+					"    ,d.tmstrailer2identify as orv_dispatch_tmstrailer2identify\r\n",
+					"    ,d.tmscontroller as orv_dispatch_tmscontroller\r\n",
+					"    ,d.routekey as orv_dispatch_routekey\r\n",
+					"    ,d.courierid as orv_dispatch_courierid\r\n",
+					"    ,to_timestamp(d.originalstartdate) as orv_dispatch_originalstartdate\r\n",
+					"    ,to_timestamp(d.originalextarrival) as orv_dispatch_originalextarrival\r\n",
+					"    ,d.recomputeoriginals as orv_dispatch_recomputeoriginals\r\n",
+					"    ,d.originalextdistance as orv_dispatch_originalextdistance\r\n",
+					"    ,d.originalextduration as orv_dispatch_originalextduration\r\n",
+					"    ,to_timestamp(d.moddate) as orv_dispatch_moddate\r\n",
+					"    ,d.tmsmode as orv_dispatch_tmsmode\r\n",
+					"    ,d.driversignature as orv_dispatch_driversignature\r\n",
+					"    ,(coalesce(coalesce(d.tsstopdepoenterapp,d.tsstopdepoenter),to_unix_timestamp(st.tms_trip_enddate)) - to_unix_timestamp(st.tms_trip_originaletadate)) as tms_trip_appduration\r\n",
+					"    ,(d.stopdate - d.startdate) as tms_trip_driverduration\r\n",
+					"    ,(to_unix_timestamp(st.tms_trip_enddate) - to_unix_timestamp(st.tms_trip_startdate)) as tms_trip_controlroomduration\r\n",
+					"    ,CASE \r\n",
+					"        WHEN coalesce(coalesce(d.tsstopdepoenterapp,d.tsstopdepoenter),to_unix_timestamp(st.tms_trip_enddate)) is null THEN 'unknown'\r\n",
+					"        WHEN coalesce(coalesce(d.tsstopdepoenterapp,d.tsstopdepoenter),to_unix_timestamp(st.tms_trip_enddate)) < to_unix_timestamp(st.tms_trip_originaletadate) THEN 'ontime'\r\n",
+					"        ELSE 'late'\r\n",
+					"    END tms_trip_arrivedontime\r\n",
+					"   \r\n",
+					"FROM sttrip_tmp st\r\n",
+					"LEFT JOIN publicDispatch d on d.lmsid = st.tms_trip_id and d.vehicletype = 2 and tmsmode = 2"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttrip = spark.sql(\"SELECT * FROM sttrip\")"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# sttrip.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2093f9d3-622f-41d8-ac6f-570b9f48e151"
+				"spark.autotune.trackingId": "cb964ca7-e154-4a5c-8c26-3c1640f86b27"
 			}
 		},
 		"metadata": {
@@ -36,17 +36,10 @@
 			"a365ComputeOptions": {
 				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
 				"name": "PRDSparkPool",
-				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
-				},
-				"sparkVersion": "3.3",
-				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
-				"automaticScaleJobs": false
+				}
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -69,6 +62,25 @@
 					"# ' + StorageAccount + '"
 				],
 				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import *\r\n",
+					"from pyspark.sql.window import Window"
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -121,7 +133,7 @@
 					"collapsed": false
 				},
 				"source": [
-					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STBooking"
+					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/01_LH_STBooking"
 				],
 				"execution_count": 3
 			},
@@ -178,7 +190,7 @@
 					"collapsed": false
 				},
 				"source": [
-					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STDriverPayItem"
+					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/02_LH_STDriverPayItem"
 				],
 				"execution_count": 6
 			},
@@ -235,7 +247,7 @@
 					"collapsed": false
 				},
 				"source": [
-					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STFinanceData"
+					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/03_LH_STFinanceData"
 				],
 				"execution_count": 9
 			},
@@ -281,7 +293,11 @@
 					"\r\n",
 					"#Create DataFrame for the publicLHInstruction LMS Table\r\n",
 					"publicLHInstruction = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publiclhdelivery.parquet', format='parquet')\r\n",
-					"publicLHInstruction.createOrReplaceTempView(\"publicLHInstruction\")"
+					"publicLHInstruction.createOrReplaceTempView(\"publicLHInstruction\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the stbooking TMSLMS combine Table\r\n",
+					"stbooking = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', format='parquet')\r\n",
+					"stbooking.createOrReplaceTempView(\"stbooking\")"
 				],
 				"execution_count": 11
 			},
@@ -300,7 +316,7 @@
 					"collapsed": false
 				},
 				"source": [
-					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STInstruction"
+					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/04_LH_STInstruction"
 				],
 				"execution_count": 12
 			},
@@ -361,7 +377,7 @@
 					"collapsed": false
 				},
 				"source": [
-					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STInvoice"
+					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/05_LH_STInvoice"
 				],
 				"execution_count": 15
 			},
@@ -379,7 +395,7 @@
 					}
 				},
 				"source": [
-					"stinvoice.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stinvoice.parquet', mode = \"overwrite\")"
+					"stinvoice.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stinvoice.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 16
 			},
@@ -448,6 +464,14 @@
 					"#Create DataFrame for the publicdriverpay TMS Table\r\n",
 					"publicdriverpay = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicdriverpay.parquet', format='parquet')\r\n",
 					"publicdriverpay.createOrReplaceTempView(\"publicdriverpay\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the ssttrackunion LMS Table\r\n",
+					"ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
+					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dboloads LMS Table\r\n",
+					"dboloads = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
+					"dboloads.createOrReplaceTempView(\"dboloads\")\r\n",
 					""
 				],
 				"execution_count": 17
@@ -467,7 +491,7 @@
 					"collapsed": false
 				},
 				"source": [
-					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STLinehaulDimensions"
+					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/06_LH_STLinehaulDimensions"
 				],
 				"execution_count": 18
 			},
@@ -485,18 +509,19 @@
 					}
 				},
 				"source": [
+					"stlmstrackscantime.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmstrackscantime.parquet', mode = \"overwrite\")\r\n",
 					"stdriverpay.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdriverpay.parquet', mode = \"overwrite\")\r\n",
 					"stfuelcard.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfuelcard.parquet', mode = \"overwrite\")\r\n",
 					"stfuelzone.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfuelzone.parquet', mode = \"overwrite\")\r\n",
 					"stfuelzonehistory.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfuelzonehistory.parquet', mode = \"overwrite\")\r\n",
-					"stratecomponent.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stratecomponent.parquet', mode = \"overwrite\")\r\n",
-					"strateprofile.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/strateprofile.parquet', mode = \"overwrite\")\r\n",
-					"sttmslist.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/sttmslist.parquet', mode = \"overwrite\")\r\n",
-					"stprimarycustomer.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stprimarycustomer.parquet', mode = \"overwrite\")\r\n",
-					"stsecondarycustomer.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stsecondarycustomer.parquet', mode = \"overwrite\")\r\n",
-					"stthirdparty.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stthirdparty.parquet', mode = \"overwrite\")\r\n",
-					"stparentroute.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stparentroute.parquet', mode = \"overwrite\")\r\n",
-					"stopsroute.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stopsroute.parquet', mode = \"overwrite\")"
+					"stratecomponent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stratecomponent.parquet', mode = \"overwrite\")\r\n",
+					"strateprofile.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/strateprofile.parquet', mode = \"overwrite\")\r\n",
+					"sttmslist.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttmslist.parquet', mode = \"overwrite\")\r\n",
+					"stprimarycustomer.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stprimarycustomer.parquet', mode = \"overwrite\")\r\n",
+					"stsecondarycustomer.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stsecondarycustomer.parquet', mode = \"overwrite\")\r\n",
+					"stthirdparty.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stthirdparty.parquet', mode = \"overwrite\")\r\n",
+					"stparentroute.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparentroute.parquet', mode = \"overwrite\")\r\n",
+					"stopsroute.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stopsroute.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 19
 			},
@@ -535,7 +560,7 @@
 					"collapsed": false
 				},
 				"source": [
-					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STTMSTrack"
+					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/07_LH_STTMSTrack"
 				],
 				"execution_count": 21
 			},
@@ -637,7 +662,7 @@
 					"collapsed": false
 				},
 				"source": [
-					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STTrip"
+					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/08_LH_STTrip"
 				],
 				"execution_count": 24
 			},
@@ -694,7 +719,7 @@
 					"collapsed": false
 				},
 				"source": [
-					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STTripTrackingHistory"
+					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/09_LH_STTripTrackingHistory"
 				],
 				"execution_count": 27
 			},
@@ -715,6 +740,24 @@
 					"sttriptrackinghistory.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttriptrackinghistory.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
 			}
 		]
 	}

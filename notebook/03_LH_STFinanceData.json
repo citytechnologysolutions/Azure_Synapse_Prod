@@ -1,0 +1,189 @@
+{
+	"name": "03_LH_STFinanceData",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Linehaul"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "71de3fcd-10b2-42f5-8b92-1dab8c16aa0e"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "python"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+				"name": "PRDSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				}
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# #Create DataFrame for the publicfinancedata TMS Table\r\n",
+					"# publicfinancedata = spark.read.load('abfss://synapse' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfinancedata.parquet', format='parquet')\r\n",
+					"# publicfinancedata.createOrReplaceTempView(\"publicfinancedata\")"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stfinancedata\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    f.id as tms_financedata_id\r\n",
+					"    ,f.bookingid as tms_financedata_bookingid\r\n",
+					"    ,to_timestamp(f.insdate) as tms_financedata_insdate\r\n",
+					"    ,f.peaksurchagrebuy as tms_financedata_peaksurchagrebuy\r\n",
+					"    ,f.peaksurchagresell as tms_financedata_peaksurchagresell\r\n",
+					"    ,f.manualentryroadhaulsell as tms_financedata_manualentryroadhaulsell\r\n",
+					"    ,f.manualentryahocsell as tms_financedata_manualentryahocsell\r\n",
+					"    ,f.systemfuellevy as tms_financedata_systemfuellevy\r\n",
+					"    ,f.systemratefuellevy as tms_financedata_systemratefuellevy\r\n",
+					"    ,f.systemratefuelexlevy as tms_financedata_systemratefuelexlevy\r\n",
+					"    ,f.systemratefuelinclevy as tms_financedata_systemratefuelinclevy\r\n",
+					"    ,f.systemsellrate as tms_financedata_systemsellrate\r\n",
+					"    ,f.totalsellrate as tms_financedata_totalsellrate\r\n",
+					"    ,to_timestamp(f.moddate) as tms_financedata_moddate\r\n",
+					"    ,f.totalbuyrate as tms_financedata_totalbuyrate\r\n",
+					"    ,f.rateprofileid as tms_financedata_rateprofileid\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM publicfinancedata f\r\n",
+					""
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stfinancedata = spark.sql(\"SELECT * FROM stfinancedata\")"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stfinancedata.write.parquet('abfss://synapse' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfinancedata.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

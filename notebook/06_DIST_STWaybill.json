@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "6eac0a7b-1fbf-40d0-8394-200669b9f37f"
+				"spark.autotune.trackingId": "760dcfa9-ef23-4f86-abdc-69c8fd8fa9c8"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -96,6 +96,10 @@
 					"# publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
 					"# publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the publicdispatch ORV Table\r\n",
+					"# publicdispatch = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
+					"# publicdispatch.createOrReplaceTempView(\"publicdispatch\")\r\n",
+					"\r\n",
 					"# #create dataframe for the publicpod orv table\r\n",
 					"# publicpod = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
 					"# publicpod.createOrReplaceTempView(\"publicpod\")\r\n",
@@ -119,8 +123,8 @@
 					}
 				},
 				"source": [
-					"from pyspark.sql.functions import *\r\n",
-					"from pyspark.sql.window import Window"
+					"# from pyspark.sql.functions import *\r\n",
+					"# from pyspark.sql.window import Window"
 				],
 				"execution_count": 30
 			},
@@ -177,6 +181,56 @@
 					"pod_tmp.createOrReplaceTempView(\"pod_tmp\")"
 				],
 				"execution_count": 34
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"dbowaybill_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     wb.*\r\n",
+					"    ,dis.id as dispatchid\r\n",
+					"FROM dbowaybill wb\r\n",
+					"LEFT JOIN publicdispatch dis on dis.lmsid = wb.loadid\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dbowaybill_tmp = spark.sql(\"SELECT * FROM dbowaybill_tmp\")"
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -364,11 +418,10 @@
 					"\t,p.customerrating as orv_pod_customerrating\r\n",
 					"\t,p.customerfeedback as orv_pod_customerfeedback\r\n",
 					"\r\n",
-					"FROM dbowaybill w\r\n",
+					"FROM dbowaybill_tmp w\r\n",
 					"LEFT JOIN sstparcelbywaybill pbw on pbw.lms_parcelbywaybill_waybillid =  w.id\r\n",
-					"LEFT JOIN publicdelivery d on d.waybillid =  w.id\r\n",
+					"LEFT JOIN publicdelivery d on d.waybillid =  w.id and d.did = w.dispatchid\r\n",
 					"LEFT JOIN pod_tmp p on p.did = d.id and row_num = 1\r\n",
-					"\r\n",
 					""
 				],
 				"execution_count": 36

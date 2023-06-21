@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "cb964ca7-e154-4a5c-8c26-3c1640f86b27"
+				"spark.autotune.trackingId": "afdbea4e-4a43-4d18-b55f-37acf2948597"
 			}
 		},
 		"metadata": {
@@ -36,10 +36,17 @@
 			"a365ComputeOptions": {
 				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
 				"name": "PRDSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
-				}
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -434,7 +441,7 @@
 					"publicaddress.createOrReplaceTempView(\"publicaddress\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicfuelcard TMS Table\r\n",
-					"publicfuelcard = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/TMS/publicfuelcard.parquet', format='parquet')\r\n",
+					"publicfuelcard = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfuelcard.parquet', format='parquet')\r\n",
 					"publicfuelcard.createOrReplaceTempView(\"publicfuelcard\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the publicfuelzone TMS Table\r\n",

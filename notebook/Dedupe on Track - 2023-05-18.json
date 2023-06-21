@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "466fe667-59c0-4fa6-bd43-9ac3663cd066"
+				"spark.autotune.trackingId": "87da7f85-bc18-4db5-8d87-c3f11d38e09d"
 			}
 		},
 		"metadata": {
@@ -57,7 +57,7 @@
 					"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
 					"df.createOrReplaceTempView(\"df\")"
 				],
-				"execution_count": 4
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -73,9 +73,9 @@
 					}
 				},
 				"source": [
-					"df.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/dbotrack_BU_2023_05_18.parquet', mode = \"overwrite\")"
+					"df.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/dbotrack_BU_2023_06_21.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 26
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -91,10 +91,10 @@
 					}
 				},
 				"source": [
-					"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/dbotrack_BU_2023_05_18.parquet', format='parquet')\r\n",
+					"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/dbotrack_BU_2023_06_21.parquet', format='parquet')\r\n",
 					"df.createOrReplaceTempView(\"df\")"
 				],
-				"execution_count": 27
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -112,7 +112,7 @@
 				"source": [
 					"df.dtypes"
 				],
-				"execution_count": 28
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -141,7 +141,7 @@
 					"FROM df\r\n",
 					"GROUP BY ID"
 				],
-				"execution_count": 29
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -159,7 +159,7 @@
 				"source": [
 					"df.count()"
 				],
-				"execution_count": 30
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -182,7 +182,7 @@
 					"%%sql\r\n",
 					"SELECT COUNT(*) FROM MAXVALUES"
 				],
-				"execution_count": 31
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -214,7 +214,7 @@
 					"GROUP BY df.ID\r\n",
 					"HAVING COUNT(ID) > 1"
 				],
-				"execution_count": 32
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -246,7 +246,7 @@
 					"--GROUP BY df.ID\r\n",
 					"--HAVING COUNT(ID) > 1"
 				],
-				"execution_count": 33
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -275,7 +275,7 @@
 					"FROM df\r\n",
 					"INNER JOIN MAXVALUES MV ON MV.ID = df.ID AND (MV.CloseDt = df.CloseDt OR MV.CloseDt is NULL)"
 				],
-				"execution_count": 34
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -293,7 +293,7 @@
 				"source": [
 					"DEDUPE = spark.sql(\"SELECT * FROM DEDUPE\")"
 				],
-				"execution_count": 35
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -311,7 +311,25 @@
 				"source": [
 					"DEDUPE.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 36
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
 			}
 		]
 	}

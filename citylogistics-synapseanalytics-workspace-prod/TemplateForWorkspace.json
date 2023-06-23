@@ -20,7 +20,7 @@
 		"SQLTestServer_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'SQLTestServer'",
-			"defaultValue": "Integrated Security=True;Data Source=CCSQL01;Initial Catalog=\"SBK_CityLogistics \""
+			"defaultValue": "Integrated Security=True;Data Source=CCLMSPROD;Initial Catalog=LogidataCC"
 		},
 		"SqlServer_DataBaseAuth_connectionString": {
 			"type": "secureString",
@@ -13934,7 +13934,7 @@
 							"referenceName": "AzureKeyVaultCity",
 							"type": "LinkedServiceReference"
 						},
-						"secretName": "SAPSecret"
+						"secretName": "LMSSecret"
 					}
 				},
 				"connectVia": {
@@ -14235,11 +14235,7 @@
 							],
 							"weekDays": [
 								"Monday",
-								"Tuesday",
-								"Wednesday",
-								"Thursday",
-								"Friday",
-								"Saturday"
+								"Wednesday"
 							]
 						}
 					}
@@ -14368,11 +14364,7 @@
 							],
 							"weekDays": [
 								"Monday",
-								"Tuesday",
-								"Wednesday",
-								"Thursday",
-								"Friday",
-								"Saturday"
+								"Wednesday"
 							]
 						}
 					}
@@ -14465,7 +14457,7 @@
 			"properties": {
 				"description": "This is the trigger for once a week 12:00 on a Sunday",
 				"annotations": [],
-				"runtimeState": "Started",
+				"runtimeState": "Stopped",
 				"pipelines": [
 					{
 						"pipelineReference": {
@@ -14505,9 +14497,6 @@
 							],
 							"hours": [
 								12
-							],
-							"weekDays": [
-								"Sunday"
 							]
 						}
 					}
@@ -14537,7 +14526,7 @@
 				"type": "ScheduleTrigger",
 				"typeProperties": {
 					"recurrence": {
-						"frequency": "Day",
+						"frequency": "Week",
 						"interval": 1,
 						"startTime": "2023-05-21T15:12:00",
 						"timeZone": "South Africa Standard Time",
@@ -14547,6 +14536,10 @@
 							],
 							"hours": [
 								5
+							],
+							"weekDays": [
+								"Monday",
+								"Wednesday"
 							]
 						}
 					}
@@ -39091,7 +39084,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "466fe667-59c0-4fa6-bd43-9ac3663cd066"
+						"spark.autotune.trackingId": "87da7f85-bc18-4db5-8d87-c3f11d38e09d"
 					}
 				},
 				"metadata": {
@@ -39128,7 +39121,7 @@
 							"df.createOrReplaceTempView(\"df\")"
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
@@ -39144,10 +39137,10 @@
 							}
 						},
 						"source": [
-							"df.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/dbotrack_BU_2023_05_18.parquet', mode = \"overwrite\")"
+							"df.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/dbotrack_BU_2023_06_21.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 26
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -39163,11 +39156,11 @@
 							}
 						},
 						"source": [
-							"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/dbotrack_BU_2023_05_18.parquet', format='parquet')\r\n",
+							"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/dbotrack_BU_2023_06_21.parquet', format='parquet')\r\n",
 							"df.createOrReplaceTempView(\"df\")"
 						],
 						"outputs": [],
-						"execution_count": 27
+						"execution_count": 10
 					},
 					{
 						"cell_type": "code",
@@ -39186,7 +39179,7 @@
 							"df.dtypes"
 						],
 						"outputs": [],
-						"execution_count": 28
+						"execution_count": 11
 					},
 					{
 						"cell_type": "code",
@@ -39216,7 +39209,7 @@
 							"GROUP BY ID"
 						],
 						"outputs": [],
-						"execution_count": 29
+						"execution_count": 12
 					},
 					{
 						"cell_type": "code",
@@ -39235,7 +39228,7 @@
 							"df.count()"
 						],
 						"outputs": [],
-						"execution_count": 30
+						"execution_count": 13
 					},
 					{
 						"cell_type": "code",
@@ -39259,7 +39252,7 @@
 							"SELECT COUNT(*) FROM MAXVALUES"
 						],
 						"outputs": [],
-						"execution_count": 31
+						"execution_count": 14
 					},
 					{
 						"cell_type": "code",
@@ -39292,7 +39285,7 @@
 							"HAVING COUNT(ID) > 1"
 						],
 						"outputs": [],
-						"execution_count": 32
+						"execution_count": 15
 					},
 					{
 						"cell_type": "code",
@@ -39325,7 +39318,7 @@
 							"--HAVING COUNT(ID) > 1"
 						],
 						"outputs": [],
-						"execution_count": 33
+						"execution_count": 16
 					},
 					{
 						"cell_type": "code",
@@ -39355,7 +39348,7 @@
 							"INNER JOIN MAXVALUES MV ON MV.ID = df.ID AND (MV.CloseDt = df.CloseDt OR MV.CloseDt is NULL)"
 						],
 						"outputs": [],
-						"execution_count": 34
+						"execution_count": 17
 					},
 					{
 						"cell_type": "code",
@@ -39374,7 +39367,7 @@
 							"DEDUPE = spark.sql(\"SELECT * FROM DEDUPE\")"
 						],
 						"outputs": [],
-						"execution_count": 35
+						"execution_count": 18
 					},
 					{
 						"cell_type": "code",
@@ -39393,7 +39386,26 @@
 							"DEDUPE.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 36
+						"execution_count": 19
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
+						],
+						"outputs": [],
+						"execution_count": null
 					}
 				]
 			},
@@ -49794,1491 +49806,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/ST_RunOrder')]",
-			"type": "Microsoft.Synapse/workspaces/notebooks",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "TRANSFORM/02 STRUCTURED/Ops"
-				},
-				"nbformat": 4,
-				"nbformat_minor": 2,
-				"bigDataPool": {
-					"referenceName": "PRDSparkPool",
-					"type": "BigDataPoolReference"
-				},
-				"sessionProperties": {
-					"driverMemory": "56g",
-					"driverCores": 8,
-					"executorMemory": "56g",
-					"executorCores": 8,
-					"numExecutors": 2,
-					"conf": {
-						"spark.dynamicAllocation.enabled": "false",
-						"spark.dynamicAllocation.minExecutors": "2",
-						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "7afaecec-bf01-475e-8b91-91d299811bb8"
-					}
-				},
-				"metadata": {
-					"saveOutput": true,
-					"enableDebugMode": false,
-					"kernelspec": {
-						"name": "synapse_pyspark",
-						"display_name": "Synapse PySpark"
-					},
-					"language_info": {
-						"name": "python"
-					},
-					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-						"name": "PRDSparkPool",
-						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
-						"auth": {
-							"type": "AAD",
-							"authResource": "https://dev.azuresynapse.net"
-						},
-						"sparkVersion": "3.3",
-						"nodeCount": 10,
-						"cores": 8,
-						"memory": 56
-					},
-					"sessionKeepAliveTimeout": 30
-				},
-				"cells": [
-					{
-						"cell_type": "code",
-						"source": [
-							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-							"if 'prod' in Environment:\r\n",
-							"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-							"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-							"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-							"else:\r\n",
-							"    StorageAccount = 'citylogisticsstorage'\r\n",
-							"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-							"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
-							"\r\n",
-							"# ' + StorageAccount + '"
-						],
-						"outputs": [],
-						"execution_count": 1
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#create dataframe for the sstconsignemntunion lms table\r\n",
-							"sstconsignemntunion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
-							"sstconsignemntunion.createOrReplaceTempView(\"sstconsignemntunion\")\r\n",
-							"\r\n",
-							"#create dataframe for the sstparcelbyconsignment lms table\r\n",
-							"sstparcelbyconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', format='parquet')\r\n",
-							"sstparcelbyconsignment.createOrReplaceTempView(\"sstparcelbyconsignment\")\r\n",
-							"\r\n",
-							"#create dataframe for the dbobill_consignmentr lms table\r\n",
-							"dbobill_consignmentr = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
-							"dbobill_consignmentr.createOrReplaceTempView(\"dbobill_consignmentr\")\r\n",
-							"\r\n",
-							"#create dataframe for the sstparcelunion lms table\r\n",
-							"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
-							"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
-							"\r\n",
-							"#create dataframe for the dbowaybill lms table\r\n",
-							"dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
-							"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
-							""
-						],
-						"outputs": [],
-						"execution_count": 2
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STConsignment"
-						],
-						"outputs": [],
-						"execution_count": 3
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stconsignment.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": 4
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the dbodc_transfer LMS Table\r\n",
-							"dbodc_transfer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodc_transfer.parquet', format='parquet')\r\n",
-							"dbodc_transfer.createOrReplaceTempView(\"dbodc_transfer\")"
-						],
-						"outputs": [],
-						"execution_count": 5
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STDCTransfer"
-						],
-						"outputs": [],
-						"execution_count": 6
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stdctransfer.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdctransfer.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": 7
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#create dataframe for the publicdispatchsegment orv table\r\n",
-							"publicdispatchsegment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatchsegment.parquet', format='parquet')\r\n",
-							"publicdispatchsegment.createOrReplaceTempView(\"publicdispatchsegment\")\r\n",
-							"\r\n",
-							"#create dataframe for the publicorvuser orv table\r\n",
-							"publicorvuser = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicorvuser.parquet', format='parquet')\r\n",
-							"publicorvuser.createOrReplaceTempView(\"publicorvuser\")\r\n",
-							"\r\n",
-							"#create dataframe for the publicvehicle orv table\r\n",
-							"publicvehicle = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicvehicle.parquet', format='parquet')\r\n",
-							"publicvehicle.createOrReplaceTempView(\"publicvehicle\")\r\n",
-							"\r\n",
-							"#create dataframe for the publicdepot orv table\r\n",
-							"publicdepot = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdepo.parquet', format='parquet')\r\n",
-							"publicdepot.createOrReplaceTempView(\"publicdepot\")\r\n",
-							"\r\n",
-							"#create dataframe for the publiccustomer orv table\r\n",
-							"publiccustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publiccustomer.parquet', format='parquet')\r\n",
-							"publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
-							"\r\n",
-							"#create dataframe for the dbocustomer lms table\r\n",
-							"dbocustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
-							"dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
-							"\r\n",
-							"#create dataframe for the dbozone lms table\r\n",
-							"dbozone = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbozone.parquet', format='parquet')\r\n",
-							"dbozone.createOrReplaceTempView(\"dbozone\")\r\n",
-							"\r\n",
-							"#create dataframe for the dbosroute lms table\r\n",
-							"dbosroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbosroute.parquet', format='parquet')\r\n",
-							"dbosroute.createOrReplaceTempView(\"dbosroute\")\r\n",
-							"\r\n",
-							"#create dataframe for the dbobillzoneroute lms table\r\n",
-							"dbobillzoneroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_zoneroute.parquet', format='parquet')\r\n",
-							"dbobillzoneroute.createOrReplaceTempView(\"dbobillzoneroute\")\r\n",
-							"\r\n",
-							"#create dataframe for the dbobillzone lms table\r\n",
-							"dbobillzone = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_zone.parquet', format='parquet')\r\n",
-							"dbobillzone.createOrReplaceTempView(\"dbobillzone\")\r\n",
-							"\r\n",
-							"#create dataframe for the dbobillbillcustomersr  lms table\r\n",
-							"dbobillbillcustomersr = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_billcustomersr.parquet', format='parquet')\r\n",
-							"dbobillbillcustomersr.createOrReplaceTempView(\"dbobillbillcustomersr\")\r\n",
-							"\r\n",
-							"#create dataframe for the dbobillcustomergroups  lms table\r\n",
-							"dbobillcustomergroups  = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_customergroups.parquet', format='parquet')\r\n",
-							"dbobillcustomergroups.createOrReplaceTempView(\"dbobillcustomergroups\")\r\n",
-							"\r\n",
-							"#create dataframe for the dbobillcustomergrouptypes  lms table\r\n",
-							"dbobillcustomergrouptypes  = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_customergrouptypes.parquet', format='parquet')\r\n",
-							"dbobillcustomergrouptypes.createOrReplaceTempView(\"dbobillcustomergrouptypes\")\r\n",
-							"\r\n",
-							"#create dataframe for the dbolocation  lms table\r\n",
-							"dbolocation  = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
-							"dbolocation.createOrReplaceTempView(\"dbolocation\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbodepot LMS Table\r\n",
-							"dbodepot = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbodepot.parquet', format='parquet')\r\n",
-							"dbodepot.createOrReplaceTempView(\"dbodepot\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbovehicle LMS Table\r\n",
-							"dbovehicle = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbovehicle.parquet', format='parquet')\r\n",
-							"dbovehicle.createOrReplaceTempView(\"dbovehicle\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbodb_reasongroup LMS Table\r\n",
-							"dbodb_reasongroup = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_reasongroup.parquet', format='parquet')\r\n",
-							"dbodb_reasongroup.createOrReplaceTempView(\"dbodb_reasongroup\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbodb_inservicereason LMS Table\r\n",
-							"dbodb_inservicereason = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_inservicereason.parquet', format='parquet')\r\n",
-							"dbodb_inservicereason.createOrReplaceTempView(\"dbodb_inservicereason\")\r\n",
-							"\r\n",
-							"#create dataframe for the publicpod orv table\r\n",
-							"publicpod = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
-							"publicpod.createOrReplaceTempView(\"publicpod\")\r\n",
-							""
-						],
-						"outputs": [],
-						"execution_count": 8
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STDistributionFacts"
-						],
-						"outputs": [],
-						"execution_count": 9
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stpod.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stpod.parquet', mode = \"overwrite\")\r\n",
-							"stinservicereasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stinservicereasons.parquet', mode = \"overwrite\")\r\n",
-							"stdispatchsegment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdispatchsegment.parquet', mode = \"overwrite\")\r\n",
-							"storvuser.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/storvuser.parquet', mode = \"overwrite\")\r\n",
-							"stvehicle.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stvehicle.parquet', mode = \"overwrite\")\r\n",
-							"stdepotorv.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdepotorv.parquet', mode = \"overwrite\")\r\n",
-							"stdepot.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdepot.parquet', mode = \"overwrite\")\r\n",
-							"stbillcustomer.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stbillcustomer.parquet', mode = \"overwrite\")\r\n",
-							"stdeliverypickupcustomer.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', mode = \"overwrite\")\r\n",
-							"stzone.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stzone.parquet', mode = \"overwrite\")\r\n",
-							"stsroute.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', mode = \"overwrite\")\r\n",
-							"stbillzoneroute.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stbillzoneroute.parquet', mode = \"overwrite\")\r\n",
-							"stbillzone.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stbillzone.parquet', mode = \"overwrite\")\r\n",
-							"stlocation.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": 10
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#create dataframe for the publicclaim orv table\r\n",
-							"publicclaim = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicclaim.parquet', format='parquet')\r\n",
-							"publicclaim.createOrReplaceTempView(\"publicclaim\")\r\n",
-							"\r\n",
-							"#create dataframe for the publicdelivery orv table\r\n",
-							"publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
-							"publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbowbendorsement LMS Table\r\n",
-							"dbowbendorsement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowbendorsement.parquet', format='parquet')\r\n",
-							"dbowbendorsement.createOrReplaceTempView(\"dbowbendorsement\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbodb_endorsement LMS Table\r\n",
-							"dbodb_endorsement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_endorsement.parquet', format='parquet')\r\n",
-							"dbodb_endorsement.createOrReplaceTempView(\"dbodb_endorsement\")\r\n",
-							""
-						],
-						"outputs": [],
-						"execution_count": 11
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STEndorsments"
-						],
-						"outputs": [],
-						"execution_count": 12
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stendorsments.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stendorsments.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": 13
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the ssttrackunion LMS Table\r\n",
-							"ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
-							"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the sstwaybillsperparcel LMS Table\r\n",
-							"sstwaybillsperparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstwaybillsperparcel.parquet', format='parquet')\r\n",
-							"sstwaybillsperparcel.createOrReplaceTempView(\"sstwaybillsperparcel\")\r\n",
-							""
-						],
-						"outputs": [],
-						"execution_count": 14
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STLMSTrack"
-						],
-						"outputs": [],
-						"execution_count": 15
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stlmstrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": 16
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the sstloadchild LMS Table\r\n",
-							"sstloadchild = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstloadchild.parquet', format='parquet')\r\n",
-							"sstloadchild.createOrReplaceTempView(\"sstloadchild\")"
-						],
-						"outputs": [],
-						"execution_count": 17
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STLoadChild"
-						],
-						"outputs": [],
-						"execution_count": 18
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stloadchild.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the sstloadparent LMS Table\r\n",
-							"sstloadparent = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstloadparent.parquet', format='parquet')\r\n",
-							"sstloadparent.createOrReplaceTempView(\"sstloadparent\")"
-						],
-						"outputs": [],
-						"execution_count": 19
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STLoadParent"
-						],
-						"outputs": [],
-						"execution_count": 20
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": 21
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the dboorder LMS Table\r\n",
-							"dboorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
-							"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the sstparcelbyorder LMS Table\r\n",
-							"sstparcelbyorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', format='parquet')\r\n",
-							"sstparcelbyorder.createOrReplaceTempView(\"sstparcelbyorder\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbowaybill LMS Table\r\n",
-							"dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
-							"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the sstparcelunion LMS Table\r\n",
-							"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
-							"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the sstconsignmentunion LMS Table\r\n",
-							"sstconsignmentunion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
-							"sstconsignmentunion.createOrReplaceTempView(\"sstconsignmentunion\")"
-						],
-						"outputs": [],
-						"execution_count": 22
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STOrder"
-						],
-						"outputs": [],
-						"execution_count": 23
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"storder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/storder.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": 24
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the sstparcelunion LMS Table\r\n",
-							"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
-							"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dboorder LMS Table\r\n",
-							"dboorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
-							"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the sstconsignmentunion LMS Table\r\n",
-							"sstconsignmentunion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
-							"sstconsignmentunion.createOrReplaceTempView(\"sstconsignmentunion\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbowaybill LMS Table\r\n",
-							"dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
-							"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dboparceldetail LMS Table\r\n",
-							"dboparceldetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboparceldetail.parquet', format='parquet')\r\n",
-							"dboparceldetail.createOrReplaceTempView(\"dboparceldetail\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicparcel LMS Table\r\n",
-							"publicparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicparcel.parquet', format='parquet')\r\n",
-							"publicparcel.createOrReplaceTempView(\"publicparcel\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicdelivery ORV Table\r\n",
-							"publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
-							"publicdelivery.createOrReplaceTempView(\"publicdelivery\")"
-						],
-						"outputs": [],
-						"execution_count": 25
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STParcel"
-						],
-						"outputs": [],
-						"execution_count": 26
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": 27
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the dbowaybill LMS Table\r\n",
-							"dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
-							"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the sstparcelbywaybill LMS Table\r\n",
-							"sstparcelbywaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbywaybill.parquet', format='parquet')\r\n",
-							"sstparcelbywaybill.createOrReplaceTempView(\"sstparcelbywaybill\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicdelivery ORV Table\r\n",
-							"publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
-							"publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
-							"\r\n",
-							""
-						],
-						"outputs": [],
-						"execution_count": 28
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/STWaybill"
-						],
-						"outputs": [],
-						"execution_count": 29
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stwaybill.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": 30
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the publicbooking TMS Table\r\n",
-							"publicbooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicbooking.parquet', format='parquet')\r\n",
-							"publicbooking.createOrReplaceTempView(\"publicbooking\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicnonbooking TMS Table\r\n",
-							"publicnonbooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicnonbooking.parquet', format='parquet')\r\n",
-							"publicnonbooking.createOrReplaceTempView(\"publicnonbooking\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbolhbooking TMS Table\r\n",
-							"dboLHBooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_booking.parquet', format='parquet')\r\n",
-							"dboLHBooking.createOrReplaceTempView(\"dboLHBooking\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbolhroutes TMS Table\r\n",
-							"dbolhroutes = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_routes.parquet', format='parquet')\r\n",
-							"dbolhroutes.createOrReplaceTempView(\"dbolhroutes\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbolhbookingspertrip TMS Table\r\n",
-							"dbolhbookingspertrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_bookingspertrip.parquet', format='parquet')\r\n",
-							"dbolhbookingspertrip.createOrReplaceTempView(\"dbolhbookingspertrip\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STBooking"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stbooking.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the publicdriverpayitem TMS Table\r\n",
-							"publicdriverpayitem = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicdriverpayitem.parquet', format='parquet')\r\n",
-							"publicdriverpayitem.createOrReplaceTempView(\"publicdriverpayitem\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STDriverPayItem"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stdriverpayitem.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdriverpayitem.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the publicfinancedata TMS Table\r\n",
-							"publicfinancedata = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfinancedata.parquet', format='parquet')\r\n",
-							"publicfinancedata.createOrReplaceTempView(\"publicfinancedata\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STFinanceData"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stfinancedata.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfinancedata.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the publicInstruction TMS Table\r\n",
-							"publicInstruction = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicinstruction.parquet', format='parquet')\r\n",
-							"publicInstruction.createOrReplaceTempView(\"publicInstruction\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dboLHInstruction LMS Table\r\n",
-							"dboLHInstruction = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_instruction.parquet', format='parquet')\r\n",
-							"dboLHInstruction.createOrReplaceTempView(\"dboLHInstruction\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicLHInstruction LMS Table\r\n",
-							"publicLHInstruction = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publiclhdelivery.parquet', format='parquet')\r\n",
-							"publicLHInstruction.createOrReplaceTempView(\"publicLHInstruction\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STInstruction"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"STInstruction.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/STInstruction.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the publicinvoice TMS Table\r\n",
-							"publicinvoice = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicinvoice.parquet', format='parquet')\r\n",
-							"publicinvoice.createOrReplaceTempView(\"publicinvoice\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicinvoiceitem TMS Table\r\n",
-							"publicinvoiceitem = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicinvoiceitem.parquet', format='parquet')\r\n",
-							"publicinvoiceitem.createOrReplaceTempView(\"publicinvoiceitem\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STInvoice"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stinvoice.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stinvoice.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the publiccustomer TMS Table\r\n",
-							"publiccustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publiccustomer.parquet', format='parquet')\r\n",
-							"publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicthirdparty TMS Table\r\n",
-							"publicthirdparty = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicthirdparty.parquet', format='parquet')\r\n",
-							"publicthirdparty.createOrReplaceTempView(\"publicthirdparty\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicroute TMS Table\r\n",
-							"publicroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicroute.parquet', format='parquet')\r\n",
-							"publicroute.createOrReplaceTempView(\"publicroute\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicaddress TMS Table\r\n",
-							"publicaddress = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicaddress.parquet', format='parquet')\r\n",
-							"publicaddress.createOrReplaceTempView(\"publicaddress\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicfuelcard TMS Table\r\n",
-							"publicfuelcard = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfuelcard.parquet', format='parquet')\r\n",
-							"publicfuelcard.createOrReplaceTempView(\"publicfuelcard\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicfuelzone TMS Table\r\n",
-							"publicfuelzone = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzone.parquet', format='parquet')\r\n",
-							"publicfuelzone.createOrReplaceTempView(\"publicfuelzone\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicfuelzonehistory TMS Table\r\n",
-							"publicfuelzonehistory = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfuelzonehistory.parquet', format='parquet')\r\n",
-							"publicfuelzonehistory.createOrReplaceTempView(\"publicfuelzonehistory\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicratecomponent TMS Table\r\n",
-							"publicratecomponent = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicratecomponent.parquet', format='parquet')\r\n",
-							"publicratecomponent.createOrReplaceTempView(\"publicratecomponent\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicrateprofile TMS Table\r\n",
-							"publicrateprofile = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicrateprofile.parquet', format='parquet')\r\n",
-							"publicrateprofile.createOrReplaceTempView(\"publicrateprofile\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicselist TMS Table\r\n",
-							"publicselist = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicselist.parquet', format='parquet')\r\n",
-							"publicselist.createOrReplaceTempView(\"publicselist\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicselistitem TMS Table\r\n",
-							"publicselistitem = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicselistitem.parquet', format='parquet')\r\n",
-							"publicselistitem.createOrReplaceTempView(\"publicselistitem\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicdriverpay TMS Table\r\n",
-							"publicdriverpay = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicdriverpay.parquet', format='parquet')\r\n",
-							"publicdriverpay.createOrReplaceTempView(\"publicdriverpay\")\r\n",
-							"\r\n",
-							""
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STLinehaulFacts"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"stdriverpay.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdriverpay.parquet', mode = \"overwrite\")\r\n",
-							"stfuelcard.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfuelcard.parquet', mode = \"overwrite\")\r\n",
-							"stfuelzone.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfuelzone.parquet', mode = \"overwrite\")\r\n",
-							"stfuelzonehistory.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfuelzonehistory.parquet', mode = \"overwrite\")\r\n",
-							"stratecomponent.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stratecomponent.parquet', mode = \"overwrite\")\r\n",
-							"strateprofile.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/strateprofile.parquet', mode = \"overwrite\")\r\n",
-							"sttmslist.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/sttmslist.parquet', mode = \"overwrite\")\r\n",
-							"stprimarycustomer.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stprimarycustomer.parquet', mode = \"overwrite\")\r\n",
-							"stsecondarycustomer.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stsecondarycustomer.parquet', mode = \"overwrite\")\r\n",
-							"stthirdparty.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stthirdparty.parquet', mode = \"overwrite\")\r\n",
-							"stparentroute.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stparentroute.parquet', mode = \"overwrite\")\r\n",
-							"stopsroute.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stopsroute.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the publictrack TMS Table\r\n",
-							"publictrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publictrack.parquet', format='parquet')\r\n",
-							"publictrack.createOrReplaceTempView(\"publictrack\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STTMSTrack"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"sttmstrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttmstrack.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the publicTrip TMS Table\r\n",
-							"publicTrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publictrip.parquet', format='parquet')\r\n",
-							"publicTrip.createOrReplaceTempView(\"publicTrip\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicDispatch ORV Table\r\n",
-							"publicDispatch = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
-							"publicDispatch.createOrReplaceTempView(\"publicDispatch\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dboLHTrip LMS Table\r\n",
-							"dboLHTrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trip.parquet', format='parquet')\r\n",
-							"dboLHTrip.createOrReplaceTempView(\"dboLHTrip\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dboLHTrackStatus LMS Table\r\n",
-							"dboLHTrackStatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_trackstatus.parquet', format='parquet')\r\n",
-							"dboLHTrackStatus.createOrReplaceTempView(\"dboLHTrackStatus\")\r\n",
-							""
-						],
-						"outputs": [],
-						"execution_count": 31
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STTrip"
-						],
-						"outputs": [],
-						"execution_count": 32
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"sttrip.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": 34
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"#Create DataFrame for the publictriptrackinghistory TMS Table\r\n",
-							"publictriptrackinghistory = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publictriptrackinghistory.parquet', format='parquet')\r\n",
-							"publictriptrackinghistory.createOrReplaceTempView(\"publictriptrackinghistory\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/STTripTrackingHistory"
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"sttriptrackinghistory.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttriptrackinghistory.parquet', mode = \"overwrite\")"
-						],
-						"outputs": [],
-						"execution_count": null
-					}
-				]
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/UnionSparkJob')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
@@ -51299,7 +49826,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "183fca7b-3cbc-4d59-862a-3013dc038f2d"
+						"spark.autotune.trackingId": "f4791c21-4348-4213-9ffe-5ce66a49b6bb"
 					}
 				},
 				"metadata": {
@@ -51324,7 +49851,8 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 4,
-						"memory": 28
+						"memory": 28,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},

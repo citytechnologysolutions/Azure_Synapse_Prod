@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2914dbc4-99b1-460e-8d5c-6d83f9471ed1"
+				"spark.autotune.trackingId": "13ecd3e5-0141-4bba-b8d4-34ce7e0f0bdf"
 			}
 		},
 		"metadata": {
@@ -54,10 +54,10 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/bill_consignmentr.parquet', format='parquet')\r\n",
+					"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
 					"df.createOrReplaceTempView(\"df\")"
 				],
-				"execution_count": 8
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -75,7 +75,7 @@
 				"source": [
 					"df.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 9
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -92,9 +92,10 @@
 				},
 				"source": [
 					"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', format='parquet')\r\n",
+					"#df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/bill_consignmentr_BU_2023_06_29.parquet', format='parquet')\r\n",
 					"df.createOrReplaceTempView(\"df\")"
 				],
-				"execution_count": 10
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -112,7 +113,7 @@
 				"source": [
 					"df.dtypes"
 				],
-				"execution_count": 11
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -141,7 +142,7 @@
 					"FROM df\r\n",
 					"GROUP BY consignid"
 				],
-				"execution_count": 12
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -159,7 +160,7 @@
 				"source": [
 					"df.count()"
 				],
-				"execution_count": 13
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -182,7 +183,7 @@
 					"%%sql\r\n",
 					"SELECT COUNT(*) FROM MAXVALUES"
 				],
-				"execution_count": 14
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -214,7 +215,7 @@
 					"GROUP BY df.consignid\r\n",
 					"HAVING COUNT(consignid) > 1"
 				],
-				"execution_count": 15
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -246,7 +247,7 @@
 					"--GROUP BY df.ID\r\n",
 					"--HAVING COUNT(ID) > 1"
 				],
-				"execution_count": 16
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -273,9 +274,9 @@
 					"SELECT \r\n",
 					"df.*\r\n",
 					"FROM df\r\n",
-					"INNER JOIN MAXVALUES MV ON MV.ID = df.ID AND (MV.CloseDt = df.CloseDt OR MV.CloseDt is NULL)"
+					"INNER JOIN MAXVALUES MV ON MV.Id = df.Id --AND (MV.CloseDt = df.CloseDt OR MV.CloseDt is NULL)"
 				],
-				"execution_count": 17
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -293,6 +294,24 @@
 				"source": [
 					"DEDUPE = spark.sql(\"SELECT * FROM DEDUPE\")"
 				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"DEDUPE.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/bill_consignmentr.parquet', mode = \"overwrite\")"
+				],
 				"execution_count": 18
 			},
 			{
@@ -309,9 +328,9 @@
 					}
 				},
 				"source": [
-					"DEDUPE.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', mode = \"overwrite\")"
+					"from notebookutils import mssparkutils"
 				],
-				"execution_count": 19
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -327,7 +346,7 @@
 					}
 				},
 				"source": [
-					""
+					"mssparkutils.fs.rm('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', True)"
 				],
 				"execution_count": null
 			}

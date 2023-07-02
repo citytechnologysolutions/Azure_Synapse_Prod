@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "726c9daf-b548-4cdb-9155-b963c09bf481"
+				"spark.autotune.trackingId": "433a4c46-5678-4d2f-87c8-aa7d89b2a0f7"
 			}
 		},
 		"metadata": {
@@ -34,12 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
-				}
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -72,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": null
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -136,9 +143,13 @@
 					"# #Create DataFrame for the dboloads LMS Table\r\n",
 					"# dboloads = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
 					"# dboloads.createOrReplaceTempView(\"dboloads\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the publicdispatchactionlog LMS Table\r\n",
+					"# publicdispatchactionlog = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatchactionlog.parquet', format='parquet')\r\n",
+					"# publicdispatchactionlog.createOrReplaceTempView(\"publicdispatchactionlog\")\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -1510,6 +1521,81 @@
 					"# stopsroute.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stopsroute.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stdispatchactionlog\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    id AS orv_dispatchactionlog_id,\r\n",
+					"\tlat AS orv_dispatchactionlog_lat ,\r\n",
+					"\tlng AS orv_dispatchactionlog_lng,\r\n",
+					"\treason AS orv_dispatchactionlog_reason,\r\n",
+					"\tmode AS orv_dispatchactionlog_mode,\r\n",
+					"\tto_timestamp(insdate) AS orv_dispatchactionlog_insdate,\r\n",
+					"\tdid AS orv_dispatchactionlog_did,\r\n",
+					"\taction  AS orv_dispatchactionlog_action,\r\n",
+					"\tuid  AS orv_dispatchactionlog_uid\r\n",
+					"\r\n",
+					"\t\r\n",
+					"FROM publicdispatchactionlog"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdispatchactionlog = spark.sql(\"SELECT * FROM stdispatchactionlog\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stdispatchactionlog.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdispatchactionlog.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",

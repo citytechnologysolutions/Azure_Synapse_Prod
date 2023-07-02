@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "c04d418b-b9d0-43ad-b87d-88170047166b"
+				"spark.autotune.trackingId": "ea0777f1-e182-44e4-9120-64e97539915b"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -91,9 +91,13 @@
 					"# #Create DataFrame for the publicdispatch ORV Table\r\n",
 					"# publicdispatch = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
 					"# publicdispatch.createOrReplaceTempView(\"publicdispatch\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the publicreportdistotmgntdispatchdt ORV Table\r\n",
+					"# publicreportdistotmgntdispatchdt = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicreportdistotmgntdispatchdt.parquet', format='parquet')\r\n",
+					"# publicreportdistotmgntdispatchdt.createOrReplaceTempView(\"publicreportdistotmgntdispatchdt\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -136,7 +140,7 @@
 					"GROUP BY lc.lms_loadchild_parentloadid\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -154,7 +158,7 @@
 				"source": [
 					"stloadparent_tmp = spark.sql(\"SELECT * FROM stloadparent_tmp\")"
 				],
-				"execution_count": null
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -278,11 +282,38 @@
 					"    ,to_timestamp(d.moddate) as orv_dispatch_moddate\r\n",
 					"    ,d.tmsmode as orv_dispatch_tmsmode\r\n",
 					"    ,d.driversignature as orv_dispatch_driversignature\r\n",
+					"    ,to_timestamp(x.exitdepot) as orv_dispatch_exitdepot\r\n",
+					"\t,to_timestamp(x.enterdepot) as orv_dispatch_enterdepot\r\n",
+					"\t,to_timestamp(x.fdeliverydate) as orv_dispatch_fdeliverydate\r\n",
+					"\t,to_timestamp(x.fdeltsgeofenceenter) as orv_dispatch_fdeltsgeofenceenter\r\n",
+					"\t,to_timestamp(x.fdeltsscanningstart) as orv_dispatch_fdeltsscanningstart\r\n",
+					"\t,to_timestamp(x.fdeltsscanningstop) as orv_dispatch_fdeltsscanningstop\r\n",
+					"\t,to_timestamp(x.fdeltspodsignature) as orv_dispatch_fdeltspodsignature\r\n",
+					"\t,x.fdelnumprcls as orv_dispatch_fdelnumprcls\r\n",
+					"\t,to_timestamp(x.deliverydate) as orv_dispatch_deliverydate\r\n",
+					"\t,to_timestamp(x.ldeltsgeofenceenter) as orv_dispatch_ldeltsgeofenceenter\r\n",
+					"\t,to_timestamp(x.ldeltsscanningstart) as orv_dispatch_ldeltsscanningstart\r\n",
+					"\t,to_timestamp(x.ldeltsscanningstop) as orv_dispatch_ldeltsscanningstop\r\n",
+					"\t,to_timestamp(x.ldeltspodsignature) as orv_dispatch_ldeltspodsignature\r\n",
+					"\t,x.ldelnumprcls as orv_dispatch_ldelnumprcls\r\n",
+					"\t,x.fromdelid as orv_dispatch_fromdelid\r\n",
+					"\t,x.todelid as orv_dispatch_todelid\r\n",
+					"\t,x.distancemeters as orv_dispatch_distancemeters\r\n",
+					"\t,(x.durationseconds)/3600 as orv_dispatch_durationhours\r\n",
+					"\t,to_timestamp(x.timeduebackatdepot) as orv_dispatch_timeduebackatdepot\r\n",
+					"\t,to_timestamp(x.lastcanceleddeltodepotime) as orv_dispatch_lastcanceleddeltodepotime\r\n",
+					"    ,(d.stopdate - coalesce(x.timeduebackatdepot,x.lastcanceleddeltodepotime))/3600  orv_dispatch_difstopdatevstimedueback\r\n",
+					"    ,CASE \r\n",
+					"        WHEN to_date(to_timestamp(d.startdate)) = to_date(to_timestamp(d.stopdate)) THEN 1\r\n",
+					"        ELSE 0\r\n",
+					"    END AS orv_dispatch_completesameday\r\n",
+					"    \r\n",
 					"\r\n",
 					"FROM stloadparent_tmp t\r\n",
-					"LEFT JOIN publicdispatch d on d.lmsid = t.lms_loadchild_parentloadid and d.vehicletype = 6"
+					"LEFT JOIN publicdispatch d on d.lmsid = t.lms_loadchild_parentloadid and d.vehicletype = 6\r\n",
+					"LEFT JOIN publicreportdistotmgntdispatchdt x on x.dispatchid = d.id"
 				],
-				"execution_count": null
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -300,7 +331,7 @@
 				"source": [
 					"stloadparent = spark.sql(\"SELECT * FROM stloadparent\")"
 				],
-				"execution_count": null
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -318,7 +349,7 @@
 				"source": [
 					"# stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",

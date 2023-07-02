@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "f9be7f74-9320-4f50-88a4-632cc0545653"
+				"spark.autotune.trackingId": "a04d83df-31eb-4f6d-af4e-70e423657760"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -65,64 +65,50 @@
 					}
 				},
 				"source": [
-					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"# if 'prod' in Environment:\r\n",
-					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"# else:\r\n",
-					"#     StorageAccount = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# # ' + StorageAccount + '"
+					"# ' + StorageAccount + '"
 				],
-				"execution_count": 2
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"# #Create DataFrame for the dboorder LMS Table\r\n",
-					"# dboorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
-					"# dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"#Create DataFrame for the dboorder LMS Table\r\n",
+					"dboorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the sstparcelbyorder LMS Table\r\n",
-					"# sstparcelbyorder = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', format='parquet')\r\n",
-					"# sstparcelbyorder.createOrReplaceTempView(\"sstparcelbyorder\")\r\n",
+					"#Create DataFrame for the sstparcelbyorder LMS Table\r\n",
+					"sstparcelbyorder = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyorder.parquet', format='parquet')\r\n",
+					"sstparcelbyorder.createOrReplaceTempView(\"sstparcelbyorder\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dbowaybill LMS Table\r\n",
-					"# dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
-					"# dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
+					"#Create DataFrame for the dbowaybill LMS Table\r\n",
+					"dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
+					"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the sstparcelunion LMS \r\n",
-					"# sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
-					"# sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+					"#Create DataFrame for the sstparcelunion LMS \r\n",
+					"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the sstconsignmentunion LMS Table\r\n",
-					"# sstconsignmentunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
-					"# sstconsignmentunion.createOrReplaceTempView(\"sstconsignmentunion\")"
+					"#Create DataFrame for the sstconsignmentunion LMS Table\r\n",
+					"sstconsignmentunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
+					"sstconsignmentunion.createOrReplaceTempView(\"sstconsignmentunion\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dboweekendholiday LMS Table\r\n",
+					"dboweekendholiday = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboweekendholiday.parquet', format='parquet')\r\n",
+					"dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")"
 				],
-				"execution_count": 3
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# from pyspark.sql.functions import *"
-				],
-				"execution_count": null
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -187,7 +173,7 @@
 					"LEFT JOIN sstparcelbyorder pbo on pbo.lms_parcelbyorder_orderid =  o.id\r\n",
 					""
 				],
-				"execution_count": 4
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -224,7 +210,7 @@
 					"GROUP BY p.orderid\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -255,17 +241,16 @@
 					"\t    WHEN (coalesce(o2.lms_order_maxpoddate,CURRENT_TIMESTAMP)) <= (date(o2.lms_order_mindeliverby) + interval '86399 seconds') THEN 1\r\n",
 					"\t    ELSE 0\r\n",
 					"    END lms_order_inserviceflag\r\n",
-					"    ,CASE\r\n",
-					"        WHEN o2.lms_order_maxpoddate is null then 0  \r\n",
-					"        ELSE DATE_PART('day', o2.lms_order_maxpoddate - o.lms_order_hodate)\r\n",
-					"    END as lms_order_actualleaddays\r\n",
+					"    ,to_timestamp((cast(to_date(o.lms_order_hodate,'yyyy-MM-dd') as string)||' 23:59:59.999')) as  lms_order_actualleaddaysstartdate\r\n",
+					"    ,coalesce(o2.lms_order_maxpoddate,CURRENT_TIMESTAMP) AS lms_order_actualleaddaysenddate\r\n",
+					"    ,(to_unix_timestamp(coalesce(o2.lms_order_maxpoddate,CURRENT_TIMESTAMP)) - (to_unix_timestamp(to_timestamp((cast(to_date(o.lms_order_hodate,'yyyy-MM-dd') as string)||' 23:59:59.999')))))/86400 as lms_order_actualleaddaysinclwe\r\n",
 					"    ,to_timestamp((cast(to_date(o.lms_order_hodate,'yyyy-MM-dd') as string)||' 23:59:59.999')) lms_order_hodateroundup\r\n",
-					"    ,(to_unix_timestamp(o2.lms_order_maxpoddate) - to_unix_timestamp(to_timestamp((cast(to_date(o.lms_order_hodate,'yyyy-MM-dd') as string)||' 23:59:59.999')))) as orderagedifferenceinseconds\r\n",
+					"    ,(to_unix_timestamp(coalesce(o2.lms_order_maxpoddate,CURRENT_TIMESTAMP)) - to_unix_timestamp(to_timestamp((cast(to_date(o.lms_order_hodate,'yyyy-MM-dd') as string)||' 23:59:59.999')))) as orderagedifferenceinseconds\r\n",
 					"\r\n",
 					"FROM storder_tmp1 o\r\n",
 					"LEFT JOIN storder_tmp2 o2 ON o2.orderid = o.lms_order_id"
 				],
-				"execution_count": 6
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -278,12 +263,55 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
 				},
 				"source": [
-					"storder_tmp3 = spark.sql(\"SELECT * FROM storder_tmp3\")"
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"storder_tmp4\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    o.lms_order_id\r\n",
+					"    ,sum(holiday)*86400 as holidays\r\n",
+					"FROM storder_tmp3 o\r\n",
+					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_order_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_order_actualleaddaysenddate)) and Holiday = 1\r\n",
+					"GROUP BY o.lms_order_id"
 				],
-				"execution_count": 7
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"storder_tmp5\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    o.*\r\n",
+					"    ,(to_unix_timestamp(o.lms_order_actualleaddaysenddate) - to_unix_timestamp(o.lms_order_actualleaddaysstartdate) - o1.holidays)/86400  as lms_order_actualleaddays\r\n",
+					"FROM storder_tmp3 o\r\n",
+					"LEFT JOIN storder_tmp4 o1 on o1.lms_order_id = o.lms_order_id"
+				],
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -312,19 +340,19 @@
 					"    ,CASE \r\n",
 					"        WHEN lms_order_hodate is null THEN 'Not Ordered'\r\n",
 					"        WHEN lms_order_maxpoddate is null THEN 'Not Delivered'\r\n",
-					"        WHEN (orderagedifferenceinseconds/24) < 12 THEN '< 12 hrs'\r\n",
-					"        WHEN (orderagedifferenceinseconds/24) < 24 THEN '< 24 hrs'\r\n",
-					"        WHEN (orderagedifferenceinseconds/24) < 48 THEN '< 2 days'\r\n",
-					"        WHEN (orderagedifferenceinseconds/24) < 72 THEN '< 3 days'\r\n",
-					"        WHEN (orderagedifferenceinseconds/24) < 96 THEN '< 4 days'\r\n",
-					"        WHEN (orderagedifferenceinseconds/24) < 120 THEN '< 5 days'\r\n",
-					"        WHEN (orderagedifferenceinseconds/24) < 144 THEN '< 6 days'\r\n",
-					"        WHEN (orderagedifferenceinseconds/24) < 168 THEN '< 7 days'\r\n",
-					"        WHEN (orderagedifferenceinseconds/24) > 168 THEN '> 7 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/3600) < 12 THEN '< 12 hrs'\r\n",
+					"        WHEN (orderagedifferenceinseconds/3600) < 24 THEN '< 24 hrs'\r\n",
+					"        WHEN (orderagedifferenceinseconds/3600) < 48 THEN '< 2 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/3600) < 72 THEN '< 3 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/3600) < 96 THEN '< 4 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/3600) < 120 THEN '< 5 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/3600) < 144 THEN '< 6 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/3600) < 168 THEN '< 7 days'\r\n",
+					"        WHEN (orderagedifferenceinseconds/3600) > 168 THEN '> 7 days'\r\n",
 					"        ELSE NULL\r\n",
 					"    END as lms_order_age\r\n",
 					"\r\n",
-					"FROM storder_tmp3\r\n",
+					"FROM storder_tmp5\r\n",
 					""
 				],
 				"execution_count": 11

@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "dd928db3-a1b1-476e-8073-f8485322fe44"
+				"spark.autotune.trackingId": "ada32f69-311d-45d3-b361-164de5dd4a92"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 28
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -107,7 +107,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 29
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -124,9 +124,10 @@
 				},
 				"source": [
 					"# from pyspark.sql.functions import *\r\n",
-					"# from pyspark.sql.window import Window"
+					"# from pyspark.sql.window import Window\r\n",
+					"# from pyspark.sql.types import IntegralType"
 				],
-				"execution_count": 30
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -144,7 +145,7 @@
 				"source": [
 					"partitionfirst=Window.partitionBy(\"did\").orderBy(col(\"did\").asc())"
 				],
-				"execution_count": 31
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -162,7 +163,7 @@
 				"source": [
 					"pod_tmp = publicpod.withColumn(\"row_num\",row_number().over(partitionfirst))"
 				],
-				"execution_count": 33
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -180,57 +181,7 @@
 				"source": [
 					"pod_tmp.createOrReplaceTempView(\"pod_tmp\")"
 				],
-				"execution_count": 34
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "sparksql"
-					}
-				},
-				"source": [
-					"%%sql\r\n",
-					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"dbowaybill_tmp\r\n",
-					"AS\r\n",
-					"SELECT\r\n",
-					"     wb.*\r\n",
-					"    ,dis.id as dispatchid\r\n",
-					"FROM dbowaybill wb\r\n",
-					"LEFT JOIN publicdispatch dis on dis.lmsid = wb.id\r\n",
-					"\r\n",
-					"\r\n",
-					""
-				],
-				"execution_count": null
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"dbowaybill_tmp = spark.sql(\"SELECT * FROM dbowaybill_tmp\")"
-				],
-				"execution_count": null
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -252,7 +203,58 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"stwaybill\r\n",
+					"dbowaybill_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     wb.*\r\n",
+					"    ,dis.id as dispatchid\r\n",
+					"FROM dbowaybill wb\r\n",
+					"LEFT JOIN publicdispatch dis on dis.lmsid = wb.loadid\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dbowaybill_tmp = spark.sql(\"SELECT * FROM dbowaybill_tmp\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stwaybill_tmp\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
 					"\r\n",
@@ -417,6 +419,8 @@
 					"\t,p.lng as orv_pod_lng\r\n",
 					"\t,p.customerrating as orv_pod_customerrating\r\n",
 					"\t,p.customerfeedback as orv_pod_customerfeedback\r\n",
+					"    --,2.00 * 3961.00 * asin(sqrt((sin(radians((p.lat - d.lat) / 2.00))) ^ 2.00 + cos(radians(d.lat)) * cos(radians(p.lat)) * (sin(radians((p.lng - d.lng ) / 2.00))) ^ 2.00))*1.60934 as orv_delivery_poddistancefromdeliverypoint\r\n",
+					"\r\n",
 					"\r\n",
 					"FROM dbowaybill_tmp w\r\n",
 					"LEFT JOIN sstparcelbywaybill pbw on pbw.lms_parcelbywaybill_waybillid =  w.id\r\n",
@@ -424,7 +428,7 @@
 					"LEFT JOIN pod_tmp p on p.did = d.id and row_num = 1\r\n",
 					""
 				],
-				"execution_count": 36
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -440,9 +444,45 @@
 					}
 				},
 				"source": [
-					"stwaybill = spark.sql(\"SELECT * FROM stwaybill\")"
+					"stwaybill_tmp = spark.sql(\"SELECT * FROM stwaybill_tmp\")"
 				],
-				"execution_count": 37
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stwaybill_tmp = stwaybill_tmp.withColumn(\"a\", pow(sin(radians (col(\"orv_pod_lat\") - col(\"orv_delivery_lat\")) / 2), 2) + cos(radians (\"orv_delivery_lat\")) * cos(radians (col(\"orv_pod_lat\"))) * pow(sin(radians (col(\"orv_pod_lng\") - col(\"orv_delivery_lng\")) / 2), 2)).withColumn(\"orv_delivery_poddistancefromdeliverypoint\", atan2(sqrt(col(\"a\")), sqrt(-col(\"a\") + 1)) * 2 * 6371)"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stwaybill.createOrReplaceTempView(\"stwaybill_tmp\")"
+				],
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -460,7 +500,7 @@
 				"source": [
 					"# stwaybill.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 42
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -478,7 +518,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": null
+				"execution_count": 14
 			}
 		]
 	}

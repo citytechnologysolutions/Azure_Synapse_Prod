@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "ab790723-6bbc-406a-9d3d-51cb6b7ea0ae"
+				"spark.autotune.trackingId": "15eefcba-81b6-4e59-bce4-f3eea37bc12b"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 109
 			},
 			{
 				"cell_type": "code",
@@ -164,9 +164,21 @@
 					"# dbodb_reasondetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_reasondetail.parquet', format='parquet')\r\n",
 					"# dbodb_reasondetail.createOrReplaceTempView(\"dbodb_reasondetail\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the dbodb_delayreason LMS Table\r\n",
+					"# dbodb_delayreason = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_delayreason.parquet', format='parquet')\r\n",
+					"# dbodb_delayreason.createOrReplaceTempView(\"dbodb_delayreason\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodb_notdbreason LMS Table\r\n",
+					"# dbodb_notdbreason = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_notdbreason.parquet', format='parquet')\r\n",
+					"# dbodb_notdbreason.createOrReplaceTempView(\"dbodb_notdbreason\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodb_deliverystatus LMS Table\r\n",
+					"# dbodb_deliverystatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_deliverystatus.parquet', format='parquet')\r\n",
+					"# dbodb_deliverystatus.createOrReplaceTempView(\"dbodb_deliverystatus\")\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 110
 			},
 			{
 				"cell_type": "code",
@@ -1569,7 +1581,7 @@
 					"FROM dbodb_reasondetail rd\r\n",
 					"LEFT JOIN dbodb_reasongroup rg on rg.id = rd.db_reasongroupid"
 				],
-				"execution_count": 10
+				"execution_count": 111
 			},
 			{
 				"cell_type": "code",
@@ -1587,7 +1599,7 @@
 				"source": [
 					"stendorsmentreason = spark.sql(\"SELECT * FROM stendorsmentreason\")"
 				],
-				"execution_count": 11
+				"execution_count": 112
 			},
 			{
 				"cell_type": "code",
@@ -1604,9 +1616,248 @@
 				},
 				"source": [
 					"# stendorsmentreason.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stendorsmentreason.parquet', mode = \"overwrite\")\r\n",
-					"print(\"SUCCESS\")"
+					""
 				],
 				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stwaybilldelayreasons\r\n",
+					"AS\r\n",
+					"SELECT \t\r\n",
+					"\tid AS lms_delayreason_id\r\n",
+					"\t,description AS lms_delayreason_description\r\n",
+					"\r\n",
+					"FROM dbodb_delayreason\r\n",
+					"WHERE description is not NULL or description <> \"\""
+				],
+				"execution_count": 113
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stwaybillnotdbreasons\r\n",
+					"AS\r\n",
+					"SELECT \t\r\n",
+					"\tid AS lms_notdbreason_id\r\n",
+					"\t,description AS lms_notdbreason_description\r\n",
+					"\r\n",
+					"FROM dbodb_notdbreason\r\n",
+					"WHERE description is not NULL or description <> \"\""
+				],
+				"execution_count": 114
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stwaybilldeliverystatusreasons\r\n",
+					"AS\r\n",
+					"SELECT \t\r\n",
+					"\tid AS lms_deliverystatus_id\r\n",
+					"\t,description AS lms_deliverystatus_description\r\n",
+					"\r\n",
+					"FROM dbodb_deliverystatus\r\n",
+					"WHERE description is not NULL or description <> \"\""
+				],
+				"execution_count": 115
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stwaybillreasondetails\r\n",
+					"AS\r\n",
+					"SELECT \t\r\n",
+					"\trd.id AS lms_reasondetail_id\r\n",
+					"\t,rd.description AS lms_reasondetail_description\r\n",
+					"\t,rg.description AS lms_reasondetail_group\r\n",
+					"\r\n",
+					"FROM dbodb_reasondetail rd\r\n",
+					"LEFT JOIN dbodb_reasongroup rg on rg.id = rd.db_reasongroupid\r\n",
+					"WHERE rd.description is not NULL or rd.description <> \"\""
+				],
+				"execution_count": 128
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stwaybillinservicereasons\r\n",
+					"AS\r\n",
+					"SELECT \t\r\n",
+					"\tisr.id AS lms_inservicereason_id\r\n",
+					"\t,isr.reason AS lms_inservicereason_description\r\n",
+					"\t,rg.description AS lms_inservicereason_group\r\n",
+					"\r\n",
+					"FROM dbodb_inservicereason isr\r\n",
+					"LEFT JOIN dbodb_reasongroup rg on rg.id = isr.reasongroupid\r\n",
+					"WHERE isr.reason is not NULL or isr.reason <> \"\""
+				],
+				"execution_count": 117
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stwaybilldelayreasons = spark.sql(\"SELECT * FROM stwaybilldelayreasons\")\r\n",
+					"stwaybillnotdbreasons = spark.sql(\"SELECT * FROM stwaybillnotdbreasons\")\r\n",
+					"stwaybilldeliverystatusreasons = spark.sql(\"SELECT * FROM stwaybilldeliverystatusreasons\")\r\n",
+					"stwaybillreasondetails = spark.sql(\"SELECT * FROM stwaybillreasondetails\")\r\n",
+					"stwaybillinservicereasons = spark.sql(\"SELECT * FROM stwaybillinservicereasons\")"
+				],
+				"execution_count": 118
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					" spark.sql(\"SELECT * FROM stwaybilldelayreasons\")"
+				],
+				"execution_count": 124
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stwaybilldelayreasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybilldelayreasons.parquet', mode = \"overwrite\")\r\n",
+					"# stwaybillnotdbreasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybillnotdbreasons.parquet', mode = \"overwrite\")\r\n",
+					"# stwaybilldeliverystatusreasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybilldeliverystatusreasons.parquet', mode = \"overwrite\")\r\n",
+					"# stwaybillreasondetails.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybillreasondetails.parquet', mode = \"overwrite\")\r\n",
+					"# stwaybillinservicereasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybillinservicereasons.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 127
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": null
 			}
 		]
 	}

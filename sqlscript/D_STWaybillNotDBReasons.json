@@ -1,0 +1,20 @@
+{
+	"name": "D_STWaybillNotDBReasons",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "\nIF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STWaybillNotDBReasons') )\n    DROP EXTERNAL TABLE dbo.D_STWaybillNotDBReasons\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STWaybillNotDBReasons (\n    [lms_notdbreason_id] bigint,\n    [lms_notdbreason_description] nvarchar(4000),\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stwaybillnotdbreasons.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STWaybillNotDBReasons \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

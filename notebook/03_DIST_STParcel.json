@@ -8,20 +8,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "cf908e39-dd77-49c7-8071-9da88308eb9a"
+				"spark.autotune.trackingId": "dfea75ac-8d36-4c62-809b-93bb39cc3977"
 			}
 		},
 		"metadata": {
@@ -35,18 +35,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -80,7 +80,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -115,9 +115,13 @@
 					"\r\n",
 					"# #Create DataFrame for the stvsmparcel LMS Table\r\n",
 					"# stvsmparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stvsmparcel.parquet', format='parquet')\r\n",
-					"# stvsmparcel.createOrReplaceTempView(\"stvsmparcel\")"
+					"# stvsmparcel.createOrReplaceTempView(\"stvsmparcel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboweekendholiday LMS Table\r\n",
+					"# dboweekendholiday = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboweekendholiday.parquet', format='parquet')\r\n",
+					"# dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")"
 				],
-				"execution_count": 9
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -159,7 +163,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 10
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -181,7 +185,7 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"stparcel_tmp3\r\n",
+					"stparcel_tmp2\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
 					"    p.id as lms_parcel_id\r\n",
@@ -250,21 +254,30 @@
 					"        WHEN coalesce(w.PODDate,CURRENT_TIMESTAMP) > pd.DeliverBy then 0 \r\n",
 					"        ELSE 1 \r\n",
 					"    END as lms_parcel_inserviceflag\r\n",
+					"   ,CASE \r\n",
+					"        WHEN pd.id is null then (date(coalesce(c.cdate,coalesce(p.acceptanceDate,p.handoverdate)) + interval '86399 seconds'))\r\n",
+					"        ELSE (pd.InServiceStart)\r\n",
+					"    END AS lms_parcel_actualleaddaysstartdate\r\n",
+					"    ,coalesce(w.PODDate,CURRENT_TIMESTAMP) AS lms_parcel_actualleaddaysenddate\r\n",
 					"    ,CASE\r\n",
-					"        WHEN pd.id is null then (DATE_PART('day', (coalesce(w.PODDate,CURRENT_TIMESTAMP)) - (date(c.cdate) + interval '86399 seconds')))\r\n",
-					"        WHEN w.PODDate is null then 0  \r\n",
-					"        ELSE DATE_PART('day', w.PODDate - pd.InServiceStart)\r\n",
-					"    END as lms_parcel_actualleaddays\r\n",
+					"        WHEN pd.id is null then ((to_unix_timestamp(coalesce(w.PODDate,CURRENT_TIMESTAMP))) - (to_unix_timestamp(date(coalesce(c.cdate,coalesce(p.acceptanceDate,p.handoverdate))) + interval '86399 seconds')))/86400 \r\n",
+					"        ELSE ((to_unix_timestamp(coalesce(w.PODDate,CURRENT_TIMESTAMP))) - (to_unix_timestamp(pd.InServiceStart)))/86400 \r\n",
+					"    END as lms_parcel_actualleaddaysinclwe\r\n",
 					"    ,pt.orv_parcel_scandate\r\n",
 					"    ,pt.orv_parcel_scanstatus\r\n",
 					"\t,pt.orv_parcel_scanmode\r\n",
 					"\t,pt.orv_parcel_claimid\r\n",
 					"\t,pt.orv_parcel_courierid\r\n",
 					"    ,pt.orv_parcel_moddate\r\n",
-					"    ,to_timestamp((cast(to_date(pd.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999')) lms_parcel_parceldetaildeliverbyroundup\r\n",
-					"    ,(to_unix_timestamp(w.PODDate) - to_unix_timestamp(to_timestamp((cast(to_date(pd.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999')))) as parcelagedifferenceinseconds\r\n",
+					"    ,CASE\r\n",
+					"        WHEN pd.id is null then to_timestamp((cast(to_date(c.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999'))\r\n",
+					"        ELSE to_timestamp((cast(to_date(pd.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999'))\r\n",
+					"    END as lms_parcel_parceldetaildeliverbyroundup\r\n",
+					"    ,CASE\r\n",
+					"        WHEN pd.id is null then (to_unix_timestamp(coalesce(w.PODDate,CURRENT_TIMESTAMP)) - to_unix_timestamp(to_timestamp((cast(to_date(c.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999')))) \r\n",
+					"        ELSE (to_unix_timestamp(coalesce(w.PODDate,CURRENT_TIMESTAMP)) - to_unix_timestamp(to_timestamp((cast(to_date(pd.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999')))) \r\n",
+					"    END as parcelagedifferenceinseconds\r\n",
 					"    \r\n",
-					"\r\n",
 					"FROM sstparcelunion p\r\n",
 					"LEFT JOIN stparcel_tmp pt on pt.lmsid = p.id AND pt.waybillid = p.waybillid\r\n",
 					"LEFT JOIN dboorder o on p.orderid = o.id\r\n",
@@ -275,7 +288,7 @@
 					"AND p.locid NOT IN (163,110,213,27)\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -288,12 +301,27 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
 				},
 				"source": [
-					"stparcel_tmp3  = spark.sql(\"SELECT * FROM stparcel_tmp3\")"
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcel_tmp3\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    p.lms_parcel_id\r\n",
+					"    ,sum(holiday)*86400 as holidays\r\n",
+					"FROM stparcel_tmp2 p\r\n",
+					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_parcel_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_parcel_actualleaddaysenddate)) and Holiday = 1\r\n",
+					"GROUP BY p.lms_parcel_id\r\n",
+					"\r\n",
+					""
 				],
-				"execution_count": 12
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -318,26 +346,12 @@
 					"stparcel_tmp4\r\n",
 					"AS\r\n",
 					"SELECT \r\n",
-					"    *\r\n",
-					"    ,CASE \r\n",
-					"        WHEN lms_parcel_parceldetaildeliverby is null THEN 'Not Consigned'\r\n",
-					"        WHEN lms_parcel_waybillpoddate is null THEN 'Not Delivered'\r\n",
-					"        WHEN (parcelagedifferenceinseconds/24) < 12 THEN '< 12 hrs'\r\n",
-					"        WHEN (parcelagedifferenceinseconds/24) < 24 THEN '< 24 hrs'\r\n",
-					"        WHEN (parcelagedifferenceinseconds/24) < 48 THEN '< 2 days'\r\n",
-					"        WHEN (parcelagedifferenceinseconds/24) < 72 THEN '< 3 days'\r\n",
-					"        WHEN (parcelagedifferenceinseconds/24) < 96 THEN '< 4 days'\r\n",
-					"        WHEN (parcelagedifferenceinseconds/24) < 120 THEN '< 5 days'\r\n",
-					"        WHEN (parcelagedifferenceinseconds/24) < 144 THEN '< 6 days'\r\n",
-					"        WHEN (parcelagedifferenceinseconds/24) < 168 THEN '< 7 days'\r\n",
-					"        WHEN (parcelagedifferenceinseconds/24) > 168 THEN '> 7 days'\r\n",
-					"        ELSE NULL\r\n",
-					"    END as lms_parcel_age\r\n",
-					"\r\n",
-					"FROM stparcel_tmp3\r\n",
-					""
+					"    p.*\r\n",
+					"    ,(to_unix_timestamp(p.lms_parcel_actualleaddaysenddate) - to_unix_timestamp(p.lms_parcel_actualleaddaysstartdate) - p1.holidays)/86400 as lms_parcel_actualleaddays\r\n",
+					"FROM stparcel_tmp2 p\r\n",
+					"LEFT JOIN stparcel_tmp3 p1 on p1.lms_parcel_id = p.lms_parcel_id"
 				],
-				"execution_count": 13
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -350,12 +364,38 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
 				},
 				"source": [
-					"stparcel_tmp4 = spark.sql(\"SELECT * FROM stparcel_tmp4\")"
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcel_tmp5\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    *\r\n",
+					"    ,CASE \r\n",
+					"        WHEN lms_parcel_parceldetaildeliverby is null THEN 'Not Consigned'\r\n",
+					"        WHEN lms_parcel_waybillpoddate is null THEN 'Not Delivered'\r\n",
+					"        WHEN (parcelagedifferenceinseconds/3600) < 12 THEN '< 12 hrs'\r\n",
+					"        WHEN (parcelagedifferenceinseconds/3600) < 24 THEN '< 24 hrs'\r\n",
+					"        WHEN (parcelagedifferenceinseconds/3600) < 48 THEN '< 2 days'\r\n",
+					"        WHEN (parcelagedifferenceinseconds/3600) < 72 THEN '< 3 days'\r\n",
+					"        WHEN (parcelagedifferenceinseconds/3600) < 96 THEN '< 4 days'\r\n",
+					"        WHEN (parcelagedifferenceinseconds/3600) < 120 THEN '< 5 days'\r\n",
+					"        WHEN (parcelagedifferenceinseconds/3600) < 144 THEN '< 6 days'\r\n",
+					"        WHEN (parcelagedifferenceinseconds/3600) < 168 THEN '< 7 days'\r\n",
+					"        WHEN (parcelagedifferenceinseconds/3600) > 168 THEN '> 7 days'\r\n",
+					"        ELSE NULL\r\n",
+					"    END as lms_parcel_age\r\n",
+					"\r\n",
+					"FROM stparcel_tmp4\r\n",
+					""
 				],
-				"execution_count": 14
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -391,10 +431,10 @@
 					"    ,(to_unix_timestamp(p.lms_parcel_waybillpoddate)-to_unix_timestamp(v.lms_track_floortimeend)) as lms_parcel_deliveryduration\r\n",
 					"    \r\n",
 					"  \r\n",
-					"FROM stparcel_tmp4 p\r\n",
+					"FROM stparcel_tmp5 p\r\n",
 					"LEFT JOIN stvsmparcel v ON v.lms_track_parcelid = p.lms_parcel_id"
 				],
-				"execution_count": 15
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -412,7 +452,7 @@
 				"source": [
 					"stparcel = spark.sql(\"SELECT * FROM stparcel\")"
 				],
-				"execution_count": 16
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",

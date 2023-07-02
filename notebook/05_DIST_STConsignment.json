@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "1d1757d1-76e4-49c0-b143-ee9ac4a7b241"
+				"spark.autotune.trackingId": "5564edf7-4e2a-4808-9923-d73fe31c0da6"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -65,66 +65,51 @@
 					}
 				},
 				"source": [
-					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"# if 'prod' in Environment:\r\n",
-					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"# else:\r\n",
-					"#     StorageAccount = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# # ' + StorageAccount + '"
+					"# ' + StorageAccount + '"
 				],
-				"execution_count": 15
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# from pyspark.sql.functions import *\r\n",
-					"# import pandas as pd"
-				],
-				"execution_count": null
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"# #create dataframe for the sstconsignemntunion lms table\r\n",
-					"# sstconsignemntunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet/', format='parquet')\r\n",
-					"# sstconsignemntunion.createOrReplaceTempView(\"sstconsignemntunion\")\r\n",
+					"#create dataframe for the sstconsignemntunion lms table\r\n",
+					"sstconsignemntunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet/', format='parquet')\r\n",
+					"sstconsignemntunion.createOrReplaceTempView(\"sstconsignemntunion\")\r\n",
 					"\r\n",
-					"# #create dataframe for the sstparcelbyconsignment lms table\r\n",
-					"# sstparcelbyconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', format='parquet')\r\n",
-					"# sstparcelbyconsignment.createOrReplaceTempView(\"sstparcelbyconsignment\")\r\n",
+					"#create dataframe for the sstparcelbyconsignment lms table\r\n",
+					"sstparcelbyconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbyconsignment.parquet', format='parquet')\r\n",
+					"sstparcelbyconsignment.createOrReplaceTempView(\"sstparcelbyconsignment\")\r\n",
 					"\r\n",
-					"# #create dataframe for the dbobill_consignmentr lms table\r\n",
-					"# dbobill_consignmentr = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
-					"# dbobill_consignmentr.createOrReplaceTempView(\"dbobill_consignmentr\")\r\n",
+					"#create dataframe for the dbobill_consignmentr lms table\r\n",
+					"dbobill_consignmentr = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
+					"dbobill_consignmentr.createOrReplaceTempView(\"dbobill_consignmentr\")\r\n",
 					"\r\n",
-					"# #create dataframe for the sstparcelunion lms table\r\n",
-					"# sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
-					"# sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+					"#create dataframe for the sstparcelunion lms table\r\n",
+					"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
 					"\r\n",
-					"# #create dataframe for the dbowaybill lms table\r\n",
-					"# dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
-					"# dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
+					"#create dataframe for the dbowaybill lms table\r\n",
+					"dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
+					"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dboweekendholiday LMS Table\r\n",
+					"dboweekendholiday = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboweekendholiday.parquet', format='parquet')\r\n",
+					"dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")\r\n",
 					""
 				],
-				"execution_count": 16
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -244,7 +229,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 17
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -278,7 +263,7 @@
 					"WHERE p.consignid is not null\r\n",
 					"GROUP BY p.consignid"
 				],
-				"execution_count": 18
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -310,13 +295,44 @@
 					"\t    WHEN (coalesce(c2.lms_consignment_maxpoddate,CURRENT_TIMESTAMP)) <= (date(c.lms_consignment_deliverby) + interval '86399 seconds') THEN 1\r\n",
 					"\t    ELSE 0\r\n",
 					"    END lms_consignment_inserviceflag\r\n",
-					"    ,CASE\r\n",
-					"        WHEN c2.lms_consignment_maxpoddate is null then 0  \r\n",
-					"        ELSE DATE_PART('day', c2.lms_consignment_maxpoddate - c.lms_consignment_cdate)\r\n",
-					"    END as lms_consignment_actualleaddays\r\n",
+					"    ,to_timestamp((cast(to_date(c.lms_consignment_cdate,'yyyy-MM-dd') as string)||' 23:59:59.999')) as  lms_consignment_actualleaddaysstartdate\r\n",
+					"    ,coalesce(c2.lms_consignment_maxpoddate,CURRENT_TIMESTAMP) AS lms_consignment_actualleaddaysenddate\r\n",
+					"    ,(to_unix_timestamp(coalesce(c2.lms_consignment_maxpoddate,CURRENT_TIMESTAMP)) - (to_unix_timestamp(to_timestamp((cast(to_date(c.lms_consignment_cdate,'yyyy-MM-dd') as string)||' 23:59:59.999')))))/86400 as lms_consignment_actualleaddaysinclwe\r\n",
 					"    ,to_timestamp((cast(to_date(c.lms_consignment_cdate,'yyyy-MM-dd') as string)||' 23:59:59.999')) lms_consignment_cdateroundup\r\n",
+					"    ,(to_unix_timestamp(coalesce(c2.lms_consignment_maxpoddate,CURRENT_TIMESTAMP)) - to_unix_timestamp(to_timestamp((cast(to_date(c.lms_consignment_cdate,'yyyy-MM-dd') as string)||' 23:59:59.999')))) as consignagedifferenceinseconds\r\n",
 					"FROM stconsignment_tmp1 c\r\n",
 					"LEFT JOIN stconsignment_Tmp2 c2 ON c2.consignid = c.lms_consignment_id"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stconsignment_tmp4\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    c.lms_consignment_id\r\n",
+					"    ,sum(holiday)*86400 as holidays\r\n",
+					"FROM stconsignment_tmp3 c\r\n",
+					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_consignment_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_consignment_actualleaddaysenddate)) and Holiday = 1\r\n",
+					"GROUP BY c.lms_consignment_id"
 				],
 				"execution_count": 19
 			},
@@ -331,48 +347,24 @@
 						"transient": {
 							"deleting": false
 						}
-					}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
 				},
 				"source": [
-					"stconsignment_tmp3 = spark.sql(\"SELECT * FROM stconsignment_tmp3\")"
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stconsignment_tmp5\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    c.*\r\n",
+					"    ,(to_unix_timestamp(c.lms_consignment_actualleaddaysenddate) - to_unix_timestamp(c.lms_consignment_actualleaddaysstartdate) - c1.holidays)/86400  as lms_consignment_actualleaddays\r\n",
+					"FROM stconsignment_tmp3 c\r\n",
+					"LEFT JOIN stconsignment_tmp4 c1 on c1.lms_consignment_id = c.lms_consignment_id"
 				],
 				"execution_count": 20
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"stconsignment_tmp4=stconsignment_tmp3.withColumn('consignagedifferenceinseconds',col(\"lms_consignment_maxpoddate\").cast(\"long\") - col('lms_consignment_cdateroundup').cast(\"long\"))"
-				],
-				"execution_count": 21
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"stconsignment_tmp4.createOrReplaceTempView(\"stconsignment_tmp4\")"
-				],
-				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -401,22 +393,22 @@
 					"    ,CASE \r\n",
 					"        WHEN lms_consignment_cdate is null THEN 'Not Consigned'\r\n",
 					"        WHEN lms_consignment_maxpoddate is null THEN 'Not Delivered'\r\n",
-					"        WHEN (consignagedifferenceinseconds/24) < 12 THEN '< 12 hrs'\r\n",
-					"        WHEN (consignagedifferenceinseconds/24) < 24 THEN '< 24 hrs'\r\n",
-					"        WHEN (consignagedifferenceinseconds/24) < 48 THEN '< 2 days'\r\n",
-					"        WHEN (consignagedifferenceinseconds/24) < 72 THEN '< 3 days'\r\n",
-					"        WHEN (consignagedifferenceinseconds/24) < 96 THEN '< 4 days'\r\n",
-					"        WHEN (consignagedifferenceinseconds/24) < 120 THEN '< 5 days'\r\n",
-					"        WHEN (consignagedifferenceinseconds/24) < 144 THEN '< 6 days'\r\n",
-					"        WHEN (consignagedifferenceinseconds/24) < 168 THEN '< 7 days'\r\n",
-					"        WHEN (consignagedifferenceinseconds/24) > 168 THEN '> 7 days'\r\n",
+					"        WHEN (consignagedifferenceinseconds/3600) < 12 THEN '< 12 hrs'\r\n",
+					"        WHEN (consignagedifferenceinseconds/3600) < 24 THEN '< 24 hrs'\r\n",
+					"        WHEN (consignagedifferenceinseconds/3600) < 48 THEN '< 2 days'\r\n",
+					"        WHEN (consignagedifferenceinseconds/3600) < 72 THEN '< 3 days'\r\n",
+					"        WHEN (consignagedifferenceinseconds/3600) < 96 THEN '< 4 days'\r\n",
+					"        WHEN (consignagedifferenceinseconds/3600) < 120 THEN '< 5 days'\r\n",
+					"        WHEN (consignagedifferenceinseconds/3600) < 144 THEN '< 6 days'\r\n",
+					"        WHEN (consignagedifferenceinseconds/3600) < 168 THEN '< 7 days'\r\n",
+					"        WHEN (consignagedifferenceinseconds/3600) > 168 THEN '> 7 days'\r\n",
 					"        ELSE NULL\r\n",
 					"    END as lms_consignment_age\r\n",
 					"\r\n",
-					"FROM stconsignment_tmp4\r\n",
+					"FROM stconsignment_tmp5\r\n",
 					""
 				],
-				"execution_count": 23
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -434,7 +426,7 @@
 				"source": [
 					"stconsignment = spark.sql(\"SELECT * FROM stconsignment\")"
 				],
-				"execution_count": 24
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -454,7 +446,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 25
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",

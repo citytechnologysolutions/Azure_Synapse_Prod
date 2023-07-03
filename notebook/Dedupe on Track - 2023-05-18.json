@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4049f9f6-d7e2-4fd6-94c7-aea8bd8c1c6f"
+				"spark.autotune.trackingId": "723602ee-c3f4-410e-ada0-8be7da867521"
 			}
 		},
 		"metadata": {
@@ -75,7 +75,7 @@
 				"source": [
 					"df.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/dbotrack_BU_2023_07_03.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -94,7 +94,7 @@
 					"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/dbotrack_BU_2023_07_03.parquet', format='parquet')\r\n",
 					"df.createOrReplaceTempView(\"df\")"
 				],
-				"execution_count": null
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -112,7 +112,7 @@
 				"source": [
 					"df.dtypes"
 				],
-				"execution_count": null
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -141,7 +141,7 @@
 					"FROM df\r\n",
 					"GROUP BY ID"
 				],
-				"execution_count": null
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -159,7 +159,7 @@
 				"source": [
 					"df.count()"
 				],
-				"execution_count": null
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -182,7 +182,7 @@
 					"%%sql\r\n",
 					"SELECT COUNT(*) FROM MAXVALUES"
 				],
-				"execution_count": null
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -214,7 +214,7 @@
 					"GROUP BY df.ID\r\n",
 					"HAVING COUNT(ID) > 1"
 				],
-				"execution_count": null
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -246,7 +246,7 @@
 					"--GROUP BY df.ID\r\n",
 					"--HAVING COUNT(ID) > 1"
 				],
-				"execution_count": null
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -275,7 +275,7 @@
 					"FROM df\r\n",
 					"INNER JOIN MAXVALUES MV ON MV.ID = df.ID AND (MV.CloseDt = df.CloseDt OR MV.CloseDt is NULL)"
 				],
-				"execution_count": null
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -293,7 +293,7 @@
 				"source": [
 					"DEDUPE = spark.sql(\"SELECT * FROM DEDUPE\")"
 				],
-				"execution_count": null
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -311,7 +311,7 @@
 				"source": [
 					"DEDUPE.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",

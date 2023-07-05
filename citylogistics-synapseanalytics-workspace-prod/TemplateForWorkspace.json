@@ -8780,7 +8780,7 @@
 															"source": {
 																"type": "SqlServerSource",
 																"sqlReaderQuery": {
-																	"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1)),\n        activity('SelectStatementBuilder').output.firstRow.Query,concat('SELECT * FROM [', item().Source.TableName,']')\n        )\n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    )",
+																	"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1))\n            , activity('SelectStatementBuilder').output.firstRow.Query\n            , concat('SELECT * FROM [', item().Source.TableName,']')\n        )\n    , ' WHERE ', item().Increment.IdField, ' IN ( SELECT DISTINCT '\n    , item().Increment.IdField\n    , ' FROM [', item().Source.TableName,']'\n    , ' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    , ')'\n    )",
 																	"type": "Expression"
 																},
 																"queryTimeout": "02:00:00",
@@ -17605,7 +17605,7 @@
 					"name": "Structured Schema on Read/Finance"
 				},
 				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STTMSActivityDetail') )\n    DROP EXTERNAL TABLE dbo.T_STTMSActivityDetail\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STTMSActivityDetail (\n[tms_activity_tripid] bigint,\n[tms_activity_tripdriverid] nvarchar(4000),\n[tms_activity_tripdrivername] nvarchar(4000),\n[tms_activity_tripvehicleid] nvarchar(4000),\n[tms_activity_tripvehiclefleetcode] nvarchar(4000),\n[tms_activity_triptrailer1id] nvarchar(4000),\n[tms_activity_triptrailer1fleetcode] nvarchar(4000),\n[tms_activity_triptrailer2id] nvarchar(4000),\n[tms_activity_triptrailer2fleetcode] nvarchar(4000),\n[tms_activity_triptrailersize] nvarchar(4000),\n[tms_activity_tripstatus] nvarchar(4000),\n[tms_activity_tripparenetrouteid] bigint,\n[tms_activity_tripparentroute] nvarchar(4000),\n[tms_activity_tripopsrouteid] bigint,\n[tms_activity_tripopsroute] nvarchar(4000),\n[tms_activity_tripdispatchdate] date,\n[tms_activity_triptransporter] nvarchar(4000),\n[tms_activity_tripsource] nvarchar(4000),\n[tms_activity_bookingid] bigint,\n[tms_activity_bookingtype] nvarchar(4000),\n[tms_activity_bookingtrailersize] nvarchar(4000),\n[tms_activity_bookingcubicvolume] float,\n[tms_activity_directbooking] int,\n[tms_activity_localbooking] int,\n[tms_activity_bookingsource] nvarchar(4000),\n\n\n\n\n)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/sttmsactivitydetail.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t);\n\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STTMSActivityDetail \nGO",
+					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STTMSActivityDetail') )\n    DROP EXTERNAL TABLE dbo.T_STTMSActivityDetail\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STTMSActivityDetail (\n[tms_activity_tripid] bigint,\n[tms_activity_tripdriverid] nvarchar(4000),\n[tms_activity_tripdrivername] nvarchar(4000),\n[tms_activity_tripvehicleid] nvarchar(4000),\n[tms_activity_tripvehiclefleetcode] nvarchar(4000),\n[tms_activity_triptrailer1id] nvarchar(4000),\n[tms_activity_triptrailer1fleetcode] nvarchar(4000),\n[tms_activity_triptrailer2id] nvarchar(4000),\n[tms_activity_triptrailer2fleetcode] nvarchar(4000),\n[tms_activity_triptrailersize] nvarchar(4000),\n[tms_activity_tripstatus] nvarchar(4000),\n[tms_activity_tripparenetrouteid] bigint,\n[tms_activity_tripparentroute] nvarchar(4000),\n[tms_activity_tripopsrouteid] bigint,\n[tms_activity_tripopsroute] nvarchar(4000),\n[tms_activity_tripdispatchdate] date,\n[tms_activity_triptransporter] nvarchar(4000),\n[tms_activity_tripsource] nvarchar(4000),\n[tms_activity_bookingid] bigint,\n[tms_activity_bookingtype] nvarchar(4000),\n[tms_activity_bookingtrailersize] nvarchar(4000),\n[tms_activity_bookingcubicvolume] float,\n[tms_activity_directbooking] int,\n[tms_activity_localbooking] int,\n[tms_activity_bookingsource] nvarchar(4000),\n[tms_activity_bookingallocateddate] date,\n\n\n\n)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/sttmsactivitydetail.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t);\n\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STTMSActivityDetail \nGO",
 					"metadata": {
 						"language": "sql"
 					},
@@ -17628,7 +17628,7 @@
 					"name": "Structured Schema on Read/Finance"
 				},
 				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STTMSActivitySummary') )\n    DROP EXTERNAL TABLE dbo.T_STTMSActivitySummary\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STTMSActivitySummary (\n[tms_activity_tripid] bigint,\n[tms_activity_bookingid] bigint,\n[tms_activity_tripdrivername] nvarchar(4000),\n[tms_activity_tripstatus] nvarchar(4000),\n[tms_activity_tripopsroute] nvarchar(4000),\n[tms_activity_tripdispatchdate] date,\n[tms_activity_tripsource] nvarchar(4000),\n[tms_activity_directbooking] int,\n[tms_activity_localbooking] int,\n[tms_activity_triptrailersize] nvarchar(4000),\n[tms_activity_triptransporter] nvarchar(4000),\n[tms_activity_aggrbookingcubicvolume] float,\n[tms_activity_aggrbookingid] bigint,\n\n\n)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/sttmsactivitysummary.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t);\n\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STTMSActivitySummary \nGO",
+					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STTMSActivitySummary') )\n    DROP EXTERNAL TABLE dbo.T_STTMSActivitySummary\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STTMSActivitySummary (\n[tms_activity_tripid] bigint,\n[tms_activity_bookingid] bigint,\n[tms_activity_tripdrivername] nvarchar(4000),\n[tms_activity_tripstatus] nvarchar(4000),\n[tms_activity_tripopsroute] nvarchar(4000),\n[tms_activity_tripdispatchdate] date,\n[tms_activity_tripsource] nvarchar(4000),\n[tms_activity_directbooking] int,\n[tms_activity_localbooking] int,\n[tms_activity_triptrailersize] nvarchar(4000),\n[tms_activity_triptransporter] nvarchar(4000),\n[tms_activity_bookingtype] nvarchar(4000),\n[tms_activity_aggrbookingcubicvolume] float,\n[tms_activity_aggrbookingid] bigint,\n[tms_activity_bookingallocateddate] date,\n\n)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/sttmsactivitysummary.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t);\n\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STTMSActivitySummary \nGO",
 					"metadata": {
 						"language": "sql"
 					},
@@ -17908,12 +17908,12 @@
 					"driverCores": 8,
 					"executorMemory": "56g",
 					"executorCores": 8,
-					"numExecutors": 1,
+					"numExecutors": 2,
 					"conf": {
-						"spark.dynamicAllocation.enabled": "true",
-						"spark.dynamicAllocation.minExecutors": "1",
-						"spark.dynamicAllocation.maxExecutors": "4",
-						"spark.autotune.trackingId": "c47bdb3b-0c3a-4add-9bb7-0e2148b3adfe"
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "880ec37b-409e-45cf-9484-5d91d6040432"
 					}
 				},
 				"metadata": {
@@ -17938,13 +17938,15 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"if 'prod' in Environment:\r\n",
@@ -18925,10 +18927,6 @@
 							"#Create DataFrame for the stbooking LMS Table\r\n",
 							"stbooking = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', format='parquet')\r\n",
 							"stbooking.createOrReplaceTempView(\"stbooking\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the dbopeoplebasic MD Table\r\n",
-							"dbopeoplebasic = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplebasic.parquet', format='parquet')\r\n",
-							"dbopeoplebasic.createOrReplaceTempView(\"dbopeoplebasic\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the dbovehiclebasic MD Table\r\n",
 							"dbovehiclebasic = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclebasic.parquet', format='parquet')\r\n",
@@ -38393,7 +38391,7 @@
 						"spark.dynamicAllocation.enabled": "true",
 						"spark.dynamicAllocation.minExecutors": "1",
 						"spark.dynamicAllocation.maxExecutors": "4",
-						"spark.autotune.trackingId": "1cd72c7c-185e-4378-b999-71e9840baba2"
+						"spark.autotune.trackingId": "fdbfb7ed-4f2a-429b-8da0-4c479f43eeed"
 					}
 				},
 				"metadata": {
@@ -38409,16 +38407,10 @@
 					"a365ComputeOptions": {
 						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
 						"name": "PRDSparkPool",
-						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
-						},
-						"sparkVersion": "3.3",
-						"nodeCount": 10,
-						"cores": 8,
-						"memory": 56
+						}
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -38880,6 +38872,10 @@
 							",b.tms_booking_directbooking as tms_activity_directbooking\r\n",
 							",b.tms_booking_local as tms_activity_localbooking\r\n",
 							",b.tms_booking_source as tms_activity_bookingsource\r\n",
+							",CASE\r\n",
+							"    WHEN b.tms_booking_type = 'nonbooking' AND b.tms_booking_allocateddate IS NULL THEN to_date(t.tms_trip_dispatchdate)\r\n",
+							"    ELSE b.tms_booking_allocateddate\r\n",
+							"END AS tms_activity_bookingallocateddate\r\n",
 							"\r\n",
 							"FROM sttrip t\r\n",
 							"LEFT JOIN dbovehicle v1 on (v1.id)*-1 = t.tms_trip_vehicleid and t.tms_trip_source = 'v1'\r\n",
@@ -38972,6 +38968,8 @@
 							",tms_activity_localbooking\r\n",
 							",tms_activity_triptrailersize\r\n",
 							",tms_activity_triptransporter\r\n",
+							",tms_activity_bookingtype\r\n",
+							",tms_activity_bookingallocateddate\r\n",
 							",sum(tms_activity_bookingcubicvolume) as tms_activity_aggrbookingcubicvolume\r\n",
 							",count(tms_activity_bookingid) as tms_activity_aggrbookingid\r\n",
 							"\r\n",
@@ -38989,6 +38987,8 @@
 							",tms_activity_triptransporter\r\n",
 							",tms_activity_directbooking\r\n",
 							",tms_activity_localbooking\r\n",
+							",tms_activity_bookingtype\r\n",
+							",tms_activity_bookingallocateddate\r\n",
 							""
 						],
 						"outputs": [],

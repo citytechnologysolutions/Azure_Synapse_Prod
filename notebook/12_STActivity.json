@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "1cd72c7c-185e-4378-b999-71e9840baba2"
+				"spark.autotune.trackingId": "fdbfb7ed-4f2a-429b-8da0-4c479f43eeed"
 			}
 		},
 		"metadata": {
@@ -36,17 +36,10 @@
 			"a365ComputeOptions": {
 				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
 				"name": "PRDSparkPool",
-				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
-				},
-				"sparkVersion": "3.3",
-				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
-				"automaticScaleJobs": false
+				}
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -495,6 +488,10 @@
 					",b.tms_booking_directbooking as tms_activity_directbooking\r\n",
 					",b.tms_booking_local as tms_activity_localbooking\r\n",
 					",b.tms_booking_source as tms_activity_bookingsource\r\n",
+					",CASE\r\n",
+					"    WHEN b.tms_booking_type = 'nonbooking' AND b.tms_booking_allocateddate IS NULL THEN to_date(t.tms_trip_dispatchdate)\r\n",
+					"    ELSE b.tms_booking_allocateddate\r\n",
+					"END AS tms_activity_bookingallocateddate\r\n",
 					"\r\n",
 					"FROM sttrip t\r\n",
 					"LEFT JOIN dbovehicle v1 on (v1.id)*-1 = t.tms_trip_vehicleid and t.tms_trip_source = 'v1'\r\n",
@@ -584,6 +581,8 @@
 					",tms_activity_localbooking\r\n",
 					",tms_activity_triptrailersize\r\n",
 					",tms_activity_triptransporter\r\n",
+					",tms_activity_bookingtype\r\n",
+					",tms_activity_bookingallocateddate\r\n",
 					",sum(tms_activity_bookingcubicvolume) as tms_activity_aggrbookingcubicvolume\r\n",
 					",count(tms_activity_bookingid) as tms_activity_aggrbookingid\r\n",
 					"\r\n",
@@ -601,6 +600,8 @@
 					",tms_activity_triptransporter\r\n",
 					",tms_activity_directbooking\r\n",
 					",tms_activity_localbooking\r\n",
+					",tms_activity_bookingtype\r\n",
+					",tms_activity_bookingallocateddate\r\n",
 					""
 				],
 				"execution_count": 76

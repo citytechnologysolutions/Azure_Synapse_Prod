@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
-			"numExecutors": 1,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
 			"conf": {
-				"spark.dynamicAllocation.enabled": "true",
-				"spark.dynamicAllocation.minExecutors": "1",
-				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "c47bdb3b-0c3a-4add-9bb7-0e2148b3adfe"
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "4496973b-6c4c-4cda-92ef-5c545ea95b53"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -998,10 +998,6 @@
 					"stbooking = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', format='parquet')\r\n",
 					"stbooking.createOrReplaceTempView(\"stbooking\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the dbopeoplebasic MD Table\r\n",
-					"dbopeoplebasic = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplebasic.parquet', format='parquet')\r\n",
-					"dbopeoplebasic.createOrReplaceTempView(\"dbopeoplebasic\")\r\n",
-					"\r\n",
 					"#Create DataFrame for the dbovehiclebasic MD Table\r\n",
 					"dbovehiclebasic = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehiclebasic.parquet', format='parquet')\r\n",
 					"dbovehiclebasic.createOrReplaceTempView(\"dbovehiclebasic\")\r\n",
@@ -1027,7 +1023,7 @@
 					"publicroute.createOrReplaceTempView(\"publicroute\")\r\n",
 					""
 				],
-				"execution_count": 37
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -1051,7 +1047,7 @@
 					"excel_file = pd.ExcelFile(var_File_Path)\r\n",
 					"excel_file_page = pd.read_excel(excel_file, var_File_Page,  engine='openpyxl')"
 				],
-				"execution_count": 38
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -1070,7 +1066,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Finance/12_STActivity"
 				],
-				"execution_count": 39
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -1092,7 +1088,7 @@
 					"stactivitydetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stactivitydetail.parquet', mode = \"overwrite\")\r\n",
 					"stactivitysummary.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stactivitysummary.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 40
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",

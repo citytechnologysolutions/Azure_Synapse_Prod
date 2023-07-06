@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "b6471e99-a502-43f7-8301-eb51116f5f2d"
+				"spark.autotune.trackingId": "9137e3b7-69d4-4438-9b2d-040301bcdc63"
 			}
 		},
 		"metadata": {
@@ -34,12 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
-				}
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -70,32 +77,36 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
 				"source": [
 					"# #Create DataFrame for the publicbooking TMS Table\r\n",
-					"# publicbooking = spark.read.load('abfss://synapse' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicbooking.parquet', format='parquet')\r\n",
+					"# publicbooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicbooking.parquet', format='parquet')\r\n",
 					"# publicbooking.createOrReplaceTempView(\"publicbooking\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the publicnonbooking TMS Table\r\n",
-					"# publicnonbooking = spark.read.load('abfss://synapse' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicnonbooking.parquet', format='parquet')\r\n",
+					"# publicnonbooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicnonbooking.parquet', format='parquet')\r\n",
 					"# publicnonbooking.createOrReplaceTempView(\"publicnonbooking\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the publictrip TMS Table\r\n",
+					"# publictrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publictrip.parquet', format='parquet')\r\n",
+					"# publictrip.createOrReplaceTempView(\"publictrip\")\r\n",
+					"\r\n",
 					"# #Create DataFrame for the dbolhbooking TMS Table\r\n",
-					"# dboLHBooking = spark.read.load('abfss://synapse' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_booking.parquet', format='parquet')\r\n",
+					"# dboLHBooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_booking.parquet', format='parquet')\r\n",
 					"# dboLHBooking.createOrReplaceTempView(\"dboLHBooking\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the dbolhroutes TMS Table\r\n",
-					"# dbolhroutes = spark.read.load('abfss://synapse' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_routes.parquet', format='parquet')\r\n",
+					"# dbolhroutes = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_routes.parquet', format='parquet')\r\n",
 					"# dbolhroutes.createOrReplaceTempView(\"dbolhroutes\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the dbolhbookingspertrip TMS Table\r\n",
-					"# dbolhbookingspertrip = spark.read.load('abfss://synapse' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_bookingspertrip.parquet', format='parquet')\r\n",
+					"# dbolhbookingspertrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_bookingspertrip.parquet', format='parquet')\r\n",
 					"# dbolhbookingspertrip.createOrReplaceTempView(\"dbolhbookingspertrip\")"
 				],
-				"execution_count": 2
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -181,7 +192,7 @@
 					"FROM publicbooking b\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -199,7 +210,7 @@
 				"source": [
 					"stbooking_tms = spark.sql(\"SELECT * FROM stbooking_tms\")"
 				],
-				"execution_count": 4
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -226,7 +237,7 @@
 					"SELECT \r\n",
 					"    b.id as tms_booking_id\r\n",
 					"    ,null as tms_booking_allocatedby\r\n",
-					"    ,to_timestamp(b.insdate) as tms_booking_allocateddate\r\n",
+					"    ,to_timestamp(t.dispatchdate) as tms_booking_allocateddate\r\n",
 					"    ,to_timestamp(b.assetreleasedate) as tms_booking_assetreleasedate\r\n",
 					"    ,null as tms_booking_billingmethod\r\n",
 					"    ,b.billingstatus as tms_booking_billingstatus\r\n",
@@ -283,9 +294,10 @@
 					"    ,'nonbooking' as tms_booking_type\r\n",
 					"\r\n",
 					"FROM publicnonbooking b\r\n",
+					"LEFT JOIN publictrip t on t.id = b.tripid\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -303,7 +315,7 @@
 				"source": [
 					"stnonbooking_tms = spark.sql(\"SELECT * FROM stnonbooking_tms\")"
 				],
-				"execution_count": 7
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -420,7 +432,7 @@
 					"AND b.bookingtypeid in (1,3)\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -438,7 +450,7 @@
 				"source": [
 					"stbooking_lms = spark.sql(\"SELECT * FROM stbooking_lms\")"
 				],
-				"execution_count": 10
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -457,7 +469,7 @@
 					"stbooking_tmp = stbooking_tms.unionByName(stnonbooking_tms, allowMissingColumns = True)\r\n",
 					"stbooking_tmp.createOrReplaceTempView(\"stbooking_tmp\")"
 				],
-				"execution_count": 12
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -476,7 +488,7 @@
 					"stbooking = stbooking_tmp.unionByName(stbooking_lms, allowMissingColumns = True)\r\n",
 					"stbooking.createOrReplaceTempView(\"stbooking\")"
 				],
-				"execution_count": 13
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -492,9 +504,27 @@
 					}
 				},
 				"source": [
-					"# stbooking.write.parquet('abfss://synapse' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', mode = \"overwrite\")"
+					"# stbooking.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 14
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -512,7 +542,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": null
+				"execution_count": 19
 			}
 		]
 	}

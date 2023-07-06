@@ -320,12 +320,12 @@
 							"userProperties": [],
 							"typeProperties": {
 								"on": {
-									"value": "@if(pipeline().parameters.Full_Load,'FullTakeOn'\n   ,if(and(equals(item().Increment.IncField,item().Increment.IdField),lessOrEquals(length(pipeline().parameters.TakeOnPeriod),1)),'IdLoad'\n      ,'DateLoad'\n   )\n)",
+									"value": "@if(pipeline().parameters.Full_Load,'FullTakeOn'\n   ,if(and(equals(item().Increment.IncField,item().Increment.IdField),lessOrEquals(length(pipeline().parameters.TakeOnPeriod),1)),'IdLoad'\n      ,if(equals(item().Increment.IdField,'DocEntry'),'DateLoad_NoDedupe'\n      ,'DateLoad_Dedupe'\n      )\n   )\n)",
 									"type": "Expression"
 								},
 								"cases": [
 									{
-										"value": "DateLoad",
+										"value": "DateLoad_Dedupe",
 										"activities": [
 											{
 												"name": "Partition DF",
@@ -569,7 +569,7 @@
 													"source": {
 														"type": "SqlServerSource",
 														"sqlReaderQuery": {
-															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1))\n            , activity('SelectStatementBuilder').output.firstRow.Query\n            , concat('SELECT * FROM [', item().Source.TableName,']')\n        )\n    , ' WHERE ', item().Increment.IdField, ' IN ( SELECT DISTINCT '\n    , item().Increment.IdField\n    , ' FROM [', item().Source.TableName,']'\n    , ' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    , ')'\n    )",
+															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1)),\n        activity('SelectStatementBuilder').output.firstRow.Query,concat('SELECT * FROM [', item().Source.TableName,']')\n        )\n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    )",
 															"type": "Expression"
 														},
 														"queryTimeout": "02:00:00",
@@ -724,7 +724,7 @@
 												"userProperties": [],
 												"typeProperties": {
 													"notebook": {
-														"referenceName": "UnionSparkJob_NoDupeCheck",
+														"referenceName": "UnionSparkJob",
 														"type": "NotebookReference"
 													},
 													"parameters": {
@@ -1467,6 +1467,469 @@
 														"recursive": true,
 														"enablePartitionDiscovery": false
 													}
+												}
+											}
+										]
+									},
+									{
+										"value": "DateLoad_NoDedupe",
+										"activities": [
+											{
+												"name": "Partition DF_NoDedupe",
+												"type": "ExecuteDataFlow",
+												"dependsOn": [
+													{
+														"activity": "Delete The Left File_DateLoad_SingleFile_NoDedupe",
+														"dependencyConditions": [
+															"Succeeded",
+															"Failed"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataflow": {
+														"referenceName": "Partitioning DF",
+														"type": "DataFlowReference",
+														"parameters": {
+															"cw_FileName": {
+																"value": "'@{concat(item().Destination.FileName,'.parquet')}'",
+																"type": "Expression"
+															},
+															"cw_FolderName": {
+																"value": "'@{variables('FolderName')}'",
+																"type": "Expression"
+															},
+															"cw_IncFolderName": {
+																"value": "'@{concat(variables('FolderName'),'_Incremental_Data')}'",
+																"type": "Expression"
+															},
+															"cw_incField": {
+																"value": "'@{item().Increment.IncField}'",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "'@{variables('ContainerName')}'",
+																"type": "Expression"
+															}
+														},
+														"linkedServiceParameters": {
+															"source2": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															},
+															"sink1": {
+																"linkedService": {
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															}
+														}
+													},
+													"integrationRuntime": {
+														"referenceName": "DataFlowIR",
+														"type": "IntegrationRuntimeReference"
+													},
+													"traceLevel": "Fine"
+												}
+											},
+											{
+												"name": "Delete The Left File_DateLoad_Folder_NoDedupe",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "UnionSparkJob_NoDedupe",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
+															}
+														}
+													},
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"wildcardFileName": {
+															"value": "@{concat(variables('ContainerName'),'/',variables('FolderName'),'/',item().Destination.FileName,'.parquet','/')}",
+															"type": "Expression"
+														},
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "Delete the Temp File_NoDedupe",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Partition DF_NoDedupe",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'/T1')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
+															}
+														}
+													},
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "Delete The Right File_NoDedupe",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Partition DF_NoDedupe",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
+															}
+														}
+													},
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "Copy New incremental data_NoDedupe",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.03:00:00",
+													"retry": 3,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "SqlServerSource",
+														"sqlReaderQuery": {
+															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1))\n            , activity('SelectStatementBuilder').output.firstRow.Query\n            , concat('SELECT * FROM [', item().Source.TableName,']')\n        )\n    , ' WHERE ', item().Increment.IdField, ' IN ( SELECT DISTINCT '\n    , item().Increment.IdField\n    , ' FROM [', item().Source.TableName,']'\n    , ' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    , ')'\n    )",
+															"type": "Expression"
+														},
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"sink": {
+														"type": "ParquetSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "ParquetWriteSettings"
+														}
+													},
+													"enableStaging": false,
+													"validateDataConsistency": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "SqlServerDataSet",
+														"type": "DatasetReference",
+														"parameters": {
+															"ServerName": {
+																"value": "@variables('ServerName')",
+																"type": "Expression"
+															},
+															"DatabaseName": {
+																"value": "@variables('DatabaseName')",
+																"type": "Expression"
+															},
+															"UserName": {
+																"value": "@variables('UserName')",
+																"type": "Expression"
+															},
+															"CW_SchemaName": {
+																"value": "@variables('SchemaName')",
+																"type": "Expression"
+															},
+															"SecretName": {
+																"value": "@variables('SecretName')",
+																"type": "Expression"
+															},
+															"CW_TableName": {
+																"value": "@item().Source.TableName",
+																"type": "Expression"
+															}
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
+															}
+														}
+													}
+												]
+											},
+											{
+												"name": "Delete The Left File_DateLoad_SingleFile_NoDedupe",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Delete The Left File_DateLoad_Folder_NoDedupe",
+														"dependencyConditions": [
+															"Failed",
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
+															}
+														}
+													},
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "UnionSparkJob_NoDedupe",
+												"type": "SynapseNotebook",
+												"dependsOn": [
+													{
+														"activity": "Copy New incremental data_NoDedupe",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"notebook": {
+														"referenceName": "UnionSparkJob_NoDupeCheck",
+														"type": "NotebookReference"
+													},
+													"parameters": {
+														"cw_FolderName": {
+															"value": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_FileName": {
+															"value": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_IncFolderName": {
+															"value": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_IdField": {
+															"value": {
+																"value": "@item().Increment.IdField",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"ContainerName": {
+															"value": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"DataLakeDF": {
+															"value": {
+																"value": "@replace(variables('DataLake'),'https://','')",
+																"type": "Expression"
+															},
+															"type": "string"
+														}
+													},
+													"snapshot": true,
+													"sparkPool": {
+														"referenceName": "PRDSparkPool",
+														"type": "BigDataPoolReference"
+													},
+													"executorSize": "Medium",
+													"conf": {
+														"spark.dynamicAllocation.minExecutors": 1,
+														"spark.dynamicAllocation.maxExecutors": 4
+													},
+													"driverSize": "Medium",
+													"numExecutors": 1
 												}
 											}
 										]

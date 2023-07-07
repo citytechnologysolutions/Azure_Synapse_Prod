@@ -19406,7 +19406,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "880ec37b-409e-45cf-9484-5d91d6040432"
+						"spark.autotune.trackingId": "94af44da-7028-4126-9deb-c62658ef1c7f"
 					}
 				},
 				"metadata": {
@@ -19431,13 +19431,15 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"if 'prod' in Environment:\r\n",
@@ -27982,18 +27984,19 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -28031,6 +28034,7 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"# #Create DataFrame for the publiccustomer TMS Table\r\n",
 							"# publiccustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publiccustomer.parquet', format='parquet')\r\n",
@@ -51750,16 +51754,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "56ec2180-625e-48d3-bb0f-d9f80c4c5c44"
+						"spark.autotune.trackingId": "7c1e8c8c-7035-4368-9e2d-b67cfffd8a86"
 					}
 				},
 				"metadata": {
@@ -51773,24 +51777,26 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"if 'prod' in Environment:\r\n",
@@ -51807,7 +51813,7 @@
 							"# ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 1
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
@@ -51827,7 +51833,7 @@
 							"from pyspark.sql.window import Window"
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -51868,7 +51874,7 @@
 							"dbolhbookingspertrip.createOrReplaceTempView(\"dbolhbookingspertrip\")"
 						],
 						"outputs": [],
-						"execution_count": 3
+						"execution_count": 10
 					},
 					{
 						"cell_type": "code",
@@ -51888,7 +51894,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/01_LH_STBooking"
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": 11
 					},
 					{
 						"cell_type": "code",
@@ -51907,7 +51913,7 @@
 							"stbooking.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 5
+						"execution_count": 12
 					},
 					{
 						"cell_type": "code",
@@ -51928,7 +51934,7 @@
 							"publicdriverpayitem.createOrReplaceTempView(\"publicdriverpayitem\")"
 						],
 						"outputs": [],
-						"execution_count": 6
+						"execution_count": 13
 					},
 					{
 						"cell_type": "code",
@@ -51948,7 +51954,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/02_LH_STDriverPayItem"
 						],
 						"outputs": [],
-						"execution_count": 7
+						"execution_count": 14
 					},
 					{
 						"cell_type": "code",
@@ -51967,7 +51973,7 @@
 							"stdriverpayitem.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdriverpayitem.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 15
 					},
 					{
 						"cell_type": "code",
@@ -51988,7 +51994,7 @@
 							"publicfinancedata.createOrReplaceTempView(\"publicfinancedata\")"
 						],
 						"outputs": [],
-						"execution_count": 9
+						"execution_count": 16
 					},
 					{
 						"cell_type": "code",
@@ -52008,7 +52014,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/03_LH_STFinanceData"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 17
 					},
 					{
 						"cell_type": "code",
@@ -52027,7 +52033,7 @@
 							"stfinancedata.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfinancedata.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 18
 					},
 					{
 						"cell_type": "code",
@@ -52060,7 +52066,7 @@
 							"stbooking.createOrReplaceTempView(\"stbooking\")"
 						],
 						"outputs": [],
-						"execution_count": 12
+						"execution_count": 19
 					},
 					{
 						"cell_type": "code",
@@ -52080,7 +52086,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/04_LH_STInstruction"
 						],
 						"outputs": [],
-						"execution_count": 13
+						"execution_count": 20
 					},
 					{
 						"cell_type": "code",
@@ -52099,7 +52105,7 @@
 							"stinstruction.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stinstruction.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 14
+						"execution_count": 21
 					},
 					{
 						"cell_type": "code",
@@ -52124,7 +52130,7 @@
 							"publicinvoiceitem.createOrReplaceTempView(\"publicinvoiceitem\")"
 						],
 						"outputs": [],
-						"execution_count": 15
+						"execution_count": 22
 					},
 					{
 						"cell_type": "code",
@@ -52144,7 +52150,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/05_LH_STInvoice"
 						],
 						"outputs": [],
-						"execution_count": 16
+						"execution_count": 23
 					},
 					{
 						"cell_type": "code",
@@ -52163,7 +52169,7 @@
 							"stinvoice.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stinvoice.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 17
+						"execution_count": 24
 					},
 					{
 						"cell_type": "code",
@@ -52239,13 +52245,21 @@
 							"dboloads = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
 							"dboloads.createOrReplaceTempView(\"dboloads\")\r\n",
 							"\r\n",
+							"#Create DataFrame for the publiclmsdata LMS Table\r\n",
+							"publiclmsdata = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publiclmsdata.parquet', format='parquet')\r\n",
+							"publiclmsdata.createOrReplaceTempView(\"publiclmsdata\")\r\n",
+							"\r\n",
+							"#create dataframe for the dbocustomer lms table\r\n",
+							"dbocustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
+							"dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
+							"\r\n",
 							"#Create DataFrame for the publicdispatchactionlog LMS Table\r\n",
 							"publicdispatchactionlog = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatchactionlog.parquet', format='parquet')\r\n",
 							"publicdispatchactionlog.createOrReplaceTempView(\"publicdispatchactionlog\")\r\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 19
+						"execution_count": 25
 					},
 					{
 						"cell_type": "code",
@@ -52265,7 +52279,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/06_LH_STLinehaulDimensions"
 						],
 						"outputs": [],
-						"execution_count": 20
+						"execution_count": 26
 					},
 					{
 						"cell_type": "code",
@@ -52298,7 +52312,7 @@
 							"stlmsparcelweights.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmsparcelweights.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 21
+						"execution_count": 27
 					},
 					{
 						"cell_type": "code",
@@ -52319,7 +52333,7 @@
 							"publictrack.createOrReplaceTempView(\"publictrack\")"
 						],
 						"outputs": [],
-						"execution_count": 22
+						"execution_count": 28
 					},
 					{
 						"cell_type": "code",
@@ -52339,7 +52353,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/07_LH_STTMSTrack"
 						],
 						"outputs": [],
-						"execution_count": 23
+						"execution_count": 29
 					},
 					{
 						"cell_type": "code",
@@ -52358,7 +52372,7 @@
 							"sttmstrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttmstrack.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 24
+						"execution_count": 30
 					},
 					{
 						"cell_type": "code",
@@ -52424,7 +52438,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 25
+						"execution_count": 31
 					},
 					{
 						"cell_type": "code",
@@ -52444,7 +52458,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/08_LH_STTrip"
 						],
 						"outputs": [],
-						"execution_count": 26
+						"execution_count": 32
 					},
 					{
 						"cell_type": "code",
@@ -52463,7 +52477,7 @@
 							"sttrip.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 27
+						"execution_count": 33
 					},
 					{
 						"cell_type": "code",
@@ -52484,7 +52498,7 @@
 							"publictriptrackinghistory.createOrReplaceTempView(\"publictriptrackinghistory\")"
 						],
 						"outputs": [],
-						"execution_count": 28
+						"execution_count": 34
 					},
 					{
 						"cell_type": "code",
@@ -52504,7 +52518,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/09_LH_STTripTrackingHistory"
 						],
 						"outputs": [],
-						"execution_count": 29
+						"execution_count": 35
 					},
 					{
 						"cell_type": "code",
@@ -52523,7 +52537,7 @@
 							"sttriptrackinghistory.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttriptrackinghistory.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 30
+						"execution_count": 36
 					},
 					{
 						"cell_type": "code",
@@ -52542,7 +52556,7 @@
 							"print(\"SUCCESS\")"
 						],
 						"outputs": [],
-						"execution_count": 31
+						"execution_count": 37
 					}
 				]
 			},

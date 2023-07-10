@@ -12905,8 +12905,6 @@
 									"type": "SetVariable",
 									"dependsOn": [],
 									"policy": {
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
 										"secureOutput": false,
 										"secureInput": false
 									},
@@ -12924,8 +12922,6 @@
 									"type": "SetVariable",
 									"dependsOn": [],
 									"policy": {
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
 										"secureOutput": false,
 										"secureInput": false
 									},
@@ -12943,8 +12939,6 @@
 									"type": "SetVariable",
 									"dependsOn": [],
 									"policy": {
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
 										"secureOutput": false,
 										"secureInput": false
 									},
@@ -16839,6 +16833,29 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/D_STLMSBookingWeights')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Structured Schema on Read/Ops/Linehaul"
+				},
+				"content": {
+					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STLMSBookingWeights') )\n    DROP EXTERNAL TABLE dbo.D_STLMSBookingWeights\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STLMSBookingWeights (\n    [tms_lmsbookingweights_bookingid] bigint,\n    [tms_lmsbookingweights_loadid] bigint,\n    [tms_lmsbookingweights_numprcls] int,\n    [tms_lmsbookingweights_totalweight] float,\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stlmsbookingweights.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STLMSBookingWeights \nGO\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "STOPS",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/D_STLMSDeliveryPickupCustomer')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -19406,7 +19423,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "94af44da-7028-4126-9deb-c62658ef1c7f"
+						"spark.autotune.trackingId": "46cd6ad0-53c9-4936-8d99-265ddce38aa9"
 					}
 				},
 				"metadata": {
@@ -27961,16 +27978,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "a8de0b58-da47-4433-91dd-3d5c907bc48b"
+						"spark.autotune.trackingId": "a1f8e156-f77e-48c0-a056-44a510256e56"
 					}
 				},
 				"metadata": {
@@ -28030,7 +28047,7 @@
 							"# # ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": 1
 					},
 					{
 						"cell_type": "code",
@@ -28110,7 +28127,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 6
+						"execution_count": 2
 					},
 					{
 						"cell_type": "code",
@@ -29652,7 +29669,7 @@
 							"LEFT JOIN dbocustomer c ON c.id = t.BillCustID"
 						],
 						"outputs": [],
-						"execution_count": 9
+						"execution_count": 3
 					},
 					{
 						"cell_type": "code",
@@ -29671,7 +29688,7 @@
 							"stlmsparcelweights = spark.sql(\"SELECT * FROM stlmsparcelweights\")"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 4
 					},
 					{
 						"cell_type": "code",
@@ -29688,6 +29705,78 @@
 						},
 						"source": [
 							"# stlmsparcelweights.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmsparcelweights.parquet', mode = \"overwrite\")"
+						],
+						"outputs": [],
+						"execution_count": 11
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"CREATE OR REPLACE TEMP VIEW\r\n",
+							"stlmsbookingweights\r\n",
+							"AS\r\n",
+							"SELECT\r\n",
+							"     l.bookingid AS tms_lmsbookingweights_bookingid\r\n",
+							"    ,l.loadid AS tms_lmsbookingweights_loadid\r\n",
+							"    ,l.numprcls AS tms_lmsbookingweights_numprcls\r\n",
+							"    ,l.totalweight AS tms_lmsbookingweights_totalweight\r\n",
+							"\r\n",
+							"FROM publiclmsdata l\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 9
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"stlmsbookingweights = spark.sql(\"SELECT * FROM stlmsbookingweights\")"
+						],
+						"outputs": [],
+						"execution_count": 10
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# stlmsbookingweights.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmsbookingweights.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
 						"execution_count": 11
@@ -41386,6 +41475,499 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/1_MonthTotals')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "DEV/Cost To Serve Notebooks DEV/CTS Run"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "PRDSparkPool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "c0727409-5df4-4486-9c2c-2d107bb01ed5"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+						"name": "DevSparkPool",
+						"type": "Spark",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"# WRITE abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/CTS_Results/\r\n",
+							"\r\n",
+							"from pyspark.sql import *\r\n",
+							"from pyspark.sql.functions import *\r\n",
+							"import pandas as pd\r\n",
+							"\r\n",
+							"MonthToRun = '2023-02-28'\r\n",
+							"\r\n",
+							"#STOPS\r\n",
+							"#parcel_track = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet/\", format='parquet')\r\n",
+							"parcel = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet/\", format='parquet')\r\n",
+							"waybill = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet/\", format='parquet')\r\n",
+							"#location = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet/\", format='parquet')\r\n",
+							"dispatch_segment = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdispatchsegment.parquet/\", format='parquet')\r\n",
+							"del_pickup_cust = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet/\", format='parquet')\r\n",
+							"load_parent = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet/\", format='parquet')\r\n",
+							"\r\n",
+							"#STSAP\r\n",
+							"#dim_account = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_Account_Expose.parquet/\", format='parquet')\r\n",
+							"#dim_dates = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_DATES.parquet/\", format='parquet')\r\n",
+							"#dim_group = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_GROUP_Expose.parquet/\", format='parquet')\r\n",
+							"#trans_summary = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet/\", format='parquet')\r\n",
+							"\r\n",
+							"#CTS Inputs\r\n",
+							"dim_skippedreasoninclude = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/Structured/Dimensions/DIM_SkippedReasonIncludeExclude.parquet/\", format='parquet')\r\n",
+							"\r\n",
+							"\r\n",
+							"#STOPS\r\n",
+							"#parcel_track.createOrReplaceTempView(\"parcel_track\")\r\n",
+							"parcel.createOrReplaceTempView(\"parcel\")\r\n",
+							"waybill.createOrReplaceTempView(\"waybill\")\r\n",
+							"#location.createOrReplaceTempView(\"location\")\r\n",
+							"dispatch_segment.createOrReplaceTempView(\"dispatch_segment\")\r\n",
+							"del_pickup_cust.createOrReplaceTempView(\"del_pickup_cust\")\r\n",
+							"load_parent.createOrReplaceTempView(\"load_parent\")\r\n",
+							"\r\n",
+							"#STSAP\r\n",
+							"#dim_account.createOrReplaceTempView(\"dim_account\")\r\n",
+							"#dim_dates.createOrReplaceTempView(\"dim_dates\")\r\n",
+							"#dim_group.createOrReplaceTempView(\"dim_group\")\r\n",
+							"#trans_summary.createOrReplaceTempView(\"trans_summary\")\r\n",
+							"\r\n",
+							"#CTS Inputs\r\n",
+							"dim_skippedreasoninclude.createOrReplaceTempView(\"dim_skippedreasoninclude\")"
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"f_drops = spark.sql(\"\"\"\r\n",
+							"with drops as (\r\n",
+							"SELECT  orv_dispatchsegment_id\r\n",
+							"      ,orv_dispatchsegment_fromdelid\r\n",
+							"      ,orv_dispatchsegment_todelid\r\n",
+							"\t  ,orv_dispatchsegment_distance\r\n",
+							"      ,orv_dispatchsegment_duration\r\n",
+							"      ,orv_dispatchsegment_did\r\n",
+							"      ,orv_dispatchsegment_tollcost\r\n",
+							"      ,orv_dispatchsegment_fuelcost\r\n",
+							"      ,orv_dispatchsegment_inscost\r\n",
+							"      ,orv_dispatchsegment_labourcost\r\n",
+							"      ,orv_dispatchsegment_maintcost\r\n",
+							"      ,orv_dispatchsegment_cpicost\r\n",
+							"      ,orv_dispatchsegment_vehicleclass\r\n",
+							"      ,orv_dispatchsegment_fromlat\r\n",
+							"      ,orv_dispatchsegment_fromlng\r\n",
+							"      ,orv_dispatchsegment_tolat\r\n",
+							"      ,orv_dispatchsegment_tolng\r\n",
+							"      ,orv_dispatchsegment_departuredate\r\n",
+							"      ,orv_dispatchsegment_arrivaldate\r\n",
+							"      ,orv_dispatchsegment_debriefeddate\r\n",
+							"      ,orv_dispatchsegment_optimized\r\n",
+							"      ,orv_dispatchsegment_segmentorder\r\n",
+							"      ,orv_dispatchsegment_customized\r\n",
+							"      ,orv_dispatchsegment_parcelct\r\n",
+							"\t  ,LAG(orv_dispatchsegment_arrivaldate,1) OVER (PARTITION BY orv_dispatchsegment_did ORDER BY orv_dispatchsegment_arrivaldate) AS DROP_START\r\n",
+							"\t  ,ROW_NUMBER() OVER (PARTITION BY  orv_dispatchsegment_did ORDER BY orv_dispatchsegment_departuredate) AS seq\r\n",
+							"  FROM (SELECT *,ROW_NUMBER() OVER (PARTITION BY orv_dispatchsegment_did,COALESCE(orv_dispatchsegment_fromdelid,'') ORDER BY orv_dispatchsegment_customized desc) AS RN FROM dispatch_segment\r\n",
+							"\t\t) dseg\r\n",
+							")\r\n",
+							"\r\n",
+							"select * from drops\r\n",
+							"\"\"\")\r\n",
+							"\r\n",
+							"display(f_drops.limit(10))"
+						],
+						"outputs": [],
+						"execution_count": 8
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"f_drops = spark.sql(\"\"\"\r\n",
+							"\r\n",
+							"with drops as (\r\n",
+							"SELECT  orv_dispatchsegment_id\r\n",
+							"\t  ,LP.lms_loadparent_parentloadid\r\n",
+							"\t  ,LP.orv_dispatch_site\r\n",
+							"\t  ,LP.orv_dispatch_startinglat\r\n",
+							"\t  ,LP.orv_dispatch_startinglng\r\n",
+							"\t  ,LP.orv_dispatch_distance\r\n",
+							"\t  ,LP.orv_dispatch_duration\r\n",
+							"\t  ,LP.orv_dispatch_estdepdate\r\n",
+							"\t  ,LP.orv_dispatch_estarrdate\r\n",
+							"      ,orv_dispatchsegment_fromdelid\r\n",
+							"\t  ,fc.lms_customer_id as lms_from_customer_id\r\n",
+							"\t  ,fc.orv_customer_name as orv_from_customer_name\r\n",
+							"      ,orv_dispatchsegment_todelid\r\n",
+							"\t  ,tc.lms_customer_id as lms_to_customer_id\r\n",
+							"      ,tc.orv_customer_name as orv_to_customer_name\r\n",
+							"\t  ,CAST(6371 as float) * 2 * ASIN(SQRT(POWER(SIN(RADIANS(LP.orv_dispatch_startinglat - dseg.orv_dispatchsegment_tolat) / 2), 2) + COS(RADIANS(dseg.orv_dispatchsegment_tolat)) * COS(RADIANS(LP.orv_dispatch_startinglat)) * POWER(SIN(RADIANS(LP.orv_dispatch_startinglng - dseg.orv_dispatchsegment_tolng) / 2), 2))) AS StemDistance\r\n",
+							"\t  ,tc0.orv_delivery_status as tc_orv_delivery_status\r\n",
+							"\t  ,tc0.lms_waybill_id as tc_lms_waybill_id\r\n",
+							"\t  ,tc0.orv_delivery_skipreason as tc_orv_delivery_skipreason\r\n",
+							"\t  ,orv_dispatchsegment_distance\r\n",
+							"      ,orv_dispatchsegment_duration\r\n",
+							"      ,orv_dispatchsegment_did\r\n",
+							"      ,orv_dispatchsegment_tollcost\r\n",
+							"      ,orv_dispatchsegment_fuelcost\r\n",
+							"      ,orv_dispatchsegment_inscost\r\n",
+							"      ,orv_dispatchsegment_labourcost\r\n",
+							"      ,orv_dispatchsegment_maintcost\r\n",
+							"      ,orv_dispatchsegment_cpicost\r\n",
+							"      ,orv_dispatchsegment_vehicleclass\r\n",
+							"      ,orv_dispatchsegment_fromlat\r\n",
+							"      ,orv_dispatchsegment_fromlng\r\n",
+							"      ,orv_dispatchsegment_tolat\r\n",
+							"      ,orv_dispatchsegment_tolng\r\n",
+							"      ,orv_dispatchsegment_departuredate\r\n",
+							"      ,orv_dispatchsegment_arrivaldate\r\n",
+							"      ,orv_dispatchsegment_debriefeddate\r\n",
+							"      ,orv_dispatchsegment_optimized\r\n",
+							"      ,orv_dispatchsegment_segmentorder\r\n",
+							"      ,orv_dispatchsegment_customized\r\n",
+							"      ,orv_dispatchsegment_parcelct\r\n",
+							"\t  ,LP.orv_dispatch_vehicletype\r\n",
+							"\t  ,LP.orv_dispatch_triptype\r\n",
+							"\t  ,SRE.IncludeCosting\r\n",
+							"      ,SRE.IncludeTheoretical\r\n",
+							"\t  ,tc0.NUM_PARCELS\r\n",
+							"\t  ,LAG(orv_dispatchsegment_arrivaldate,1) OVER (PARTITION BY orv_dispatchsegment_did ORDER BY orv_dispatchsegment_arrivaldate) AS DROP_START\r\n",
+							"\t  ,ROW_NUMBER() OVER (PARTITION BY  orv_dispatchsegment_did ORDER BY orv_dispatchsegment_departuredate) AS seq\r\n",
+							"  FROM (SELECT *,ROW_NUMBER() OVER (PARTITION BY orv_dispatchsegment_did,COALESCE(orv_dispatchsegment_fromdelid,'') ORDER BY orv_dispatchsegment_customized desc) AS RN FROM dispatch_segment\r\n",
+							"\t\t--WHERE orv_dispatchsegment_did IN (545891,522846) --One normal & one skipped trip\r\n",
+							"\t\t--WHERE orv_dispatchsegment_did IN (549595,551082,550607,550205)\r\n",
+							"\t\t) dseg --Select the drop where customized = 1 otherwise use other drop value\r\n",
+							"\tLEFT JOIN ( --get LMS customer ID from waybill table\r\n",
+							"\t\t\tSELECT\r\n",
+							"\t\torv_delivery_did\r\n",
+							"\t\t,orv_delivery_id\r\n",
+							"\t\t,MAX(lms_waybill_delivercustid) AS lms_waybill_delivercustid\r\n",
+							"\t\t,MAX(orv_delivery_orderid) AS orv_delivery_orderid\r\n",
+							"\t\t,MAX(orv_delivery_status) AS orv_delivery_status\r\n",
+							"\t\t,MAX(lms_waybill_id) as lms_waybill_id\r\n",
+							"\t\tFROM waybill\r\n",
+							"\t\tGROUP BY orv_delivery_did\r\n",
+							"\t\t,orv_delivery_id\r\n",
+							"\t) fc0 ON dseg.orv_dispatchsegment_did = fc0.orv_delivery_did AND dseg.orv_dispatchsegment_fromdelid = fc0.orv_delivery_id\r\n",
+							"\t\tLEFT JOIN ( --get LMS customer ID from waybill table\r\n",
+							"\t\t\tSELECT\r\n",
+							"\t\torv_delivery_did\r\n",
+							"\t\t,orv_delivery_id\r\n",
+							"\t\t,MAX(lms_waybill_delivercustid) AS lms_waybill_delivercustid\r\n",
+							"\t\t,MAX(orv_delivery_orderid) AS orv_delivery_orderid\r\n",
+							"\t\t,MAX(orv_delivery_status) AS orv_delivery_status\r\n",
+							"\t\t,MAX(lms_waybill_id) as lms_waybill_id\r\n",
+							"\t\t,MAX(orv_delivery_skipreason) as orv_delivery_skipreason\r\n",
+							"\t\t,MAX(NUM_PARCELS) AS NUM_PARCELS\r\n",
+							"\t\tFROM waybill R\r\n",
+							"\t\tLEFT JOIN (\r\n",
+							"\t\t\t\tSELECT\r\n",
+							"\t\tlms_parcel_waybillid\r\n",
+							"\t\t,COUNT(lms_parcel_id) AS NUM_PARCELS\r\n",
+							"\t\tFROM parcel\r\n",
+							"\t\tGROUP BY lms_parcel_waybillid\r\n",
+							"\t\t) PC ON R.lms_waybill_id = PC.lms_parcel_waybillid\r\n",
+							"\t\tGROUP BY orv_delivery_did\r\n",
+							"\t\t,orv_delivery_id\r\n",
+							"\t) tc0 ON dseg.orv_dispatchsegment_did = tc0.orv_delivery_did AND dseg.orv_dispatchsegment_todelid = tc0.orv_delivery_id\r\n",
+							"\r\n",
+							"  LEFT JOIN del_pickup_cust fc on fc0.lms_waybill_delivercustid = fc.lms_customer_id\r\n",
+							"  LEFT JOIN del_pickup_cust tc on tc0.lms_waybill_delivercustid = tc.lms_customer_id\r\n",
+							"  LEFT JOIN load_parent LP ON dseg.orv_dispatchsegment_did = LP.orv_dispatch_id\r\n",
+							"  LEFT JOIN dim_skippedreasoninclude SRE ON tc0.orv_delivery_status = SRE.DispatchStatus AND COALESCE(tc0.orv_delivery_skipreason,'') = COALESCE(SRE.DeliveryReason,'')\r\n",
+							" WHERE RN = 1\r\n",
+							" AND last_day(LP.orv_dispatch_estdepdate) >= '\"\"\" + MonthToRun + \"\"\"'\r\n",
+							" AND LP.orv_dispatch_startinglat <> 0\r\n",
+							" AND LP.orv_dispatch_startinglng <> 0\r\n",
+							" )\r\n",
+							"\r\n",
+							"\r\n",
+							"SELECT\r\n",
+							"orv_dispatch_estdepdate AS TRIP_START\r\n",
+							",orv_dispatch_estarrdate as TRIP_END\r\n",
+							",orv_dispatchsegment_id\r\n",
+							",lms_loadparent_parentloadid\r\n",
+							",orv_dispatchsegment_did\r\n",
+							",orv_dispatch_site\r\n",
+							",orv_dispatch_duration\r\n",
+							"--,orv_dispatchsegment_fromdelid\r\n",
+							"--,lms_from_customer_id\r\n",
+							"--,orv_from_customer_name\r\n",
+							",orv_dispatchsegment_todelid\r\n",
+							",lms_to_customer_id\r\n",
+							",orv_to_customer_name\r\n",
+							",tc_orv_delivery_status\r\n",
+							",tc_lms_waybill_id\r\n",
+							",tc_orv_delivery_skipreason\r\n",
+							",orv_dispatchsegment_vehicleclass\r\n",
+							",orv_dispatch_vehicletype\r\n",
+							",orv_dispatchsegment_segmentorder\r\n",
+							",DROP_START\r\n",
+							",orv_dispatchsegment_departuredate AS DROP_END\r\n",
+							",StemDistance\r\n",
+							",CalcStemPercent\r\n",
+							",TripKMs\r\n",
+							",TripHrs\r\n",
+							",TripKMs * CalcStemPercent AS DROP_KMs\r\n",
+							",DROP_TAT\r\n",
+							",(TripHrs - SUM(DROP_TAT) OVER (PARTITION BY orv_dispatchsegment_did) )*CalcStemPercent AS DROP_DRIVE_HRS\r\n",
+							",NUM_PARCELS\r\n",
+							",orv_dispatchsegment_customized\r\n",
+							",orv_dispatchsegment_optimized\r\n",
+							",IncludeCosting\r\n",
+							",IncludeTheoretical\r\n",
+							",orv_dispatchsegment_tolat\r\n",
+							",orv_dispatchsegment_tolng\r\n",
+							"FROM (\r\n",
+							"\t SELECT \r\n",
+							"\t *\r\n",
+							"\t,StemDistance as CalcStemDistance\r\n",
+							"\t,CASE WHEN SUM(StemDistance) OVER (PARTITION BY lms_loadparent_parentloadid) = 0 THEN NULL ELSE StemDistance / SUM(StemDistance) OVER (PARTITION BY lms_loadparent_parentloadid) END as CalcStemPercent\r\n",
+							"\t,CAST(orv_dispatch_distance as float) / 1000 as TripKMs\r\n",
+							"\t,CAST(orv_dispatch_duration as float) /60/60 as TripHrs\r\n",
+							"\t,orv_dispatch_estdepdate AS PLAN_TRIP_START --estdepdate\r\n",
+							"\t,orv_dispatch_estarrdate AS PLAN_TRIP_END --orv_dispatch_estarrdate \r\n",
+							"\t,CAST(unix_timestamp(LAG(orv_dispatchsegment_arrivaldate,1) OVER (PARTITION BY orv_dispatchsegment_did ORDER BY orv_dispatchsegment_arrivaldate)) - unix_timestamp(orv_dispatchsegment_departuredate) as float)/60/60 AS DROP_TAT\r\n",
+							"\t,MAX(seq) OVER (PARTITION BY  orv_dispatchsegment_did) AS Max_Seq\r\n",
+							"\t FROM drops\r\n",
+							"\t WHERE orv_dispatchsegment_todelid <> orv_dispatchsegment_fromdelid\r\n",
+							"\t --AND IncludeCosting = 1\r\n",
+							"\t\t\r\n",
+							") T0\r\n",
+							"\"\"\")\r\n",
+							"\r\n",
+							"display(f_drops.limit(10))"
+						],
+						"outputs": [],
+						"execution_count": 11
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/COST_Linehaul_Fixed')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "DEV/Cost To Serve Notebooks DEV/CTS Run"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "PRDSparkPool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "a8f78baf-9fc3-4c9f-a631-0e629979d0b1"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+						"name": "DevSparkPool",
+						"type": "Spark",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# This Notebook is intended to apply the Fixed Linehaul cost to a parquet file"
+						]
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"Load required tables"
+						]
+					},
+					{
+						"cell_type": "code",
+						"source": [
+							"from pyspark.sql import *\r\n",
+							"from pyspark.sql.functions import *\r\n",
+							"import pandas as pd\r\n",
+							"\r\n",
+							"MonthToRun = '2023-02-28'\r\n",
+							"\r\n",
+							"#STOPS\r\n",
+							"parcel_track = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet/\", format='parquet')\r\n",
+							"parcel = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet/\", format='parquet')\r\n",
+							"waybill = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet/\", format='parquet')\r\n",
+							"location = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet/\", format='parquet')\r\n",
+							"dispatch_segment = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdispatchsegment.parquet/\", format='parquet')\r\n",
+							"del_pickup_cust = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet/\", format='parquet')\r\n",
+							"load_parent = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet/\", format='parquet')\r\n",
+							"\r\n",
+							"#STSAP\r\n",
+							"dim_account = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_Account_Expose.parquet/\", format='parquet')\r\n",
+							"dim_dates = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_DATES.parquet/\", format='parquet')\r\n",
+							"dim_group = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_GROUP_Expose.parquet/\", format='parquet')\r\n",
+							"trans_summary = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet/\", format='parquet')\r\n",
+							"\r\n",
+							"#STOPS\r\n",
+							"parcel_track.createOrReplaceTempView(\"parcel_track\")\r\n",
+							"parcel.createOrReplaceTempView(\"parcel\")\r\n",
+							"waybill.createOrReplaceTempView(\"waybill\")\r\n",
+							"location.createOrReplaceTempView(\"location\")\r\n",
+							"dispatch_segment.createOrReplaceTempView(\"dispatch_segment\")\r\n",
+							"del_pickup_cust.createOrReplaceTempView(\"del_pickup_cust\")\r\n",
+							"load_parent.createOrReplaceTempView(\"load_parent\")\r\n",
+							"\r\n",
+							"#STSAP\r\n",
+							"dim_account.createOrReplaceTempView(\"dim_account\")\r\n",
+							"dim_dates.createOrReplaceTempView(\"dim_dates\")\r\n",
+							"dim_group.createOrReplaceTempView(\"dim_group\")\r\n",
+							"trans_summary.createOrReplaceTempView(\"trans_summary\")\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							"\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 4
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"#Maybe consider only filtering the parcel_track table on dates\r\n",
+							"\r\n",
+							"f_parcel_track = spark.sql(\"SELECT * FROM parcel_track WHERE last_day(lms_track_opendt) = '\" + MonthToRun + \"'\")\r\n",
+							"#f_parcel = spark.sql(\"SELECT * FROM parcel WHERE last_day(lms_track_opendt) = '\" + MonthToRun + \"'\")\r\n",
+							"\r\n",
+							"display(f_parcel_track.limit(10))"
+						],
+						"outputs": [],
+						"execution_count": 6
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/Dedupe on Track - 2023-05-18')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
@@ -42099,6 +42681,97 @@
 						},
 						"source": [
 							"mssparkutils.fs.rm('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', True)"
+						],
+						"outputs": [],
+						"execution_count": null
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/LOAD_Tables')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "DEV/Cost To Serve Notebooks DEV"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "d0b212bd-bd4e-4b74-952e-2dee3498b01d"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "python"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"# WRITE abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/CTS_Results/\r\n",
+							"\r\n",
+							"from pyspark.sql import *\r\n",
+							"from pyspark.sql.functions import *\r\n",
+							"import pandas as pd\r\n",
+							"\r\n",
+							"MonthToRun = '2023-02-28'\r\n",
+							"\r\n",
+							"#STOPS\r\n",
+							"#parcel_track = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet/\", format='parquet')\r\n",
+							"#parcel = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet/\", format='parquet')\r\n",
+							"#waybill = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet/\", format='parquet')\r\n",
+							"#location = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet/\", format='parquet')\r\n",
+							"#dispatch_segment = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdispatchsegment.parquet/\", format='parquet')\r\n",
+							"#del_pickup_cust = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet/\", format='parquet')\r\n",
+							"#load_parent = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet/\", format='parquet')\r\n",
+							"\r\n",
+							"#STSAP\r\n",
+							"#dim_account = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_Account_Expose.parquet/\", format='parquet')\r\n",
+							"#dim_dates = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_DATES.parquet/\", format='parquet')\r\n",
+							"#dim_group = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_GROUP_Expose.parquet/\", format='parquet')\r\n",
+							"#trans_summary = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet/\", format='parquet')\r\n",
+							"\r\n",
+							"#CTS Inputs\r\n",
+							"#dim_skippedreasoninclude = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/Structured/Dimensions/DIM_SkippedReasonIncludeExclude.parquet/\", format='parquet')\r\n",
+							"\r\n",
+							"\r\n",
+							"#STOPS\r\n",
+							"#parcel_track.createOrReplaceTempView(\"parcel_track\")\r\n",
+							"#parcel.createOrReplaceTempView(\"parcel\")\r\n",
+							"#waybill.createOrReplaceTempView(\"waybill\")\r\n",
+							"#location.createOrReplaceTempView(\"location\")\r\n",
+							"#dispatch_segment.createOrReplaceTempView(\"dispatch_segment\")\r\n",
+							"#del_pickup_cust.createOrReplaceTempView(\"del_pickup_cust\")\r\n",
+							"#load_parent.createOrReplaceTempView(\"load_parent\")\r\n",
+							"\r\n",
+							"#STSAP\r\n",
+							"#dim_account.createOrReplaceTempView(\"dim_account\")\r\n",
+							"#dim_dates.createOrReplaceTempView(\"dim_dates\")\r\n",
+							"#dim_group.createOrReplaceTempView(\"dim_group\")\r\n",
+							"#trans_summary.createOrReplaceTempView(\"trans_summary\")\r\n",
+							"\r\n",
+							"#CTS Inputs\r\n",
+							"#dim_skippedreasoninclude.createOrReplaceTempView(\"dim_skippedreasoninclude\")"
 						],
 						"outputs": [],
 						"execution_count": null
@@ -51754,16 +52427,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "56g",
-					"driverCores": 8,
-					"executorMemory": "56g",
-					"executorCores": 8,
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
 					"numExecutors": 2,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "7c1e8c8c-7035-4368-9e2d-b67cfffd8a86"
+						"spark.autotune.trackingId": "e7d3833f-c85e-4a7b-be4e-c4d9a88849fc"
 					}
 				},
 				"metadata": {
@@ -51813,7 +52486,7 @@
 							"# ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 1
 					},
 					{
 						"cell_type": "code",
@@ -51833,7 +52506,7 @@
 							"from pyspark.sql.window import Window"
 						],
 						"outputs": [],
-						"execution_count": 9
+						"execution_count": 2
 					},
 					{
 						"cell_type": "code",
@@ -51874,7 +52547,7 @@
 							"dbolhbookingspertrip.createOrReplaceTempView(\"dbolhbookingspertrip\")"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 3
 					},
 					{
 						"cell_type": "code",
@@ -51894,7 +52567,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/01_LH_STBooking"
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 4
 					},
 					{
 						"cell_type": "code",
@@ -51913,7 +52586,7 @@
 							"stbooking.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 12
+						"execution_count": 5
 					},
 					{
 						"cell_type": "code",
@@ -51934,7 +52607,7 @@
 							"publicdriverpayitem.createOrReplaceTempView(\"publicdriverpayitem\")"
 						],
 						"outputs": [],
-						"execution_count": 13
+						"execution_count": 6
 					},
 					{
 						"cell_type": "code",
@@ -51954,7 +52627,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/02_LH_STDriverPayItem"
 						],
 						"outputs": [],
-						"execution_count": 14
+						"execution_count": 7
 					},
 					{
 						"cell_type": "code",
@@ -51973,7 +52646,7 @@
 							"stdriverpayitem.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdriverpayitem.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 15
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
@@ -51994,7 +52667,7 @@
 							"publicfinancedata.createOrReplaceTempView(\"publicfinancedata\")"
 						],
 						"outputs": [],
-						"execution_count": 16
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -52014,7 +52687,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/03_LH_STFinanceData"
 						],
 						"outputs": [],
-						"execution_count": 17
+						"execution_count": 10
 					},
 					{
 						"cell_type": "code",
@@ -52033,7 +52706,7 @@
 							"stfinancedata.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stfinancedata.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 18
+						"execution_count": 11
 					},
 					{
 						"cell_type": "code",
@@ -52066,7 +52739,7 @@
 							"stbooking.createOrReplaceTempView(\"stbooking\")"
 						],
 						"outputs": [],
-						"execution_count": 19
+						"execution_count": 12
 					},
 					{
 						"cell_type": "code",
@@ -52086,7 +52759,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/04_LH_STInstruction"
 						],
 						"outputs": [],
-						"execution_count": 20
+						"execution_count": 13
 					},
 					{
 						"cell_type": "code",
@@ -52105,7 +52778,7 @@
 							"stinstruction.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stinstruction.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 21
+						"execution_count": 14
 					},
 					{
 						"cell_type": "code",
@@ -52130,7 +52803,7 @@
 							"publicinvoiceitem.createOrReplaceTempView(\"publicinvoiceitem\")"
 						],
 						"outputs": [],
-						"execution_count": 22
+						"execution_count": 15
 					},
 					{
 						"cell_type": "code",
@@ -52150,7 +52823,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/05_LH_STInvoice"
 						],
 						"outputs": [],
-						"execution_count": 23
+						"execution_count": 16
 					},
 					{
 						"cell_type": "code",
@@ -52169,7 +52842,7 @@
 							"stinvoice.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stinvoice.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 24
+						"execution_count": 17
 					},
 					{
 						"cell_type": "code",
@@ -52245,6 +52918,10 @@
 							"dboloads = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
 							"dboloads.createOrReplaceTempView(\"dboloads\")\r\n",
 							"\r\n",
+							"#Create DataFrame for the publicdispatchactionlog LMS Table\r\n",
+							"publicdispatchactionlog = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatchactionlog.parquet', format='parquet')\r\n",
+							"publicdispatchactionlog.createOrReplaceTempView(\"publicdispatchactionlog\")\r\n",
+							"\r\n",
 							"#Create DataFrame for the publiclmsdata LMS Table\r\n",
 							"publiclmsdata = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publiclmsdata.parquet', format='parquet')\r\n",
 							"publiclmsdata.createOrReplaceTempView(\"publiclmsdata\")\r\n",
@@ -52252,14 +52929,10 @@
 							"#create dataframe for the dbocustomer lms table\r\n",
 							"dbocustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
 							"dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publicdispatchactionlog LMS Table\r\n",
-							"publicdispatchactionlog = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatchactionlog.parquet', format='parquet')\r\n",
-							"publicdispatchactionlog.createOrReplaceTempView(\"publicdispatchactionlog\")\r\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 25
+						"execution_count": 18
 					},
 					{
 						"cell_type": "code",
@@ -52279,7 +52952,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/06_LH_STLinehaulDimensions"
 						],
 						"outputs": [],
-						"execution_count": 26
+						"execution_count": 19
 					},
 					{
 						"cell_type": "code",
@@ -52309,10 +52982,11 @@
 							"stparentroute.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparentroute.parquet', mode = \"overwrite\")\r\n",
 							"stopsroute.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stopsroute.parquet', mode = \"overwrite\")\r\n",
 							"stdispatchactionlog.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdispatchactionlog.parquet', mode = \"overwrite\")\r\n",
-							"stlmsparcelweights.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmsparcelweights.parquet', mode = \"overwrite\")"
+							"stlmsparcelweights.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmsparcelweights.parquet', mode = \"overwrite\")\r\n",
+							"stlmsbookingweights.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmsbookingweights.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 27
+						"execution_count": 20
 					},
 					{
 						"cell_type": "code",
@@ -52333,7 +53007,7 @@
 							"publictrack.createOrReplaceTempView(\"publictrack\")"
 						],
 						"outputs": [],
-						"execution_count": 28
+						"execution_count": 21
 					},
 					{
 						"cell_type": "code",
@@ -52353,7 +53027,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/07_LH_STTMSTrack"
 						],
 						"outputs": [],
-						"execution_count": 29
+						"execution_count": 22
 					},
 					{
 						"cell_type": "code",
@@ -52372,7 +53046,7 @@
 							"sttmstrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttmstrack.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 30
+						"execution_count": 23
 					},
 					{
 						"cell_type": "code",
@@ -52438,7 +53112,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 31
+						"execution_count": 24
 					},
 					{
 						"cell_type": "code",
@@ -52458,7 +53132,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/08_LH_STTrip"
 						],
 						"outputs": [],
-						"execution_count": 32
+						"execution_count": 25
 					},
 					{
 						"cell_type": "code",
@@ -52477,7 +53151,7 @@
 							"sttrip.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 33
+						"execution_count": 26
 					},
 					{
 						"cell_type": "code",
@@ -52498,7 +53172,7 @@
 							"publictriptrackinghistory.createOrReplaceTempView(\"publictriptrackinghistory\")"
 						],
 						"outputs": [],
-						"execution_count": 34
+						"execution_count": 27
 					},
 					{
 						"cell_type": "code",
@@ -52518,7 +53192,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/09_LH_STTripTrackingHistory"
 						],
 						"outputs": [],
-						"execution_count": 35
+						"execution_count": 28
 					},
 					{
 						"cell_type": "code",
@@ -52537,7 +53211,7 @@
 							"sttriptrackinghistory.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttriptrackinghistory.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 36
+						"execution_count": 29
 					},
 					{
 						"cell_type": "code",
@@ -52556,7 +53230,7 @@
 							"print(\"SUCCESS\")"
 						],
 						"outputs": [],
-						"execution_count": 37
+						"execution_count": 30
 					}
 				]
 			},

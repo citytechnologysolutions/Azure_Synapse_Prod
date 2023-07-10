@@ -1,0 +1,20 @@
+{
+	"name": "D_STLMSBookingWeights",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Linehaul"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STLMSBookingWeights') )\n    DROP EXTERNAL TABLE dbo.D_STLMSBookingWeights\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STLMSBookingWeights (\n    [tms_lmsbookingweights_bookingid] bigint,\n    [tms_lmsbookingweights_loadid] bigint,\n    [tms_lmsbookingweights_numprcls] int,\n    [tms_lmsbookingweights_totalweight] float,\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stlmsbookingweights.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STLMSBookingWeights \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

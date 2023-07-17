@@ -17,6 +17,11 @@
 			"metadata": "Secure string for 'connectionString' of 'PostgreSQL'",
 			"defaultValue": "Host=@{linkedService().ServerName};Port=@{linkedService().Port};Database=@{linkedService().DatabaseName};UID=@{linkedService().UserName};EncryptionMethod=0"
 		},
+		"PostgreSqlTestServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'PostgreSqlTestServer'",
+			"defaultValue": "Host=orvdb.citylogistics.co.za;Port=5432;Database=orv;UID=synapse;EncryptionMethod=0"
+		},
 		"SQLTestServer_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'SQLTestServer'",
@@ -11188,7 +11193,7 @@
 				"variables": {
 					"FolderName": {
 						"type": "String",
-						"defaultValue": "Unstructured Data/SAP_INCTest"
+						"defaultValue": "Unstructured Data/SAP"
 					},
 					"DataLake": {
 						"type": "String",
@@ -15414,6 +15419,34 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/PostgreSqlTestServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "PostgreSql",
+				"typeProperties": {
+					"connectionString": "[parameters('PostgreSqlTestServer_connectionString')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "AzureKeyVaultCity",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "ORVSecret"
+					}
+				},
+				"connectVia": {
+					"referenceName": "SelfHostedIRCityIntra",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/SelfHostedIRCityIntra')]",
+				"[concat(variables('workspaceId'), '/linkedServices/AzureKeyVaultCity')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/SQLTestServer')]",
 			"type": "Microsoft.Synapse/workspaces/linkedServices",
 			"apiVersion": "2019-06-01-preview",
@@ -19448,15 +19481,13 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56,
-						"automaticScaleJobs": false
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"if 'prod' in Environment:\r\n",
@@ -28012,8 +28043,7 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56,
-						"automaticScaleJobs": false
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -28051,7 +28081,6 @@
 					},
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"# #Create DataFrame for the publiccustomer TMS Table\r\n",
 							"# publiccustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publiccustomer.parquet', format='parquet')\r\n",
@@ -52461,15 +52490,13 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56,
-						"automaticScaleJobs": false
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"if 'prod' in Environment:\r\n",

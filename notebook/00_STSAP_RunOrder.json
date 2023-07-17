@@ -1021,9 +1021,17 @@
 					"#Create DataFrame for the publicroute LMS Table\r\n",
 					"publicroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicroute.parquet', format='parquet')\r\n",
 					"publicroute.createOrReplaceTempView(\"publicroute\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicthirdparty TMS Table\r\n",
+					"publicthirdparty = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicthirdparty.parquet', format='parquet')\r\n",
+					"publicthirdparty.createOrReplaceTempView(\"publicthirdparty\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publiccustomer TMS Table\r\n",
+					"publiccustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publiccustomer.parquet', format='parquet')\r\n",
+					"publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
 					""
 				],
-				"execution_count": 37
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -1047,7 +1055,7 @@
 					"excel_file = pd.ExcelFile(var_File_Path)\r\n",
 					"excel_file_page = pd.read_excel(excel_file, var_File_Page,  engine='openpyxl')"
 				],
-				"execution_count": 38
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -1066,7 +1074,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Finance/12_STActivity"
 				],
-				"execution_count": 39
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -1088,7 +1096,7 @@
 					"stactivitydetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stactivitydetail.parquet', mode = \"overwrite\")\r\n",
 					"stactivitysummary.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stactivitysummary.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 40
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",

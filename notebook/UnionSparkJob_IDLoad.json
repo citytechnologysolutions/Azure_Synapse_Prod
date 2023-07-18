@@ -1,5 +1,5 @@
 {
-	"name": "UnionSparkJob_DateLoad_NoDupeCheck",
+	"name": "UnionSparkJob_IDLoad",
 	"properties": {
 		"nbformat": 4,
 		"nbformat_minor": 2,
@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2b92a925-4e60-458c-9245-ddcf40f6976c"
+				"spark.autotune.trackingId": "d9674b46-cfb7-4673-a048-1b9a4520171d"
 			}
 		},
 		"metadata": {
@@ -158,26 +158,7 @@
 					"collapsed": false
 				},
 				"source": [
-					"df_with_rows_deleted = LeftFile.join(RightFile, on = JoinFields, how = 'left_anti')"
-				],
-				"execution_count": null
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"unioned = df_with_rows_deleted.unionByName(RightFile, allowMissingColumns=True)"
+					"unioned = LeftFile.unionByName(RightFile, allowMissingColumns=True)"
 				],
 				"execution_count": null
 			},
@@ -215,9 +196,9 @@
 					}
 				},
 				"source": [
-					"#test = unioned.select(JoinFields)\r\n",
-					"#UnionDistinctCount = test.distinct().count()\r\n",
-					"#UnionCount = unioned.count()"
+					"test = unioned.select(JoinFields)\r\n",
+					"UnionDistinctCount = test.distinct().count()\r\n",
+					"UnionCount = unioned.count()"
 				],
 				"execution_count": 26
 			},
@@ -235,9 +216,9 @@
 					}
 				},
 				"source": [
-					"#if UnionDistinctCount != UnionCount :\r\n",
-					"#        raise Exception (\"Duplicates when Unioning table \" + cw_FileName + \" the Unioned table has \" + str(UnionCount) + \" rows and the Distinct Unioned table has \" + str(UnionDistinctCount))\r\n",
-					"#else: print(\"Union completed Succesfully\")"
+					"if UnionDistinctCount != UnionCount :\r\n",
+					"        raise Exception (\"Duplicates when Unioning table \" + cw_FileName + \" the Unioned table has \" + str(UnionCount) + \" rows and the Distinct Unioned table has \" + str(UnionDistinctCount))\r\n",
+					"else: print(\"Union completed Succesfully\")"
 				],
 				"execution_count": 31
 			},

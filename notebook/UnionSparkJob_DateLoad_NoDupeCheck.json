@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2b92a925-4e60-458c-9245-ddcf40f6976c"
+				"spark.autotune.trackingId": "f6e265cf-db30-4367-a5e1-8aea4d072589"
 			}
 		},
 		"metadata": {
@@ -256,6 +256,44 @@
 				},
 				"source": [
 					"unioned.write.parquet('abfss://' + ContainerName + '@' + DataLakeDF + cw_IncFolderName + '/T1/' + cw_FileName, mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"##Load the Right File\r\n",
+					"path = 'abfss://' + ContainerName + '@' + DataLakeDF + '/' + cw_IncFolderName + '/' + cw_FileName\r\n",
+					"FinalFile = spark.read.load(path, format='parquet')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"FinalFile.write.parquet(path, mode='overwrite')"
 				],
 				"execution_count": null
 			}

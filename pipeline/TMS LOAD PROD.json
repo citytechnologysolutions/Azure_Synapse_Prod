@@ -332,83 +332,11 @@
 										"value": "DateLoad",
 										"activities": [
 											{
-												"name": "Partition DF",
-												"type": "ExecuteDataFlow",
-												"dependsOn": [
-													{
-														"activity": "Delete The Left File_DateLoad_SingleFile",
-														"dependencyConditions": [
-															"Succeeded",
-															"Failed"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"dataflow": {
-														"referenceName": "Partitioning DF",
-														"type": "DataFlowReference",
-														"parameters": {
-															"cw_FileName": {
-																"value": "'@{concat(item().Destination.FileName,'.parquet')}'",
-																"type": "Expression"
-															},
-															"cw_FolderName": {
-																"value": "'@{variables('FolderName')}'",
-																"type": "Expression"
-															},
-															"cw_IncFolderName": {
-																"value": "'@{concat(variables('FolderName'),'_Incremental_Data')}'",
-																"type": "Expression"
-															},
-															"cw_incField": {
-																"value": "'@{item().Increment.IncField}'",
-																"type": "Expression"
-															},
-															"ContainerName": {
-																"value": "'@{variables('ContainerName')}'",
-																"type": "Expression"
-															}
-														},
-														"linkedServiceParameters": {
-															"source2": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"sink1": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															}
-														}
-													},
-													"compute": {
-														"coreCount": 8,
-														"computeType": "General"
-													},
-													"traceLevel": "Fine"
-												}
-											},
-											{
 												"name": "Delete The Left File_DateLoad_Folder",
 												"type": "Delete",
 												"dependsOn": [
 													{
-														"activity": "UnionSparkJob",
+														"activity": "UnionSparkJob_DateLoad",
 														"dependencyConditions": [
 															"Succeeded"
 														]
@@ -462,7 +390,7 @@
 												"type": "Delete",
 												"dependsOn": [
 													{
-														"activity": "Partition DF",
+														"activity": "Delete The Left File_DateLoad_SingleFile",
 														"dependencyConditions": [
 															"Succeeded"
 														]
@@ -512,7 +440,7 @@
 												"type": "Delete",
 												"dependsOn": [
 													{
-														"activity": "Partition DF",
+														"activity": "Delete The Left File_DateLoad_SingleFile",
 														"dependencyConditions": [
 															"Succeeded"
 														]
@@ -712,7 +640,7 @@
 												}
 											},
 											{
-												"name": "UnionSparkJob",
+												"name": "UnionSparkJob_DateLoad",
 												"type": "SynapseNotebook",
 												"dependsOn": [
 													{
@@ -786,8 +714,9 @@
 													},
 													"executorSize": "Medium",
 													"conf": {
+														"spark.dynamicAllocation.enabled": true,
 														"spark.dynamicAllocation.minExecutors": 1,
-														"spark.dynamicAllocation.maxExecutors": 4
+														"spark.dynamicAllocation.maxExecutors": 2
 													},
 													"driverSize": "Medium",
 													"numExecutors": 1
@@ -902,162 +831,11 @@
 												]
 											},
 											{
-												"name": "Data flow Union_IDLoad",
-												"type": "ExecuteDataFlow",
-												"dependsOn": [
-													{
-														"activity": "Copy New incremental data_IDLoad",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"dataflow": {
-														"referenceName": "IncrementalLoadID DataFlow",
-														"type": "DataFlowReference",
-														"parameters": {
-															"cw_FolderName": {
-																"value": "'@{variables('FolderName')}'",
-																"type": "Expression"
-															},
-															"cw_FileName": {
-																"value": "'@{concat(item().Destination.FileName,'.parquet')}'",
-																"type": "Expression"
-															},
-															"cw_IncFolderName": {
-																"value": "'@{concat(variables('FolderName'),'_Incremental_Data')}'",
-																"type": "Expression"
-															},
-															"cw_IdField": {
-																"value": "'@{item().Increment.IdField}'",
-																"type": "Expression"
-															},
-															"ContainerName": {
-																"value": "'@{variables('ContainerName')}'",
-																"type": "Expression"
-															}
-														},
-														"linkedServiceParameters": {
-															"source1": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"source2": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"WritetoDataLake": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															}
-														}
-													},
-													"compute": {
-														"coreCount": 8,
-														"computeType": "General"
-													},
-													"traceLevel": "Fine"
-												}
-											},
-											{
-												"name": "Partition DF_IDLoad",
-												"type": "ExecuteDataFlow",
-												"dependsOn": [
-													{
-														"activity": "Delete The Left File_IDLoad_SingleFile",
-														"dependencyConditions": [
-															"Succeeded",
-															"Failed"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"dataflow": {
-														"referenceName": "Partitioning DF",
-														"type": "DataFlowReference",
-														"parameters": {
-															"cw_FileName": {
-																"value": "'@{concat(item().Destination.FileName,'.parquet')}'",
-																"type": "Expression"
-															},
-															"cw_FolderName": {
-																"value": "'@{variables('FolderName')}'",
-																"type": "Expression"
-															},
-															"cw_IncFolderName": {
-																"value": "'@{concat(variables('FolderName'),'_Incremental_Data')}'",
-																"type": "Expression"
-															},
-															"cw_incField": {
-																"value": "'@{item().Increment.IncField}'",
-																"type": "Expression"
-															},
-															"ContainerName": {
-																"value": "'@{variables('ContainerName')}'",
-																"type": "Expression"
-															}
-														},
-														"linkedServiceParameters": {
-															"source2": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"sink1": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															}
-														}
-													},
-													"compute": {
-														"coreCount": 8,
-														"computeType": "General"
-													},
-													"traceLevel": "Fine"
-												}
-											},
-											{
 												"name": "Delete The Left File_IDLoad_Folder",
 												"type": "Delete",
 												"dependsOn": [
 													{
-														"activity": "Data flow Union_IDLoad",
+														"activity": "UnionSparkJob_IDLoad",
 														"dependencyConditions": [
 															"Succeeded"
 														]
@@ -1111,7 +889,7 @@
 												"type": "Delete",
 												"dependsOn": [
 													{
-														"activity": "Partition DF_IDLoad",
+														"activity": "Delete The Left File_IDLoad_SingleFile",
 														"dependencyConditions": [
 															"Succeeded"
 														]
@@ -1161,7 +939,7 @@
 												"type": "Delete",
 												"dependsOn": [
 													{
-														"activity": "Partition DF_IDLoad",
+														"activity": "Delete The Left File_IDLoad_SingleFile",
 														"dependencyConditions": [
 															"Succeeded"
 														]
@@ -1255,6 +1033,89 @@
 														"recursive": true,
 														"enablePartitionDiscovery": false
 													}
+												}
+											},
+											{
+												"name": "UnionSparkJob_IDLoad",
+												"type": "SynapseNotebook",
+												"dependsOn": [
+													{
+														"activity": "Copy New incremental data_IDLoad",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"notebook": {
+														"referenceName": "UnionSparkJob_IDLoad",
+														"type": "NotebookReference"
+													},
+													"parameters": {
+														"cw_FolderName": {
+															"value": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_FileName": {
+															"value": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_IncFolderName": {
+															"value": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_IdField": {
+															"value": {
+																"value": "@item().Increment.IdField",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"ContainerName": {
+															"value": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"DataLakeDF": {
+															"value": {
+																"value": "@replace(variables('DataLake'),'https://','')",
+																"type": "Expression"
+															},
+															"type": "string"
+														}
+													},
+													"snapshot": true,
+													"sparkPool": {
+														"referenceName": "PRDSparkPool",
+														"type": "BigDataPoolReference"
+													},
+													"executorSize": "Medium",
+													"conf": {
+														"spark.dynamicAllocation.enabled": true,
+														"spark.dynamicAllocation.minExecutors": 1,
+														"spark.dynamicAllocation.maxExecutors": 2
+													},
+													"driverSize": "Medium",
+													"numExecutors": 1
 												}
 											}
 										]
@@ -1365,82 +1226,11 @@
 												]
 											},
 											{
-												"name": "Partition DF_FullLoad",
-												"type": "ExecuteDataFlow",
-												"dependsOn": [
-													{
-														"activity": "Copy_Data_Full_Take_On",
-														"dependencyConditions": [
-															"Succeeded"
-														]
-													}
-												],
-												"policy": {
-													"timeout": "0.12:00:00",
-													"retry": 0,
-													"retryIntervalInSeconds": 30,
-													"secureOutput": false,
-													"secureInput": false
-												},
-												"userProperties": [],
-												"typeProperties": {
-													"dataflow": {
-														"referenceName": "Partitioning DF",
-														"type": "DataFlowReference",
-														"parameters": {
-															"cw_FileName": {
-																"value": "'@{concat(item().Destination.FileName,'.parquet')}'",
-																"type": "Expression"
-															},
-															"cw_FolderName": {
-																"value": "'@{variables('FolderName')}'",
-																"type": "Expression"
-															},
-															"cw_IncFolderName": {
-																"value": "'@{variables('FolderName')}'",
-																"type": "Expression"
-															},
-															"cw_incField": {
-																"value": "'@{item().Increment.IncField}'",
-																"type": "Expression"
-															},
-															"ContainerName": {
-																"value": "'@{variables('ContainerName')}'",
-																"type": "Expression"
-															}
-														},
-														"linkedServiceParameters": {
-															"source2": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"sink1": {
-																"linkedService": {
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															}
-														}
-													},
-													"compute": {
-														"coreCount": 8,
-														"computeType": "General"
-													},
-													"traceLevel": "Fine"
-												}
-											},
-											{
 												"name": "Delete the Temp File_FullLoad",
 												"type": "Delete",
 												"dependsOn": [
 													{
-														"activity": "Partition DF_FullLoad",
+														"activity": "PartitionSparkJob",
 														"dependencyConditions": [
 															"Succeeded"
 														]
@@ -1483,6 +1273,89 @@
 														"recursive": true,
 														"enablePartitionDiscovery": false
 													}
+												}
+											},
+											{
+												"name": "PartitionSparkJob",
+												"type": "SynapseNotebook",
+												"dependsOn": [
+													{
+														"activity": "Copy_Data_Full_Take_On",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.12:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"notebook": {
+														"referenceName": "PartitionSparkJob",
+														"type": "NotebookReference"
+													},
+													"parameters": {
+														"cw_FolderName": {
+															"value": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_FileName": {
+															"value": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_IncFolderName": {
+															"value": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_IdField": {
+															"value": {
+																"value": "@item().Increment.IdField",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"ContainerName": {
+															"value": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"DataLakeDF": {
+															"value": {
+																"value": "@replace(variables('DataLake'),'https://','')",
+																"type": "Expression"
+															},
+															"type": "string"
+														}
+													},
+													"snapshot": true,
+													"sparkPool": {
+														"referenceName": "PRDSparkPool",
+														"type": "BigDataPoolReference"
+													},
+													"executorSize": "Medium",
+													"conf": {
+														"spark.dynamicAllocation.enabled": true,
+														"spark.dynamicAllocation.minExecutors": 1,
+														"spark.dynamicAllocation.maxExecutors": 2
+													},
+													"driverSize": "Medium",
+													"numExecutors": 1
 												}
 											}
 										]

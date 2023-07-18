@@ -706,8 +706,9 @@
 													},
 													"executorSize": "Medium",
 													"conf": {
+														"spark.dynamicAllocation.enabled": true,
 														"spark.dynamicAllocation.minExecutors": 1,
-														"spark.dynamicAllocation.maxExecutors": 4
+														"spark.dynamicAllocation.maxExecutors": 2
 													},
 													"driverSize": "Medium",
 													"numExecutors": 1
@@ -1046,17 +1047,62 @@
 														"referenceName": "UnionSparkJob_IDLoad",
 														"type": "NotebookReference"
 													},
+													"parameters": {
+														"cw_FolderName": {
+															"value": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_FileName": {
+															"value": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_IncFolderName": {
+															"value": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_IdField": {
+															"value": {
+																"value": "@item().Increment.IdField",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"ContainerName": {
+															"value": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"DataLakeDF": {
+															"value": {
+																"value": "@replace(variables('DataLake'),'https://','')",
+																"type": "Expression"
+															},
+															"type": "string"
+														}
+													},
 													"snapshot": true,
 													"sparkPool": {
 														"referenceName": "PRDSparkPool",
 														"type": "BigDataPoolReference"
 													},
-													"executorSize": "Small",
+													"executorSize": "Medium",
 													"conf": {
+														"spark.dynamicAllocation.enabled": true,
 														"spark.dynamicAllocation.minExecutors": 1,
-														"spark.dynamicAllocation.maxExecutors": 4
+														"spark.dynamicAllocation.maxExecutors": 2
 													},
-													"driverSize": "Small",
+													"driverSize": "Medium",
 													"numExecutors": 1
 												}
 											}
@@ -1237,7 +1283,63 @@
 														"referenceName": "PartitionSparkJob",
 														"type": "NotebookReference"
 													},
-													"snapshot": true
+													"parameters": {
+														"cw_FolderName": {
+															"value": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_FileName": {
+															"value": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_IncFolderName": {
+															"value": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"cw_IdField": {
+															"value": {
+																"value": "@item().Increment.IdField",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"ContainerName": {
+															"value": {
+																"value": "@variables('ContainerName')",
+																"type": "Expression"
+															},
+															"type": "string"
+														},
+														"DataLakeDF": {
+															"value": {
+																"value": "@replace(variables('DataLake'),'https://','')",
+																"type": "Expression"
+															},
+															"type": "string"
+														}
+													},
+													"snapshot": true,
+													"sparkPool": {
+														"referenceName": "PRDSparkPool",
+														"type": "BigDataPoolReference"
+													},
+													"executorSize": "Medium",
+													"conf": {
+														"spark.dynamicAllocation.enabled": true,
+														"spark.dynamicAllocation.minExecutors": 1,
+														"spark.dynamicAllocation.maxExecutors": 2
+													},
+													"driverSize": "Medium",
+													"numExecutors": 1
 												}
 											}
 										]

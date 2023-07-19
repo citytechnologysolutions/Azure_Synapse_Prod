@@ -6030,68 +6030,13 @@
 												"value": "DateLoad",
 												"activities": [
 													{
-														"name": "Delete The Left File_DateLoad_Folder",
+														"name": "Delete the Temp File",
 														"type": "Delete",
 														"dependsOn": [
 															{
 																"activity": "UnionSparkJob_DateLoad",
 																"dependencyConditions": [
 																	"Succeeded"
-																]
-															}
-														],
-														"policy": {
-															"timeout": "0.12:00:00",
-															"retry": 0,
-															"retryIntervalInSeconds": 30,
-															"secureOutput": false,
-															"secureInput": false
-														},
-														"userProperties": [],
-														"typeProperties": {
-															"dataset": {
-																"referenceName": "DataLakeParquet",
-																"type": "DatasetReference",
-																"parameters": {
-																	"CW_FolderName": {
-																		"value": "@variables('FolderName')",
-																		"type": "Expression"
-																	},
-																	"CW_FileName": {
-																		"value": "@concat(item().Destination.FileName,'.parquet')",
-																		"type": "Expression"
-																	},
-																	"ContainerName": {
-																		"value": "@variables('ContainerName')",
-																		"type": "Expression"
-																	},
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"enableLogging": false,
-															"storeSettings": {
-																"type": "AzureBlobFSReadSettings",
-																"recursive": true,
-																"wildcardFileName": {
-																	"value": "@{concat(variables('ContainerName'),'/',variables('FolderName'),'/',item().Destination.FileName,'.parquet','/')}",
-																	"type": "Expression"
-																},
-																"enablePartitionDiscovery": false
-															}
-														}
-													},
-													{
-														"name": "Delete the Temp File",
-														"type": "Delete",
-														"dependsOn": [
-															{
-																"activity": "Delete The Left File_DateLoad_SingleFile",
-																"dependencyConditions": [
-																	"Succeeded",
-																	"Failed"
 																]
 															}
 														],
@@ -6139,10 +6084,9 @@
 														"type": "Delete",
 														"dependsOn": [
 															{
-																"activity": "Delete The Left File_DateLoad_SingleFile",
+																"activity": "UnionSparkJob_DateLoad",
 																"dependencyConditions": [
-																	"Succeeded",
-																	"Failed"
+																	"Succeeded"
 																]
 															}
 														],
@@ -6283,57 +6227,6 @@
 																}
 															}
 														]
-													},
-													{
-														"name": "Delete The Left File_DateLoad_SingleFile",
-														"type": "Delete",
-														"dependsOn": [
-															{
-																"activity": "Delete The Left File_DateLoad_Folder",
-																"dependencyConditions": [
-																	"Failed",
-																	"Succeeded"
-																]
-															}
-														],
-														"policy": {
-															"timeout": "0.12:00:00",
-															"retry": 0,
-															"retryIntervalInSeconds": 30,
-															"secureOutput": false,
-															"secureInput": false
-														},
-														"userProperties": [],
-														"typeProperties": {
-															"dataset": {
-																"referenceName": "DataLakeParquet",
-																"type": "DatasetReference",
-																"parameters": {
-																	"CW_FolderName": {
-																		"value": "@variables('FolderName')",
-																		"type": "Expression"
-																	},
-																	"CW_FileName": {
-																		"value": "@concat(item().Destination.FileName,'.parquet')",
-																		"type": "Expression"
-																	},
-																	"ContainerName": {
-																		"value": "@variables('ContainerName')",
-																		"type": "Expression"
-																	},
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"enableLogging": false,
-															"storeSettings": {
-																"type": "AzureBlobFSReadSettings",
-																"recursive": true,
-																"enablePartitionDiscovery": false
-															}
-														}
 													},
 													{
 														"name": "UnionSparkJob_DateLoad",
@@ -6523,68 +6416,13 @@
 														]
 													},
 													{
-														"name": "Delete The Left File_IDLoad_Folder",
+														"name": "Delete the Temp File_IDLoad",
 														"type": "Delete",
 														"dependsOn": [
 															{
 																"activity": "UnionSparkJob_IDLoad",
 																"dependencyConditions": [
 																	"Succeeded"
-																]
-															}
-														],
-														"policy": {
-															"timeout": "0.12:00:00",
-															"retry": 0,
-															"retryIntervalInSeconds": 30,
-															"secureOutput": false,
-															"secureInput": false
-														},
-														"userProperties": [],
-														"typeProperties": {
-															"dataset": {
-																"referenceName": "DataLakeParquet",
-																"type": "DatasetReference",
-																"parameters": {
-																	"CW_FolderName": {
-																		"value": "@variables('FolderName')",
-																		"type": "Expression"
-																	},
-																	"CW_FileName": {
-																		"value": "@concat(item().Destination.FileName,'.parquet')",
-																		"type": "Expression"
-																	},
-																	"ContainerName": {
-																		"value": "@variables('ContainerName')",
-																		"type": "Expression"
-																	},
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"enableLogging": false,
-															"storeSettings": {
-																"type": "AzureBlobFSReadSettings",
-																"recursive": true,
-																"wildcardFileName": {
-																	"value": "@{concat(variables('ContainerName'),'/',variables('FolderName'),'/',item().Destination.FileName,'.parquet','/')}",
-																	"type": "Expression"
-																},
-																"enablePartitionDiscovery": false
-															}
-														}
-													},
-													{
-														"name": "Delete the Temp File_IDLoad",
-														"type": "Delete",
-														"dependsOn": [
-															{
-																"activity": "Delete The Left File_IDLoad_SingleFile",
-																"dependencyConditions": [
-																	"Succeeded",
-																	"Failed"
 																]
 															}
 														],
@@ -6632,60 +6470,8 @@
 														"type": "Delete",
 														"dependsOn": [
 															{
-																"activity": "Delete The Left File_IDLoad_SingleFile",
+																"activity": "UnionSparkJob_IDLoad",
 																"dependencyConditions": [
-																	"Succeeded",
-																	"Failed"
-																]
-															}
-														],
-														"policy": {
-															"timeout": "0.12:00:00",
-															"retry": 0,
-															"retryIntervalInSeconds": 30,
-															"secureOutput": false,
-															"secureInput": false
-														},
-														"userProperties": [],
-														"typeProperties": {
-															"dataset": {
-																"referenceName": "DataLakeParquet",
-																"type": "DatasetReference",
-																"parameters": {
-																	"CW_FolderName": {
-																		"value": "@concat(variables('FolderName'),'_Incremental_Data')",
-																		"type": "Expression"
-																	},
-																	"CW_FileName": {
-																		"value": "@concat(item().Destination.FileName,'.parquet')",
-																		"type": "Expression"
-																	},
-																	"ContainerName": {
-																		"value": "@variables('ContainerName')",
-																		"type": "Expression"
-																	},
-																	"DataLake": {
-																		"value": "@variables('DataLake')",
-																		"type": "Expression"
-																	}
-																}
-															},
-															"enableLogging": false,
-															"storeSettings": {
-																"type": "AzureBlobFSReadSettings",
-																"recursive": true,
-																"enablePartitionDiscovery": false
-															}
-														}
-													},
-													{
-														"name": "Delete The Left File_IDLoad_SingleFile",
-														"type": "Delete",
-														"dependsOn": [
-															{
-																"activity": "Delete The Left File_IDLoad_Folder",
-																"dependencyConditions": [
-																	"Failed",
 																	"Succeeded"
 																]
 															}
@@ -6704,7 +6490,7 @@
 																"type": "DatasetReference",
 																"parameters": {
 																	"CW_FolderName": {
-																		"value": "@variables('FolderName')",
+																		"value": "@concat(variables('FolderName'),'_Incremental_Data')",
 																		"type": "Expression"
 																	},
 																	"CW_FileName": {
@@ -42199,7 +41985,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "3867b061-3128-4f30-ba1f-db4e838b8672"
+						"spark.autotune.trackingId": "4d2c97f4-c7fa-43e3-a9ed-50705d82d513"
 					}
 				},
 				"metadata": {
@@ -52788,7 +52574,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "f1e97746-b9f0-4079-a7fe-2de1cc4abf0b"
+						"spark.autotune.trackingId": "7e069f2c-cff5-4293-aad0-755522b90d1c"
 					}
 				},
 				"metadata": {
@@ -53144,7 +52930,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "c24a09cc-821c-4fe7-b3af-2be78189da04"
+						"spark.autotune.trackingId": "2a122914-4770-41cd-a98f-da0498a73629"
 					}
 				},
 				"metadata": {
@@ -53500,7 +53286,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "41782b47-5176-4cbb-9df0-fa108047466a"
+						"spark.autotune.trackingId": "60ee07e3-df88-48ae-ae01-8aff390e8f6e"
 					}
 				},
 				"metadata": {

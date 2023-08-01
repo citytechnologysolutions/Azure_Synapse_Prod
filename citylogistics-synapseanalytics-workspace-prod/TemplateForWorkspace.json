@@ -16278,6 +16278,10 @@
 					"referenceName": "PRDSparkPool",
 					"type": "BigDataPoolReference"
 				},
+				"targetSparkConfiguration": {
+					"referenceName": "SynapseApacheSparkConfigv1",
+					"type": "SparkConfigurationReference"
+				},
 				"sessionProperties": {
 					"driverMemory": "56g",
 					"driverCores": 8,
@@ -16288,7 +16292,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "6bcda762-5ade-4aef-aa12-963dafcc5fd7"
+						"spark.autotune.trackingId": "259ea3ad-0569-4ae8-84ac-77bd8008ea88"
 					}
 				},
 				"metadata": {
@@ -16313,13 +16317,16 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
-					"sessionKeepAliveTimeout": 30
+					"sessionKeepAliveTimeout": 30,
+					"targetSparkConfiguration": "SynapseApacheSparkConfigv1"
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"if 'prod' in Environment:\r\n",
@@ -17490,7 +17497,9 @@
 					}
 				]
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/sparkConfigurations/SynapseApacheSparkConfigv1')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('workspaceName'), '/01_DIST_STDimensions')]",
@@ -51280,6 +51289,23 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/SynapseApacheSparkConfigv1')]",
+			"type": "Microsoft.Synapse/workspaces/sparkConfigurations",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"configs": {
+					"spark.sql.parquet.int96RebaseModeInWrite": "Corrected"
+				},
+				"created": "2023-08-01T08:23:02.7640000+02:00",
+				"createdBy": "christoff.dupreez@synapse-junction.com",
+				"annotations": [],
+				"configMergeRule": {
+					"artifact.currentOperation.spark.sql.parquet.int96RebaseModeInWrite": "replace"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/PRDSparkPool')]",
 			"type": "Microsoft.Synapse/workspaces/bigDataPools",
 			"apiVersion": "2019-06-01-preview",
@@ -51298,6 +51324,12 @@
 				"nodeSizeFamily": "MemoryOptimized",
 				"sparkVersion": "3.3",
 				"isComputeIsolationEnabled": false,
+				"sparkConfigProperties": {
+					"configurationType": "Artifact",
+					"filename": "SynapseApacheSparkConfigv1",
+					"content": "{\"name\":\"SynapseApacheSparkConfigv1\",\"properties\":{\"configs\":{\"spark.sql.parquet.int96RebaseModeInWrite\":\"Corrected\"},\"annotations\":[],\"type\":\"Microsoft.Synapse/workspaces/sparkconfigurations\",\"description\":\"\",\"notes\":\"\",\"created\":\"2023-08-01T08:23:02.7640000+02:00\",\"createdBy\":\"christoff.dupreez@synapse-junction.com\",\"configMergeRule\":{\"admin.currentOperation.spark.sql.parquet.int96RebaseModeInWrite\":\"replace\"}}}",
+					"time": "2023-08-01T06:22:43.2853686Z"
+				},
 				"sessionLevelPackagesEnabled": false,
 				"annotations": []
 			},

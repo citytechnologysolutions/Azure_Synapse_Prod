@@ -109,7 +109,7 @@
 					"dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")\r\n",
 					""
 				],
-				"execution_count": 13
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -153,6 +153,11 @@
 					"    ,c.DeliverTypeID as lms_consignment_delivertypeid\r\n",
 					"    ,c.BillTypeID as lms_consignment_billtypeid\r\n",
 					"    ,c.LoadID as lms_consignment_loadid\r\n",
+					"    ,c.TotalCharge as lms_consignment_totalcharge\r\n",
+					"    ,c.Charge as lms_consignment_charge\r\n",
+					"    ,c.DocFees as lms_consignment_docfees\r\n",
+					"    ,c.FuelLevy as lms_consignment_fuellevy\r\n",
+					"    ,c.TotOtherSurcharges as lms_consignment_totothersurcharges\r\n",
 					"    ,pbc.lms_parcelbyconsignment_aggrweight\r\n",
 					"    ,pbc.lms_parcelbyconsignment_aggrchargeweight\r\n",
 					"    ,pbc.lms_parcelbyconsignment_aggrvolweight\r\n",
@@ -303,7 +308,7 @@
 					"FROM stconsignment_tmp1 c\r\n",
 					"LEFT JOIN stconsignment_Tmp2 c2 ON c2.consignid = c.lms_consignment_id"
 				],
-				"execution_count": 18
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -334,7 +339,7 @@
 					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_consignment_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_consignment_actualleaddaysenddate)) and Holiday = 1\r\n",
 					"GROUP BY c.lms_consignment_id"
 				],
-				"execution_count": 19
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -364,7 +369,7 @@
 					"FROM stconsignment_tmp3 c\r\n",
 					"LEFT JOIN stconsignment_tmp4 c1 on c1.lms_consignment_id = c.lms_consignment_id"
 				],
-				"execution_count": 20
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -408,7 +413,7 @@
 					"FROM stconsignment_tmp5\r\n",
 					""
 				],
-				"execution_count": 21
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -426,7 +431,7 @@
 				"source": [
 					"stconsignment = spark.sql(\"SELECT * FROM stconsignment\")"
 				],
-				"execution_count": null
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -442,11 +447,9 @@
 					}
 				},
 				"source": [
-					"# stconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stconsignment.parquet', mode = \"overwrite\")\r\n",
-					"\r\n",
-					""
+					"stconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stconsignment.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -464,7 +467,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": null
+				"execution_count": 11
 			}
 		]
 	}

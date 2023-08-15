@@ -1,0 +1,20 @@
+{
+	"name": "T_STOpsFinTransactions",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STOpsFinTransactions') )\n    DROP EXTERNAL TABLE dbo.T_STOpsFinTransactions\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STOpsFinTransactions (\n    [sap_transactionsline_acctcode] nvarchar(4000),\n    [sap_transactionsheader_cardcode] nvarchar(4000),\n    [sap_transactionsheader_cardref] nvarchar(4000),\n    [sap_transactionsline_subdepotcode] nvarchar(4000),\n    [sap_transactionsline_doccat] nvarchar(4000),\n    [sap_transactionsheader_postingdate] date,\n    [sap_transactionsline_docdate] date,\n    [sap_transactionsline_linetotalfinalexclgjpo] numeric(38,6),\n    [sap_businesspartners_cardname] nvarchar(4000),\n    [md_depot_depotname] nvarchar(4000),\n    [md_depot_division] nvarchar(4000),\n    [md_depot_parentdepotcode] nvarchar(4000),\n    [sap_account_level1name] nvarchar(4000),\n    [sap_account_level4name] nvarchar(4000),\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stopsfintransactions.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STOpsFinTransactions \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

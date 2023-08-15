@@ -1,0 +1,20 @@
+{
+	"name": "D_STPlcDivertMapping",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Sorter"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STPlcDivertMapping') )\n    DROP EXTERNAL TABLE dbo.D_STPlcDivertMapping\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STPlcDivertMapping (\n[lms_plcdivertmapping_id] int,\n[lms_plcdivertmapping_autosystemid] int,\n[lms_plcdivertmapping_plcdivertid] int,\n[lms_plcdivertmapping_cldivertid] int,\n[lms_plcdivertmapping_divertdescription] nvarchar(4000),\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stplcdivertmapping.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STPlcDivertMapping \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

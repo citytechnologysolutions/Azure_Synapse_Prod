@@ -119,9 +119,14 @@
 					"\r\n",
 					"# #Create DataFrame for the dboweekendholiday LMS Table\r\n",
 					"# dboweekendholiday = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboweekendholiday.parquet', format='parquet')\r\n",
-					"# dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")"
+					"# dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbocustacc LMS Table\r\n",
+					"# dbocustacc = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustacc.parquet', format='parquet')\r\n",
+					"# dbocustacc.createOrReplaceTempView(\"dbocustacc\")\r\n",
+					""
 				],
-				"execution_count": 24
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -163,7 +168,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 25
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -225,6 +230,9 @@
 					"    ,o.DeliverCustID as lms_parcel_orderdelivercustid\r\n",
 					"    ,o.BillCustID as lms_parcel_orderbillcustid\r\n",
 					"    ,o.specdel as lms_parcel_orderspecdel\r\n",
+					"    ,o.custaccid as lms_parcel_ordercustaccid\r\n",
+					"    ,ca.description as lms_parcel_custaccdescription\r\n",
+					"\t,ca.cref as lms_parcel_custacccref\r\n",
 					"    ,c.CDate as lms_parcel_consignmentcdate\r\n",
 					"    ,c.DeliverBy as lms_parcel_consignmentdeliverby\r\n",
 					"    ,w.PODDate  as lms_parcel_waybillpoddate \r\n",
@@ -284,11 +292,12 @@
 					"LEFT JOIN sstconsignmentunion c on p.consignid = c.id\r\n",
 					"LEFT JOIN dbowaybill w on p.waybillid = w.ID\r\n",
 					"LEFT JOIN dboparceldetail pd on p.id = pd.parcelid\r\n",
+					"LEFT JOIN dbocustacc ca on ca.id = o.custaccid\r\n",
 					"WHERE  coalesce(p.acceptanceDate,p.handoverdate) IS NOT NULL\r\n",
 					"AND p.locid NOT IN (163,110,213,27)\r\n",
 					""
 				],
-				"execution_count": 26
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -321,7 +330,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 27
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -351,7 +360,7 @@
 					"FROM stparcel_tmp2 p\r\n",
 					"LEFT JOIN stparcel_tmp3 p1 on p1.lms_parcel_id = p.lms_parcel_id"
 				],
-				"execution_count": 28
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -395,7 +404,7 @@
 					"FROM stparcel_tmp4\r\n",
 					""
 				],
-				"execution_count": 30
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -434,7 +443,7 @@
 					"FROM stparcel_tmp5 p\r\n",
 					"LEFT JOIN stvsmparcel v ON v.lms_track_parcelid = p.lms_parcel_id"
 				],
-				"execution_count": 31
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -452,7 +461,7 @@
 				"source": [
 					"stparcel = spark.sql(\"SELECT * FROM stparcel\")"
 				],
-				"execution_count": 21
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -470,7 +479,7 @@
 				"source": [
 					"# stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 17
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -488,7 +497,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 18
+				"execution_count": 11
 			}
 		]
 	}

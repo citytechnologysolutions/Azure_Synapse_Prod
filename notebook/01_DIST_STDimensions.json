@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 109
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -176,9 +176,82 @@
 					"# dbodb_deliverystatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_deliverystatus.parquet', format='parquet')\r\n",
 					"# dbodb_deliverystatus.createOrReplaceTempView(\"dbodb_deliverystatus\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the dbocustacc LMS Table\r\n",
+					"# dbocustacc = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustacc.parquet', format='parquet')\r\n",
+					"# dbocustacc.createOrReplaceTempView(\"dbocustacc\")\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": 110
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stcustacc\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    id as lms_custacc_id,\r\n",
+					"\tdescription as lms_custacc_description,\r\n",
+					"\tbilltype as lms_custacc_billtype,\r\n",
+					"\tcustomerid as lms_custacc_customerid,\r\n",
+					"\tcref as lms_custacc_cref,\r\n",
+					"\tactive as lms_custacc_active\r\n",
+					"FROM dbocustacc"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stcustacc = spark.sql(\"SELECT * FROM stcustacc\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stcustacc.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stcustacc.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",

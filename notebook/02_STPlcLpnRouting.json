@@ -1,0 +1,442 @@
+{
+	"name": "02_STPlcLpnRouting",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Sorter"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "630962b0-f8bd-4a01-a517-525b3dec8849"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the dboplc_lpnrouting_history_centurion LMS Table\r\n",
+					"# dboplc_lpnrouting_history_centurion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboplc_lpnrouting_history_centurion.parquet', format='parquet')\r\n",
+					"# dboplc_lpnrouting_history_centurion.createOrReplaceTempView(\"dboplc_lpnrouting_history_centurion\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbocustomer LMS Table\r\n",
+					"# dbocustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
+					"# dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stparcel3myoy LMS Table\r\n",
+					"# stparcel3myoy = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stparcel3myoy.parquet', format='parquet')\r\n",
+					"# stparcel3myoy.createOrReplaceTempView(\"stparcel3myoy\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# import pandas as pd\r\n",
+					"# from pyspark.sql.types import DecimalType\r\n",
+					"# from pyspark.sql.functions import col"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# %%pyspark\r\n",
+					"# sorterchutes = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Finance and Operations Mapping Sources/Sorter_Chutes.csv', format='csv'\r\n",
+					"# , header=True\r\n",
+					"# )"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# %%pyspark\r\n",
+					"# sortertimestudy = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Finance and Operations Mapping Sources/Sorter_TimeStudy.csv', format='csv'\r\n",
+					"# , header=True\r\n",
+					"# )"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# %%pyspark\r\n",
+					"# sorterstaffallocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Finance and Operations Mapping Sources/Sorter_StaffAllocation.csv', format='csv'\r\n",
+					"# , header=True\r\n",
+					"# )"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sorterchutes = sorterchutes.withColumn('times', col('times').cast(DecimalType(38,18)))"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sortertimestudy = sortertimestudy.withColumn('averageminsperparcel', col('averageminsperparcel').cast(DecimalType(38,18)))"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sorterchutes.createOrReplaceTempView(\"sorterchutes\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sortertimestudy.createOrReplaceTempView(\"sortertimestudy\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sorterstaffallocation.createOrReplaceTempView(\"sorterstaffallocation\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stplclpnrouting_tmp1\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     id as lms_plclpnrouting_id\r\n",
+					"    ,autosystemid as lms_plclpnrouting_autosystemid\r\n",
+					"    ,lpn as lms_plclpnrouting_lpn\r\n",
+					"    ,divertid as lms_plclpnrouting_divertid\r\n",
+					"    ,scanpoint as lms_plclpnrouting_scanpoint\r\n",
+					"    ,status as lms_plclpnrouting_status\r\n",
+					"    ,datereceived as lms_plclpnrouting_datereceived\r\n",
+					"    ,dateupdated as lms_plclpnrouting_dateupdated\r\n",
+					"    ,plcdivertid as lms_plclpnrouting_plcdivertid\r\n",
+					"    ,cldivertid as lms_plclpnrouting_cldivertid\r\n",
+					"    ,divertdescription as lms_plclpnrouting_divertdescription\r\n",
+					"    -- ,elapsed_ms as lms_plclpnrouting_elapsed_ms\r\n",
+					"    -- ,elapsed1_ms as lms_plclpnrouting_elapsed1_ms\r\n",
+					"    -- ,elapsed2_ms as lms_plclpnrouting_elapsed2_ms\r\n",
+					"    -- ,elapsed3_ms as lms_plclpnrouting_elapsed3_ms\r\n",
+					"    -- ,elapsed4_ms as lms_plclpnrouting_elapsed4_ms\r\n",
+					"    -- ,elapsed5_ms as lms_plclpnrouting_elapsed5_ms\r\n",
+					"    -- ,elapsed6_ms as lms_plclpnrouting_elapsed6_ms\r\n",
+					"FROM dboplc_lpnrouting_history_centurion\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stplclpnrouting_tmp1 = spark.sql(\"SELECT * FROM stplclpnrouting_tmp1\")"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stplclpnrouting\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     lpn.*\r\n",
+					"    ,lms_parcel_id\r\n",
+					"    ,p.lms_parcel_orderid\r\n",
+					"    ,p.lms_parcel_consignid\r\n",
+					"    ,p.lms_parcel_waybillid\r\n",
+					"    ,p.lms_parcel_pdate\r\n",
+					"    ,p.lms_parcel_orderbillcustid\r\n",
+					"    ,p.lms_parcel_orderdelivercustid\r\n",
+					"    ,Upper(c.location) as excel_sorterchutes_location\r\n",
+					"    ,ts.averageminsperparcel as excel_sortertimestudy_averageminsperparcel\r\n",
+					"    ,sa.generalworkerallocation  as excel_sorterstaffallocation_generalworkerallocation\r\n",
+					"\r\n",
+					"FROM stplclpnrouting_tmp1 lpn\r\n",
+					"INNER JOIN stparcel3myoy p on p.lms_parcel_barcode = lpn.lms_plclpnrouting_lpn\r\n",
+					"LEFT JOIN dbocustomer bc on bc.id = p.lms_parcel_orderbillcustid\r\n",
+					"LEFT JOIN dbocustomer dc on dc.id = p.lms_parcel_orderdelivercustid\r\n",
+					"LEFT JOIN sorterchutes c on upper(c.combine) = upper(lms_plclpnrouting_divertdescription||' '||bc.name||' '||dc.name)\r\n",
+					"LEFT JOIN sortertimestudy ts on upper(ts.element) = upper(c.location)\r\n",
+					"LEFT JOIN sorterstaffallocation sa on upper(sa.divertdescription) = upper(lpn.lms_plclpnrouting_divertdescription)"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stplclpnrouting = spark.sql(\"SELECT * FROM stplclpnrouting\")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stplclpnrouting.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stplclpnrouting.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 15
+			}
+		]
+	}
+}

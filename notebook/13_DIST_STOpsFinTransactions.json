@@ -1,0 +1,216 @@
+{
+	"name": "13_DIST_STOpsFinTransactions",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "879f8ba7-078e-4356-911b-ecb1344e2257"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the sttransactionsdetail SAP Table\r\n",
+					"# sttransactionsdetail = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/sttransactionsdetail.parquet', format='parquet')\r\n",
+					"# sttransactionsdetail.createOrReplaceTempView(\"sttransactionsdetail\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stchartofaccounts SAP Table\r\n",
+					"# stchartofaccounts = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/stchartofaccounts.parquet', format='parquet')\r\n",
+					"# stchartofaccounts.createOrReplaceTempView(\"stchartofaccounts\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stmdsapdepot SAP Table\r\n",
+					"# stmdsapdepot = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/stmdsapdepot.parquet', format='parquet')\r\n",
+					"# stmdsapdepot.createOrReplaceTempView(\"stmdsapdepot\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stbusinnesspartner SAP Table\r\n",
+					"# stbusinnesspartner = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/stbusinnesspartner.parquet', format='parquet')\r\n",
+					"# stbusinnesspartner.createOrReplaceTempView(\"stbusinnesspartner\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stopsfintransactions\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"  t.sap_transactionsline_acctcode \r\n",
+					"  ,t.sap_transactionsheader_cardcode \r\n",
+					"  ,t.sap_transactionsheader_cardref \r\n",
+					"  ,t.sap_transactionsline_subdepotcode \r\n",
+					"  ,t.sap_transactionsline_doccat \r\n",
+					"  ,to_date(t.sap_transactionsheader_postingdate,'yyyy-MM-dd') as sap_transactionsheader_postingdate\r\n",
+					"  ,to_date(t.sap_transactionsline_docdate,'yyyy-MM-dd') as  sap_transactionsline_docdate\r\n",
+					"  ,CASE \r\n",
+					"    WHEN \r\n",
+					"      t.sap_transactionsline_doccat in ('generaljournal','purchaseorder') THEN 0\r\n",
+					"    ELSE \r\n",
+					"      COALESCE(t.sap_transactionsline_linetotallessdiscount,t.sap_transactionsline_linetotal)\r\n",
+					"  END as sap_transactionsline_linetotalfinalexclgjpo\r\n",
+					"  ,b.sap_businesspartners_cardname\r\n",
+					"  ,d.md_depot_depotname\r\n",
+					"  ,d.md_depot_division\r\n",
+					"  ,d.md_depot_parentdepotcode\r\n",
+					"  ,c.sap_account_level1name\r\n",
+					"  ,c.sap_account_level4name\r\n",
+					"\r\n",
+					"FROM sttransactionsdetail t\r\n",
+					"LEFT JOIN stchartofaccounts c on c.sap_account_acctcode = t.sap_transactionsline_acctcode \r\n",
+					"LEFT JOIN stmdsapdepot d on d.sap_transactionsline_subdepotcode = t.sap_transactionsline_subdepotcode \r\n",
+					"LEFT JOIN stbusinnesspartner b on b.sap_businesspartners_cardcode = t.sap_transactionsheader_cardcode \r\n",
+					"WHERE (c.sap_account_level1name in ('TURNOVER') AND c.sap_account_level4name in ('REVENUE'))\r\n",
+					"OR c.sap_account_level1name in ('COST OF SALES','OPERATING COSTS')\r\n",
+					"AND t.sap_transactionsline_doccat not in ('generaljournal','purchaseorder','goodsreceiptnote') "
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stopsfintransactions = spark.sql(\"SELECT * FROM stopsfintransactions\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stopsfintransactions.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stopsfintransactions.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 6
+			}
+		]
+	}
+}

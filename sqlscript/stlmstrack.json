@@ -1,0 +1,20 @@
+{
+	"name": "stlmstrack",
+	"properties": {
+		"folder": {
+			"name": "Mitchell/ProdData"
+		},
+		"content": {
+			"query": "-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(\n        BULK 'https://citylogisticsstorageprod.dfs.core.windows.net/synapse/Structured Data/OPS/stlmstrack.parquet/**',\n        FORMAT = 'PARQUET'\n    ) AS R \n--WHERE lms_track_waybillid = 12604864 OR lms_track_waybillid = 12604607\n--WHERE lms_track_parcelid IN (309554922,309619875)\nWHERE lms_track_parcelid = 299923348\n--ORDER BY lms_track_opendt\nORDER BY lms_track_opendt \n\nSELECT\nCASE WHEN lms_track_waybillid IS NULL THEN 'NULL' ELSE 'EXISTS' END AS CATEGORY\n,EOMONTH(lms_track_opendt) as MonthVal\n,COUNT(*) AS NUM_TRACKS\nFROM\n    OPENROWSET(\n        BULK 'https://citylogisticsstorageprod.dfs.core.windows.net/synapse/Structured Data/OPS/stlmstrack.parquet/**',\n        FORMAT = 'PARQUET'\n    ) AS R\nWHERE lms_track_tracktypeid = 6\nAND lms_track_opendt >= '2023-01-01'\nGROUP BY CASE WHEN lms_track_waybillid IS NULL THEN 'NULL' ELSE 'EXISTS' END\n,EOMONTH(lms_track_opendt)\n\nORDER BY MonthVal, CATEGORY",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

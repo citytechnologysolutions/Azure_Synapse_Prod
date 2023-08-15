@@ -1,0 +1,20 @@
+{
+	"name": "D_STPlcScanPoint",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Sorter"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STPlcScanPoint') )\n    DROP EXTERNAL TABLE dbo.D_STPlcScanPoint\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STPlcScanPoint (\n    [lms_plcscanpoint_id] int,\n    [lms_plcscanpoint_description] varchar(4000),\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stplcscanpoint.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STPlcScanPoint \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

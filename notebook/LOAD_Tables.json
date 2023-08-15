@@ -46,9 +46,9 @@
 					"#STOPS\r\n",
 					"#parcel_track = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet/\", format='parquet')\r\n",
 					"#parcel = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet/\", format='parquet')\r\n",
-					"#waybill = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet/\", format='parquet')\r\n",
+					"waybill = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet/\", format='parquet')\r\n",
 					"#location = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet/\", format='parquet')\r\n",
-					"#dispatch_segment = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdispatchsegment.parquet/\", format='parquet')\r\n",
+					"dispatch_segment = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdispatchsegment.parquet/\", format='parquet')\r\n",
 					"#del_pickup_cust = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet/\", format='parquet')\r\n",
 					"#load_parent = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet/\", format='parquet')\r\n",
 					"\r\n",
@@ -65,9 +65,9 @@
 					"#STOPS\r\n",
 					"#parcel_track.createOrReplaceTempView(\"parcel_track\")\r\n",
 					"#parcel.createOrReplaceTempView(\"parcel\")\r\n",
-					"#waybill.createOrReplaceTempView(\"waybill\")\r\n",
+					"waybill.createOrReplaceTempView(\"waybill\")\r\n",
 					"#location.createOrReplaceTempView(\"location\")\r\n",
-					"#dispatch_segment.createOrReplaceTempView(\"dispatch_segment\")\r\n",
+					"dispatch_segment.createOrReplaceTempView(\"dispatch_segment\")\r\n",
 					"#del_pickup_cust.createOrReplaceTempView(\"del_pickup_cust\")\r\n",
 					"#load_parent.createOrReplaceTempView(\"load_parent\")\r\n",
 					"\r\n",
@@ -78,9 +78,130 @@
 					"#trans_summary.createOrReplaceTempView(\"trans_summary\")\r\n",
 					"\r\n",
 					"#CTS Inputs\r\n",
-					"#dim_skippedreasoninclude.createOrReplaceTempView(\"dim_skippedreasoninclude\")"
+					"#dim_skippedreasoninclude.createOrReplaceTempView(\"dim_skippedreasoninclude\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"**Creating Customer master data from dispatch segment table**"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#LMS Customer Master\r\n",
+					"lms_customer = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet/\")\r\n",
+					"lms_customer.createOrReplaceTempView(\"lms_customer\")\r\n",
+					"\r\n",
+					"lms_customer.write.mode('overwrite').parquet(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/CTS/MasterData/lms_dbocustomer.parquet/\")"
 				],
 				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"\r\n",
+					"lms_customer_calc = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT\r\n",
+					"--lms_waybill_delivercustid ,COUNT(DISTINCT orv_dispatchsegment_todelid) AS NUM_DEL_IDS\r\n",
+					"*\r\n",
+					"FROM (\r\n",
+					"\tSELECT\r\n",
+					"\tT2.lms_waybill_delivercustid\r\n",
+					"\t,MAX(Latest_Lat) AS Latest_Lat\r\n",
+					"\t,MAX(Latest_Lng) AS Latest_Lng\r\n",
+					"\t,MAX(Latest_TAT) AS Latest_TAT\r\n",
+					"\t,MAX(MAX_CN) AS MODE_Count\r\n",
+					"\t,MAX(Mode_Lat) AS Mode_Lat\r\n",
+					"\t,MAX(Mode_Lng) AS Mode_Lng\r\n",
+					"\t,AVG(Mode_TAT) AS Mode_TAT\r\n",
+					"\t,AVG(DROP_TAT) AS AVG_DROP_TAT\r\n",
+					"\t,stddev(DROP_TAT) AS STDEV_DROP_TAT\r\n",
+					"\t,COUNT(*) AS NUM_ROWS_TOTAL\r\n",
+					"\tFROM (\r\n",
+					"\t\tSELECT\r\n",
+					"\t\tT1.lms_waybill_delivercustid\r\n",
+					"\t\t,T1.orv_dispatchsegment_tolat\r\n",
+					"\t\t,T1.orv_dispatchsegment_tolng\r\n",
+					"\t\t,CASE WHEN RN_ToDelDep = 1 THEN orv_dispatchsegment_tolat ELSE NULL END AS Latest_Lat\r\n",
+					"\t\t,CASE WHEN RN_ToDelDep = 1 THEN orv_dispatchsegment_tolng ELSE NULL END AS Latest_Lng\r\n",
+					"\t\t,CASE WHEN RN_ToDelDep = 1 THEN DROP_TAT ELSE NULL END AS Latest_TAT\r\n",
+					"\t\t,CASE WHEN CN_ToDelLatLng = MAX_CN THEN orv_dispatchsegment_tolat ELSE NULL END AS Mode_Lat\r\n",
+					"\t\t,CASE WHEN CN_ToDelLatLng = MAX_CN THEN orv_dispatchsegment_tolng ELSE NULL END AS Mode_Lng\r\n",
+					"\t\t,CASE WHEN CN_ToDelLatLng = MAX_CN THEN DROP_TAT ELSE NULL END AS Mode_TAT\r\n",
+					"\t\t,DROP_TAT\r\n",
+					"        ,MAX_CN\r\n",
+					"\t\tFROM (\r\n",
+					"\t\t\tSELECT\r\n",
+					"\t\t\t*\r\n",
+					"\t\t\t,MAX(CN_ToDelLatLng) OVER (PARTITION BY lms_waybill_delivercustid,orv_dispatchsegment_tolat,orv_dispatchsegment_tolng) AS MAX_CN\r\n",
+					"\t\t\tFROM (\r\n",
+					"\t\t\tSELECT\r\n",
+					"\t\t\tWB.lms_waybill_delivercustid\r\n",
+					"\t\t\t,orv_dispatchsegment_tolat\r\n",
+					"\t\t\t,orv_dispatchsegment_tolng\r\n",
+					"\t\t\t,CAST(\r\n",
+					"                unix_timestamp(orv_dispatchsegment_departuredate) -\r\n",
+					"                unix_timestamp(LAG(orv_dispatchsegment_arrivaldate,1) OVER (PARTITION BY orv_dispatchsegment_did ORDER BY orv_dispatchsegment_arrivaldate))\r\n",
+					"                 as float)/60/60 AS DROP_TAT\r\n",
+					"\t\t\t,ROW_NUMBER() OVER (PARTITION BY lms_waybill_delivercustid ORDER BY orv_dispatchsegment_departuredate desc) AS RN_ToDelDep\r\n",
+					"\t\t\t,COUNT(*) OVER (PARTITION BY lms_waybill_delivercustid,orv_dispatchsegment_tolat,orv_dispatchsegment_tolng) AS CN_ToDelLatLng\r\n",
+					"\t\t\tFROM dispatch_segment R\r\n",
+					"\t\t\tLEFT JOIN waybill WB ON R.orv_dispatchsegment_did = WB.orv_delivery_did AND R.orv_dispatchsegment_todelid = WB.orv_delivery_id\r\n",
+					"\t\t\tWHERE orv_dispatchsegment_optimized = 0\r\n",
+					"\t\t\tAND orv_dispatchsegment_fromlat <> 0\r\n",
+					"\t\t\tAND WB.lms_waybill_delivercustid IS NOT NULL\r\n",
+					"\t\t\t)T0\r\n",
+					"\t\t) T1\r\n",
+					"\t) T2\r\n",
+					"\tGROUP BY T2.lms_waybill_delivercustid\r\n",
+					") T3\r\n",
+					"--WHERE lms_waybill_delivercustid = 613902\r\n",
+					"--GROUP BY lms_waybill_delivercustid ORDER BY NUM_DEL_IDS desc\r\n",
+					"ORDER BY NUM_ROWS_TOTAL desc;\r\n",
+					"\"\"\")\r\n",
+					"\r\n",
+					"display(lms_customer_calc.limit(10))\r\n",
+					"\r\n",
+					"lms_customer_calc.createOrReplaceTempView(\"lms_customer_calc\")\r\n",
+					"lms_customer_calc.write.mode('overwrite').parquet(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/CTS/MasterData/lms_customer_dispatchsegment_calc.parquet/\")"
+				],
+				"execution_count": 10
 			}
 		]
 	}

@@ -1,0 +1,20 @@
+{
+	"name": "T_STPlcLpnRouting",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Sorter"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STPlcLpnRouting') )\n    DROP EXTERNAL TABLE dbo.T_STPlcLpnRouting\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STPlcLpnRouting (\n    [lms_plclpnrouting_id] int,\n    [lms_plclpnrouting_autosystemid] int,\n    [lms_plclpnrouting_lpn] nvarchar(4000),\n    [lms_plclpnrouting_divertid] int,\n    [lms_plclpnrouting_scanpoint] int,\n    [lms_plclpnrouting_status] int,\n    [lms_plclpnrouting_datereceived] datetime2(7),\n    [lms_plclpnrouting_dateupdated] datetime2(7),\n    [lms_plclpnrouting_plcdivertid] int,\n    [lms_plclpnrouting_cldivertid] int,\n    [lms_plclpnrouting_divertdescription] nvarchar(4000),\n    [lms_parcel_id] int,\n    [lms_parcel_orderid] int,\n    [lms_parcel_consignid] int,\n    [lms_parcel_waybillid] int,\n    [lms_parcel_pdate] datetime2(7),\n    [lms_parcel_orderbillcustid] int,\n    [lms_parcel_orderdelivercustid] int,\n    [excel_sorterchutes_location] nvarchar(4000),\n    [excel_sortertimestudy_averageminsperparcel] decimal(36,6),\n    [excel_sorterstaffallocation_generalworkerallocation] nvarchar(4000),\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stplclpnrouting.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STPlcLpnRouting \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

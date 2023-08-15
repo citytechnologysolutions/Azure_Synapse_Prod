@@ -1,0 +1,20 @@
+{
+	"name": "vw_CTS_Activity_ParcelTrack_Monthly",
+	"properties": {
+		"folder": {
+			"name": "Mitchell/CTS"
+		},
+		"content": {
+			"query": "-- This is auto-generated code\nSELECT\n    TOP 100 *\nFROM\n    OPENROWSET(BULK 'https://citylogisticsstorage.dfs.core.windows.net/synapse/DataLake Dev/CTS/Calculated_Tables/vw_CTS_Activity_ParcelTrack_Monthly.parquet/**',FORMAT = 'PARQUET') AS [result]\nWHERE lms_track_tracktypeid = 6--NOT IN  (2,8,5)\n\n\n    SELECT\nPARCELTRACK_MONTH\n,lms_track_fromlocid\n,FROM_LOC_CODE\n,SUM(NUM_TRACKS) AS NUM_TRACKS\nFROM OPENROWSET(BULK 'https://citylogisticsstorage.dfs.core.windows.net/synapse/DataLake Dev/CTS/Calculated_Tables/vw_CTS_Activity_ParcelTrack_Monthly.parquet/**',FORMAT = 'PARQUET') AS [result]\nGROUP BY PARCELTRACK_MONTH\n,lms_track_fromlocid\n,FROM_LOC_CODE\n\n\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "master",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

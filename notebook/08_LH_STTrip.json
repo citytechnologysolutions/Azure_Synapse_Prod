@@ -34,12 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
-				}
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -72,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -126,7 +133,7 @@
 					"# dbopeoplebasic.createOrReplaceTempView(\"dbopeoplebasic\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -212,7 +219,7 @@
 					"LEFT JOIN dbopeoplebasic pb on pb.uid = lt.driverid\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -230,7 +237,7 @@
 				"source": [
 					"sttrip_tms = spark.sql(\"SELECT * FROM sttrip_tms\")"
 				],
-				"execution_count": 4
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -270,7 +277,7 @@
 					"AND lb.bookingtypeid in (1,3)\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -288,7 +295,7 @@
 				"source": [
 					"stthirdparty_tmp = spark.sql(\"SELECT * FROM stthirdparty_tmp\")"
 				],
-				"execution_count": 6
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -341,7 +348,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -359,7 +366,7 @@
 				"source": [
 					"sttrip_lms_tmp0 = spark.sql(\"SELECT * FROM sttrip_lms_tmp0\")"
 				],
-				"execution_count": 8
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -375,7 +382,8 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
@@ -387,7 +395,7 @@
 					"FROM sttrip_lms_tmp0\r\n",
 					"WHERE rownum = 1"
 				],
-				"execution_count": null
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -405,7 +413,7 @@
 				"source": [
 					"sttrip_lms_tmp1 = spark.sql(\"SELECT * FROM sttrip_lms_tmp1\")"
 				],
-				"execution_count": null
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -447,7 +455,7 @@
 					",t.FleetNo\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",
@@ -465,7 +473,7 @@
 				"source": [
 					"sttrip_lms_tmp2 = spark.sql(\"SELECT * FROM sttrip_lms_tmp2\")"
 				],
-				"execution_count": 10
+				"execution_count": 36
 			},
 			{
 				"cell_type": "code",
@@ -506,7 +514,7 @@
 					"AND lb.bookingtypeid in (1,3)\r\n",
 					"AND lbpt.tripid >0"
 				],
-				"execution_count": 11
+				"execution_count": 37
 			},
 			{
 				"cell_type": "code",
@@ -524,7 +532,7 @@
 				"source": [
 					"sttrip_lms_tmp3 = spark.sql(\"SELECT * FROM sttrip_lms_tmp3\")"
 				],
-				"execution_count": 12
+				"execution_count": 38
 			},
 			{
 				"cell_type": "code",
@@ -561,7 +569,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 13
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -579,7 +587,7 @@
 				"source": [
 					"sttrip_lms_tmp4 = spark.sql(\"SELECT * FROM sttrip_lms_tmp4\")"
 				],
-				"execution_count": 14
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
@@ -675,7 +683,7 @@
 					"-- AND lb.bookingtypeid in (1,3)\r\n",
 					""
 				],
-				"execution_count": 15
+				"execution_count": 41
 			},
 			{
 				"cell_type": "code",
@@ -693,7 +701,7 @@
 				"source": [
 					"sttrip_lms = spark.sql(\"SELECT * FROM sttrip_lms\")"
 				],
-				"execution_count": 16
+				"execution_count": 42
 			},
 			{
 				"cell_type": "code",
@@ -712,7 +720,7 @@
 					"sttrip_tmp = sttrip_tms.unionByName(sttrip_lms, allowMissingColumns = True)\r\n",
 					"sttrip_tmp.createOrReplaceTempView(\"sttrip_tmp\")"
 				],
-				"execution_count": 17
+				"execution_count": 43
 			},
 			{
 				"cell_type": "code",
@@ -836,7 +844,7 @@
 					"FROM sttrip_tmp st\r\n",
 					"LEFT JOIN publicDispatch d on d.lmsid = st.tms_trip_id and d.vehicletype = 2 and tmsmode = 2"
 				],
-				"execution_count": 18
+				"execution_count": 44
 			},
 			{
 				"cell_type": "code",
@@ -854,7 +862,7 @@
 				"source": [
 					"sttrip = spark.sql(\"SELECT * FROM sttrip\")"
 				],
-				"execution_count": 19
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -872,7 +880,7 @@
 				"source": [
 					"# sttrip.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 20
+				"execution_count": 47
 			},
 			{
 				"cell_type": "code",
@@ -890,7 +898,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": null
+				"execution_count": 48
 			}
 		]
 	}

@@ -1,0 +1,210 @@
+{
+	"name": "RptParcelLevel",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/LMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "DevSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "41cdee3a-abd2-476c-851f-a6474d0d915c"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#Create DataFrame for the stparcel LMS Table\r\n",
+					"stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', format='parquet')\r\n",
+					"stparcel.createOrReplaceTempView(\"stparcel\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the stdeliverypickupcustomer LMS Table\r\n",
+					"stdeliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', format='parquet')\r\n",
+					"stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the stbillcustomer LMS Table\r\n",
+					"stbillcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbillcustomer.parquet', format='parquet')\r\n",
+					"stbillcustomer.createOrReplaceTempView(\"stbillcustomer\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dboplc_lpnrouting_history_centurion LMS Table\r\n",
+					"dboplc_lpnrouting_history_centurion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboplc_lpnrouting_history_centurion.parquet', format='parquet')\r\n",
+					"dboplc_lpnrouting_history_centurion.createOrReplaceTempView(\"dboplc_lpnrouting_history_centurion\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbosroute lms table\r\n",
+					"dbosroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbosroute.parquet', format='parquet')\r\n",
+					"dbosroute.createOrReplaceTempView(\"dbosroute\")"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"rptparcellevel\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"     p.*\r\n",
+					"    ,c.id as lms_cenplclpnrouting_id\r\n",
+					"    ,c.autosystemid as lms_cenplclpnrouting_autosystemid\r\n",
+					"    ,c.lpn as lms_cenplclpnrouting_lpn\r\n",
+					"    ,c.divertid as lms_cenplclpnrouting_divertid\r\n",
+					"    ,c.scanpoint as lms_cenplclpnrouting_scanpoint\r\n",
+					"    ,c.status as lms_cenplclpnrouting_status\r\n",
+					"    ,c.datereceived as lms_cenplclpnrouting_datereceived\r\n",
+					"    ,c.dateupdated as lms_cenplclpnrouting_dateupdated\r\n",
+					"    ,c.plcdivertid as lms_cenplclpnrouting_plcdivertid\r\n",
+					"    ,c.cldivertid as lms_cenplclpnrouting_cldivertid\r\n",
+					"    ,c.divertdescription as lms_cenplclpnrouting_divertdescription\r\n",
+					"    ,c.elapsed_ms as lms_cenplclpnrouting_elapsed_ms\r\n",
+					"    ,c.elapsed1_ms as lms_cenplclpnrouting_elapsed1_ms\r\n",
+					"    ,c.elapsed2_ms as lms_cenplclpnrouting_elapsed2_ms\r\n",
+					"    ,c.elapsed3_ms as lms_cenplclpnrouting_elapsed3_ms\r\n",
+					"    ,c.elapsed4_ms as lms_cenplclpnrouting_elapsed4_ms\r\n",
+					"    ,c.elapsed5_ms as lms_cenplclpnrouting_elapsed5_ms\r\n",
+					"    ,c.elapsed6_ms as lms_cenplclpnrouting_elapsed6_ms\r\n",
+					"    ,bc.lms_customer_name as lms_parcel_orderbillcustname\r\n",
+					"    ,dc.lms_customer_name as lms_parcel_orderdelivercustname\r\n",
+					"    ,dc.lms_customer_cref as lms_parcel_orderdelivercustcref\r\n",
+					"    ,dc.lms_customer_srouteid as lms_parcel_orderdelivercustsrouteid\r\n",
+					"    ,ds.description as lms_parcel_sroutedescriptiondelivercust\r\n",
+					"    ,pc.lms_customer_cref as lms_parcel_orderpickupcustcref\r\n",
+					"    ,pc.lms_customer_srouteid as lms_parcel_orderpickupcustsrouteid\r\n",
+					"    ,ps.description as lms_parcel_sroutedescriptionpickupcust\r\n",
+					"\r\n",
+					"FROM stparcel p\r\n",
+					"LEFT JOIN dboplc_lpnrouting_history_centurion c on c.lpn = p.lms_parcel_barcode\r\n",
+					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id =  p.lms_parcel_orderbillcustid\r\n",
+					"LEFT JOIN stdeliverypickupcustomer dc on dc.lms_customer_id =  p.lms_parcel_orderdelivercustid\r\n",
+					"LEFT JOIN stdeliverypickupcustomer pc on pc.lms_customer_id =  p.lms_parcel_orderpickupcustid\r\n",
+					"LEFT JOIN dbosroute ds on ds.id = dc.lms_customer_srouteid\r\n",
+					"LEFT JOIN dbosroute ps on ps.id = pc.lms_customer_srouteid\r\n",
+					"WHERE lms_parcel_pdate >= (to_timestamp(year(current_date())||'-'||(month(current_date())-12)||'-'||'01'))"
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rptparcellevel = spark.sql(\"SELECT * FROM rptparcellevel\")"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rptparcellevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 19
+			}
+		]
+	}
+}

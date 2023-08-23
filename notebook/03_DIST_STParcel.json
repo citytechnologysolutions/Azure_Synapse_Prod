@@ -35,19 +35,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.1",
 				"nodeCount": 10,
 				"cores": 8,
 				"memory": 56,
-				"automaticScaleJobs": false
+				"automaticScaleJobs": true
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -80,7 +80,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 23
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -126,7 +126,7 @@
 					"# dbocustacc.createOrReplaceTempView(\"dbocustacc\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -168,7 +168,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -297,7 +297,7 @@
 					"AND p.locid NOT IN (163,110,213,27)\r\n",
 					""
 				],
-				"execution_count": 4
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -325,12 +325,12 @@
 					"    p.lms_parcel_id\r\n",
 					"    ,sum(holiday)*86400 as holidays\r\n",
 					"FROM stparcel_tmp2 p\r\n",
-					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_parcel_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_parcel_actualleaddaysenddate)) and Holiday = 1\r\n",
+					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_parcel_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_parcel_actualleaddaysenddate))\r\n",
 					"GROUP BY p.lms_parcel_id\r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -356,11 +356,11 @@
 					"AS\r\n",
 					"SELECT \r\n",
 					"    p.*\r\n",
-					"    ,(to_unix_timestamp(p.lms_parcel_actualleaddaysenddate) - to_unix_timestamp(p.lms_parcel_actualleaddaysstartdate) - p1.holidays)/86400 as lms_parcel_actualleaddays\r\n",
+					"    ,(to_unix_timestamp(p.lms_parcel_actualleaddaysenddate) - to_unix_timestamp(p.lms_parcel_actualleaddaysstartdate) - coalesce(p1.holidays,0))/86400 as lms_parcel_actualleaddays\r\n",
 					"FROM stparcel_tmp2 p\r\n",
 					"LEFT JOIN stparcel_tmp3 p1 on p1.lms_parcel_id = p.lms_parcel_id"
 				],
-				"execution_count": 6
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -404,7 +404,7 @@
 					"FROM stparcel_tmp4\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -443,7 +443,7 @@
 					"FROM stparcel_tmp5 p\r\n",
 					"LEFT JOIN stvsmparcel v ON v.lms_track_parcelid = p.lms_parcel_id"
 				],
-				"execution_count": 8
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -461,7 +461,7 @@
 				"source": [
 					"stparcel = spark.sql(\"SELECT * FROM stparcel\")"
 				],
-				"execution_count": 9
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -479,7 +479,7 @@
 				"source": [
 					"# stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -497,7 +497,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 11
+				"execution_count": 14
 			}
 		]
 	}

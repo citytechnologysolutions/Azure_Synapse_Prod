@@ -1,0 +1,234 @@
+{
+	"name": "RowCount",
+	"properties": {
+		"folder": {
+			"name": "DEV/DataAutomationChecks"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "TESTSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "e8db417e-6901-4ddf-a05c-da627bbbc348"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
+				"name": "TESTSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.3",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"from pyspark.sql.functions import col, lit, current_timestamp"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Initialize an empty DataFrame for logging\r\n",
+					"schema = [\"TableName\", \"Date\", \"FilePath\", \"RowCount\", \"PrevRowCountCheck\"]\r\n",
+					"row_count_checks = spark.createDataFrame([], schema)\r\n",
+					"# write to storage"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\r\n",
+					"\r\n",
+					"def log_row_count_check(df, table_name, file_path):\r\n",
+					"    global row_count_checks\r\n",
+					"    current_count = df.count()\r\n",
+					"    \r\n",
+					"    # Extract the most recent row count for this table if available\r\n",
+					"    last_row = row_count_checks.filter(col(\"TableName\") == table_name).orderBy(col(\"Date\").desc()).limit(1).collect()\r\n",
+					"    prev_count = last_row[0].RowCount if last_row else None\r\n",
+					"    \r\n",
+					"    # Check if current row count is more than previous count\r\n",
+					"    prev_row_count_check = None if prev_count is None else (current_count > prev_count)\r\n",
+					"    \r\n",
+					"    # Create a new row for logging\r\n",
+					"    new_row = spark.createDataFrame([(table_name, current_timestamp(), file_path, current_count, prev_row_count_check)], schema)\r\n",
+					"    \r\n",
+					"    # Append to the logging DataFrame\r\n",
+					"    row_count_checks = row_count_checks.union(new_row)\r\n",
+					"\r\n",
+					"# Test the function\r\n",
+					"df1 = spark.createDataFrame([(1, 'foo'), (2, 'bar'), (3, 'baz')], ['ID', 'Value'])\r\n",
+					"log_row_count_check(df1, 'TestTable', '/path/to/file1')\r\n",
+					"\r\n",
+					"df2 = spark.createDataFrame([(1, 'foo'), (2, 'bar'), (3, 'baz'), (4, 'qux')], ['ID', 'Value'])\r\n",
+					"log_row_count_check(df2, 'TestTable', '/path/to/file2')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## MetaData Check"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"data_source_path = \"path_to_data_source_file\"\r\n",
+					"\r\n",
+					"# Get the last modified timestamp\r\n",
+					"last_modified = os.path.getmtime(data_source_path)\r\n",
+					"\r\n",
+					"# Convert timestamp to a readable date\r\n",
+					"last_modified_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(last_modified))\r\n",
+					"\r\n",
+					"# Read the stored last modified date from the DataFrame\r\n",
+					"try:\r\n",
+					"    stored_df = pd.read_csv(\"last_modified_log.csv\")\r\n",
+					"except FileNotFoundError:\r\n",
+					"    stored_df = pd.DataFrame(columns=[\"DataSourceName\", \"LastModifiedDate\", \"Refresh_Success\"])\r\n",
+					"\r\n",
+					"# Compare with the current last modified date\r\n",
+					"if stored_df.empty or stored_df.iloc[-1][\"LastModifiedDate\"] != last_modified_date:\r\n",
+					"    refresh_success = \"Yes\"\r\n",
+					"    print(\"Data refresh successful.\")\r\n",
+					"else:\r\n",
+					"    refresh_success = \"No\"\r\n",
+					"    print(\"Alert: Data has not been refreshed.\")\r\n",
+					"    # Implement your alerting mechanism here\r\n",
+					"\r\n",
+					"# Append the new entry to the DataFrame\r\n",
+					"new_entry = pd.DataFrame([[data_source_path, last_modified_date, refresh_success]], columns=[\"DataSourceName\", \"LastModifiedDate\", \"Refresh_Success\"])\r\n",
+					"updated_df = pd.concat([stored_df, new_entry], ignore_index=True)\r\n",
+					"\r\n",
+					"# Save the updated DataFrame to a CSV file\r\n",
+					"updated_df.to_csv(\"last_modified_log.csv\", index=False)"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Duplicates Check"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load data from the data lake\r\n",
+					"data = spark.read.parquet(\"path_to_data_in_data_lake\")\r\n",
+					"\r\n",
+					"# Identify unique keys for deduplication (e.g., primary keys)\r\n",
+					"unique_keys = [\"id\", \"timestamp\"]\r\n",
+					"\r\n",
+					"# Deduplicate data\r\n",
+					"deduplicated_data = data.dropDuplicates(subset=unique_keys)\r\n",
+					"\r\n",
+					"# Count the number of duplicate rows\r\n",
+					"duplicate_count = data.count() - deduplicated_data.count()\r\n",
+					"\r\n",
+					"# Alert or report duplicate count\r\n",
+					"if duplicate_count > 0:\r\n",
+					"    print(f\"Found {duplicate_count} duplicate rows.\")\r\n",
+					"    # Implement alerting mechanism here\r\n",
+					"\r\n",
+					"# Write the deduplicated data back to the data lake\r\n",
+					"deduplicated_data.write.parquet(\"path_to_deduplicated_data\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

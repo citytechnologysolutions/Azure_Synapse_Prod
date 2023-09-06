@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "e8db417e-6901-4ddf-a05c-da627bbbc348"
+				"spark.autotune.trackingId": "f5acf238-9642-440c-8f26-27591f0f9659"
 			}
 		},
 		"metadata": {
@@ -54,9 +54,12 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"from pyspark.sql.functions import col, lit, current_timestamp"
+					"from pyspark.sql.functions import col, lit, current_timestamp\r\n",
+					"from pyspark.sql import functions as F\r\n",
+					"from pyspark.sql.types import StructType, StructField, StringType, IntegerType\r\n",
+					"from datetime import datetime"
 				],
-				"execution_count": 3
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -72,12 +75,17 @@
 					}
 				},
 				"source": [
-					"# Initialize an empty DataFrame for logging\r\n",
-					"schema = [\"TableName\", \"Date\", \"FilePath\", \"RowCount\", \"PrevRowCountCheck\"]\r\n",
-					"row_count_checks = spark.createDataFrame([], schema)\r\n",
-					"# write to storage"
+					"# Define schema for the logging DataFrame\r\n",
+					"schema = StructType([\r\n",
+					"    StructField(\"TableName\", StringType(), True),\r\n",
+					"    StructField(\"DateTime\", StringType(), True),\r\n",
+					"    StructField(\"RowCount\", IntegerType(), True),\r\n",
+					"    StructField(\"Diff\", StringType(), True)\r\n",
+					"])\r\n",
+					"\r\n",
+					"log_df = spark.createDataFrame([], schema)"
 				],
-				"execution_count": 4
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -93,33 +101,89 @@
 					}
 				},
 				"source": [
+					"# Create some test tables with mock data\r\n",
+					"table1 = spark.createDataFrame([(1, 'foo'), (2, 'bar'), (3, 'baz')], ['id', 'value'])\r\n",
+					"table2 = spark.createDataFrame([(4, 'apple'), (5, 'banana')], ['id', 'fruit'])\r\n",
+					"table3 = spark.createDataFrame([(6, 'car'), (7, 'bus'), (8, 'bike'), (9, 'plane')], ['id', 'vehicle'])\r\n",
 					"\r\n",
-					"\r\n",
-					"def log_row_count_check(df, table_name, file_path):\r\n",
-					"    global row_count_checks\r\n",
-					"    current_count = df.count()\r\n",
-					"    \r\n",
-					"    # Extract the most recent row count for this table if available\r\n",
-					"    last_row = row_count_checks.filter(col(\"TableName\") == table_name).orderBy(col(\"Date\").desc()).limit(1).collect()\r\n",
-					"    prev_count = last_row[0].RowCount if last_row else None\r\n",
-					"    \r\n",
-					"    # Check if current row count is more than previous count\r\n",
-					"    prev_row_count_check = None if prev_count is None else (current_count > prev_count)\r\n",
-					"    \r\n",
-					"    # Create a new row for logging\r\n",
-					"    new_row = spark.createDataFrame([(table_name, current_timestamp(), file_path, current_count, prev_row_count_check)], schema)\r\n",
-					"    \r\n",
-					"    # Append to the logging DataFrame\r\n",
-					"    row_count_checks = row_count_checks.union(new_row)\r\n",
-					"\r\n",
-					"# Test the function\r\n",
-					"df1 = spark.createDataFrame([(1, 'foo'), (2, 'bar'), (3, 'baz')], ['ID', 'Value'])\r\n",
-					"log_row_count_check(df1, 'TestTable', '/path/to/file1')\r\n",
-					"\r\n",
-					"df2 = spark.createDataFrame([(1, 'foo'), (2, 'bar'), (3, 'baz'), (4, 'qux')], ['ID', 'Value'])\r\n",
-					"log_row_count_check(df2, 'TestTable', '/path/to/file2')"
+					"# Register the DataFrames as tables to mimic actual tables in a data lake\r\n",
+					"table1.createOrReplaceTempView('table1')\r\n",
+					"table2.createOrReplaceTempView('table2')\r\n",
+					"table3.createOrReplaceTempView('table3')"
 				],
-				"execution_count": null
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# List of table names you want to monitor\r\n",
+					"tables_to_monitor = [\"table1\", \"table2\", \"table3\"]\r\n",
+					"\r\n",
+					"for table_name in tables_to_monitor:\r\n",
+					"    try:\r\n",
+					"        # Read the table from the data lake into a DataFrame\r\n",
+					"        df = spark.table(table_name)\r\n",
+					"\r\n",
+					"        # Count the number of rows\r\n",
+					"        current_count = df.count()\r\n",
+					"\r\n",
+					"        # Get the DateTime\r\n",
+					"        current_datetime = datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\")\r\n",
+					"\r\n",
+					"        # Fetch the most recent row count for this table from log_df\r\n",
+					"        latest_row = log_df.filter(F.col(\"TableName\") == table_name).orderBy(F.col(\"DateTime\").desc()).limit(1).collect()\r\n",
+					"\r\n",
+					"        if len(latest_row) == 0:\r\n",
+					"            # This is the first entry for this table\r\n",
+					"            diff = \"NA\"\r\n",
+					"        else:\r\n",
+					"            previous_count = latest_row[0][\"RowCount\"]\r\n",
+					"            diff = current_count - previous_count\r\n",
+					"            \r\n",
+					"            # Alert if the row count stays the same\r\n",
+					"            if diff == 0:\r\n",
+					"                print(f\"Alert: Row count for {table_name} has not changed. Still {current_count}.\")\r\n",
+					"\r\n",
+					"        # Append the new data to log_df\r\n",
+					"        new_row = spark.createDataFrame([(table_name, current_datetime, current_count, str(diff))], schema)\r\n",
+					"        log_df = log_df.union(new_row)\r\n",
+					"\r\n",
+					"    except Exception as e:\r\n",
+					"        print(f\"Error processing table {table_name}: {str(e)}\", file=sys.stderr)\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"display(log_df)"
+				],
+				"execution_count": 12
 			},
 			{
 				"cell_type": "markdown",

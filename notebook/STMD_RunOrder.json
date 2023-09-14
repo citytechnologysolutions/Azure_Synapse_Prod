@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "d6add0d0-64c9-415d-8b1e-bdd05148bf16"
+				"spark.autotune.trackingId": "1879e864-8b77-4bf4-beac-4cd8fc7edd02"
 			}
 		},
 		"metadata": {
@@ -167,7 +167,15 @@
 					"\r\n",
 					"#Create DataFrame for the dbovehicletracking MD Table\r\n",
 					"dbovehicletracking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicletracking.parquet', format='parquet')\r\n",
-					"dbovehicletracking.createOrReplaceTempView(\"dbovehicletracking\")"
+					"dbovehicletracking.createOrReplaceTempView(\"dbovehicletracking\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dbovehicle MD Table\r\n",
+					"dbovehicle = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbovehicle.parquet', format='parquet')\r\n",
+					"dbovehicle.createOrReplaceTempView(\"dbovehicle\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publicvehicle MD Table\r\n",
+					"publicvehicle = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicvehicle.parquet', format='parquet')\r\n",
+					"publicvehicle.createOrReplaceTempView(\"publicvehicle\")"
 				],
 				"execution_count": 5
 			},

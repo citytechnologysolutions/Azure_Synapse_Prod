@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -180,9 +180,92 @@
 					"# dbocustacc = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustacc.parquet', format='parquet')\r\n",
 					"# dbocustacc.createOrReplaceTempView(\"dbocustacc\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the dborouteratetype LMS Table\r\n",
+					"# dborouteratetype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dborouteratetype.parquet', format='parquet')\r\n",
+					"# dborouteratetype.createOrReplaceTempView(\"dborouteratetype\")\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"strouteratetype\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\tid as lms_routeratetype_id\r\n",
+					"\t,minkg as lms_routeratetype_minkg\r\n",
+					"\t,minrate as lms_routeratetype_minrate\r\n",
+					"\t,addrate as lms_routeratetype_addrate\r\n",
+					"\t,altaddrate as lms_routeratetype_altaddrate\r\n",
+					"\t,docfees as lms_routeratetype_docfees\r\n",
+					"\t,volumetric as lms_routeratetype_volumetric\r\n",
+					"\t,description as lms_routeratetype_description\r\n",
+					"\t,fuellevy as lms_routeratetype_fuellevy\r\n",
+					"\t,custaccid as lms_routeratetype_custaccid\r\n",
+					"\t,billcustid as lms_routeratetype_billcustid\r\n",
+					"\t,servicetime as lms_routeratetype_servicetime\r\n",
+					"\t,servicedays as lms_routeratetype_servicedays\r\n",
+					"\t,broutemasterid as lms_routeratetype_broutemasterid\r\n",
+					"\t,cutofftime as lms_routeratetype_cutofftime\r\n",
+					"\r\n",
+					"FROM dborouteratetype"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"strouteratetype = spark.sql(\"SELECT * FROM strouteratetype\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# strouteratetype.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/strouteratetype.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",

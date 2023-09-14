@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 18
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -102,9 +102,18 @@
 					"\r\n",
 					"# #Create DataFrame for the dbovehicletracking MD Table\r\n",
 					"# dbovehicletracking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbovehicletracking.parquet', format='parquet')\r\n",
-					"# dbovehicletracking.createOrReplaceTempView(\"dbovehicletracking\")"
+					"# dbovehicletracking.createOrReplaceTempView(\"dbovehicletracking\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbovehicle MD Table\r\n",
+					"# dbovehicle = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbovehicle.parquet', format='parquet')\r\n",
+					"# dbovehicle.createOrReplaceTempView(\"dbovehicle\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the publicvehicle MD Table\r\n",
+					"# publicvehicle = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicvehicle.parquet', format='parquet')\r\n",
+					"# publicvehicle.createOrReplaceTempView(\"publicvehicle\")\r\n",
+					""
 				],
-				"execution_count": 19
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -226,6 +235,9 @@
 					"    ,to_timestamp(vt.linkdate) as md_vehicle_linkdate\r\n",
 					"    ,vt.linkby as md_vehicle_linkby\r\n",
 					"    ,vt.linkbyname as md_vehicle_linkbyname\r\n",
+					"    ,vl.id as md_vehicle_lmsid\r\n",
+					"    ,vorv.id as md_vehicle_orvid\r\n",
+					"\r\n",
 					"\r\n",
 					"\r\n",
 					"FROM dbovehiclebasic vb \r\n",
@@ -233,9 +245,12 @@
 					"LEFT JOIN dbovehicleoperations vo on vo.vid = vb.id\r\n",
 					"LEFT JOIN dbovehiclefinance vf on vf.vid = vb.id\r\n",
 					"LEFT JOIN dbovehicletracking vt on vt.vid = vb.id\r\n",
+					"LEFT JOIN dbovehicle vl on vl.uid = vb.uid\r\n",
+					"LEFT JOIN publicvehicle vorv on vorv.lmsid = vl.id\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": 21
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -253,7 +268,7 @@
 				"source": [
 					"stmdvehicle = spark.sql(\"SELECT * FROM stmdvehicle\")"
 				],
-				"execution_count": 22
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -269,11 +284,27 @@
 					}
 				},
 				"source": [
-					"# stmdvehicle.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/MD/stmdvehicle.parquet', mode = \"overwrite\")\r\n",
-					"\r\n",
+					"# stmdvehicle.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/MD/stmdvehicle.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 23
+				"execution_count": 12
 			}
 		]
 	}

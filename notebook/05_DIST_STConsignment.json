@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 17
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -96,6 +96,10 @@
 					"# dbobill_consignmentr = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
 					"# dbobill_consignmentr.createOrReplaceTempView(\"dbobill_consignmentr\")\r\n",
 					"\r\n",
+					"# #create dataframe for the dbobill_billcustomersr lms table\r\n",
+					"# dbobill_billcustomersr = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_billcustomersr.parquet', format='parquet')\r\n",
+					"# dbobill_billcustomersr.createOrReplaceTempView(\"dbobill_billcustomersr\")\r\n",
+					"\r\n",
 					"# #create dataframe for the sstparcelunion lms table\r\n",
 					"# sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
 					"# sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
@@ -109,7 +113,7 @@
 					"# dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")\r\n",
 					""
 				],
-				"execution_count": 18
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -226,15 +230,17 @@
 					"    ,bcr.QuoteMissingFlag as lms_billconsignmentr_quotemissingflag\r\n",
 					"    ,bcr.DeliverTypeID as lms_billconsignmentr_delivertypeid\r\n",
 					"    ,bcr.TotCovidSurcharge as lms_billconsignmentr_totcovidsurcharge\r\n",
+					"    ,bcc.sapcode as lms_billbillcustomersr_sapcode\r\n",
 					"\r\n",
 					"FROM\r\n",
 					"sstconsignemntunion c\r\n",
 					"LEFT JOIN sstparcelbyconsignment pbc on c.id= pbc.lms_parcelbyconsignment_consignid\r\n",
 					"LEFT JOIN dbobill_consignmentr bcr on c.id= bcr.consignid\r\n",
+					"LEFT JOIN dbobill_billcustomersr bcc on bcc.billcustid = bcr.billcust\r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 19
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -268,7 +274,7 @@
 					"WHERE p.consignid is not null\r\n",
 					"GROUP BY p.consignid"
 				],
-				"execution_count": 20
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -308,7 +314,7 @@
 					"FROM stconsignment_tmp1 c\r\n",
 					"LEFT JOIN stconsignment_Tmp2 c2 ON c2.consignid = c.lms_consignment_id"
 				],
-				"execution_count": 21
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -339,7 +345,7 @@
 					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_consignment_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_consignment_actualleaddaysenddate))\r\n",
 					"GROUP BY c.lms_consignment_id"
 				],
-				"execution_count": 22
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -369,7 +375,7 @@
 					"FROM stconsignment_tmp3 c\r\n",
 					"LEFT JOIN stconsignment_tmp4 c1 on c1.lms_consignment_id = c.lms_consignment_id"
 				],
-				"execution_count": 23
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -413,7 +419,7 @@
 					"FROM stconsignment_tmp5\r\n",
 					""
 				],
-				"execution_count": 24
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -431,7 +437,7 @@
 				"source": [
 					"stconsignment = spark.sql(\"SELECT * FROM stconsignment\")"
 				],
-				"execution_count": 25
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -449,7 +455,7 @@
 				"source": [
 					"# stconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stconsignment.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 26
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -467,7 +473,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 27
+				"execution_count": 12
 			}
 		]
 	}

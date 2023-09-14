@@ -1,0 +1,20 @@
+{
+	"name": "D_STRouteRateType",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STRouteRateType') )\n    DROP EXTERNAL TABLE dbo.D_STRouteRateType\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STRouteRateType (\n[lms_routeratetype_id] int,\n[lms_routeratetype_minkg] numeric(36,6),\n[lms_routeratetype_minrate] numeric(36,6),\n[lms_routeratetype_addrate] numeric(36,6),\n[lms_routeratetype_altaddrate] numeric(36,6),\n[lms_routeratetype_docfees] numeric(36,6),\n[lms_routeratetype_volumetric] int,\n[lms_routeratetype_description] nvarchar(4000),\n[lms_routeratetype_fuellevy] numeric(36,6),\n[lms_routeratetype_custaccid] int,\n[lms_routeratetype_billcustid] int,\n[lms_routeratetype_servicetime] numeric(36,6),\n[lms_routeratetype_servicedays] numeric(36,6),\n[lms_routeratetype_broutemasterid] int,\n[lms_routeratetype_cutofftime] numeric(36,6),\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/strouteratetype.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STRouteRateType \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

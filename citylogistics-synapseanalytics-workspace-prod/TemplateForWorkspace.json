@@ -7544,6 +7544,113 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/Finance End-to-End')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Sap Source Incremental load",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "SAP LOAD PROD",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"CW_Items": "[{\"Source\":{\"TableName\":\"IGE1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboige1\"}}\n,{\"Source\":{\"TableName\":\"IGN1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboign1\"}}\n,{\"Source\":{\"TableName\":\"INV1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboinv1\"}}\n,{\"Source\":{\"TableName\":\"JDT1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"TransId\"},\"destination\":{\"FileName\":\"dbojdt1\"}}\n,{\"Source\":{\"TableName\":\"MRV1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbomrv1\"}}\n,{\"Source\":{\"TableName\":\"MRV2\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbomrv2\"}}\n,{\"Source\":{\"TableName\":\"OIGE\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbooige\"}}\n,{\"Source\":{\"TableName\":\"OIGN\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbooign\"}}\n,{\"Source\":{\"TableName\":\"OINM\"},\"Increment\":{\"IncField\":\"transnum\",\"IdField\":\"TransNum\"},\"destination\":{\"FileName\":\"dbooinm\"}}\n,{\"Source\":{\"TableName\":\"OINV\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbooinv\"}}\n,{\"Source\":{\"TableName\":\"OJDT\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"TransId\"},\"destination\":{\"FileName\":\"dboojdt\"}}\n,{\"Source\":{\"TableName\":\"OMRV\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboomrv\"}}\n,{\"Source\":{\"TableName\":\"OPCH\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboopch\"}}\n,{\"Source\":{\"TableName\":\"OPDN\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboopdn\"}}\n,{\"Source\":{\"TableName\":\"OPOR\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboopor\"}}\n,{\"Source\":{\"TableName\":\"ORIN\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboorin\"}}\n,{\"Source\":{\"TableName\":\"ORPC\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboorpc\"}}\n,{\"Source\":{\"TableName\":\"PCH1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbopch1\"}}\n,{\"Source\":{\"TableName\":\"PDN1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbopdn1\"}}\n,{\"Source\":{\"TableName\":\"POR1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbopor1\"}}\n,{\"Source\":{\"TableName\":\"RIN1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dborin1\"}}\n,{\"Source\":{\"TableName\":\"RPC1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dborpc1\"}}\n,{\"Source\":{\"TableName\":\"RPD1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dborpd1\"}}\n,{\"Source\":{\"TableName\":\"OITM\"},\"Increment\":{\"IncField\":\"itemcode\",\"IdField\":\"ItemCode\"},\"destination\":{\"FileName\":\"dbooitm\"}}]",
+								"TakeOnPeriod": " ",
+								"Full_Load": true,
+								"ColumnsNamesBlankSpaces": false,
+								"LimitedLoadTopX": " "
+							}
+						}
+					},
+					{
+						"name": "Sap Source Full load",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "SAP LOAD PROD",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"CW_Items": "[{\"Source\":{\"TableName\":\"OACT\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"destination\":{\"FileName\":\"dbooact\"}}\n,{\"Source\":{\"TableName\":\"OCRD\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"destination\":{\"FileName\":\"dboocrd\"}}\n,{\"Source\":{\"TableName\":\"OITB\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"destination\":{\"FileName\":\"dbooitb\"}}]",
+								"TakeOnPeriod": " ",
+								"Full_Load": true,
+								"ColumnsNamesBlankSpaces": false,
+								"LimitedLoadTopX": " "
+							}
+						}
+					},
+					{
+						"name": "SAP_STRunOrder",
+						"type": "SynapseNotebook",
+						"dependsOn": [
+							{
+								"activity": "Sap Source Incremental load",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "Sap Source Full load",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "00_STSAP_RunOrder",
+								"type": "NotebookReference"
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "PRDSparkPool",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Small",
+							"conf": {
+								"spark.dynamicAllocation.enabled": true,
+								"spark.dynamicAllocation.minExecutors": 2,
+								"spark.dynamicAllocation.maxExecutors": 4
+							},
+							"driverSize": "Small",
+							"numExecutors": 2
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "End-to-End"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/SAP LOAD PROD')]",
+				"[concat(variables('workspaceId'), '/notebooks/00_STSAP_RunOrder')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/PRDSparkPool')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/Finance_EndtoEndRefresh')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -25067,12 +25174,12 @@
 					"driverCores": 8,
 					"executorMemory": "56g",
 					"executorCores": 8,
-					"numExecutors": 2,
+					"numExecutors": 8,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
-						"spark.dynamicAllocation.minExecutors": "2",
-						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "60305175-4a1e-4fd1-9f97-51e572fb1779"
+						"spark.dynamicAllocation.minExecutors": "8",
+						"spark.dynamicAllocation.maxExecutors": "8",
+						"spark.autotune.trackingId": "6f66f42a-a01a-4ae3-94d5-9e79809bdbc3"
 					}
 				},
 				"metadata": {
@@ -25086,20 +25193,21 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
-						"name": "ApacheSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.1",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
-					"sessionKeepAliveTimeout": 30
+					"sessionKeepAliveTimeout": 5
 				},
 				"cells": [
 					{
@@ -25127,7 +25235,7 @@
 							"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
 							"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
 							"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
-							"\r\n",
+							"# \r\n",
 							"# # ' + StorageAccount + '"
 						],
 						"outputs": [],
@@ -25135,43 +25243,44 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"# #Create DataFrame for the sstparcelunion LMS Table\r\n",
 							"# sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
 							"# sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
-							"\r\n",
+							"# \r\n",
 							"# #Create DataFrame for the dboorder LMS Table\r\n",
 							"# dboorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
 							"# dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
-							"\r\n",
+							"# \r\n",
 							"# #Create DataFrame for the sstconsignmentunion LMS Table\r\n",
 							"# sstconsignmentunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
 							"# sstconsignmentunion.createOrReplaceTempView(\"sstconsignmentunion\")\r\n",
-							"\r\n",
+							"# \r\n",
 							"# #Create DataFrame for the dbowaybill LMS Table\r\n",
 							"# dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
 							"# dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
-							"\r\n",
+							"# \r\n",
 							"# #Create DataFrame for the dboparceldetail LMS Table\r\n",
 							"# dboparceldetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboparceldetail.parquet', format='parquet')\r\n",
 							"# dboparceldetail.createOrReplaceTempView(\"dboparceldetail\")\r\n",
-							"\r\n",
+							"# \r\n",
 							"# #Create DataFrame for the publicparcel LMS Table\r\n",
 							"# publicparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicparcel.parquet', format='parquet')\r\n",
 							"# publicparcel.createOrReplaceTempView(\"publicparcel\")\r\n",
-							"\r\n",
+							"# \r\n",
 							"# #Create DataFrame for the publicdelivery ORV Table\r\n",
 							"# publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
 							"# publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
-							"\r\n",
+							"# \r\n",
 							"# #Create DataFrame for the stvsmparcel LMS Table\r\n",
 							"# stvsmparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stvsmparcel.parquet', format='parquet')\r\n",
 							"# stvsmparcel.createOrReplaceTempView(\"stvsmparcel\")\r\n",
-							"\r\n",
+							"# \r\n",
 							"# #Create DataFrame for the dboweekendholiday LMS Table\r\n",
 							"# dboweekendholiday = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboweekendholiday.parquet', format='parquet')\r\n",
 							"# dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")\r\n",
-							"\r\n",
+							"# \r\n",
 							"# #Create DataFrame for the dbocustacc LMS Table\r\n",
 							"# dbocustacc = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustacc.parquet', format='parquet')\r\n",
 							"# dbocustacc.createOrReplaceTempView(\"dbocustacc\")\r\n",
@@ -25536,7 +25645,7 @@
 							}
 						},
 						"source": [
-							"# stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
+							"#stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
 						"execution_count": 10
@@ -60700,113 +60809,6 @@
 			},
 			"dependsOn": [],
 			"location": "southafricanorth"
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/Finance End-to-End')]",
-			"type": "Microsoft.Synapse/workspaces/pipelines",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"activities": [
-					{
-						"name": "Sap Source Incremental load",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "SAP LOAD PROD",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"CW_Items": "[{\"Source\":{\"TableName\":\"IGE1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboige1\"}}\n,{\"Source\":{\"TableName\":\"IGN1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboign1\"}}\n,{\"Source\":{\"TableName\":\"INV1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboinv1\"}}\n,{\"Source\":{\"TableName\":\"JDT1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"TransId\"},\"destination\":{\"FileName\":\"dbojdt1\"}}\n,{\"Source\":{\"TableName\":\"MRV1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbomrv1\"}}\n,{\"Source\":{\"TableName\":\"MRV2\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbomrv2\"}}\n,{\"Source\":{\"TableName\":\"OIGE\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbooige\"}}\n,{\"Source\":{\"TableName\":\"OIGN\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbooign\"}}\n,{\"Source\":{\"TableName\":\"OINM\"},\"Increment\":{\"IncField\":\"transnum\",\"IdField\":\"TransNum\"},\"destination\":{\"FileName\":\"dbooinm\"}}\n,{\"Source\":{\"TableName\":\"OINV\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbooinv\"}}\n,{\"Source\":{\"TableName\":\"OJDT\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"TransId\"},\"destination\":{\"FileName\":\"dboojdt\"}}\n,{\"Source\":{\"TableName\":\"OMRV\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboomrv\"}}\n,{\"Source\":{\"TableName\":\"OPCH\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboopch\"}}\n,{\"Source\":{\"TableName\":\"OPDN\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboopdn\"}}\n,{\"Source\":{\"TableName\":\"OPOR\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboopor\"}}\n,{\"Source\":{\"TableName\":\"ORIN\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboorin\"}}\n,{\"Source\":{\"TableName\":\"ORPC\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dboorpc\"}}\n,{\"Source\":{\"TableName\":\"PCH1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbopch1\"}}\n,{\"Source\":{\"TableName\":\"PDN1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbopdn1\"}}\n,{\"Source\":{\"TableName\":\"POR1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dbopor1\"}}\n,{\"Source\":{\"TableName\":\"RIN1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dborin1\"}}\n,{\"Source\":{\"TableName\":\"RPC1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dborpc1\"}}\n,{\"Source\":{\"TableName\":\"RPD1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"DocEntry\"},\"destination\":{\"FileName\":\"dborpd1\"}}\n,{\"Source\":{\"TableName\":\"OITM\"},\"Increment\":{\"IncField\":\"itemcode\",\"IdField\":\"ItemCode\"},\"destination\":{\"FileName\":\"dbooitm\"}}]",
-								"TakeOnPeriod": " ",
-								"Full_Load": true,
-								"ColumnsNamesBlankSpaces": false,
-								"LimitedLoadTopX": " "
-							}
-						}
-					},
-					{
-						"name": "Sap Source Full load",
-						"type": "ExecutePipeline",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"pipeline": {
-								"referenceName": "SAP LOAD PROD",
-								"type": "PipelineReference"
-							},
-							"waitOnCompletion": true,
-							"parameters": {
-								"CW_Items": "[{\"Source\":{\"TableName\":\"OACT\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"destination\":{\"FileName\":\"dbooact\"}}\n,{\"Source\":{\"TableName\":\"OCRD\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"destination\":{\"FileName\":\"dboocrd\"}}\n,{\"Source\":{\"TableName\":\"OITB\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"destination\":{\"FileName\":\"dbooitb\"}}]",
-								"TakeOnPeriod": " ",
-								"Full_Load": true,
-								"ColumnsNamesBlankSpaces": false,
-								"LimitedLoadTopX": " "
-							}
-						}
-					},
-					{
-						"name": "SAP_STRunOrder",
-						"type": "SynapseNotebook",
-						"dependsOn": [
-							{
-								"activity": "Sap Source Incremental load",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							},
-							{
-								"activity": "Sap Source Full load",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"notebook": {
-								"referenceName": "00_STSAP_RunOrder",
-								"type": "NotebookReference"
-							},
-							"snapshot": true,
-							"sparkPool": {
-								"referenceName": "PRDSparkPool",
-								"type": "BigDataPoolReference"
-							},
-							"executorSize": "Small",
-							"conf": {
-								"spark.dynamicAllocation.enabled": true,
-								"spark.dynamicAllocation.minExecutors": 2,
-								"spark.dynamicAllocation.maxExecutors": 4
-							},
-							"driverSize": "Small",
-							"numExecutors": 2
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {},
-					"cancelAfter": {}
-				},
-				"folder": {
-					"name": "End-to-End"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('workspaceId'), '/pipelines/SAP LOAD PROD')]",
-				"[concat(variables('workspaceId'), '/notebooks/00_STSAP_RunOrder')]",
-				"[concat(variables('workspaceId'), '/bigDataPools/PRDSparkPool')]"
-			]
 		}
 	]
 }

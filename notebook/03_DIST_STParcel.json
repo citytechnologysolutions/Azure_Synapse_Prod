@@ -16,12 +16,12 @@
 			"driverCores": 8,
 			"executorMemory": "56g",
 			"executorCores": 8,
-			"numExecutors": 2,
+			"numExecutors": 8,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "2",
-				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "60305175-4a1e-4fd1-9f97-51e572fb1779"
+				"spark.dynamicAllocation.minExecutors": "8",
+				"spark.dynamicAllocation.maxExecutors": "8",
+				"spark.autotune.trackingId": "8267fbc9-1e79-4114-aaf3-b38e6e2e9091"
 			}
 		},
 		"metadata": {
@@ -35,21 +35,21 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
-				"name": "ApacheSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+				"name": "PRDSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.1",
+				"sparkVersion": "3.3",
 				"nodeCount": 10,
 				"cores": 8,
 				"memory": 56,
-				"automaticScaleJobs": true
+				"automaticScaleJobs": false
 			},
-			"sessionKeepAliveTimeout": 30
+			"sessionKeepAliveTimeout": 5
 		},
 		"cells": [
 			{
@@ -66,17 +66,17 @@
 					}
 				},
 				"source": [
-					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"# if 'prod' in Environment:\r\n",
-					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"# else:\r\n",
-					"#     StorageAccount = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
@@ -85,45 +85,45 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"# #Create DataFrame for the sstparcelunion LMS Table\r\n",
-					"# sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
-					"# sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+					"#Create DataFrame for the sstparcelunion LMS Table\r\n",
+					"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dboorder LMS Table\r\n",
-					"# dboorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
-					"# dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"#Create DataFrame for the dboorder LMS Table\r\n",
+					"dboorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the sstconsignmentunion LMS Table\r\n",
-					"# sstconsignmentunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
-					"# sstconsignmentunion.createOrReplaceTempView(\"sstconsignmentunion\")\r\n",
+					"#Create DataFrame for the sstconsignmentunion LMS Table\r\n",
+					"sstconsignmentunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstconsignmentunion.parquet', format='parquet')\r\n",
+					"sstconsignmentunion.createOrReplaceTempView(\"sstconsignmentunion\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dbowaybill LMS Table\r\n",
-					"# dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
-					"# dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
+					"#Create DataFrame for the dbowaybill LMS Table\r\n",
+					"dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
+					"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dboparceldetail LMS Table\r\n",
-					"# dboparceldetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboparceldetail.parquet', format='parquet')\r\n",
-					"# dboparceldetail.createOrReplaceTempView(\"dboparceldetail\")\r\n",
+					"#Create DataFrame for the dboparceldetail LMS Table\r\n",
+					"dboparceldetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboparceldetail.parquet', format='parquet')\r\n",
+					"dboparceldetail.createOrReplaceTempView(\"dboparceldetail\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the publicparcel LMS Table\r\n",
-					"# publicparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicparcel.parquet', format='parquet')\r\n",
-					"# publicparcel.createOrReplaceTempView(\"publicparcel\")\r\n",
+					"#Create DataFrame for the publicparcel LMS Table\r\n",
+					"publicparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicparcel.parquet', format='parquet')\r\n",
+					"publicparcel.createOrReplaceTempView(\"publicparcel\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the publicdelivery ORV Table\r\n",
-					"# publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
-					"# publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
+					"#Create DataFrame for the publicdelivery ORV Table\r\n",
+					"publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the stvsmparcel LMS Table\r\n",
-					"# stvsmparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stvsmparcel.parquet', format='parquet')\r\n",
-					"# stvsmparcel.createOrReplaceTempView(\"stvsmparcel\")\r\n",
+					"#Create DataFrame for the stvsmparcel LMS Table\r\n",
+					"stvsmparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stvsmparcel.parquet', format='parquet')\r\n",
+					"stvsmparcel.createOrReplaceTempView(\"stvsmparcel\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dboweekendholiday LMS Table\r\n",
-					"# dboweekendholiday = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboweekendholiday.parquet', format='parquet')\r\n",
-					"# dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")\r\n",
+					"#Create DataFrame for the dboweekendholiday LMS Table\r\n",
+					"dboweekendholiday = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboweekendholiday.parquet', format='parquet')\r\n",
+					"dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dbocustacc LMS Table\r\n",
-					"# dbocustacc = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustacc.parquet', format='parquet')\r\n",
-					"# dbocustacc.createOrReplaceTempView(\"dbocustacc\")\r\n",
+					"#Create DataFrame for the dbocustacc LMS Table\r\n",
+					"dbocustacc = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustacc.parquet', format='parquet')\r\n",
+					"dbocustacc.createOrReplaceTempView(\"dbocustacc\")\r\n",
 					""
 				],
 				"execution_count": 2
@@ -477,7 +477,7 @@
 					}
 				},
 				"source": [
-					"# stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
+					"stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 10
 			},

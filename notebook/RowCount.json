@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "74699bd8-dd7b-4723-944a-65fbcb640d1b"
+				"spark.autotune.trackingId": "af2932cd-06f9-4dd1-9060-db311d7d7b82"
 			}
 		},
 		"metadata": {
@@ -195,7 +195,7 @@
 					}
 				},
 				"source": [
-					"## MetaData Check"
+					"## Last Refresh Check"
 				]
 			},
 			{
@@ -212,37 +212,106 @@
 					}
 				},
 				"source": [
-					"data_source_path = \"path_to_data_source_file\"\r\n",
-					"\r\n",
-					"# Get the last modified timestamp\r\n",
-					"last_modified = os.path.getmtime(data_source_path)\r\n",
-					"\r\n",
-					"# Convert timestamp to a readable date\r\n",
-					"last_modified_date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(last_modified))\r\n",
-					"\r\n",
-					"# Read the stored last modified date from the DataFrame\r\n",
-					"try:\r\n",
-					"    stored_df = pd.read_csv(\"last_modified_log.csv\")\r\n",
-					"except FileNotFoundError:\r\n",
-					"    stored_df = pd.DataFrame(columns=[\"DataSourceName\", \"LastModifiedDate\", \"Refresh_Success\"])\r\n",
-					"\r\n",
-					"# Compare with the current last modified date\r\n",
-					"if stored_df.empty or stored_df.iloc[-1][\"LastModifiedDate\"] != last_modified_date:\r\n",
-					"    refresh_success = \"Yes\"\r\n",
-					"    print(\"Data refresh successful.\")\r\n",
-					"else:\r\n",
-					"    refresh_success = \"No\"\r\n",
-					"    print(\"Alert: Data has not been refreshed.\")\r\n",
-					"    # Implement your alerting mechanism here\r\n",
-					"\r\n",
-					"# Append the new entry to the DataFrame\r\n",
-					"new_entry = pd.DataFrame([[data_source_path, last_modified_date, refresh_success]], columns=[\"DataSourceName\", \"LastModifiedDate\", \"Refresh_Success\"])\r\n",
-					"updated_df = pd.concat([stored_df, new_entry], ignore_index=True)\r\n",
-					"\r\n",
-					"# Save the updated DataFrame to a CSV file\r\n",
-					"updated_df.to_csv(\"last_modified_log.csv\", index=False)"
+					"from pyspark.sql.window import Window"
 				],
-				"execution_count": null
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"def update_log_and_check_error(log_df, table_df):\r\n",
+					"    # Step 1: Read the last modified date from the log dataframe\r\n",
+					"    latest_log_entry = log_df \\\r\n",
+					"        .withColumn(\"LastModifiedDate\", F.to_timestamp(\"LastModifiedDate\")) \\\r\n",
+					"        .groupBy(\"TableName\") \\\r\n",
+					"        .agg(F.max(\"LastModifiedDate\").alias(\"LatestModifiedDate\"))\r\n",
+					"\r\n",
+					"    # Step 2: Read \"the_table\" dataframe\r\n",
+					"    table_df = table_df.withColumn(\"LastModifiedDate\", F.to_timestamp(\"LastModifiedDate\"))\r\n",
+					"\r\n",
+					"    # Step 3: Compare last modified dates and log an error if they are the same\r\n",
+					"    check_df = table_df \\\r\n",
+					"        .join(latest_log_entry, \"TableName\") \\\r\n",
+					"        .filter(\"LastModifiedDate = LatestModifiedDate\")\r\n",
+					"\r\n",
+					"    if check_df.count() > 0:\r\n",
+					"        # Log an error or perform other actions as needed\r\n",
+					"        print(\"Error: Last modified date in log is the same as the current table.\")\r\n",
+					"        # You might want to log this error or raise an exception depending on your requirement\r\n",
+					"\r\n",
+					"    # Update the log dataframe with the latest modified date\r\n",
+					"    new_log_entry = table_df \\\r\n",
+					"        .groupBy(\"TableName\") \\\r\n",
+					"        .agg(F.max(\"LastModifiedDate\").alias(\"LatestModifiedDate\"))\r\n",
+					"\r\n",
+					"    log_df = log_df.union(new_log_entry)\r\n",
+					"\r\n",
+					"    return log_df"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"log_data = [(\"table1\", \"2023-09-29 10:00:00\"),(\"table2\", \"2023-09-29 11:30:00\")]\r\n",
+					"\r\n",
+					"# Sample data for the test dataframe\r\n",
+					"test_data = [(\"table1\", \"2023-09-29 12:00:00\"),\r\n",
+					"                (\"table2\", \"2023-09-29 11:30:00\")]\r\n",
+					"\r\n",
+					"# Create log dataframe\r\n",
+					"log_schema = [\"TableName\", \"LastModifiedDate\"]\r\n",
+					"log_df = spark.createDataFrame(log_data, schema=log_schema)\r\n",
+					"\r\n",
+					"# Create test dataframe\r\n",
+					"test_schema = [\"TableName\", \"LastModifiedDate\"]\r\n",
+					"test_df = spark.createDataFrame(test_data, schema=test_schema)"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Update log and check for errors\r\n",
+					"updated_log_df = update_log_and_check_error(log_df, test_df)\r\n",
+					"\r\n",
+					"# Show the updated log dataframe\r\n",
+					"updated_log_df.show()"
+				],
+				"execution_count": 17
 			},
 			{
 				"cell_type": "markdown",
@@ -271,25 +340,43 @@
 					}
 				},
 				"source": [
-					"# Load data from the data lake\r\n",
-					"data = spark.read.parquet(\"path_to_data_in_data_lake\")\r\n",
-					"\r\n",
-					"# Identify unique keys for deduplication (e.g., primary keys)\r\n",
-					"unique_keys = [\"id\", \"timestamp\"]\r\n",
-					"\r\n",
-					"# Deduplicate data\r\n",
-					"deduplicated_data = data.dropDuplicates(subset=unique_keys)\r\n",
-					"\r\n",
-					"# Count the number of duplicate rows\r\n",
-					"duplicate_count = data.count() - deduplicated_data.count()\r\n",
-					"\r\n",
-					"# Alert or report duplicate count\r\n",
-					"if duplicate_count > 0:\r\n",
-					"    print(f\"Found {duplicate_count} duplicate rows.\")\r\n",
-					"    # Implement alerting mechanism here\r\n",
-					"\r\n",
-					"# Write the deduplicated data back to the data lake\r\n",
-					"deduplicated_data.write.parquet(\"path_to_deduplicated_data\")"
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
 				],
 				"execution_count": null
 			}

@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "af2932cd-06f9-4dd1-9060-db311d7d7b82"
+				"spark.autotune.trackingId": "2230ed3c-bbe3-4e2f-9e78-2fcec2f25d9f"
 			}
 		},
 		"metadata": {
@@ -323,7 +323,7 @@
 					}
 				},
 				"source": [
-					"## Duplicates Check"
+					"## Duplicates Sources Check"
 				]
 			},
 			{
@@ -340,7 +340,29 @@
 					}
 				},
 				"source": [
-					""
+					"def get_folder_list(spark, base_path):\r\n",
+					"    folder_list = []\r\n",
+					"\r\n",
+					"    try:\r\n",
+					"        URI = spark._jvm.java.net.URI\r\n",
+					"        Path = spark._jvm.org.apache.hadoop.fs.Path\r\n",
+					"        FileSystem = spark._jvm.org.apache.hadoop.fs.FileSystem\r\n",
+					"\r\n",
+					"        fs = FileSystem.get(URI(base_path), spark._jsc.hadoopConfiguration())\r\n",
+					"        status = fs.listStatus(Path(base_path))\r\n",
+					"\r\n",
+					"        for file_status in status:\r\n",
+					"            file_path = file_status.getPath().toString()\r\n",
+					"\r\n",
+					"            # Check if it's a directory\r\n",
+					"            if fs.isDirectory(file_status.getPath()):\r\n",
+					"                folder_list.append(file_path)\r\n",
+					"\r\n",
+					"        return folder_list\r\n",
+					"\r\n",
+					"    except Py4JJavaError as e:\r\n",
+					"        print(\"Error occurred while listing folders: \", e)\r\n",
+					"        return None"
 				],
 				"execution_count": null
 			},
@@ -358,7 +380,13 @@
 					}
 				},
 				"source": [
-					""
+					"def has_duplicates(input_list):\r\n",
+					"    seen = set()\r\n",
+					"    for item in input_list:\r\n",
+					"        if item in seen:\r\n",
+					"            return True  # Found a duplicate\r\n",
+					"        seen.add(item)\r\n",
+					"    return False"
 				],
 				"execution_count": null
 			},

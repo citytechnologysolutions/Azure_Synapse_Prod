@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2e7420fe-16ae-40bd-bf69-210bf74ff05d"
+				"spark.autotune.trackingId": "e8d17b70-f6ed-4234-983d-cbafcf5e2ab5"
 			}
 		},
 		"metadata": {
@@ -65,17 +65,17 @@
 					}
 				},
 				"source": [
-					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"# if 'prod' in Environment:\r\n",
-					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"# else:\r\n",
-					"#     StorageAccount = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
@@ -84,20 +84,20 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"# #Create DataFrame for the stloadchild LMS Table\r\n",
-					"# stloadchild = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', format='parquet')\r\n",
-					"# stloadchild.createOrReplaceTempView(\"stloadchild\")\r\n",
+					"#Create DataFrame for the stloadchild LMS Table\r\n",
+					"stloadchild = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', format='parquet')\r\n",
+					"stloadchild.createOrReplaceTempView(\"stloadchild\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the publicdispatch ORV Table\r\n",
-					"# publicdispatch = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
-					"# publicdispatch.createOrReplaceTempView(\"publicdispatch\")\r\n",
+					"#Create DataFrame for the publicdispatch ORV Table\r\n",
+					"publicdispatch = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
+					"publicdispatch.createOrReplaceTempView(\"publicdispatch\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the publicreportdistotmgntdispatchdt ORV Table\r\n",
-					"# publicreportdistotmgntdispatchdt = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicreportdistotmgntdispatchdt.parquet', format='parquet')\r\n",
-					"# publicreportdistotmgntdispatchdt.createOrReplaceTempView(\"publicreportdistotmgntdispatchdt\")\r\n",
+					"#Create DataFrame for the publicreportdistotmgntdispatchdt ORV Table\r\n",
+					"publicreportdistotmgntdispatchdt = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicreportdistotmgntdispatchdt.parquet', format='parquet')\r\n",
+					"publicreportdistotmgntdispatchdt.createOrReplaceTempView(\"publicreportdistotmgntdispatchdt\")\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -113,10 +113,10 @@
 					}
 				},
 				"source": [
-					"# from pyspark.sql.functions import *\r\n",
-					"# from pyspark.sql.window import Window"
+					"from pyspark.sql.functions import *\r\n",
+					"from pyspark.sql.window import Window"
 				],
-				"execution_count": 8
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -136,7 +136,7 @@
 					"stloadchild = stloadchild.withColumn(\"rn\",row_number().over(partitionparent))\r\n",
 					"stloadchild.createOrReplaceTempView(\"stloadchild\")"
 				],
-				"execution_count": 9
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -397,7 +397,7 @@
 					}
 				},
 				"source": [
-					"# stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
+					"stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 15
 			},

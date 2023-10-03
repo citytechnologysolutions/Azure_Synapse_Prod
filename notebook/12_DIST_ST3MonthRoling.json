@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "7db0269c-f0e4-4acd-8097-5e1c733986ae"
+				"spark.autotune.trackingId": "2c158a7f-0508-4577-bd71-1c60d2f19b29"
 			}
 		},
 		"metadata": {
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -116,7 +116,7 @@
 					"# stcollection = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stcollection.parquet', format='parquet')\r\n",
 					"# stcollection.createOrReplaceTempView(\"stcollection\")"
 				],
-				"execution_count": 2
+				"execution_count": 4
 			},
 			{
 				"cell_type": "markdown",
@@ -170,7 +170,7 @@
 					")\r\n",
 					""
 				],
-				"execution_count": 16
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -188,7 +188,7 @@
 				"source": [
 					"stparcel3myoy = spark.sql(\"SELECT * FROM stparcel3myoy\")"
 				],
-				"execution_count": 17
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -206,7 +206,7 @@
 				"source": [
 					"# stparcel3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 18
+				"execution_count": 7
 			},
 			{
 				"cell_type": "markdown",
@@ -261,7 +261,7 @@
 					")\r\n",
 					""
 				],
-				"execution_count": 19
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -291,7 +291,7 @@
 					"WHERE lms_parcel_consignid IS NOT NULL\r\n",
 					""
 				],
-				"execution_count": 20
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -309,7 +309,7 @@
 				"source": [
 					"stconsignment3myoy_tmp3 = spark.sql(\"SELECT * FROM stconsignment3myoy_tmp1 UNION SELECT * FROM stconsignment3myoy_tmp2\")"
 				],
-				"execution_count": 21
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -327,7 +327,7 @@
 				"source": [
 					"stconsignment3myoy_tmp3.createOrReplaceTempView(\"stconsignment3myoy_tmp3\")"
 				],
-				"execution_count": 22
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -357,7 +357,7 @@
 					"LEFT JOIN stconsignment c on c.lms_consignment_id = t.lms_consignment_id\r\n",
 					"WHERE c.lms_consignment_id IS NOT NULL"
 				],
-				"execution_count": 23
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -375,7 +375,7 @@
 				"source": [
 					"stconsignment3myoy = spark.sql(\"SELECT * FROM stconsignment3myoy\")"
 				],
-				"execution_count": 24
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -393,7 +393,7 @@
 				"source": [
 					"# stconsignment3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stconsignment3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 25
+				"execution_count": 12
 			},
 			{
 				"cell_type": "markdown",
@@ -446,7 +446,7 @@
 					"    lms_waybill_date <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")"
 				],
-				"execution_count": 26
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -475,7 +475,7 @@
 					"FROM stparcel3myoy\r\n",
 					""
 				],
-				"execution_count": 27
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -493,7 +493,7 @@
 				"source": [
 					"stwaybill3myoy_tmp3 = spark.sql(\"SELECT * FROM stwaybill3myoy_tmp1 UNION SELECT * FROM stwaybill3myoy_tmp2\")"
 				],
-				"execution_count": 28
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -511,7 +511,7 @@
 				"source": [
 					"stwaybill3myoy_tmp3.createOrReplaceTempView(\"stwaybill3myoy_tmp3\")"
 				],
-				"execution_count": 29
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -541,7 +541,7 @@
 					"LEFT JOIN stwaybill w on w.lms_waybill_id = t.lms_waybill_id\r\n",
 					"WHERE w.lms_waybill_id IS NOT NULL"
 				],
-				"execution_count": 30
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -559,7 +559,7 @@
 				"source": [
 					"stwaybill3myoy = spark.sql(\"SELECT * FROM stwaybill3myoy\")"
 				],
-				"execution_count": 31
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -577,7 +577,7 @@
 				"source": [
 					"# stwaybill3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybill3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 32
+				"execution_count": 19
 			},
 			{
 				"cell_type": "markdown",
@@ -630,7 +630,7 @@
 					"    lms_order_hodate <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")"
 				],
-				"execution_count": 33
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -658,7 +658,7 @@
 					"    lms_parcel_waybillid as lms_waybill_id\r\n",
 					"FROM stparcel3myoy"
 				],
-				"execution_count": 34
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -676,7 +676,7 @@
 				"source": [
 					"storder3myoy_tmp3 = spark.sql(\"SELECT * FROM storder3myoy_tmp1 UNION SELECT * FROM storder3myoy_tmp2\")"
 				],
-				"execution_count": 35
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -694,7 +694,7 @@
 				"source": [
 					"storder3myoy_tmp3.createOrReplaceTempView(\"storder3myoy_tmp3\")"
 				],
-				"execution_count": 36
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -724,7 +724,7 @@
 					"LEFT JOIN storder o on o.lms_order_id = t.lms_order_id\r\n",
 					"WHERE o.lms_order_id IS NOT NULL"
 				],
-				"execution_count": 37
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -742,7 +742,7 @@
 				"source": [
 					"storder3myoy = spark.sql(\"SELECT * FROM storder3myoy\")"
 				],
-				"execution_count": 38
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -760,7 +760,7 @@
 				"source": [
 					"# storder3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/storder3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 39
+				"execution_count": 26
 			},
 			{
 				"cell_type": "markdown",
@@ -814,7 +814,7 @@
 					"    lms_track_opendt <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")"
 				],
-				"execution_count": 40
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -832,7 +832,7 @@
 				"source": [
 					"stlmstrack3myoy_tmp = spark.sql(\"SELECT * FROM stlmstrack3myoy_tmp1\")"
 				],
-				"execution_count": 41
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -850,7 +850,7 @@
 				"source": [
 					"stlmstrack3myoy_tmp.createOrReplaceTempView(\"stlmstrack3myoy_tmp\")"
 				],
-				"execution_count": 42
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -878,7 +878,7 @@
 					"    lms_parcel_id as lms_track_parcelid\r\n",
 					"FROM stparcel3myoy "
 				],
-				"execution_count": 43
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -896,7 +896,7 @@
 				"source": [
 					"stlmstrack3myoy_tmp3 = spark.sql(\"SELECT lms_track_parcelid FROM stlmstrack3myoy_tmp1 UNION SELECT * FROM stlmstrack3myoy_tmp2\")"
 				],
-				"execution_count": 44
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -914,7 +914,7 @@
 				"source": [
 					"stlmstrack3myoy_tmp3.createOrReplaceTempView(\"stlmstrack3myoy_tmp3\")"
 				],
-				"execution_count": 45
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -944,7 +944,7 @@
 					"LEFT JOIN stlmstrack t on t.lms_track_parcelid = t1.lms_track_parcelid\r\n",
 					""
 				],
-				"execution_count": 46
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -962,7 +962,7 @@
 				"source": [
 					"stlmstrack3myoy = spark.sql(\"SELECT * FROM stlmstrack3myoy\")"
 				],
-				"execution_count": 47
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -980,7 +980,7 @@
 				"source": [
 					"# stlmstrack3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 48
+				"execution_count": 35
 			},
 			{
 				"cell_type": "markdown",
@@ -1035,7 +1035,7 @@
 					")\r\n",
 					""
 				],
-				"execution_count": 49
+				"execution_count": 36
 			},
 			{
 				"cell_type": "code",
@@ -1053,7 +1053,7 @@
 				"source": [
 					"stloadchild3myoy_tmp = spark.sql(\"SELECT * FROM stloadchild3myoy_tmp1\")"
 				],
-				"execution_count": 50
+				"execution_count": 37
 			},
 			{
 				"cell_type": "code",
@@ -1071,7 +1071,7 @@
 				"source": [
 					"stloadchild3myoy_tmp.createOrReplaceTempView(\"stloadchild3myoy_tmp\")"
 				],
-				"execution_count": 51
+				"execution_count": 38
 			},
 			{
 				"cell_type": "code",
@@ -1099,7 +1099,7 @@
 					"    lms_track_loadid as lms_loadchild_id\r\n",
 					"FROM stlmstrack3myoy_tmp"
 				],
-				"execution_count": 52
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -1117,7 +1117,7 @@
 				"source": [
 					"stloadchild3myoy_tmp3 = spark.sql(\"SELECT lms_loadchild_id FROM stloadchild3myoy_tmp1 UNION SELECT * FROM stloadchild3myoy_tmp2\")"
 				],
-				"execution_count": 53
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
@@ -1135,7 +1135,7 @@
 				"source": [
 					"stloadchild3myoy_tmp3.createOrReplaceTempView(\"stloadchild3myoy_tmp3\")"
 				],
-				"execution_count": 54
+				"execution_count": 41
 			},
 			{
 				"cell_type": "code",
@@ -1166,7 +1166,7 @@
 					"WHERE lc.lms_loadchild_id IS NOT NULL\r\n",
 					"AND lc.lms_loadchild_ldate IS NOT NULL"
 				],
-				"execution_count": 55
+				"execution_count": 42
 			},
 			{
 				"cell_type": "code",
@@ -1184,7 +1184,7 @@
 				"source": [
 					"stloadchild3myoy = spark.sql(\"SELECT * FROM stloadchild3myoy\")"
 				],
-				"execution_count": 56
+				"execution_count": 43
 			},
 			{
 				"cell_type": "code",
@@ -1202,7 +1202,7 @@
 				"source": [
 					"# stloadchild3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadchild3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 57
+				"execution_count": 44
 			},
 			{
 				"cell_type": "markdown",
@@ -1244,7 +1244,7 @@
 					"FROM stloadchild3myoy_tmp \r\n",
 					"WHERE lms_loadchild_parentloadid IS NOT NULL"
 				],
-				"execution_count": 58
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -1273,7 +1273,7 @@
 					"FROM stlmstrack3myoy_tmp\r\n",
 					""
 				],
-				"execution_count": 59
+				"execution_count": 46
 			},
 			{
 				"cell_type": "code",
@@ -1291,7 +1291,7 @@
 				"source": [
 					"stloadparent3myoy_tmp3 = spark.sql(\"SELECT * FROM stloadparent3myoy_tmp1 UNION SELECT * FROM stloadparent3myoy_tmp2\")"
 				],
-				"execution_count": 60
+				"execution_count": 47
 			},
 			{
 				"cell_type": "code",
@@ -1309,7 +1309,7 @@
 				"source": [
 					"stloadparent3myoy_tmp3.createOrReplaceTempView(\"stloadparent3myoy_tmp3\")"
 				],
-				"execution_count": 61
+				"execution_count": 48
 			},
 			{
 				"cell_type": "code",
@@ -1339,7 +1339,7 @@
 					"LEFT JOIN stloadparent lp on lp.lms_loadparent_parentloadid = t.lms_loadparent_parentloadid\r\n",
 					"WHERE lp.lms_loadparent_parentloadid IS NOT NULL"
 				],
-				"execution_count": 62
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
@@ -1357,7 +1357,7 @@
 				"source": [
 					"stloadparent3myoy = spark.sql(\"SELECT * FROM stloadparent3myoy\")"
 				],
-				"execution_count": 63
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -1375,7 +1375,7 @@
 				"source": [
 					"# stloadparent3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 64
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -1415,7 +1415,7 @@
 					"    lms_collect_date <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")"
 				],
-				"execution_count": 3
+				"execution_count": 52
 			},
 			{
 				"cell_type": "code",
@@ -1433,7 +1433,7 @@
 				"source": [
 					"stcollection3myoy = spark.sql(\"SELECT * FROM stcollection3myoy\")"
 				],
-				"execution_count": 4
+				"execution_count": 53
 			},
 			{
 				"cell_type": "code",
@@ -1451,7 +1451,7 @@
 				"source": [
 					"# stcollection3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stcollection3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 5
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
@@ -1469,7 +1469,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 6
+				"execution_count": 55
 			}
 		]
 	}

@@ -1,0 +1,20 @@
+{
+	"name": "101_RptParcelLevel_centurionsorterreport",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.centurionsorterreport') )\n    DROP EXTERNAL TABLE dbo.centurionsorterreport\nGO\n\nCREATE EXTERNAL TABLE dbo.centurionsorterreport (\n[id] int,\n[autosystemid] int,\n[lpn] nvarchar(4000),\n[status] int,\n[date] datetime2(7),\n[dateupdated] datetime2(7),\n[plcdivertid] int,\n[cldivertid] int,\n[divertdescription] nvarchar(4000),\n[billingcustomerid] int,\n[billingcustomer] nvarchar(4000),\n[deliverycustomerid] int,\n[deliverycustomer] nvarchar(4000),\n[deliverycustcref] nvarchar(4000),\n[deliverycustsrouteid] int,\n[deliverycustsroutedescription] nvarchar(4000),\n[deliverycustsroutecode]  nvarchar(4000),\n\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/centurionsorterreport.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.centurionsorterreport \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

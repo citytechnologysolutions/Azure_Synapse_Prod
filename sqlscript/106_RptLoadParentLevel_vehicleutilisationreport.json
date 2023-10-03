@@ -1,0 +1,20 @@
+{
+	"name": "106_RptLoadParentLevel_vehicleutilisationreport",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.vehicleutilisationreport') )\n    DROP EXTERNAL TABLE dbo.vehicleutilisationreport\nGO\n\nCREATE EXTERNAL TABLE dbo.vehicleutilisationreport (\n\n\t[parentloadid] int,\n\t[childloadids] nvarchar(4000),\n\t[date] datetime2(7),\n\t[estdeptdte] datetime2(7),\n\t[originalstartdate] datetime2(7),\n\t[locationid] int,\n\t[location] nvarchar(4000),\n\t[tolocationid] int,\n\t[tolocation] nvarchar(4000),\n\t[vehicleid] int,\n\t[vehicleuid] nvarchar(4000),\n\t[fleetcode] nvarchar(4000),\n\t[regno] nvarchar(4000),\n\t[vehicleinternalvolume] numeric(36,6),\n\t[lmsvehodo] float,\n\t[lmsvehodo2] float,\n\t[lmsodokms] float,\n\t[orvstartodo] int,\n\t[orvstopodo] int,\n\t[orvodokms] int,\n\t[orvdistance] float,\n\t[orvduration] float,\n\t[noparcels] int,\n\t[weight] numeric(36,6),\n\t[chargeweight] numeric(36,6),\n\t[nochildloads] int,\n\t[nodeliverycustomers] int,\n\t[expressdelivercustomers] int,\n\t[retailelivercustomers] int,\n\t[requiredvolume] nvarchar(4000),\n\t[utilisationprct] nvarchar(4000),\n\n\t\n\t)\n\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/vehicleutilisationreport.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.vehicleutilisationreport \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

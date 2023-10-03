@@ -8,7 +8,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "ApacheSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -426,7 +426,7 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"stparcel\r\n",
+					"stparcel_tmp6\r\n",
 					"AS\r\n",
 					"SELECT \r\n",
 					"     p.*\r\n",
@@ -456,12 +456,188 @@
 						"transient": {
 							"deleting": false
 						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcelsplitconsign_1\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"p.lms_parcel_orderid\r\n",
+					",p.lms_parcel_consignid\r\n",
+					"FROM\r\n",
+					"stparcel_tmp6 p\r\n",
+					"\r\n",
+					"GROUP BY\r\n",
+					"p.lms_parcel_orderid,\r\n",
+					"p.lms_parcel_consignid\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcelsplitconsign_2\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"p.lms_parcel_orderid\r\n",
+					",CASE WHEN COUNT(*) > 1 THEN 1 ELSE 0 END AS lms_parcel_splitconsignmentflag\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM\r\n",
+					"stparcelsplitconsign_1 p\r\n",
+					"\r\n",
+					"GROUP BY\r\n",
+					"p.lms_parcel_orderid\r\n",
+					""
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcelsplitdeliver_1\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"p.lms_parcel_orderid\r\n",
+					",p.lms_parcel_waybillid\r\n",
+					"FROM\r\n",
+					"stparcel_tmp6 p\r\n",
+					"\r\n",
+					"GROUP BY\r\n",
+					"p.lms_parcel_orderid\r\n",
+					",p.lms_parcel_waybillid"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcelsplitdeliver_2\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"p.lms_parcel_orderid\r\n",
+					",CASE WHEN COUNT(*) > 1 THEN 1 ELSE 0 END AS lms_parcel_splitdeliveredflag\r\n",
+					"\r\n",
+					"FROM\r\n",
+					"stparcelsplitdeliver_1 p\r\n",
+					"\r\n",
+					"GROUP BY\r\n",
+					"p.lms_parcel_orderid"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcel\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"p.*\r\n",
+					",c.lms_parcel_splitconsignmentflag\r\n",
+					",d.lms_parcel_splitdeliveredflag\r\n",
+					"FROM\r\n",
+					"stparcel_tmp6 p\r\n",
+					"\r\n",
+					"LEFT JOIN stparcelsplitconsign_2 c ON p.lms_parcel_orderid = c.lms_parcel_orderid\r\n",
+					"LEFT JOIN stparcelsplitdeliver_2 d ON p.lms_parcel_orderid = d.lms_parcel_orderid\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
 					}
 				},
 				"source": [
 					"stparcel = spark.sql(\"SELECT * FROM stparcel\")"
 				],
-				"execution_count": 9
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -479,7 +655,7 @@
 				"source": [
 					"#stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -497,7 +673,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 11
+				"execution_count": 16
 			}
 		]
 	}

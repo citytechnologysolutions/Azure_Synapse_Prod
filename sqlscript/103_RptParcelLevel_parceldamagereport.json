@@ -1,0 +1,20 @@
+{
+	"name": "103_RptParcelLevel_parceldamagereport",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.parceldamagereport') )\n    DROP EXTERNAL TABLE dbo.parceldamagereport\nGO\n\nCREATE EXTERNAL TABLE dbo.parceldamagereport (\n\n[id] int,\n[parcelbarcode] nvarchar(4000),\n[loadid] int,\n[date] datetime2(7),\n[msg] nvarchar(4000),\n[loaddate] datetime2(7),\n[fromdepotid] int,\n[fromdepot] nvarchar(4000),\n[todepotid] int,\n[todepot] nvarchar(4000),\n[loggedbyid] int,\n[loggedby] nvarchar(4000),\n[userdepotid] int,\n[userdepot] nvarchar(4000),\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/parceldamagereport.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.parceldamagereport\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

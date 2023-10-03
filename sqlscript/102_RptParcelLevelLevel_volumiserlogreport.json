@@ -1,0 +1,20 @@
+{
+	"name": "102_RptParcelLevelLevel_volumiserlogreport",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.volumiserlogreport') )\n    DROP EXTERNAL TABLE dbo.volumiserlogreport\nGO\n\nCREATE EXTERNAL TABLE dbo.volumiserlogreport (\n[id] int,\n[parcelbarcode] nvarchar(4000),\n[consignid] int,\n[billingcustomerid] int,\n[billingcustomer] nvarchar(4000),\n[date] datetime2(7),\n[lmsvolumiserlengthmm] numeric(36,6),\n[lmsvolumiserwidthmm] numeric(36,6),\n[lmsvolumiserheightmm] numeric(36,6),\n[lmsweightkg] float,\n[lmscalculatedvolumetricweightkg] numeric(36,6),\n[lmsgreaterweight] nvarchar(4000),\n[sickvolumiserlengthmm] numeric(36,6),\n[sickvolumiserwidthmm] numeric(36,6),\n[sickvolumiserheightmm] numeric(36,6),\n[sickvolumiserweightkg] float,\n[sickcalculatedvolumetricweightkg] numeric(36,6),\n[sickgreaterweight] nvarchar(4000),\n[scanlocationid] int,\n[scanlocation] nvarchar(4000),\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/volumiserlogreport.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.volumiserlogreport \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

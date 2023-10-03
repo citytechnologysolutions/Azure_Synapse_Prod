@@ -1,0 +1,20 @@
+{
+	"name": "105_RptTrackLevel_branchvolumesreport",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.branchvolumesreport') )\n    DROP EXTERNAL TABLE dbo.branchvolumesreport\nGO\n\nCREATE EXTERNAL TABLE dbo.branchvolumesreport (\n\n\t[locationid] int,\n\t[location] nvarchar(4000),\n\t[date] DATETIME2,\n\t[thour]int,\n\t[aggrpid] int,\n\t[aggrparcelweightrecived] float,\n\t[aggrpidl] int,\n\t[aggrparcelweightlinehaul] float,\n\t[aggrpidd] int,\n\t[aggrparcelweightdelivery] float\n\t\n\t)\n\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/branchvolumesreport.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.branchvolumesreport \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

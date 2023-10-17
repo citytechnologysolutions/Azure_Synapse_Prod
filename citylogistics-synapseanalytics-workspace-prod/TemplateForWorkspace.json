@@ -10322,6 +10322,7 @@
 								"value": "@pipeline().parameters.URL_Data",
 								"type": "Expression"
 							},
+							"isSequential": false,
 							"activities": [
 								{
 									"name": "Execute Pipeline1",
@@ -10374,8 +10375,6 @@
 					{
 						"name": "Web1",
 						"type": "WebActivity",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
@@ -10396,6 +10395,10 @@
 							},
 							"method": "POST",
 							"headers": {},
+							"body": {
+								"value": "{\n  \"notifyOption\": \"MailOnFailure\"\n}",
+								"type": "Expression"
+							},
 							"authentication": {
 								"type": "MSI",
 								"resource": "https://analysis.windows.net/powerbi/api"
@@ -10405,8 +10408,6 @@
 					{
 						"name": "Until Refresh Completion DC",
 						"type": "Until",
-						"state": "Inactive",
-						"onInactiveMarkAs": "Succeeded",
 						"dependsOn": [
 							{
 								"activity": "Web1",

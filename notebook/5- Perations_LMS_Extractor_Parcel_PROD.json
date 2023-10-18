@@ -1,0 +1,463 @@
+{
+	"name": "5- Perations_LMS_Extractor_Parcel_PROD",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/PROD/Operations Notebooks PROD"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "bddc3cfc-c43f-42a9-934e-79a87985126d"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import python functions require for the scripting"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import to_timestamp, col, when, lit, round, min, max, substring, desc, count"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load Source Data from the Datalake"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"#dboparcel_archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"#dboparcel_archive.createOrReplaceTempView(\"dboparcel_archive\")\r\n",
+					"\r\n",
+					"#dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"#dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"#dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"#dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"\r\n",
+					"#dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"#dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"#dbopublicparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicparcel.parquet', format='parquet')\r\n",
+					"#dbopublicparcel.createOrReplaceTempView(\"dbopublicparcel\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# set the parameters\r\n",
+					"spark.sql(\"set vCurrentExtractQVDStartDate = '2022-05-01 01:40:04.797'\")\r\n",
+					"spark.sql(\"set vCurrentExtractQVDEndDate = '2022-06-01 01:40:04.797'\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Combine the [Logidatacc].[dbo].[parcel] AND [Logidatacc].[dbo].[parcel_archive]"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"parcel = spark.sql(\r\n",
+					"    \"\"\"\r\n",
+					"   select \r\n",
+					"\r\n",
+					"    id AS PC_ID,\r\n",
+					"    id AS WP_PC_ID,\r\n",
+					"    id AS CF_ParcelID,\r\n",
+					"    OrderID AS OD_ID,\r\n",
+					"    ConsignID AS CN_ID,\r\n",
+					"    WaybillID AS WB_ID,\r\n",
+					"    LocID AS CL_ID,  \r\n",
+					"    id AS MT_ID,\r\n",
+					"    Weight AS PC_Weight,\r\n",
+					"    TotCharge AS PC_TotCharge,\r\n",
+					"    DIMMS AS PC_DIMMS,\r\n",
+					"    NoOfPcls AS PC_NoOfPcls,\r\n",
+					"    PL  AS PC_PL,\r\n",
+					"    PW  AS PC_PW,\r\n",
+					"    PH  AS PC_PH,\r\n",
+					"    to_timestamp(AcceptanceDate) as PC_ADateTime,\r\n",
+					"    to_date(AcceptanceDate) AS PC_ADate,\r\n",
+					"    to_timestamp(HandOverDate) AS PC_HandOverDateTime, \r\n",
+					"    to_date(HandOverDate) AS PC_HandOverDate, \r\n",
+					"    Barcode as PC_Barcode,\r\n",
+					"    VolWeight as PC_VolWeight,\r\n",
+					"    ChargeWeight as PC_ChargeWeight,\r\n",
+					"    DateVolumised as PC_DateVolumised,\r\n",
+					"    VolumiserWeight as PC_VolumiserWeight,\r\n",
+					"    VolumiserLength as PC_VolumiserLength,\r\n",
+					"    VolumiserHeight as PC_VolumiserHeight,\r\n",
+					"    VolumiserWidth as PC_VolumiserWidth,\r\n",
+					"    Volumiserid as PC_Volumiserid,\r\n",
+					"    Ptype as PC_PType\r\n",
+					"    FROM dboparcel\r\n",
+					"    \r\n",
+					"    union\r\n",
+					"\r\n",
+					"    select \r\n",
+					"\r\n",
+					"    id AS PC_ID,\r\n",
+					"    id AS WP_PC_ID,\r\n",
+					"    id AS CF_ParcelID,\r\n",
+					"    OrderID AS OD_ID,\r\n",
+					"    ConsignID AS CN_ID,\r\n",
+					"    WaybillID AS WB_ID,\r\n",
+					"    LocID AS CL_ID,  \r\n",
+					"    id AS MT_ID,\r\n",
+					"    Weight AS PC_Weight,\r\n",
+					"    TotCharge AS PC_TotCharge,\r\n",
+					"    DIMMS AS PC_DIMMS,\r\n",
+					"    NoOfPcls AS PC_NoOfPcls,\r\n",
+					"    PL  AS PC_PL,\r\n",
+					"    PW  AS PC_PW,\r\n",
+					"    PH  AS PC_PH,\r\n",
+					"    to_timestamp(AcceptanceDate) as PC_ADateTime,\r\n",
+					"    to_date(AcceptanceDate) AS PC_ADate,\r\n",
+					"    to_timestamp(HandOverDate) AS PC_HandOverDateTime, \r\n",
+					"    to_date(HandOverDate) AS PC_HandOverDate, \r\n",
+					"    Barcode as PC_Barcode,\r\n",
+					"    VolWeight as PC_VolWeight,\r\n",
+					"    ChargeWeight as PC_ChargeWeight,\r\n",
+					"    DateVolumised as PC_DateVolumised,\r\n",
+					"    VolumiserWeight as PC_VolumiserWeight,\r\n",
+					"    VolumiserLength as PC_VolumiserLength,\r\n",
+					"    VolumiserHeight as PC_VolumiserHeight,\r\n",
+					"    VolumiserWidth as PC_VolumiserWidth,\r\n",
+					"    Volumiserid as PC_Volumiserid,\r\n",
+					"    Ptype as PC_PType\r\n",
+					"    FROM dboparcel_archive\r\n",
+					"    \"\"\"\r\n",
+					")\r\n",
+					"parcel.createOrReplaceTempView(\"parcel\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Combine to the rest"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"T_Parcel = spark.sql(\r\n",
+					"    \"\"\"\r\n",
+					"    select \r\n",
+					"\r\n",
+					"    -- Logidatacc.dbo.parcel and parcelarchive combined\r\n",
+					"    \r\n",
+					"    p.*,\r\n",
+					"\r\n",
+					"    -- Logidatacc.dbo.order\r\n",
+					"    to_timestamp(o.HODate) AS PC_OD_HODateTime, \r\n",
+					"    to_date(o.HODate) AS PC_OD_HODate, \r\n",
+					"\r\n",
+					"    -- Logidatacc.dbo.consignment\r\n",
+					"    to_timestamp(c.CDate) AS PC_CN_CDateTime, \r\n",
+					"    to_date(c.CDate) AS PC_CN_CDate, \r\n",
+					"    to_timestamp(c.DeliverBy) AS PC_CN_DeliverByTime, \r\n",
+					"    to_date(c.DeliverBy) AS PC_CN_DeliverBy, \r\n",
+					"\r\n",
+					"    --Logidatacc.dbo.waybill\r\n",
+					"    to_timestamp(w.PODDate) AS PC_WB_PODDateTime, \r\n",
+					"    to_date(w.PODDate) AS PC_WB_PODDate, \r\n",
+					"    to_timestamp(w.Date) AS PC_WB_DDateTime, \r\n",
+					"    to_date(w.Date) AS PC_WB_DDate,\r\n",
+					"\r\n",
+					"    -- public parcel\r\n",
+					"    pp.weight as parcel_weight_PC,\r\n",
+					"    pp.pcs as parcel_pc_PC,\r\n",
+					"    pp.lenght as parcel_lenght_PC,\r\n",
+					"    pp.heigth as parcel_heigth_PC,\r\n",
+					"    pp.width as parcel_width_PC,\r\n",
+					"    pp.barcode as parcel_barcode_PC,\r\n",
+					"    pp.volweigth as parcel_volweigth_PC,\r\n",
+					"    pp.parceltype as parcel_parceltype_PC,\r\n",
+					"    pp.floorstatus as parcel_floorstatus_PC,\r\n",
+					"    pp.handoverdate as parcel_handoverdate_PC,\r\n",
+					"    pp.duedate as parcel_duedate_PC,\r\n",
+					"    pp.content as parcel_content_PC,\r\n",
+					"    pp.acceptancedate as parcel_acceptancedate_PC,\r\n",
+					"    pp.seqno as parcel_seqno_PC,\r\n",
+					"    pp.cusbarcode as parcel_cubarcode_PC,\r\n",
+					"    pp.lmsorderid as parcel_lmsorderid_PC,\r\n",
+					"    pp.scandate as parcel_scandate_PC,\r\n",
+					"    pp.scanstatus as parcel_scantatus_PC,\r\n",
+					"    pp.scanmode as parcel_scanmode_PC,\r\n",
+					"    pp.claimid as parcel_claimid_PC,\r\n",
+					"    --pp.dispatch.id as dispatch_id_PC,\r\n",
+					"    --pp.did as delivery_id_PC,\r\n",
+					"    --pp.id as parcel_id_PC,\r\n",
+					"\r\n",
+					"    -- calcs (only 2 of them)\r\n",
+					"    if(ISNULL(w.PODDate) or cast(w.PODDate as bigint) = 0, 0, 1) AS PC_WB_HasPODDate, --or w.PODDate = 0 removed\r\n",
+					"    if( IF(ISNULL(w.PODDate),NOW(),w.PODDate) < \r\n",
+					"        (\r\n",
+					"            to_timestamp(date_trunc('day',c.DeliverBy))\r\n",
+					"            + INTERVAL '86399' SECOND\r\n",
+					"            --Interval('23:59:59','hh:mm:ss'),'dd/mm/yyyy hh:mm:ss'))   \r\n",
+					"        ),1,0) AS PC_InserviceIndicator,\r\n",
+					"    now() as current_date,\r\n",
+					"    (to_timestamp(date_trunc('day',c.CDate)) + INTERVAL '86399' SECOND) as c_date_for_calc \r\n",
+					"\r\n",
+					"    FROM parcel p \r\n",
+					"    LEFT JOIN dboorder o on p.OD_ID = o.id\r\n",
+					"    LEFT JOIN dboconsignment c on p.CN_ID = c.id\r\n",
+					"    LEFT JOIN dboWaybill w on p.WB_ID = w.ID\r\n",
+					"    LEFT join dbopublicparcel as pp on pp.id = p.PC_ID\r\n",
+					"    WHERE  (p.PC_ADateTime is not null or p.PC_HandOverDateTime IS NOT NULL)\r\n",
+					"    --AND p.PC_ADateTime BETWEEN ${vCurrentExtractQVDStartDate} and ${vCurrentExtractQVDEndDate}\r\n",
+					"    \"\"\"\r\n",
+					")\r\n",
+					"#T_Parcel.cache()\r\n",
+					"#print(T_Parcel.count())"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# calculate the needed hours between dates\r\n",
+					"\r\n",
+					"# add the hours diff column\r\n",
+					"T_Parcel = T_Parcel.withColumn(\"diff_hours\", when(col('PC_WB_PODDateTime').isNotNull(), (col(\"PC_WB_PODDateTime\").cast(\"long\") - col(\"c_date_for_calc\").cast(\"long\"))/ 3600 \r\n",
+					"    ).otherwise( \r\n",
+					"        (col(\"current_date\").cast(\"long\") - col(\"c_date_for_calc\").cast(\"long\"))/ 3600 ) \r\n",
+					"    )\r\n",
+					"T_Parcel = T_Parcel.withColumn(\"diff_hours_alsoNulls\", (col(\"PC_WB_PODDateTime\").cast(\"long\") - col(\"c_date_for_calc\").cast(\"long\"))/ 3600)\r\n",
+					"T_Parcel = T_Parcel.withColumn('PC_LeadTimeBasedonPOD', when(col('diff_hours')<0, lit(0)).otherwise(col('diff_hours')))\r\n",
+					"T_Parcel.createOrReplaceTempView(\"T_Parcel\")"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Provide the final structure to T_Parcel and Error Logic"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# the last calculation\r\n",
+					"T_Parcel = spark.sql(          \r\n",
+					"    \"\"\"\r\n",
+					"    select  \r\n",
+					"    *,  \r\n",
+					"    (CASE\r\n",
+					"            WHEN ISNULL(PC_CN_CDateTime) THEN 'Not Received'\r\n",
+					"            WHEN ISNULL(PC_WB_PODDateTime) THEN 'Not Delivered'\r\n",
+					"            WHEN diff_hours_alsoNulls < 12 THEN '< 12 hrs'\r\n",
+					"            WHEN diff_hours_alsoNulls < 24 THEN '< 24 hrs'\r\n",
+					"            WHEN diff_hours_alsoNulls < 48 THEN '< 2 days'\r\n",
+					"            WHEN diff_hours_alsoNulls < 72 THEN '< 3 days'\r\n",
+					"            WHEN diff_hours_alsoNulls < 96 THEN '< 4 days'\r\n",
+					"            WHEN diff_hours_alsoNulls < 120 THEN '< 5 days'\r\n",
+					"            WHEN diff_hours_alsoNulls < 144 THEN '< 6 days'\r\n",
+					"            WHEN diff_hours_alsoNulls < 168 THEN '< 7 days'\r\n",
+					"            WHEN diff_hours_alsoNulls >= 168 THEN '>= 7 days'\r\n",
+					"            ELSE 'ERROR'\r\n",
+					"        END\r\n",
+					"    )  as PC_AgeAnalysisBasedonPOD\r\n",
+					"    from T_Parcel\r\n",
+					"    \"\"\"\r\n",
+					")\r\n",
+					"# drop unneeded columns\r\n",
+					"T_Parcel = T_Parcel.drop(*('diff_hours', 'c_date_for_calc', 'current_date', 'diff_hours_alsoNulls'))\r\n",
+					"T_Parcel.createOrReplaceTempView(\"T_Parcel\")"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Print success message on the Production Script"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"Successful run of the script\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

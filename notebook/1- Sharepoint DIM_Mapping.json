@@ -1,0 +1,117 @@
+{
+	"name": "1- Sharepoint DIM_Mapping",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Cost To Serve Notebooks DEV"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "b258bba0-2e5d-4a06-8f83-f87bcd9723a8"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"CTS_Inputs = [  'DIM_Mapping_DispatchDivType', \r\n",
+					"                'DIM_TrackType_Multiplier',\r\n",
+					"                'DIM_Mapping_OperationType',\r\n",
+					"                'DIM_CTS_I_SAPMapping',\r\n",
+					"                'DIM_Mapping_OperationTypePrcntg',\r\n",
+					"                'DIM_CTS_I_Variables',\r\n",
+					"                'DIM_SkippedReasonIncludeExclude'\r\n",
+					"            ] "
+				],
+				"execution_count": 51
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import pandas as pd\r\n",
+					"from pyspark.sql import functions as F"
+				],
+				"execution_count": 52
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"for (counter,i) in enumerate(CTS_Inputs,0):\r\n",
+					"    df = pd.read_excel('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CTS Mappings/CTS_Inputs.xlsx', sheet_name= i)\r\n",
+					"    if len(df) == 0:\r\n",
+					"         raise ValueError('The ingested Excel sheet was empty: ' + i)\r\n",
+					"    for colName in df.columns:\r\n",
+					"            if len(set(df[colName])) == 0:\r\n",
+					"                raise ValueError('The Excel sheet ' + i + ' contains an empty field: ' + colName)\r\n",
+					"    df = spark.createDataFrame(df)\r\n",
+					"    df = df.select([F.col(colName).alias(colName.replace(' ', '_')) for colName in df.columns if 'Unnamed:' not in colName])\r\n",
+					"    df.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/Structured/Dimensions/' + i + '.parquet', mode='overwrite')\r\n",
+					"    df = spark.read.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/Structured/Dimensions/' + i + '.parquet')\r\n",
+					"    #df.createOrReplaceTempView(i)"
+				],
+				"execution_count": 54
+			}
+		]
+	}
+}

@@ -1,0 +1,208 @@
+{
+	"name": "LMS",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Archived/Expose SQL Source Tables"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "ca622a74-78bb-4059-a050-1f120ff913d2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## This script is used to generate pyspark SQL Tabels"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"env = \"uat\"\r\n",
+					"DataBaseName = \"LMS\"\r\n",
+					"\r\n",
+					"DataBase = \"mdw_\" + env + \"_\" + DataBaseName\r\n",
+					"spark.sql(\"set env = '\" + env + \"'\")\r\n",
+					"spark.sql(\"set database = \" + DataBase)"
+				],
+				"attachments": null,
+				"execution_count": 12
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Create a new Table if the table does not exsist yet"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.sql(\"CREATE DATABASE IF NOT EXISTS ${database}\")"
+				],
+				"attachments": null,
+				"execution_count": 13
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"### Copy the .parquet files into the Database as tables"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"\r\n",
+					"dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"dboLoads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLoads.parquet', format='parquet')\r\n",
+					"dboLoads.createOrReplaceTempView(\"dboLoads\")"
+				],
+				"attachments": null,
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dboconsignment.write.mode(\"overwrite\").saveAsTable(DataBase + \".consignment\")\r\n",
+					"\r\n",
+					"dboorder.write.mode(\"overwrite\").saveAsTable(DataBase + \".order\")\r\n",
+					"\r\n",
+					"dboparcel.write.mode(\"overwrite\").saveAsTable(DataBase + \".parcel\")\r\n",
+					"\r\n",
+					"dbotrack.write.mode(\"overwrite\").saveAsTable(DataBase + \".track\")\r\n",
+					"\r\n",
+					"dboWaybill.write.mode(\"overwrite\").saveAsTable(DataBase + \".Waybill\")\r\n",
+					"\r\n",
+					"dboLoads.write.mode(\"overwrite\").saveAsTable(DataBase + \".Loads\")"
+				],
+				"attachments": null,
+				"execution_count": 15
+			}
+		]
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "108_RptParcelLevel_revenueverticalreport",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.revenueverticalreport') )\n    DROP EXTERNAL TABLE dbo.revenueverticalreport\nGO\n\nCREATE EXTERNAL TABLE dbo.revenueverticalreport (\n\n[billingcustomerid] int,\n[billingcustomername] nvarchar(4000),\n[date] date,\n[zonerouteid] int,\n[zonedescription] nvarchar(4000),\n[noofparcels] bigint,\n[kgsconsigned] numeric(36,6),\n[revenue] numeric(36,6),\n[fuelsurcharge] numeric(36,6),\n[docsurcharge] numeric(36,6),\n[othersurcharge] numeric(36,6),\n[covidsurcharge] numeric(36,6),\n[exception] numeric(36,6),\n[total] numeric(36,6),\n\t\n\t)\n\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/revenueverticalreport.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.revenueverticalreport \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

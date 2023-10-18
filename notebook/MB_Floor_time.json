@@ -1,0 +1,194 @@
+{
+	"name": "MB_Floor_time",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/MarkB"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "ed73404c-725c-437f-87b1-29bb34fa4914"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"#Create DataFrame for the stparcel LMS Table\r\n",
+					"stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', format='parquet')\r\n",
+					"stparcel.createOrReplaceTempView(\"stparcel\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the ssttrackunion LMS Table\r\n",
+					"ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
+					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbosroute lms table\r\n",
+					"dbosroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbosroute.parquet', format='parquet')\r\n",
+					"dbosroute.createOrReplaceTempView(\"dbosroute\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbolocation  lms table\r\n",
+					"dbolocation  = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
+					"dbolocation.createOrReplaceTempView(\"dbolocation\")\r\n",
+					"\r\n",
+					"#create dataframe for the dbocustomer lms table\r\n",
+					"dbocustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
+					"dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
+					"\r\n",
+					"#create dataframe for the dboplc_lpnrouting lms table\r\n",
+					"dboplc_lpnrouting = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboplc_lpnrouting.parquet', format='parquet')\r\n",
+					"dboplc_lpnrouting.createOrReplaceTempView(\"dboplc_lpnrouting\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcelfloortime\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"p.lms_parcel_id\r\n",
+					",p.lms_parcel_barcode\r\n",
+					",bc.name as lms_billcustomer_name\r\n",
+					",dc.name as lms_delivercustomer_name\r\n",
+					"-- ,p.description as lms_location_description\r\n",
+					"-- ,p.description as lms_sroute_description\r\n",
+					"-- ,p.loadid as lms_track_loadid\r\n",
+					"-- ,p.closedt as lms_track_closedt\r\n",
+					"-- ,p.tolocid as lms_track_tolocid\r\n",
+					"-- ,p.tracktypeid as lms_track_tracktypeid\r\n",
+					"-- ,p.poddate as lms_parcel_poddate\r\n",
+					"FROM stparcel p\r\n",
+					"LEFT JOIN dbocustomer bc ON p.lms_parcel_orderbillcustid = bc.id\r\n",
+					"LEFT JOIN dbocustomer dc ON p.lms_parcel_orderdelivercustid = dc.id\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stparcelfloortime = spark.sql(\"SELECT * FROM stparcelfloortime\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stparcelfloortime.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcelfloortime.parquet', mode = \"overwrite\")\r\n",
+					"\r\n",
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 8
+			}
+		]
+	}
+}

@@ -1,0 +1,421 @@
+{
+	"name": "2- OnRoute_Extractor_Delivery_PROD",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/PROD/Operations Notebooks PROD"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 19,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "19",
+				"spark.dynamicAllocation.maxExecutors": "19",
+				"spark.autotune.trackingId": "87344d87-5100-41f8-91f5-ddef94585b51"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 15
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import Python Function, that are required for this script"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import to_timestamp, col, when, lit, round, min, max, substring, desc, count, sin, asin, cos, sqrt, pow, radians, date_format"
+				],
+				"execution_count": 40
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load Source Data from Blolbstorage (Datalake)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"delivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"delivery.createOrReplaceTempView(\"delivery\")\r\n",
+					"\r\n",
+					"lhdelivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publiclhdelivery.parquet', format='parquet')\r\n",
+					"lhdelivery.createOrReplaceTempView(\"lhdelivery\")\r\n",
+					"\r\n",
+					"pod = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
+					"pod.createOrReplaceTempView(\"pod\")"
+				],
+				"execution_count": 41
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Create Dim table for dbo.pod"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pod = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT MAX(id) as id, did, name, poddate, lat, lng, customerrating, customerfeedback, podappdate\r\n",
+					"FROM pod \r\n",
+					"GROUP BY did, name, poddate, lat, lng, customerrating, customerfeedback, podappdate\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#pod.show()\r\n",
+					"pod.createOrReplaceTempView(\"pod\")"
+				],
+				"execution_count": 42
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Script Structure for table T_Delivery"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_Delivery = spark.sql(\r\n",
+					"    \"\"\"\r\n",
+					"    select \r\n",
+					"    delivery.did AS dispatch_id,\r\n",
+					"    delivery.id as delivery_id,\r\n",
+					"    delivery.did as delivery_dispatch_id,\r\n",
+					"    customerid as delivery_customerid,\r\n",
+					"    waybillid as delivery_waybillid,\r\n",
+					"    address as delivery_address,\r\n",
+					"    town as delivery_town,\r\n",
+					"    province as delivery_province,\r\n",
+					"    country as delivery_country,\r\n",
+					"    delivery.lat as delivery_lat,\r\n",
+					"    delivery.lng as delivery_lng,\r\n",
+					"    placeid as delivery_placeid,\r\n",
+					"    what3words as delivery_what3words,\r\n",
+					"    zipcode as delivery_zipcode,\r\n",
+					"    billingcustid as delivery_billingcustid,\r\n",
+					"    to_timestamp(eta) as delivery_eta,\r\n",
+					"    to_timestamp(actualeta) as delivery_actualeta,\r\n",
+					"\r\n",
+					"    to_timestamp(deliverydate) as delivery_deliverydatetime, \r\n",
+					"    to_date(to_utc_timestamp(to_timestamp(deliverydate), 'GMT-2')) AS delivery_deliverydate,\r\n",
+					"    date_format(to_utc_timestamp(to_timestamp(deliverydate), 'GMT-2'), 'HH:mm:ss') AS delivery_deliverytime,\r\n",
+					"\r\n",
+					"    to_timestamp(deliverby) as delivery_deliverbydatetime,\r\n",
+					"    to_date(to_utc_timestamp(to_timestamp(deliverby), 'GMT-2')) AS delivery_deliverbydate,\r\n",
+					"    date_format(to_utc_timestamp(to_timestamp(deliverby), 'GMT-2'), 'HH:mm:ss') AS delivery_deliverbytime,\r\n",
+					"\r\n",
+					"    deliveryorder as delivery_deliveryorder,\r\n",
+					"    to_timestamp(tsgeofenceenter) as delivery_tsgeofenceenter,\r\n",
+					"    to_timestamp(tsscanningstart) as delivery_tsscanningstart,\r\n",
+					"    to_timestamp(tsscanningstop) as delivery_tsscanningstop,\r\n",
+					"    to_timestamp(tspodsignature) as delivery_tspodsignature,    \r\n",
+					"\r\n",
+					"    aid as delivery_aid,\r\n",
+					"    numprcls as delivery_numprcls,\r\n",
+					"    geocodingstatus as delivery_geocodingstatus,\r\n",
+					"    skipdate as delivery_skipdate,\r\n",
+					"    skipreason as delivery_skipreason,\r\n",
+					"    status as delivery_status,\r\n",
+					"    partialmatch as delivery_partialmatch,\r\n",
+					"    approximated as delivery_approximated,\r\n",
+					"    lmsorder as delivery_lmsorder,\r\n",
+					"    optimizedorder as delivery_optimizedorder,\r\n",
+					"    seal as delivery_seal,\r\n",
+					"    customerinvoice as delivery_customerinvoice,\r\n",
+					"    customerdn as delivery_customerdn,\r\n",
+					"    grv as delivery_grv,\r\n",
+					"    chepslip as delivery_chepslip,\r\n",
+					"    cleandelivery as delivery_cleandelivery,\r\n",
+					"    trackingcode as delivery_trackingcode,\r\n",
+					"    if(ISNULL(delivery.mode), 'deliver', delivery.mode) as delivery_mode,\r\n",
+					"\r\n",
+					"    customorder as delivery_customorder,\r\n",
+					"    verified as delivery_verified,\r\n",
+					"    altered as delivery_altered,\r\n",
+					"    orderid as delivery_orderid,\r\n",
+					"    lastregioncrossed as delivery_lastregioncrossed,    \r\n",
+					"    mergeid as delivery_mergeid,\r\n",
+					"    orderref as delivery_orderref,\r\n",
+					"    drivernote as delivery_drivernote,\r\n",
+					"    timedefinite as delivery_timedefinite,\r\n",
+					"    orvcode as delivery_orvcode,\r\n",
+					"    vaid as delivery_vaid,\r\n",
+					"    delegatedate as delivery_delegatedate,\r\n",
+					"    delegatemode as delivery_delegatemode,\r\n",
+					"    debriefmode as delivery_debriefmode,\r\n",
+					"    debriefed as delivery_debriefed,\r\n",
+					"    insdate as delivery_insdate,\r\n",
+					"    reviseddebrief as delivery_reviseddebrief,\r\n",
+					"    lmsdebriefed as delivery_lmsdebriefed,\r\n",
+					"    uncanceldate as delivery_uncanceldate,\r\n",
+					"    podlaterdate as delivery_podlaterdate,\r\n",
+					"    podmanualdate as delivery_podmanualdate,\r\n",
+					"    manualdebriefreason as delivery_manualdebriefreason,\r\n",
+					"    submanualdebriefreason as delivery_submanualdebriefreason,\r\n",
+					"    outofgeofencereason as delivery_outofgeofencereason,\r\n",
+					"    tsentergeofenceapp as delivery_tsentergeofenceapp,\r\n",
+					"    tsexitgeofenceapp as delivery_tsexitgeofenceapp,\r\n",
+					"    comebacklater as delivery_comebacklater,\r\n",
+					"    uncancelusername as delivery_uncancelusername,\r\n",
+					"    '' as delivery_poddistancefromdeliverypoint,\r\n",
+					"    concat('[', coalesce(cast(delivery.lat as varchar(255)), ''), ',' , coalesce(cast(delivery.lng as varchar(255)), ''), ']') as delivery_geopoint,\r\n",
+					"    pod.lat as p_lat,\r\n",
+					"    delivery.lat as d_lat,\r\n",
+					"    pod.lng as p_lng,\r\n",
+					"    delivery.lng as d_lng\r\n",
+					"\r\n",
+					"    from delivery LEFT JOIN pod on pod.did = delivery.id\r\n",
+					"\"\"\"\r\n",
+					")\r\n",
+					"\r\n",
+					"# reformat the time (not the timestamps) to the correct format\r\n",
+					"#T_Delivery = T_Delivery.withColumn(\"delivery_deliverytime\", date_format('delivery_deliverytime', 'HH:mm:ss'))\r\n",
+					"#T_Delivery = T_Delivery.withColumn(\"delivery_deliverbytime\", date_format('delivery_deliverbytime', 'HH:mm:ss'))\r\n",
+					"\r\n",
+					"\r\n",
+					"# add the calc fields\r\n",
+					"T_Delivery = T_Delivery.withColumn('delivery_poddistancefromdeliverypoint', \r\n",
+					"    2 * 3961 * asin(sqrt(pow(sin(radians((col('p_lat') - col('d_lat')) / 2)), 2) + cos(radians(col('d_lat'))) * cos(radians(col('p_lat'))) * pow(sin(radians((col('p_lng') - col('d_lng') ) / 2)), 2)))*1.60934\r\n",
+					"    )\r\n",
+					"\r\n",
+					"# remove the unncessary fields\r\n",
+					"T_Delivery = T_Delivery.drop(*('p_lat', 'd_lat', 'p_lng', 'd_lng'))\r\n",
+					"\r\n",
+					"T_Delivery.createOrReplaceTempView(\"T_Delivery\")"
+				],
+				"execution_count": 43
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_LHDelivery = spark.sql(\r\n",
+					"    \"\"\"\r\n",
+					"    select \r\n",
+					"        id,\r\n",
+					"        did,\r\n",
+					"        address,\r\n",
+					"        lat,\r\n",
+					"        lng,\r\n",
+					"        to_date(to_utc_timestamp(to_timestamp(actualeta), 'GMT-2')) as actualeta,\r\n",
+					"        to_date(to_utc_timestamp(to_timestamp(eta), 'GMT-2')) as eta,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsgeofenceenter), 'GMT-2') as tsgeofenceenter,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsdocuments), 'GMT-2') as tsdocuments,\r\n",
+					"        customerref1,\r\n",
+					"        customerref2,\r\n",
+					"        trailersize,\r\n",
+					"        cargoweight,\r\n",
+					"        cubicvolume,\r\n",
+					"        geocodingstatus,\r\n",
+					"        status,\r\n",
+					"        optimizedorder,\r\n",
+					"        triporder,\r\n",
+					"        sequence,\r\n",
+					"        bookingid,\r\n",
+					"        grv,\r\n",
+					"        chepslip,\r\n",
+					"        type,\r\n",
+					"        to_date(to_utc_timestamp(to_timestamp(insdate), 'GMT-2')) as insdate,\r\n",
+					"        isdirect,\r\n",
+					"        notes,\r\n",
+					"        contactperson,\r\n",
+					"        contactnumber,\r\n",
+					"        trailerfleetcode,\r\n",
+					"        primarycustomerid,\r\n",
+					"        pcustomername,\r\n",
+					"        pcustomeraccountnumber,\r\n",
+					"        pcustomerrevenuecode,\r\n",
+					"        secondarycustomerid,\r\n",
+					"        scustomername,\r\n",
+					"        scustomeraccountnumber,\r\n",
+					"        scustomerrevenuecode,\r\n",
+					"        to_date(to_utc_timestamp(to_timestamp(actiondate), 'GMT-2')) as actiondate,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsgeofenceexit), 'GMT-2') as tsgeofenceexit,\r\n",
+					"        pctmsid,\r\n",
+					"        sctmsid,\r\n",
+					"        customorder,\r\n",
+					"        to_date(to_utc_timestamp(to_timestamp(skipdate), 'GMT-2')) as skipdate,\r\n",
+					"        skipreason,\r\n",
+					"        outofgeofencereason,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsarrivedcustomer), 'GMT-2') as tsarrivedcustomer,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsdroppedoff), 'GMT-2') as tsdroppedoff,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsstartoffloading), 'GMT-2') as tsstartoffloading,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsstartloading), 'GMT-2') as tsstartloading,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsloaded), 'GMT-2') as tsloaded,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsfinishedoffloading), 'GMT-2') as tsfinishedoffloading,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsdocumnetshanddovedriver), 'GMT-2') as tsdocumnetshanddovedriver,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsleavingcustomer), 'GMT-2') as tsleavingcustomer,\r\n",
+					"        actionsubtype,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsstart), 'GMT-2') as tsstart,\r\n",
+					"        signame,\r\n",
+					"        signcomment,\r\n",
+					"        to_date(to_utc_timestamp(to_timestamp(signdate), 'GMT-2')) as signdate,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsendtate), 'GMT-2') as tsendtate,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsentergeofenceapp), 'GMT-2') as tsentergeofenceapp,\r\n",
+					"        to_utc_timestamp(to_timestamp(tsexitgeofenceapp), 'GMT-2') as tsexitgeofenceapp,\r\n",
+					"        tmsid,\r\n",
+					"        subtype,\r\n",
+					"        needbotrailerver,\r\n",
+					"        secondtrailerfleetcode,\r\n",
+					"        trailerverlat,\r\n",
+					"        trailerverlng,\r\n",
+					"        to_utc_timestamp(to_timestamp(tstrailerver), 'GMT-2') as tstrailerver,\r\n",
+					"        podlat,\r\n",
+					"        podlng,\r\n",
+					"        skiplat,\r\n",
+					"        skiplng,\r\n",
+					"        uncanceldate,\r\n",
+					"        manifestsjson\r\n",
+					"    from lhdelivery\r\n",
+					"\"\"\"\r\n",
+					")\r\n",
+					"\r\n",
+					"T_LHDelivery.createOrReplaceTempView(\"T_LHDelivery\")"
+				],
+				"execution_count": 47
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Print successful message on the Production Script"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"Successful run of the script\")"
+				],
+				"execution_count": 28
+			}
+		]
+	}
+}

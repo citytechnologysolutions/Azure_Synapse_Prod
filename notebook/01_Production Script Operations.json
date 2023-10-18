@@ -1,0 +1,3203 @@
+{
+	"name": "01_Production Script Operations",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/PROD/Transformation Scripts - Running Notebooks"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"runAsWorkspaceSystemIdentity": true,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "3ad4830a-fea3-4bdf-b145-f3b1e35f82d9"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 3
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Start of Single Notebook Run Automation for Operations Scripts"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"##Set the Parameter for Dev or Production\r\n",
+					"Environment = 'DataLake'  #FOR DEV USE: 'DEV DataLake'"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Execute Script 1- OnRoute_Extractor_Dispatch"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"## Load the Source Files for first part of the scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"publicdispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"publicdispatch.createOrReplaceTempView(\"publicdispatch\")"
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/1- OnRoute_Extractor_Dispatch_PROD"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Structured Data back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dispatch.write.parquet('/' + Environment + '/Structured/Facts/T_dispatch.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part1 scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Execute Script 2- OnRoute_Extractor_Delivery"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load the Source Files for second part of the scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"delivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"delivery.createOrReplaceTempView(\"delivery\")\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"delivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"lhdelivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publiclhdelivery.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"lhdelivery.createOrReplaceTempView(\"lhdelivery\")\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"lhdelivery.createOrReplaceTempView(\"publiclhdelivery\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"pod = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"pod.createOrReplaceTempView(\"pod\")\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"pod.createOrReplaceTempView(\"publicpod\")"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/2- OnRoute_Extractor_Delivery_PROD"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Structured Data back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# export\r\n",
+					"T_Delivery.write.parquet('/' + Environment + '/Structured/Facts/T_Delivery.parquet', mode='overwrite')\r\n",
+					"T_LHDelivery.write.parquet('/' + Environment + '/Structured/Facts/T_LHDelivery.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part2 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Execute Script 3- OnRoute_Extractor_DispatchSegment"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load the source files for the third part of the Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"publicdispatchsegment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatchsegment.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"publicdispatchsegment.createOrReplaceTempView(\"publicdispatchsegment\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"T_Delivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_Delivery.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"T_Delivery.createOrReplaceTempView(\"T_Delivery\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"T_dispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_dispatch.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"T_dispatch.createOrReplaceTempView(\"T_dispatch\")"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/3- OnRoute_Extractor_DispatchSegment_PROD"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Structured Data back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# export\r\n",
+					"dispatchsegment.write.parquet('/' + Environment + '/Structured/Facts/T_dispatchsegment.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part3 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Execute Script 4- Finance_LMS_Activities_Extractor_Main"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load Source files for the fourth part of the Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboLoads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLoads.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboLoads.createOrReplaceTempView(\"dboLoads\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboParcel_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboParcel_Archive.createOrReplaceTempView(\"dboParcel_Archive\")\r\n",
+					"dboParcel_Archive.createOrReplaceTempView(\"dboparcel_archive\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboCustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboCustomer.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboCustomer.createOrReplaceTempView(\"dboCustomer\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboLocation = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLocation.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboLocation.createOrReplaceTempView(\"dboLocation\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboTrackType = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrackType.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboTrackType.createOrReplaceTempView(\"dboTrackType\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboTrack_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrack_Archive.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboTrack_Archive.createOrReplaceTempView(\"dboTrack_Archive\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboSRoute = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboSRoute.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboSRoute.createOrReplaceTempView(\"dboSRoute\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboZone = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboZone.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboZone.createOrReplaceTempView(\"dboZone\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"F_MFRHISTORY = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/F_MFRHISTORY.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"F_MFRHISTORY.createOrReplaceTempView(\"F_MFRHISTORY\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"DIM_Location = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_Location.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"DIM_Location.createOrReplaceTempView(\"DIM_Location\")\r\n",
+					"\r\n",
+					"#Duplicate load\r\n",
+					"#dboLocation = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLocation.parquet', format='parquet')\r\n",
+					"#dboLocation.createOrReplaceTempView(\"dboLocation\")"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/4- Finance_LMS_Activities_Extractor_Main_PROD"
+				],
+				"execution_count": 24
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_TransactionsActivities.write.parquet('/' + Environment + '/Structured/Facts/T_TransactionsActivities.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part4 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Execute Script 5- Perations_LMS_Extractor_Parcel"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load Source files for fith part of scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dbopublicparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicparcel.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dbopublicparcel.createOrReplaceTempView(\"dbopublicparcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel_archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"#dboparcel_archive.createOrReplaceTempView(\"dboparcel_archive\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"#dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"#dboconsignment.createOrReplaceTempView(\"dboconsignment\")"
+				],
+				"execution_count": 25
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/5- Perations_LMS_Extractor_Parcel_PROD"
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_Parcel.write.parquet('/' + Environment + '/Structured/Facts/T_Parcel.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part5 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Execute Script 6- Perations_LMS_Extractor_OrderServiceLevel"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load Source Files for sixth Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dbodb_InServiceReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_InServiceReason.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dbodb_InServiceReason.createOrReplaceTempView(\"dbodb_InServiceReason\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboParcel_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"#dboParcel_Archive.createOrReplaceTempView(\"dboParcel_Archive\")\r\n",
+					"\r\n",
+					"#File is already loaded\r\n",
+					"#dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"#dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboLoads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLoads.parquet', format='parquet')\r\n",
+					"#dboLoads.createOrReplaceTempView(\"dboLoads\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboLocation = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLocation.parquet', format='parquet')\r\n",
+					"#dboLocation.createOrReplaceTempView(\"dboLocation\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"#dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"#dboorder.createOrReplaceTempView(\"dboorder\")"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/6- Perations_LMS_Extractor_OrderServiceLevel_PROD"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ORDERSERVICELEVEL.write.parquet('/' + Environment + '/Structured/Facts/ORDERSERVICELEVEL.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part6 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 7- Perations_LMS_Extractor_Billing"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for eight Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboBill_ConsignmentR = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboBill_ConsignmentR.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboBill_ConsignmentR.createOrReplaceTempView(\"dboBill_ConsignmentR\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboBill_BillCustomersR = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboBill_BillCustomersR.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboBill_BillCustomersR.createOrReplaceTempView(\"dboBill_BillCustomersR\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboBill_ZoneRoute = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboBill_ZoneRoute.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboBill_ZoneRoute.createOrReplaceTempView(\"dboBill_ZoneRoute\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboBill_ProductCategory = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboBill_ProductCategory.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboBill_ProductCategory.createOrReplaceTempView(\"dboBill_ProductCategory\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboBill_CustomerGroups = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboBill_CustomerGroups.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboBill_CustomerGroups.createOrReplaceTempView(\"dboBill_CustomerGroups\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboBill_CustomerGroupTypes = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboBill_CustomerGroupTypes.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboBill_CustomerGroupTypes.createOrReplaceTempView(\"dboBill_CustomerGroupTypes\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"#dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboCustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboCustomer.parquet', format='parquet')\r\n",
+					"#dboCustomer.createOrReplaceTempView(\"dboCustomer\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboSRoute = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboSRoute.parquet', format='parquet')\r\n",
+					"#dboSRoute.createOrReplaceTempView(\"dboSRoute\")"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/7- Perations_LMS_Extractor_Billing_PROD"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"BILLING.write.parquet('/' + Environment + '/Structured/Facts/BILLING.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part7 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 8- Perations_LMS_Extractor_Consignment"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for seventh Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"BILLING = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/BILLING.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"BILLING.createOrReplaceTempView(\"BILLING\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"T_LOAD = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_LOAD.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"T_LOAD.createOrReplaceTempView(\"T_LOAD\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboWaybillsPerParcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybillsPerParcel.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboWaybillsPerParcel.createOrReplaceTempView(\"dboWaybillsPerParcel\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"T_Parcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_Parcel.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"T_Parcel.createOrReplaceTempView(\"T_Parcel\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboconsignment_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment_Archive.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboconsignment_Archive.createOrReplaceTempView(\"dboconsignment_Archive\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"#dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbodb_InServiceReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_InServiceReason.parquet', format='parquet')\r\n",
+					"#dbodb_InServiceReason.createOrReplaceTempView(\"dbodb_InServiceReason\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboLoads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLoads.parquet', format='parquet')\r\n",
+					"#dboLoads.createOrReplaceTempView(\"dboLoads\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboLocation = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLocation.parquet', format='parquet')\r\n",
+					"#dboLocation.createOrReplaceTempView(\"dboLocation\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#T_dispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_dispatch.parquet', format='parquet')\r\n",
+					"#T_dispatch.createOrReplaceTempView(\"T_dispatch\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"#dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"#dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel_archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"#dboparcel_archive.createOrReplaceTempView(\"dboparcel_archive\")\r\n",
+					"\r\n",
+					"#dboTrack_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrack_Archive.parquet', format='parquet')\r\n",
+					"#dboTrack_Archive.createOrReplaceTempView(\"dboTrack_Archive\")"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/8- Perations_LMS_Extractor_Consignment_PROD"
+				],
+				"execution_count": 32
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_CONSIGNMENT.write.parquet('/' + Environment + '/Structured/Facts/T_CONSIGNMENT.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part8 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 9- Perations_LMS_Extractor_Load"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboVehicle = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboVehicle.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboVehicle.createOrReplaceTempView(\"dboVehicle\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboDriver = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboDriver.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboDriver.createOrReplaceTempView(\"dboDriver\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dbodb_MobileFeedbackReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_MobileFeedbackReason.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dbodb_MobileFeedbackReason.createOrReplaceTempView(\"dbodb_MobileFeedbackReason\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"#dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboTrack_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrack_Archive.parquet', format='parquet')\r\n",
+					"#dboTrack_Archive.createOrReplaceTempView(\"dboTrack_Archive\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboLoads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLoads.parquet', format='parquet')\r\n",
+					"#dboLoads.createOrReplaceTempView(\"dboLoads\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#T_dispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_dispatch.parquet', format='parquet')\r\n",
+					"#T_dispatch.createOrReplaceTempView(\"T_dispatch\")"
+				],
+				"execution_count": 33
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/9- Perations_LMS_Extractor_Load_PROD"
+				],
+				"execution_count": 34
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_LOAD.write.parquet('/' + Environment + '/Structured/Facts/T_LOAD.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part9 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 10- Perations_LMS_Extractor_Waybill"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dbodb_DelayReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_DelayReason.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dbodb_DelayReason.createOrReplaceTempView(\"dbodb_DelayReason\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dbodb_NotDbReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_NotDbReason.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dbodb_NotDbReason.createOrReplaceTempView(\"dbodb_NotDbReason\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dbodb_DeliveryStatus = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_DeliveryStatus.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dbodb_DeliveryStatus.createOrReplaceTempView(\"dbodb_DeliveryStatus\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dbodb_ReasonGroup = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_ReasonGroup.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dbodb_ReasonGroup.createOrReplaceTempView(\"dbodb_ReasonGroup\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dbodb_ReasonDetail = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_ReasonDetail.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dbodb_ReasonDetail.createOrReplaceTempView(\"dbodb_ReasonDetail\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"#dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbodb_InServiceReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_InServiceReason.parquet', format='parquet')\r\n",
+					"#dbodb_InServiceReason.createOrReplaceTempView(\"dbodb_InServiceReason\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#publicpod = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
+					"#publicpod.createOrReplaceTempView(\"publicpod\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#delivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"#delivery.createOrReplaceTempView(\"delivery\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#T_dispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_dispatch.parquet', format='parquet')\r\n",
+					"#T_dispatch.createOrReplaceTempView(\"T_dispatch\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#T_LOAD = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_LOAD.parquet', format='parquet')\r\n",
+					"#T_LOAD.createOrReplaceTempView(\"T_LOAD\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"#dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboWaybillsPerParcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybillsPerParcel.parquet', format='parquet')\r\n",
+					"#dboWaybillsPerParcel.createOrReplaceTempView(\"dboWaybillsPerParcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel_archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"#dboparcel_archive.createOrReplaceTempView(\"dboparcel_archive\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboTrack_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrack_Archive.parquet', format='parquet')\r\n",
+					"#dboTrack_Archive.createOrReplaceTempView(\"dboTrack_Archive\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#T_Parcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_Parcel.parquet', format='parquet')\r\n",
+					"#T_Parcel.createOrReplaceTempView(\"T_Parcel\")"
+				],
+				"execution_count": 35
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/10- Perations_LMS_Extractor_Waybill_PROD"
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_WAYBILL.write.parquet('/' + Environment + '/Structured/Facts/T_WAYBILL.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part10 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 11- Perations_LMS_Extractor_FLocation"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboLocation = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLocation.parquet', format='parquet')\r\n",
+					"#dboLocation.createOrReplaceTempView(\"dboLocation\")"
+				],
+				"execution_count": 37
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/11- Perations_LMS_Extractor_FLocation_PROD"
+				],
+				"execution_count": 38
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"DIM_Location.write.parquet('/' + Environment + '/Structured/Dimensions/DIM_Location.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part11 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 12- Perations_LMS_Extractor_Endorsements"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dbodb_Endorsement = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_Endorsement.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dbodb_Endorsement.createOrReplaceTempView(\"dbodb_Endorsement\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboWBEndorsement = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWBEndorsement.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboWBEndorsement.createOrReplaceTempView(\"dboWBEndorsement\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"publicclaim = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicclaim.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"publicclaim.createOrReplaceTempView(\"publicclaim\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#publicdelivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"#publicdelivery.createOrReplaceTempView(\"publicdelivery\")"
+				],
+				"execution_count": 39
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/12- Perations_LMS_Extractor_Endorsements_PROD"
+				],
+				"execution_count": 40
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_ENDORSEMENT.write.parquet('/' + Environment + '/Structured/Facts/T_ENDORSEMENT.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part12 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 13- Perations_LMS_Extractor_OutOfServiceReasons"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"# File is aleardy loaded\r\n",
+					"#dbodb_InServiceReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_InServiceReason.parquet', format='parquet')\r\n",
+					"#dbodb_InServiceReason.createOrReplaceTempView(\"dbodb_InServiceReason\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbodb_ReasonGroup = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_ReasonGroup.parquet', format='parquet')\r\n",
+					"#dbodb_ReasonGroup.createOrReplaceTempView(\"dbodb_ReasonGroup\")"
+				],
+				"execution_count": 41
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/13- Perations_LMS_Extractor_OutOfServiceReasons_PROD"
+				],
+				"execution_count": 42
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Dim_OutOfServiceLevel.write.parquet('/' + Environment + '/Structured/Dimensions/Dim_OutOfServiceLevel.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part13 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 14- Operations_LMS_Extractor_ConsignmentServiceLevel"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboParcel_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"#dboParcel_Archive.createOrReplaceTempView(\"dboParcel_Archive\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"#dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbodb_InServiceReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_InServiceReason.parquet', format='parquet')\r\n",
+					"#dbodb_InServiceReason.createOrReplaceTempView(\"dbodb_InServiceReason\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboLoads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLoads.parquet', format='parquet')\r\n",
+					"#dboLoads.createOrReplaceTempView(\"dboLoads\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboLocation = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLocation.parquet', format='parquet')\r\n",
+					"#dboLocation.createOrReplaceTempView(\"dboLocation\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"#dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"#dboorder.createOrReplaceTempView(\"dboorder\")"
+				],
+				"execution_count": 43
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/14- Operations_LMS_Extractor_ConsignmentServiceLevel_PROD"
+				],
+				"execution_count": 44
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"CONSIGNMENTSERVICELEVEL.write.parquet('/' + Environment + '/Structured/Facts/CONSIGNMENTSERVICELEVEL.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part14 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 15- Operations_LMS_OnRouteDet_3MRolling_Order"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"#dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"#dboorder.createOrReplaceTempView(\"dboorder\")"
+				],
+				"execution_count": 45
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/15- Operations_LMS_OnRouteDet_3MRolling_Order_PROD"
+				],
+				"execution_count": 46
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"t_order.write.parquet('/' + Environment + '/Structured/Dimensions/T_ORDER.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part15 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 16- Operations_LMS_OnRouteDet_3MRolling_CustomerRoute"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboSRouteGroup = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboSRouteGroup.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboSRouteGroup.createOrReplaceTempView(\"dboSRouteGroup\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"publiccustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publiccustomer.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboCustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboCustomer.parquet', format='parquet')\r\n",
+					"#dboCustomer.createOrReplaceTempView(\"dboCustomer\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboBill_BillCustomersR = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboBill_BillCustomersR.parquet', format='parquet')\r\n",
+					"#dboBill_BillCustomersR.createOrReplaceTempView(\"dboBill_BillCustomersR\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboBill_ProductCategory = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboBill_ProductCategory.parquet', format='parquet')\r\n",
+					"#dboBill_ProductCategory.createOrReplaceTempView(\"dboBill_ProductCategory\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboBill_CustomerGroups = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboBill_CustomerGroups.parquet', format='parquet')\r\n",
+					"#dboBill_CustomerGroups.createOrReplaceTempView(\"dboBill_CustomerGroups\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboBill_CustomerGroupTypes = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboBill_CustomerGroupTypes.parquet', format='parquet')\r\n",
+					"#dboBill_CustomerGroupTypes.createOrReplaceTempView(\"dboBill_CustomerGroupTypes\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboSRoute = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboSRoute.parquet', format='parquet')\r\n",
+					"#dboSRoute.createOrReplaceTempView(\"dboSRoute\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboZone = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboZone.parquet', format='parquet')\r\n",
+					"#dboZone.createOrReplaceTempView(\"dboZone\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboLocation = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLocation.parquet', format='parquet')\r\n",
+					"#dboLocation.createOrReplaceTempView(\"dboLocation\")"
+				],
+				"execution_count": 47
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/16- Operations_LMS_OnRouteDet_3MRolling_CustomerRoute_PROD"
+				],
+				"execution_count": 48
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"CUSTOMER_2.write.parquet('/' + Environment + '/Structured/Dimensions/Dim_CUSTOMER.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part16 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 17- Operations_LMS_OnRouteDet_3MRolling_MFR"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"VEHICLE_H = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/@VEHICLE_H.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"VEHICLE_H.createOrReplaceTempView(\"VEHICLE_H\")\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"dboMFRHistoryDaily = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboMFRHistoryDaily.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"dboMFRHistoryDaily.createOrReplaceTempView(\"dboMFRHistoryDaily\")"
+				],
+				"execution_count": 49
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/17- Operations_LMS_OnRouteDet_3MRolling_MFR_PROD"
+				],
+				"execution_count": 50
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Dim_Vechile.write.parquet('/' + Environment + '/Structured/Dimensions/Dim_Vechile.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part17 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 18- Operations_LMS_OnRouteDet_3MRolling_AddbackExpectionLoads"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"publicparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicparcel.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"publicparcel.createOrReplaceTempView(\"publicparcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel_archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"#dboparcel_archive.createOrReplaceTempView(\"dboparcel_archive\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"#dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"#dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboWaybillsPerParcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybillsPerParcel.parquet', format='parquet')\r\n",
+					"#dboWaybillsPerParcel.createOrReplaceTempView(\"dboWaybillsPerParcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboTrack_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrack_Archive.parquet', format='parquet')\r\n",
+					"#dboTrack_Archive.createOrReplaceTempView(\"dboTrack_Archive\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#T_Parcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_Parcel.parquet', format='parquet')\r\n",
+					"#T_Parcel.createOrReplaceTempView(\"T_Parcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#T_dispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_dispatch.parquet', format='parquet')\r\n",
+					"#T_dispatch.createOrReplaceTempView(\"T_dispatch\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#T_LOAD = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_LOAD.parquet', format='parquet')\r\n",
+					"#T_LOAD.createOrReplaceTempView(\"T_LOAD\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#publicdelivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"#publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#T_Delivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_Delivery.parquet', format='parquet')\r\n",
+					"#T_Delivery.createOrReplaceTempView(\"T_Delivery\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#publicdispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
+					"#publicdispatch.createOrReplaceTempView(\"publicdispatch\")"
+				],
+				"execution_count": 51
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/18- Operations_LMS_OnRouteDet_3MRolling_AddbackExpectionLoads_PROD"
+				],
+				"execution_count": 52
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TRACK2.write.parquet('/' + Environment + '/Structured/Facts/F_TRACK.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part18 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 19- Operations_LMS_OnRouteDet_3MRolling_Orvuser"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"publicorvuser = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicorvuser.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"publicorvuser.createOrReplaceTempView(\"publicorvuser\")"
+				],
+				"execution_count": 53
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/19- Operations_LMS_OnRouteDet_3MRolling_Orvuser_PROD"
+				],
+				"execution_count": 54
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Dim_orvuser.write.parquet('/' + Environment + '/Structured/Dimensions/Dim_orvuser.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part19 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 20- Operations_LMS_OnRouteDet_3MRolling_POD"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#publicpod = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
+					"#publicpod.createOrReplaceTempView(\"publicpod\")"
+				],
+				"execution_count": 55
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/20- Operations_LMS_OnRouteDet_3MRolling_POD_PROD"
+				],
+				"execution_count": 56
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pod.write.parquet('/' + Environment + '/Structured/Facts/F_T_pod.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part20 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 21- Operations_LMS_OnRouteDet_3MRolling_DeliveryCustomer"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"T_TRACK = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/F_TRACK.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"T_TRACK.createOrReplaceTempView(\"T_TRACK\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#publiccustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publiccustomer.parquet', format='parquet')\r\n",
+					"#publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"#dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"# Filei is already loaded\r\n",
+					"#dbodb_DelayReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_DelayReason.parquet', format='parquet')\r\n",
+					"#dbodb_DelayReason.createOrReplaceTempView(\"dbodb_DelayReason\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbodb_NotDbReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_NotDbReason.parquet', format='parquet')\r\n",
+					"#dbodb_NotDbReason.createOrReplaceTempView(\"dbodb_NotDbReason\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbodb_DeliveryStatus = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_DeliveryStatus.parquet', format='parquet')\r\n",
+					"#dbodb_DeliveryStatus.createOrReplaceTempView(\"dbodb_DeliveryStatus\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbodb_ReasonGroup = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_ReasonGroup.parquet', format='parquet')\r\n",
+					"#dbodb_ReasonGroup.createOrReplaceTempView(\"dbodb_ReasonGroup\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbodb_ReasonDetail = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_ReasonDetail.parquet', format='parquet')\r\n",
+					"#dbodb_ReasonDetail.createOrReplaceTempView(\"dbodb_ReasonDetail\")\r\n",
+					"\r\n",
+					"# File ia already loaded\r\n",
+					"#dbodb_InServiceReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_InServiceReason.parquet', format='parquet')\r\n",
+					"#dbodb_InServiceReason.createOrReplaceTempView(\"dbodb_InServiceReason\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#publicdelivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"#publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#publicpod = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
+					"#publicpod.createOrReplaceTempView(\"publicpod\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#T_LOAD = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_LOAD.parquet', format='parquet')\r\n",
+					"#T_LOAD.createOrReplaceTempView(\"T_LOAD\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboTrack_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrack_Archive.parquet', format='parquet')\r\n",
+					"#dboTrack_Archive.createOrReplaceTempView(\"dboTrack_Archive\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"#dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboWaybillsPerParcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybillsPerParcel.parquet', format='parquet')\r\n",
+					"#dboWaybillsPerParcel.createOrReplaceTempView(\"dboWaybillsPerParcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel_archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"#dboparcel_archive.createOrReplaceTempView(\"dboparcel_archive\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#T_dispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_dispatch.parquet', format='parquet')\r\n",
+					"#T_dispatch.createOrReplaceTempView(\"T_dispatch\")"
+				],
+				"execution_count": 57
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/21- Operations_LMS_OnRouteDet_3MRolling_DeliveryCustomer_PROD"
+				],
+				"execution_count": 58
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_WAYBILLPERLOAD.write.parquet('/' + Environment + '/Structured/Facts/T_WAYBILLPERLOAD.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part21 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 22- Operations_LMS_OnRouteDet_3MRolling_Depo"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"## Read .parquet file from Blobstorage enviroment\r\n",
+					"publicdepo = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdepo.parquet', format='parquet')\r\n",
+					"## Expose the .parquet file as a temp SQL view via pyspark (This is done so that SQL scripting can take place on the files data %note that the schema is predefined in .parquet files.%)\r\n",
+					"publicdepo.createOrReplaceTempView(\"publicdepo\")"
+				],
+				"execution_count": 59
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/22- Operations_LMS_OnRouteDet_3MRolling_Depo_PROD"
+				],
+				"execution_count": 60
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Dim_Depo.write.parquet('/' + Environment + '/Structured/Dimensions/Dim_Depo.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part22 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Exexcute Script 23- Operations_LMS_OnRouteDet_3MRolling_MasterCalendarLMS"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load source files for neight Part of Scripting\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"#dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboTrack_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrack_Archive.parquet', format='parquet')\r\n",
+					"#dboTrack_Archive.createOrReplaceTempView(\"dboTrack_Archive\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"#dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboLoads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLoads.parquet', format='parquet')\r\n",
+					"#dboLoads.createOrReplaceTempView(\"dboLoads\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"#dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"# File is already loaded\r\n",
+					"#dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"#dboconsignment.createOrReplaceTempView(\"dboconsignment\")"
+				],
+				"execution_count": 61
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## %run function implemented to execute a notebook from another one (implemented to make used of the same spark pool which saves roughtly 2min on startup)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run PROD/Operations Notebooks PROD/23- Operations_LMS_OnRouteDet_3MRolling_MasterCalendarLMS_PROD"
+				],
+				"execution_count": 62
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write Final Structured table back to BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"DIM_DATES_OP.write.parquet('/' + Environment + '/Structured/Dimensions/DIM_DATES_OP.parquet', mode='overwrite')"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Part23 Scripting"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of Automation Single Notebook Run for Operations"
+				]
+			}
+		]
+	}
+}

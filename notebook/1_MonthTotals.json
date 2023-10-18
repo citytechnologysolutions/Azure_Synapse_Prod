@@ -2,7 +2,7 @@
 	"name": "1_MonthTotals",
 	"properties": {
 		"folder": {
-			"name": "DEV/Cost To Serve Notebooks DEV/CTS Run"
+			"name": "ARCHIVE/DEV/Cost To Serve Notebooks DEV/CTS Run"
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
@@ -20,12 +20,12 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "c0727409-5df4-4486-9c2c-2d107bb01ed5"
+				"spark.autotune.trackingId": "b29b3461-7b50-4797-afce-a86f0605322b"
 			}
 		},
 		"metadata": {
 			"saveOutput": true,
-			"enableDebugMode": false,
+			"enableDebugMode": true,
 			"kernelspec": {
 				"name": "synapse_pyspark",
 				"display_name": "Synapse PySpark"
@@ -45,12 +45,55 @@
 				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
-				"memory": 28,
-				"automaticScaleJobs": false
+				"memory": 28
 			},
 			"sessionKeepAliveTimeout": 30
 		},
 		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# This notebook aggregates the following monthly views to be used in further notebooks for cost applications:\r\n",
+					"1. Monthly Drops table (Table on trip, drop level by month)\r\n",
+					"2. Monthly Costs table (Table by Month, Depot, Cost UOM, FixVar by month) - sums up the total costs for:\r\n",
+					"    * Other Cost\r\n",
+					"    * Equipment Cost\r\n",
+					"    * Fuel Cost\r\n",
+					"    * Facility Cost\r\n",
+					"    * Non-Unionised Cost\r\n",
+					"    * Unionised Cost\r\n",
+					"    * Service Provider Cost\r\n",
+					"    * Revenue Cost\r\n",
+					"    * Linehaul Cost\r\n",
+					"3. Monthly Parcel Tracks\r\n",
+					"4. Monthly Linehaul activity"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#MonthToRun = '2023-04-30'"
+				],
+				"execution_count": 1
+			},
 			{
 				"cell_type": "code",
 				"source": [
@@ -60,8 +103,6 @@
 					"from pyspark.sql.functions import *\r\n",
 					"import pandas as pd\r\n",
 					"\r\n",
-					"MonthToRun = '2023-05-31'\r\n",
-					"\r\n",
 					"#STOPS\r\n",
 					"parcel_track = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet/\", format='parquet')\r\n",
 					"parcel = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet/\", format='parquet')\r\n",
@@ -70,11 +111,13 @@
 					"dispatch_segment = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdispatchsegment.parquet/\", format='parquet')\r\n",
 					"del_pickup_cust = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet/\", format='parquet')\r\n",
 					"load_parent = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet/\", format='parquet')\r\n",
+					"load_child = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet/\", format='parquet')\r\n",
 					"\r\n",
 					"#STSAP\r\n",
-					"dim_account = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_Account_Expose.parquet/\", format='parquet')\r\n",
-					"dim_dates = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_DATES.parquet/\", format='parquet')\r\n",
-					"dim_group = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_GROUP_Expose.parquet/\", format='parquet')\r\n",
+					"#dim_account = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_Account_Expose.parquet/\", format='parquet') #FILE WAS REMOVED 2023-09\r\n",
+					"dim_accountv2 = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/stchartofaccounts.parquet/\", format='parquet')\r\n",
+					"#dim_dates = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_DATES.parquet/\", format='parquet')\r\n",
+					"#dim_group = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_GROUP_Expose.parquet/\", format='parquet')\r\n",
 					"trans_summary = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet/\", format='parquet')\r\n",
 					"\r\n",
 					"#CTS Inputs\r\n",
@@ -82,6 +125,12 @@
 					"DIM_CTS_I_GLMapDefault = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/Structured/Dimensions/DIM_CTS_I_GLMapDefault.parquet/\", format='parquet')\r\n",
 					"DIM_CTS_I_PARAM_Ranges = spark.read.load(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/Structured/Dimensions/DIM_CTS_I_PARAM_Ranges.parquet/\", format='parquet')\r\n",
 					"\r\n",
+					"#TMS - specifically for linehaul data\r\n",
+					"parcel_weights = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stlmsparcelweights.parquet/\", format='parquet')\r\n",
+					"stbooking = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet/\", format='parquet')\r\n",
+					"sttrip = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet/\", format='parquet')\r\n",
+					"stopsroute = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stopsroute.parquet/\", format='parquet')\r\n",
+					"stparentroute = spark.read.load(\"abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Structured Data/OPS/stparentroute.parquet/\", format='parquet')\r\n",
 					"\r\n",
 					"#STOPS\r\n",
 					"parcel_track.createOrReplaceTempView(\"parcel_track\")\r\n",
@@ -91,19 +140,29 @@
 					"dispatch_segment.createOrReplaceTempView(\"dispatch_segment\")\r\n",
 					"del_pickup_cust.createOrReplaceTempView(\"del_pickup_cust\")\r\n",
 					"load_parent.createOrReplaceTempView(\"load_parent\")\r\n",
+					"load_child.createOrReplaceTempView(\"load_child\")\r\n",
 					"\r\n",
 					"#STSAP\r\n",
-					"dim_account.createOrReplaceTempView(\"dim_account\")\r\n",
-					"dim_dates.createOrReplaceTempView(\"dim_dates\")\r\n",
-					"dim_group.createOrReplaceTempView(\"dim_group\")\r\n",
+					"#dim_account.createOrReplaceTempView(\"dim_account\") #FILE WAS REMOVED 2023-09\r\n",
+					"dim_accountv2.createOrReplaceTempView(\"dim_accountv2\")\r\n",
+					"#dim_dates.createOrReplaceTempView(\"dim_dates\")\r\n",
+					"#dim_group.createOrReplaceTempView(\"dim_group\")\r\n",
 					"trans_summary.createOrReplaceTempView(\"trans_summary\")\r\n",
 					"\r\n",
 					"#CTS Inputs\r\n",
 					"dim_skippedreasoninclude.createOrReplaceTempView(\"dim_skippedreasoninclude\")\r\n",
 					"DIM_CTS_I_GLMapDefault.createOrReplaceTempView(\"DIM_CTS_I_GLMapDefault\")\r\n",
-					"DIM_CTS_I_PARAM_Ranges.createOrReplaceTempView(\"DIM_CTS_I_PARAM_Ranges\")"
+					"DIM_CTS_I_PARAM_Ranges.createOrReplaceTempView(\"DIM_CTS_I_PARAM_Ranges\")\r\n",
+					"\r\n",
+					"#TMS\r\n",
+					"parcel_weights.createOrReplaceTempView(\"parcel_weights\")\r\n",
+					"stbooking.createOrReplaceTempView(\"stbooking\")\r\n",
+					"sttrip.createOrReplaceTempView(\"sttrip\")\r\n",
+					"stopsroute.createOrReplaceTempView(\"stopsroute\")\r\n",
+					"stparentroute.createOrReplaceTempView(\"stparentroute\")\r\n",
+					""
 				],
-				"execution_count": 7
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -121,7 +180,7 @@
 				"source": [
 					"spark.conf.set(\"spark.sql.sources.partitionOverwriteMode\",\"dynamic\")"
 				],
-				"execution_count": 8
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -143,7 +202,7 @@
 					"\r\n",
 					"list_dataframes()"
 				],
-				"execution_count": 9
+				"execution_count": 5
 			},
 			{
 				"cell_type": "markdown",
@@ -173,6 +232,8 @@
 					"collapsed": false
 				},
 				"source": [
+					"#Remember to exclude fastway(FL.lms_location_locationtypeid = 6 AND P.lms_parcel_customerbarcode is null) .Temporary = (FL.[lms_location_description] like '%(fw)%' AND P.lms_parcel_customerbarcode is null)\r\n",
+					"\r\n",
 					"f_drops = spark.sql(\"\"\"\r\n",
 					"\r\n",
 					"with drops as (\r\n",
@@ -340,7 +401,7 @@
 					"display(f_drops.limit(10))\r\n",
 					"f_drops.write.mode('overwrite').partitionBy('TRIP_MONTH').parquet(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/CTS/Calculated_Tables/F_CTS_Drops.parquet/\")"
 				],
-				"execution_count": 10
+				"execution_count": 11
 			},
 			{
 				"cell_type": "markdown",
@@ -381,23 +442,7 @@
 					"      ,R.sap_transactionsline_linetotal\r\n",
 					"      ,R.sap_transactionsline_linetotalfinal\r\n",
 					"      ,R.sap_transactionsline_linetotalfinalexclgjpo\r\n",
-					"\t  ,A.Account_Code\r\n",
-					"      ,A.System_Account_Code\r\n",
-					"      ,A.System_Account_Code_KEY\r\n",
-					"      ,A.Company\r\n",
-					"      ,A.Level_1_Name\r\n",
-					"      ,A.Level_2_Name\r\n",
-					"      ,A.Level_3_Name\r\n",
-					"      ,A.Level_4_Name\r\n",
-					"      ,A.Level_5_Name\r\n",
-					"      ,A.Service_Type\r\n",
-					"      ,A.Depot\r\n",
-					"      ,A.GroupMask\r\n",
-					"      ,A.Acct_Project\r\n",
-					"      ,A.Account_Status\r\n",
-					"      ,A.Postable\r\n",
-					"      ,A.RESTRICTTYPE\r\n",
-					"\t  ,M.Level_ID\r\n",
+					"\t    ,M.Level_ID\r\n",
 					"      ,M.Group2\r\n",
 					"      ,M.Customer\r\n",
 					"      ,M.FixVarType\r\n",
@@ -417,25 +462,25 @@
 					"      ,M.Comment\r\n",
 					"      ,M.CustomComment\r\n",
 					"--MAYBE CHANGE THE linetotalfinal to something else since it appears to be duplicated\r\n",
-					",R.sap_transactionsline_linetotalfinal * M.Other * M.UOM_Percent\t\t\t\tas COST_Other\r\n",
-					",R.sap_transactionsline_linetotalfinal * M.Equipment * M.UOM_Percent\t\t\tas COST_Equipment\r\n",
-					",R.sap_transactionsline_linetotalfinal * M.Fuel * M.UOM_Percent\t\t\t\t\tas COST_Fuel\r\n",
-					",R.sap_transactionsline_linetotalfinal * M.Facilities * M.UOM_Percent\t\t\tas COST_Facilities\r\n",
-					",R.sap_transactionsline_linetotalfinal * M.NonUnionisedLabour * M.UOM_Percent\tas COST_NonUnionisedLabour\r\n",
-					",R.sap_transactionsline_linetotalfinal * M.UnionisedLabour * M.UOM_Percent\t\tas COST_UnionisedLabour\r\n",
-					",R.sap_transactionsline_linetotalfinal * M.ServiceProvider * M.UOM_Percent\t\tas COST_ServiceProvider\r\n",
-					",R.sap_transactionsline_linetotalfinal * M.REVENUE * M.UOM_Percent\t\t\t\tas COST_REVENUE\r\n",
-					",R.sap_transactionsline_linetotalfinal * M.LINEHAUL * M.UOM_Percent\t\t\t\tas COST_LINEHAUL\r\n",
+					",R.sap_transactionsline_linetotalfinalexclgjpo * M.Other * M.UOM_Percent\t\t\t\tas COST_Other\r\n",
+					",R.sap_transactionsline_linetotalfinalexclgjpo * M.Equipment * M.UOM_Percent\t\t\tas COST_Equipment\r\n",
+					",R.sap_transactionsline_linetotalfinalexclgjpo * M.Fuel * M.UOM_Percent\t\t\t\t\tas COST_Fuel\r\n",
+					",R.sap_transactionsline_linetotalfinalexclgjpo * M.Facilities * M.UOM_Percent\t\t\tas COST_Facilities\r\n",
+					",R.sap_transactionsline_linetotalfinalexclgjpo * M.NonUnionisedLabour * M.UOM_Percent\tas COST_NonUnionisedLabour\r\n",
+					",R.sap_transactionsline_linetotalfinalexclgjpo * M.UnionisedLabour * M.UOM_Percent\t\tas COST_UnionisedLabour\r\n",
+					",R.sap_transactionsline_linetotalfinalexclgjpo * M.ServiceProvider * M.UOM_Percent\t\tas COST_ServiceProvider\r\n",
+					",R.sap_transactionsline_linetotalfinalexclgjpo * M.REVENUE * M.UOM_Percent\t\t\t\tas COST_REVENUE\r\n",
+					",R.sap_transactionsline_linetotalfinalexclgjpo * M.LINEHAUL * M.UOM_Percent\t\t\t\tas COST_LINEHAUL\r\n",
 					"\r\n",
 					"    FROM trans_summary R\r\n",
-					"  LEFT JOIN  dim_account A ON R.sap_transactionsline_acctcode = A.System_Account_Code\r\n",
+					"  LEFT JOIN  dim_accountv2 A ON R.sap_transactionsline_acctcode = A.sap_account_acctcode\r\n",
 					"  LEFT JOIN DIM_CTS_I_GLMapDefault M ON \r\n",
-					"\tA.Level_1_Name = M.Level_1_Name AND \r\n",
-					"\tA.Level_2_Name = M.Level_2_Name AND \r\n",
-					"\tA.Level_3_Name = M.Level_3_Name AND \r\n",
-					"\tA.Level_4_Name = M.Level_4_Name AND \r\n",
-					"\tA.Service_Type = M.Service_Type\r\n",
-					"WHERE M.Level_ID is not null\r\n",
+					"\tA.sap_account_level1name = M.Level_1_Name AND \r\n",
+					"\tA.sap_account_level2name = M.Level_2_Name AND \r\n",
+					"\tA.sap_account_level3name = M.Level_3_Name AND \r\n",
+					"\tA.sap_account_level4name = M.Level_4_Name AND \r\n",
+					"\tA.sap_account_segment_1 = M.Service_Type \r\n",
+					"WHERE M.Level_ID is not null \r\n",
 					"AND last_day(R.sap_transactionsheader_postingdate) = '\"\"\" + MonthToRun + \"\"\"'\r\n",
 					")\r\n",
 					"\r\n",
@@ -468,7 +513,7 @@
 					"vw_CTS_Costs_2_TransactionsSummary_MapMonthTotals.write.mode('overwrite').partitionBy('POST_MONTH').parquet(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/CTS/Calculated_Tables/vw_CTS_Costs_2_TransactionsSummary_MapMonthTotals.parquet/\")\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 8
 			},
 			{
 				"cell_type": "markdown",
@@ -515,9 +560,9 @@
 					"\t  ,P.lms_parcel_waybillid\r\n",
 					"\t  ,DCUST.lms_customer_name\r\n",
 					"      ,R.lms_track_fromlocid\r\n",
-					"\t  ,FL.lms_location_code AS FROM_LOC_CODE\r\n",
+					"\t  ,FL.lms_location_glcode AS FROM_LOC_CODE\r\n",
 					"      ,lms_track_tolocid\r\n",
-					"\t  ,TL.lms_location_code AS TO_LOC_CODE\r\n",
+					"\t  ,TL.lms_location_glcode AS TO_LOC_CODE\r\n",
 					"      ,lms_track_tracktypeid\r\n",
 					"      ,lms_track_opendt\r\n",
 					"      ,lms_track_closedt\r\n",
@@ -525,7 +570,7 @@
 					"      ,lms_track_parcelweight\r\n",
 					"      ,lms_track_parcelchargeweight\r\n",
 					"      ,lms_track_lastmilebranchflag\r\n",
-					"\r\n",
+					"      ,PER.VarValue as ParcelEffort\r\n",
 					"  FROM parcel_track R\r\n",
 					"  LEFT JOIN parcel P ON R.lms_track_parcelid = P.lms_parcel_id\r\n",
 					"  LEFT JOIN waybill WBP ON P.lms_parcel_waybillid = WBP.lms_waybill_id\t--joined to the waybill assigned to the parcel\r\n",
@@ -533,14 +578,16 @@
 					"  LEFT JOIN location FL ON R.lms_track_fromlocid = FL.lms_location_id\r\n",
 					"  LEFT JOIN location TL ON R.lms_track_tolocid = TL.lms_location_id\r\n",
 					"  LEFT JOIN del_pickup_cust DCUST ON DCUST.lms_customer_id = P.lms_parcel_orderdelivercustid\r\n",
+					"  LEFT JOIN (SELECT * FROM DIM_CTS_I_PARAM_Ranges WHERE RangeType = 'Parcel Weight Effort Ratio') PER ON R.lms_track_parcelchargeweight > PER.FromVal AND R.lms_track_parcelchargeweight <= PER.ToVal\r\n",
 					"    WHERE last_day(lms_track_opendt) = '\"\"\" + MonthToRun + \"\"\"'\r\n",
+					"    AND (CASE WHEN FL.lms_location_locationtypeid = 6 AND P.lms_parcel_customerbarcode is null THEN 0 ELSE 1 END) = 1 --Fastway Exclusion\r\n",
 					")\r\n",
 					"    \r\n",
 					"\r\n",
 					"\r\n",
 					"SELECT\r\n",
 					"last_day(lms_track_opendt) AS PARCELTRACK_MONTH\r\n",
-					",lms_track_fromlocid\r\n",
+					"--,lms_track_fromlocid\r\n",
 					",FROM_LOC_CODE\r\n",
 					",lms_track_tracktypeid\r\n",
 					",COUNT(*) AS NUM_TRACKS\r\n",
@@ -551,10 +598,11 @@
 					",SUM(lms_parcel_track_linecharge) as lms_parcel_track_linecharge\r\n",
 					",SUM(lms_track_parcelweight) as lms_track_parcelweight\r\n",
 					",SUM(lms_track_parcelchargeweight) as lms_track_parcelchargeweight\r\n",
+					",SUM(ParcelEffort) AS ParcelEffort\r\n",
 					",last_day(lms_track_opendt) AS OPENDT_MONTH\r\n",
 					"FROM ptrack\r\n",
 					"GROUP BY last_day(lms_track_opendt)\r\n",
-					",lms_track_fromlocid\r\n",
+					"--,lms_track_fromlocid\r\n",
 					",FROM_LOC_CODE\r\n",
 					",lms_track_tracktypeid\r\n",
 					"\r\n",
@@ -564,7 +612,116 @@
 					"f_parcels.write.mode('overwrite').partitionBy('OPENDT_MONTH').parquet(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/CTS/Calculated_Tables/vw_CTS_Activity_ParcelTrack_Monthly.parquet/\")\r\n",
 					""
 				],
-				"execution_count": 12
+				"execution_count": 4
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"**Monthly Linehaul cost per rate**"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"f_linehaul = spark.sql(\"\"\"\r\n",
+					"SELECT \r\n",
+					"T0.EOMONTH_lms_track_opendt\r\n",
+					",T0.lms_loadchild_toloccode\r\n",
+					",SUM(tms_booking_customerrate_perline) AS tms_booking_customerrate_perline\r\n",
+					",COUNT(DISTINCT tms_lmsparcelweights_bookingid) AS NUM_BOOKINGS\r\n",
+					",COUNT(DISTINCT tms_booking_tripid) AS NUM_TRIPS\r\n",
+					",T0.EOMONTH_lms_track_opendt as MONTH_PARTITION\r\n",
+					"FROM (\r\n",
+					"SELECT lms_track_id\r\n",
+					"      ,lms_track_loadid\r\n",
+					"\t  ,PW.tms_lmsparcelweights_bookingid\r\n",
+					"\t  ,COUNT(*) OVER (PARTITION BY PW.tms_lmsparcelweights_bookingid) AS LINES_BOOKING\r\n",
+					"\t  ,(CAST(B.tms_booking_customerrate as float)/10000)\r\n",
+					"\t\t/ COUNT(*) OVER (PARTITION BY PW.tms_lmsparcelweights_bookingid) AS tms_booking_customerrate_perline\r\n",
+					"\t  ,B.tms_booking_tripid\r\n",
+					"\t  ,TR.tms_trip_id\r\n",
+					"      ,lms_track_parcelid\r\n",
+					"      ,lms_track_waybillid\r\n",
+					"      ,lms_track_fromlocid\r\n",
+					"\t  ,LC.lms_loadchild_fromlocid\r\n",
+					"\t  ,FL.lms_location_glcode AS lms_loadchild_fromloccode\r\n",
+					"      ,lms_track_tolocid\r\n",
+					"      ,LC.lms_loadchild_tolocid\r\n",
+					"\t  ,TL.lms_location_glcode AS lms_loadchild_toloccode\r\n",
+					"\t  ,lms_track_tracktypeid\r\n",
+					"      ,lms_track_opendt\r\n",
+					"      ,lms_track_closedt\r\n",
+					"      ,lms_track_specdel\r\n",
+					"      ,lms_track_parcelweight\r\n",
+					"      ,lms_track_parcelchargeweight\r\n",
+					"      ,lms_track_lastmilebranchflag \r\n",
+					"\r\n",
+					"    ,CASE WHEN tms_booking_tripid IS NULL THEN lms_track_parcelweight ELSE NULL END AS lms_track_parcelweight_no_tripid\r\n",
+					"    ,CASE WHEN tms_booking_tripid IS NOT NULL THEN lms_track_parcelweight ELSE NULL END AS lms_track_parcelweight_tripid\r\n",
+					"    \r\n",
+					"\r\n",
+					"\t  ,last_day(lms_track_opendt) AS EOMONTH_lms_track_opendt\r\n",
+					"  FROM parcel_track R --413,111,520\r\n",
+					"  LEFT JOIN parcel_weights PW ON R.lms_track_loadid = PW.tms_lmsparcelweights_loadid AND R.lms_track_parcelid = PW.tms_lmsparcelweights_parcelid --413,111,592\r\n",
+					"  LEFT JOIN stbooking B ON PW.tms_lmsparcelweights_bookingid = B.tms_booking_id\r\n",
+					"  LEFT JOIN sttrip TR ON B.tms_booking_tripid = TR.tms_trip_id\r\n",
+					"  LEFT JOIN load_child LC ON R.lms_track_loadid = LC.lms_loadchild_id\r\n",
+					"  LEFT JOIN location FL ON COALESCE(LC.lms_loadchild_fromlocid,R.lms_track_fromlocid) = FL.lms_location_id\r\n",
+					"  LEFT JOIN location TL ON COALESCE(LC.lms_loadchild_tolocid,R.lms_track_tolocid) = TL.lms_location_id\r\n",
+					"  WHERE lms_track_tracktypeid = 2\r\n",
+					"  AND last_day(lms_track_opendt) =  '\"\"\" + MonthToRun + \"\"\"'\r\n",
+					"  AND TL.lms_location_code IS NOT NULL\r\n",
+					"  AND (CASE WHEN FL.lms_location_locationtypeid = 6 AND P.lms_parcel_customerbarcode is null THEN 0 ELSE 1 END) = 1 --Fastway Exclusion\r\n",
+					"  \r\n",
+					") T0\r\n",
+					"GROUP BY T0.EOMONTH_lms_track_opendt\r\n",
+					",T0.lms_loadchild_toloccode\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"\r\n",
+					"display(f_linehaul.limit(10))\r\n",
+					"f_linehaul.write.mode('overwrite').partitionBy('MONTH_PARTITION').parquet(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/CTS/Calculated_Tables/F_Linehaul_Summary.parquet/\")"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from notebookutils import mssparkutils\r\n",
+					"\r\n",
+					"mssparkutils.notebook.exit('1_MonthTotals Notebook has run for : ' + MonthToRun)"
+				],
+				"execution_count": null
 			}
 		]
 	}

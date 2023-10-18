@@ -1,0 +1,567 @@
+{
+	"name": "16- Finance_Data_Preparation_Customer_PROD",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/PROD/Transactions Notebooks PROD"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "155b9a38-b41b-464d-b05c-0e81adf00b04"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import Pandans library for Python"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import pandas as pd"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load Source Data from BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#KEY = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/F_KEY.parquet', format='parquet')\r\n",
+					"#KEY.createOrReplaceTempView(\"F_KEY\")\r\n",
+					"\r\n",
+					"#dboOCRD = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOCRD.parquet', format='parquet')\r\n",
+					"#dboOCRD.createOrReplaceTempView(\"dboOCRD\")\r\n",
+					"\r\n",
+					"#dboOCTG = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOCTG.parquet', format='parquet')\r\n",
+					"#dboOCTG.createOrReplaceTempView(\"dboOCTG\")"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load Excel Source file from Blobstorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load EXCEL with Customer Master Data\r\n",
+					"\r\n",
+					"# Variables\r\n",
+					"var_File_Path = \"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Excel_Files/Customer Master Data.xlsx\"\r\n",
+					"var_File_Page = \"Customer Master\"\r\n",
+					"\r\n",
+					"# Processing\r\n",
+					"excel_file = pd.ExcelFile(var_File_Path)\r\n",
+					"excel_file_page = pd.read_excel(excel_file, var_File_Page)\r\n",
+					"excel_file_Dataframe = spark.createDataFrame(excel_file_page)\r\n",
+					"\r\n",
+					"excel_file_Dataframe.createOrReplaceTempView(\"Customer_Master_Data\")\r\n",
+					"\r\n",
+					"Customer_Master_Data = spark.sql(\"\"\"SELECT `Customer Code`, `Company`, `Customer Group`, `Customer Type` FROM Customer_Master_Data\"\"\")\r\n",
+					"\r\n",
+					"Customer_Master_Data.createOrReplaceTempView(\"Customer_Master_Data\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load Excel Source file from Blobstorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load EXCEL with RevenueByCustomerMapping\r\n",
+					"\r\n",
+					"# Variables\r\n",
+					"var_File_Path = \"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Excel_Files/RevenueByCustomerMapping.xlsx\"\r\n",
+					"var_File_Page = \"RevByCustMap\"\r\n",
+					"\r\n",
+					"# Processing\r\n",
+					"excel_file = pd.ExcelFile(var_File_Path)\r\n",
+					"excel_file_page = pd.read_excel(excel_file, var_File_Page)\r\n",
+					"excel_file_Dataframe = spark.createDataFrame(excel_file_page)\r\n",
+					"\r\n",
+					"excel_file_Dataframe.createOrReplaceTempView(\"RevenueByCustomerMapping\")\r\n",
+					"\r\n",
+					"RevenueByCustomerMapping = spark.sql(\"\"\"SELECT `Customer Code KEY`, Company, `Customer Name`, `Customer Group Name`, `Customer Revenue Type`, `Customer Sales Rep` FROM RevenueByCustomerMapping\"\"\")\r\n",
+					"\r\n",
+					"RevenueByCustomerMapping.createOrReplaceTempView(\"RevenueByCustomerMapping\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Start of QView scripting translated over to MSSQL for Dim_Customer Table"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"Key = spark.sql(\"\"\"\r\n",
+					"SELECT DISTINCT Customer_Code_KEY\r\n",
+					"FROM F_Key\r\n",
+					"\"\"\")\r\n",
+					"#Key.show()\r\n",
+					"Key.createOrReplaceTempView(\"Key\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"Business_Partner = spark.sql(\"\"\"\r\n",
+					"SELECT CardCode || \"City Logistics New\" AS `Customer_Code_KEY`,\r\n",
+					"\tCardCode AS `Customer_Code1`, \r\n",
+					"       UPPER(CardName) AS Customer1, \r\n",
+					"       CardType AS `Customer_Type_Code1`, \r\n",
+					"       GroupCode AS `Customer_Group_Code1`,\r\n",
+					"       U_BEE AS `Customer_BEE_Score1`, \r\n",
+					"       GroupNum AS `Customer_Terms_Code`,\r\n",
+					"       \"City Logistics New\" as Company\r\n",
+					"FROM dboOCRD\r\n",
+					"\"\"\")\r\n",
+					"#Business_Partner.show()\r\n",
+					"Business_Partner.createOrReplaceTempView(\"Business_Partner\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CUSTOMER = spark.sql(\"\"\"\r\n",
+					"SELECT k.Customer_Code_KEY,\r\n",
+					"       bp.Customer_Code1,\r\n",
+					"       bp.Customer1,\r\n",
+					"       bp.Customer_Type_Code1,\r\n",
+					"       bp.Customer_Group_Code1,\r\n",
+					"       bp.Customer_BEE_Score1,\r\n",
+					"       bp.Customer_Terms_Code,\r\n",
+					"       bp.Company\r\n",
+					"FROM Key k\r\n",
+					"LEFT JOIN Business_Partner bp\r\n",
+					"ON k.Customer_Code_KEY = bp.Customer_Code_KEY\r\n",
+					"\"\"\")\r\n",
+					"#CUSTOMER.show()\r\n",
+					"CUSTOMER.createOrReplaceTempView(\"CUSTOMER\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"Customer_Master_Data = spark.sql(\"\"\"\r\n",
+					"SELECT `Customer Code` || Company AS `Customer_Code_KEY`, \r\n",
+					"     `Customer Group`, \r\n",
+					"     `Customer Type`\r\n",
+					"FROM Customer_Master_Data\r\n",
+					"\"\"\")\r\n",
+					"#Customer_Master_Data.show()\r\n",
+					"Customer_Master_Data.createOrReplaceTempView(\"Customer_Master_Data\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CUSTOMER = spark.sql(\"\"\"\r\n",
+					"SELECT c.*,\r\n",
+					"       cmd.`Customer Group` as Customer_Group,\r\n",
+					"       cmd.`Customer Type` as Customer_Type\r\n",
+					"FROM CUSTOMER c\r\n",
+					"LEFT JOIN Customer_Master_Data cmd\r\n",
+					"ON c.Customer_Code_KEY = cmd.Customer_Code_KEY\r\n",
+					"\"\"\")\r\n",
+					"#CUSTOMER.show()\r\n",
+					"CUSTOMER.createOrReplaceTempView(\"CUSTOMER\")"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Payment_Terms = spark.sql(\"\"\"\r\n",
+					"SELECT GroupNum as `Customer_Terms_Code`, \r\n",
+					"       PymntGroup as `Customer_Terms1`, \r\n",
+					"       \"City Logistics New\" as Company\r\n",
+					"FROM dboOCTG\r\n",
+					"\"\"\")\r\n",
+					"#Payment_Terms.show\r\n",
+					"Payment_Terms.createOrReplaceTempView(\"Payment_Terms\")"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CUSTOMER = spark.sql(\"\"\"\r\n",
+					"SELECT c.*, pt.Customer_Terms1\r\n",
+					"FROM CUSTOMER c\r\n",
+					"LEFT JOIN Payment_Terms pt\r\n",
+					"       ON c.Customer_Terms_Code = pt.Customer_Terms_Code\r\n",
+					"\"\"\")\r\n",
+					"#CUSTOMER.show()\r\n",
+					"CUSTOMER.createOrReplaceTempView(\"CUSTOMER\")"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CUSTOMER = spark.sql(\"\"\"\r\n",
+					"SELECT *, \r\n",
+					"       if(isnull(Customer1), 'ZZNONE', Customer1) as Customer,\r\n",
+					"       if(isnull(`Customer_Type_Code1`), 'ZZNONE', `Customer_Type_Code1`) as `Customer_Type_Code`,\r\n",
+					"       if(isnull(`Customer_Group_Code1`), 'ZZNONE', `Customer_Group_Code1`) as `Customer_Group_Code`,\r\n",
+					"       if(isnull(`Customer_BEE_Score1`), 'ZZNONE', `Customer_BEE_Score1`) as `Customer_BEE_Score`,\r\n",
+					"       if(isnull(`Customer_Terms1`), 'ZZNONE', `Customer_Terms1`) as `Customer_Terms`\r\n",
+					"FROM CUSTOMER\r\n",
+					"\"\"\")\r\n",
+					"#CUSTOMER.show()\r\n",
+					"CUSTOMER.createOrReplaceTempView(\"CUSTOMER\")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"RevenueByCustomerMapping = spark.sql(\"\"\"\r\n",
+					"SELECT `Customer Code KEY`,\r\n",
+					"\t\t`Customer Name`,\r\n",
+					"\t\t`Company`,\r\n",
+					"\t\t`Customer Group Name`,\r\n",
+					"\t\t`Customer Revenue Type`,\r\n",
+					"\t\t`Customer Sales Rep`\r\n",
+					"FROM RevenueByCustomerMapping\r\n",
+					"\"\"\")\r\n",
+					"#RevenueByCustomerMapping.show()\r\n",
+					"RevenueByCustomerMapping.createOrReplaceTempView(\"RevenueByCustomerMapping\")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CUSTOMER = spark.sql(\"\"\"\r\n",
+					"SELECT c.*,\r\n",
+					"\t   rbcm.`Customer Name` as Customer_Name,\r\n",
+					"       rbcm.`Customer Group Name` as Customer_Group_Name,\r\n",
+					"\t   rbcm.`Customer Revenue Type` as Customer_Revenue_Type,\r\n",
+					"\t   rbcm.`Customer Sales Rep` as Customer_Sales_Rep\r\n",
+					"FROM CUSTOMER c\r\n",
+					"LEFT JOIN RevenueByCustomerMapping rbcm\r\n",
+					"ON c.Customer_Code_KEY = rbcm.`Customer Code KEY`\r\n",
+					"\"\"\")\r\n",
+					"#CUSTOMER.show()\r\n",
+					"CUSTOMER.createOrReplaceTempView(\"CUSTOMER\")"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"CUSTOMER_Expose = spark.sql(\"\"\"\r\n",
+					"SELECT Customer_Code_KEY,\r\n",
+					"       Company,\r\n",
+					"       Customer,\r\n",
+					"       Customer_Type_Code,\r\n",
+					"       Customer_Group_Code,\r\n",
+					"       Customer_BEE_Score,\r\n",
+					"       Customer_Group, \r\n",
+					"       Customer_Type,\r\n",
+					"       Customer_Terms_Code,\r\n",
+					"       Customer_Terms,\r\n",
+					"       Customer_Name,\r\n",
+					"       Customer_Group_Name,\r\n",
+					"       Customer_Revenue_Type,\r\n",
+					"       Customer_Sales_Rep\r\n",
+					"FROM CUSTOMER\r\n",
+					"\"\"\")\r\n",
+					"#CUSTOMER_Expose.show()\r\n",
+					"CUSTOMER_Expose.createOrReplaceTempView(\"CUSTOMER_Expose\")"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write success message for production script"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"Scripts have successfully executed\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

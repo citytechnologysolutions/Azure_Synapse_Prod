@@ -1,0 +1,1361 @@
+{
+	"name": "2- Transactions-Document_Categories_DEV",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Archived/Transactions Notebooks DEV"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 3,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "3",
+				"spark.dynamicAllocation.maxExecutors": "3",
+				"spark.autotune.trackingId": "85123ae5-f3e3-4261-b688-30c77498d7b2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load raw files from datalake"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#dboOPOR = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOPOR.parquet', format='parquet')\r\n",
+					"#dboOPOR.createOrReplaceTempView(\"dboOPOR\")\r\n",
+					"\r\n",
+					"#dboPOR1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboPOR1.parquet', format='parquet')\r\n",
+					"#dboPOR1.createOrReplaceTempView(\"dboPOR1\")\r\n",
+					"\r\n",
+					"#dboOINV = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOINV.parquet', format='parquet')\r\n",
+					"#dboOINV.createOrReplaceTempView(\"dboOINV\")\r\n",
+					"\r\n",
+					"#dboINV1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboINV1.parquet', format='parquet')\r\n",
+					"#dboINV1.createOrReplaceTempView(\"dboINV1\")\r\n",
+					"\r\n",
+					"#dboORIN = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboORIN.parquet', format='parquet')\r\n",
+					"#dboORIN.createOrReplaceTempView(\"dboORIN\")\r\n",
+					"\r\n",
+					"#dboRIN1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboRIN1.parquet', format='parquet')\r\n",
+					"#dboRIN1.createOrReplaceTempView(\"dboRIN1\")\r\n",
+					"\r\n",
+					"#dboOPCH = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOPCH.parquet', format='parquet')\r\n",
+					"#dboOPCH.createOrReplaceTempView(\"dboOPCH\")\r\n",
+					"\r\n",
+					"#dboPCH1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboPCH1.parquet', format='parquet')\r\n",
+					"#dboPCH1.createOrReplaceTempView(\"dboPCH1\")\r\n",
+					"\r\n",
+					"#dboORPC = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboORPC.parquet', format='parquet')\r\n",
+					"#dboORPC.createOrReplaceTempView(\"dboORPC\")\r\n",
+					"\r\n",
+					"#dboRPC1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboRPC1.parquet', format='parquet')\r\n",
+					"#dboRPC1.createOrReplaceTempView(\"dboRPC1\")\r\n",
+					"\r\n",
+					"#dboOPDN = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOPDN.parquet', format='parquet')\r\n",
+					"#dboOPDN.createOrReplaceTempView(\"dboOPDN\")\r\n",
+					"\r\n",
+					"#dboPDN1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboPDN1.parquet', format='parquet')\r\n",
+					"#dboPDN1.createOrReplaceTempView(\"dboPDN1\")\r\n",
+					"\r\n",
+					"#dboORPD = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboORPD.parquet', format='parquet')\r\n",
+					"#dboORPD.createOrReplaceTempView(\"dboORPD\")\r\n",
+					"\r\n",
+					"#dboRPD1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboRPD1.parquet', format='parquet')\r\n",
+					"#dboRPD1.createOrReplaceTempView(\"dboRPD1\")\r\n",
+					"\r\n",
+					"#dboOMRV = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOMRV.parquet', format='parquet')\r\n",
+					"#dboOMRV.createOrReplaceTempView(\"dboOMRV\")\r\n",
+					"\r\n",
+					"#dboMRV1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboMRV1.parquet', format='parquet')\r\n",
+					"#dboMRV1.createOrReplaceTempView(\"dboMRV1\")\r\n",
+					"\r\n",
+					"#dboMRV2 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboMRV2.parquet', format='parquet')\r\n",
+					"#dboMRV2.createOrReplaceTempView(\"dboMRV2\")\r\n",
+					"\r\n",
+					"#dboOINM = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/OINM.parquet', format='parquet')\r\n",
+					"#dboOINM.createOrReplaceTempView(\"dboOINM\")\r\n",
+					"\r\n",
+					"#dboOJDT = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOJDT.parquet', format='parquet')\r\n",
+					"#dboOJDT.createOrReplaceTempView(\"dboOJDT\")\r\n",
+					"\r\n",
+					"#dboJDT1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboJDT1.parquet', format='parquet')\r\n",
+					"#dboJDT1.createOrReplaceTempView(\"dboJDT1\")\r\n",
+					"\r\n",
+					"#dboOACT = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOACT.parquet', format='parquet')\r\n",
+					"#dboOACT.createOrReplaceTempView(\"dboOACT\")\r\n",
+					"\r\n",
+					"#dboOITM = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOITM.parquet', format='parquet')\r\n",
+					"#dboOITM.createOrReplaceTempView(\"dboOITM\")\r\n",
+					"\r\n",
+					"#dboHLD1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboHLD1.parquet', format='parquet')\r\n",
+					"#dboHLD1.createOrReplaceTempView(\"dboHLD1\")\r\n",
+					"\r\n",
+					"#dboMFRHistoryDaily = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboMFRHistoryDaily.parquet', format='parquet')\r\n",
+					"#dboMFRHistoryDaily.createOrReplaceTempView(\"dboMFRHistoryDaily\")\r\n",
+					"\r\n",
+					"#ListDepots = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CCMasterData/ListDepots.parquet', format='parquet')\r\n",
+					"#ListDepots.createOrReplaceTempView(\"ListDepots\")\r\n",
+					"\r\n",
+					"#dboVEHICLE_H = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/@VEHICLE_H.parquet', format='parquet')\r\n",
+					"#dboVEHICLE_H.createOrReplaceTempView(\"dboVEHICLE_H\")\r\n",
+					"\r\n",
+					"#dboOASC = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOASC.parquet', format='parquet')\r\n",
+					"#dboOASC.createOrReplaceTempView(\"dboOASC\")\r\n",
+					"\r\n",
+					"#dboOIGE = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboOIGE.parquet', format='parquet')\r\n",
+					"#dboOIGE.createOrReplaceTempView(\"dboOIGE\")\r\n",
+					"\r\n",
+					"#dboIGE1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboIGE1.parquet', format='parquet')\r\n",
+					"#dboIGE1.createOrReplaceTempView(\"dboIGE1\")\r\n",
+					"\r\n",
+					"#Dim_ITEM = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/Dim_ITEM.parquet', format='parquet')\r\n",
+					"#Dim_ITEM.createOrReplaceTempView(\"Dim_ITEM\")"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Start to give structure to Transactions_Header&Detail"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Purchase_Order = spark.sql(\"\"\"\r\n",
+					"SELECT \r\n",
+					"    opor.DocEntry,\r\n",
+					"    DocNum,\r\n",
+					"    DocType,\r\n",
+					"    CANCELED,\r\n",
+					"    opor.ObjType,\r\n",
+					"    opor.DocDate,\r\n",
+					"    DocDueDate,\r\n",
+					"    CardCode,\r\n",
+					"    CardName,\r\n",
+					"    NumAtCard,\r\n",
+					"    opor.DiscPrcnt as `Discount_%`,\r\n",
+					"    --VatSum,\r\n",
+					"    DiscSum as `DocDisc`,\r\n",
+					"    DocTotal,\r\n",
+					"    Comments,\r\n",
+					"    TransId,\r\n",
+					"    UserSign,\r\n",
+					"    U_DEPOT,\r\n",
+					"    U_USERCODE,\r\n",
+					"    U_EXPENSE_DEPOT,\r\n",
+					"    U_TRANSACTION_DATE,\r\n",
+					"    \"City Logistics New\" as Company,\r\n",
+					"    1 as PO,\r\n",
+					"    RoundDif,\r\n",
+					"    Rounding,\r\n",
+					"    LineNum,\r\n",
+					"    LineStatus,\r\n",
+					"    ItemCode,\r\n",
+					"    Dscription,\r\n",
+					"    Quantity,\r\n",
+					"    OpenQty,\r\n",
+					"    Price,\r\n",
+					"    Rate,\r\n",
+					"    por1.DiscPrcnt,\r\n",
+					"    LineTotal,\r\n",
+					"    OpenSum,\r\n",
+					"    PriceBefDi,\r\n",
+					"    por1.DocDate as `DocDate_Line`,\r\n",
+					"    por1.Project,\r\n",
+					"    VatPrcnt,\r\n",
+					"    VatGroup,\r\n",
+					"    por1.VatSum,\r\n",
+					"    GrssProfit,\r\n",
+					"    U_REASON,\r\n",
+					"    U_LANE,\r\n",
+					"    U_EXPENSEITEM,\r\n",
+					"    por1.U_FUELDATE,\r\n",
+					"    U_RATE,\r\n",
+					"    U_ODO_START,\r\n",
+					"    U_ODO_END,\r\n",
+					"    U_IR_NUMBER,\r\n",
+					"    AcctCode,\r\n",
+					"    TrgetEntry,\r\n",
+					"    por1.Volume,\r\n",
+					"    U_ODO_GEN,\r\n",
+					"    \"Purchase Order\" as `Document_Category`,\r\n",
+					"    LineTotal * -1  as `Line_Total`\r\n",
+					"FROM dboOPOR opor\r\n",
+					"LEFT JOIN dboPOR1 por1\r\n",
+					"       ON opor.DocEntry = por1.DocEntry\r\n",
+					"WHERE CANCELED = \"N\"\r\n",
+					"\"\"\")\r\n",
+					"#Purchase_Order.show()\r\n",
+					"Purchase_Order.createOrReplaceTempView(\"Purchase_Order\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Sales_Invoice = spark.sql(\"\"\"\r\n",
+					"SELECT \r\n",
+					"    oinv.DocEntry,\r\n",
+					"    DocNum,\r\n",
+					"    DocType,\r\n",
+					"    CANCELED,\r\n",
+					"    oinv.ObjType,\r\n",
+					"    oinv.DocDate,\r\n",
+					"    DocDueDate,\r\n",
+					"    CardCode,\r\n",
+					"    CardName,\r\n",
+					"    NumAtCard,\r\n",
+					"    oinv.DiscPrcnt\tas `Discount_%`,\r\n",
+					"    oinv.VatSum,\r\n",
+					"    DiscSum as `DocDisc`,\r\n",
+					"    DocTotal,\r\n",
+					"    Comments,\r\n",
+					"    TransId,\r\n",
+					"    UserSign,\r\n",
+					"    U_DEPOT,\r\n",
+					"    U_USERCODE,\r\n",
+					"    U_EXPENSE_DEPOT,\r\n",
+					"    U_TRANSACTION_DATE,\r\n",
+					"    \"City Logistics New\" as Company,\r\n",
+					"    1 as SI,\r\n",
+					"    RoundDif,\r\n",
+					"    Rounding,\r\n",
+					"    LineNum,\r\n",
+					"    LineStatus,\r\n",
+					"    ItemCode,\r\n",
+					"    Dscription,\r\n",
+					"    Quantity,\r\n",
+					"    OpenQty,\r\n",
+					"    Price,\r\n",
+					"    Rate,\r\n",
+					"    inv1.DiscPrcnt,\r\n",
+					"    LineTotal,\r\n",
+					"    OpenSum,\r\n",
+					"    PriceBefDi,\r\n",
+					"    inv1.DocDate  as `DocDate_Line`,\r\n",
+					"    inv1.Project,\r\n",
+					"    VatPrcnt,\r\n",
+					"    inv1.Volume,\r\n",
+					"    VatGroup,\r\n",
+					"    GrssProfit,\r\n",
+					"    U_REASON,\r\n",
+					"    U_LANE,\r\n",
+					"    U_EXPENSEITEM,\r\n",
+					"    inv1.U_FUELDATE,\r\n",
+					"    AcctCode,\r\n",
+					"    \"Sales Invoice\" as `Document_Category`,\r\n",
+					"     LineTotal as `Line_Total`\r\n",
+					"FROM dboOINV oinv\r\n",
+					"LEFT JOIN dboINV1 inv1\r\n",
+					"       ON oinv.DocEntry = inv1.DocEntry\r\n",
+					"WHERE CANCELED = \"N\"\r\n",
+					"\"\"\")\r\n",
+					"#Sales_Invoice.show()\r\n",
+					"Sales_Invoice.createOrReplaceTempView(\"Sales_Invoice\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Sales_Credit_Note = spark.sql(\"\"\" \r\n",
+					"SELECT orin.DocEntry,\r\n",
+					"    orin.DocNum,\r\n",
+					"    orin.DocType,\r\n",
+					"    orin.CANCELED,\r\n",
+					"    orin.ObjType,\r\n",
+					"    orin.DocDate,\r\n",
+					"    orin.DocDueDate,\r\n",
+					"    orin.CardCode,\r\n",
+					"    orin.CardName,\r\n",
+					"    orin.NumAtCard,\r\n",
+					"    orin.DiscPrcnt as `Discount_%`,\r\n",
+					"    --VatSum,s\r\n",
+					"    orin.DiscSum as DocDisc,\r\n",
+					"    orin.DocTotal,\r\n",
+					"    orin.Comments,\r\n",
+					"    orin.TransId,\r\n",
+					"    orin.UserSign,\r\n",
+					"    orin.U_DEPOT,\r\n",
+					"    orin.U_USERCODE,\r\n",
+					"    orin.U_EXPENSE_DEPOT,\r\n",
+					"    orin.U_TRANSACTION_DATE,\r\n",
+					"    1 as SCN,\r\n",
+					"    rin1.Volume,\r\n",
+					"    LineNum,\r\n",
+					"    LineStatus,\r\n",
+					"    ItemCode,\r\n",
+					"    Dscription,\r\n",
+					"    Quantity,\r\n",
+					"    OpenQty,\r\n",
+					"    Price,\r\n",
+					"    Rate,\r\n",
+					"    rin1.DiscPrcnt,\r\n",
+					"    LineTotal,\r\n",
+					"    OpenSum,\r\n",
+					"    PriceBefDi,\r\n",
+					"    rin1.DocDate as `DocDate_Line`,\r\n",
+					"    rin1.Project,\r\n",
+					"    VatPrcnt,\r\n",
+					"    VatGroup,\r\n",
+					"    rin1.VatSum,\r\n",
+					"    GrssProfit,\r\n",
+					"    U_REASON,\r\n",
+					"    U_LANE,\r\n",
+					"    U_EXPENSEITEM,\r\n",
+					"    rin1.U_FUELDATE,\r\n",
+					"    AcctCode,\r\n",
+					"    \"City Logistics New\" as Company,\r\n",
+					"    \"Sales Credit Note\" as `Document_Category`,\r\n",
+					"     LineTotal * -1 as `Line_Total`\r\n",
+					"FROM dboORIN orin\r\n",
+					"LEFT JOIN dboRIN1 rin1\r\n",
+					"ON orin.DocEntry = rin1.DocEntry\r\n",
+					"WHERE orin.CANCELED = 'N'\r\n",
+					"ORDER BY orin.DocEntry\r\n",
+					"\"\"\")\r\n",
+					"#Sales_Credit_Note.show()\r\n",
+					"Sales_Credit_Note.createOrReplaceTempView(\"Sales_Credit_Note\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Purchase_Invoice = spark.sql(\"\"\"\r\n",
+					"SELECT \r\n",
+					"    opch.DocEntry,\r\n",
+					"    DocNum,\r\n",
+					"    DocType,\r\n",
+					"    CANCELED,\r\n",
+					"    opch.ObjType,\r\n",
+					"    opch.DocDate,\r\n",
+					"    DocDueDate,\r\n",
+					"    CardCode,\r\n",
+					"    CardName,\r\n",
+					"    NumAtCard,\r\n",
+					"    opch.DiscPrcnt as `Discount_%`,\r\n",
+					"    --VatSum,\r\n",
+					"    DiscSum as `DocDisc`,\r\n",
+					"    DocTotal,\r\n",
+					"    Comments,\r\n",
+					"    TransId,\r\n",
+					"    UserSign,\r\n",
+					"    U_DEPOT,\r\n",
+					"    U_USERCODE,\r\n",
+					"    U_EXPENSE_DEPOT,\r\n",
+					"    U_TRANSACTION_DATE,\r\n",
+					"    \"City Logistics New\" as Company,\r\n",
+					"    1 as PI,\r\n",
+					"    RoundDif,\r\n",
+					"    Rounding,\r\n",
+					"    pch1.Volume,\r\n",
+					"    LineNum,\r\n",
+					"    LineStatus,\r\n",
+					"    ItemCode,\r\n",
+					"    Dscription,\r\n",
+					"    Quantity,\r\n",
+					"    OpenQty,\r\n",
+					"    Price,\r\n",
+					"    Rate,\r\n",
+					"    pch1.DiscPrcnt,\r\n",
+					"    LineTotal,\r\n",
+					"    OpenSum,\r\n",
+					"    PriceBefDi,\r\n",
+					"    pch1.DocDate as `DocDate_Line`,\r\n",
+					"    pch1.Project,\r\n",
+					"    VatPrcnt,\r\n",
+					"    VatGroup,\r\n",
+					"    pch1.VatSum,\r\n",
+					"    GrssProfit,\r\n",
+					"    U_REASON,\r\n",
+					"    U_RATE,\r\n",
+					"    U_LANE,\r\n",
+					"    U_EXPENSEITEM,\r\n",
+					"    pch1.U_FUELDATE,\r\n",
+					"    U_IR_NUMBER,\r\n",
+					"    AcctCode,\r\n",
+					"    CONCAT(BaseRef,\"City Logistics New\") as `Goods_Receipt_Number_KEY`,\r\n",
+					"    \"Purchase Invoice\" as `Document_Category`,\r\n",
+					"     LineTotal * -1 as `Line_Total`\r\n",
+					"FROM dboOPCH opch\r\n",
+					"LEFT JOIN dboPCH1 pch1\r\n",
+					"       ON opch.DocEntry = pch1.DocEntry\r\n",
+					"WHERE CANCELED = \"N\"\r\n",
+					"\"\"\")\r\n",
+					"#Purchase_Invoice.show()\r\n",
+					"Purchase_Invoice.createOrReplaceTempView(\"Purchase_Invoice\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Purchase_Credit_Note = spark.sql(\"\"\"\r\n",
+					"SELECT orpc.DocEntry,\r\n",
+					"    DocNum,\r\n",
+					"    DocType,\r\n",
+					"    CANCELED,\r\n",
+					"    orpc.ObjType,\r\n",
+					"    orpc.DocDate,\r\n",
+					"    DocDueDate,\r\n",
+					"    CardCode,\r\n",
+					"    CardName,\r\n",
+					"    NumAtCard,\r\n",
+					"    orpc.DiscPrcnt as `Discount_%`,\r\n",
+					"    --VatSum,\r\n",
+					"    DiscSum as `DocDisc`,\r\n",
+					"    DocTotal,\r\n",
+					"    Comments,\r\n",
+					"    TransId,\r\n",
+					"    UserSign,\r\n",
+					"    U_DEPOT,\r\n",
+					"    U_USERCODE,\r\n",
+					"    U_EXPENSE_DEPOT,\r\n",
+					"    U_TRANSACTION_DATE,\r\n",
+					"    --'$(vCompany)' as Company,\r\n",
+					"    1 as PCN,\r\n",
+					"    rpc1.Volume,\r\n",
+					"    LineNum,\r\n",
+					"    LineStatus,\r\n",
+					"    ItemCode,\r\n",
+					"    Dscription,\r\n",
+					"    Quantity,\r\n",
+					"    OpenQty,\r\n",
+					"    Price,\r\n",
+					"    Rate,\r\n",
+					"    rpc1.DiscPrcnt,\r\n",
+					"    LineTotal,\r\n",
+					"    OpenSum,\r\n",
+					"    PriceBefDi,\r\n",
+					"    rpc1.DocDate as `DocDate_Line`,\r\n",
+					"    rpc1.Project,\r\n",
+					"    VatPrcnt,\r\n",
+					"    VatGroup,\r\n",
+					"    rpc1.VatSum,\r\n",
+					"    GrssProfit,\r\n",
+					"    U_REASON,\r\n",
+					"    U_LANE,\r\n",
+					"    U_RATE,\r\n",
+					"    U_EXPENSEITEM,\r\n",
+					"    rpc1.U_FUELDATE,\r\n",
+					"    U_IR_NUMBER,\r\n",
+					"    AcctCode,\r\n",
+					"    \"City Logistics New\" as Company,\r\n",
+					"    \"Purchase Credit Note\" as `Document_Category`,\r\n",
+					"     LineTotal as `Line_Total`\r\n",
+					"FROM dboORPC orpc\r\n",
+					"LEFT JOIN dboRPC1 rpc1\r\n",
+					"ON orpc.DocEntry = rpc1.DocEntry\r\n",
+					"WHERE orpc.CANCELED = 'N'\r\n",
+					"ORDER BY orpc.DocEntry\r\n",
+					"\"\"\")\r\n",
+					"#Purchase_Credit_Note.show()\r\n",
+					"Purchase_Credit_Note.createOrReplaceTempView(\"Purchase_Credit_Note\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Goods_Receipt_Notes = spark.sql(\"\"\"\r\n",
+					"SELECT opdn.DocEntry,\r\n",
+					"    DocNum,\r\n",
+					"    DocType,\r\n",
+					"    CANCELED,\r\n",
+					"    opdn.ObjType,\r\n",
+					"    opdn.DocDate,\r\n",
+					"    DocDueDate,\r\n",
+					"    CardCode,\r\n",
+					"    CardName,\r\n",
+					"    NumAtCard,\r\n",
+					"    opdn.DiscPrcnt as `Discount_%`,\r\n",
+					"    --VatSum,\r\n",
+					"    DiscSum as DocDisc,\r\n",
+					"    DocTotal,\r\n",
+					"    Comments,\r\n",
+					"    TransId,\r\n",
+					"    UserSign,\r\n",
+					"    U_DEPOT,\r\n",
+					"    U_USERCODE,\r\n",
+					"    U_EXPENSE_DEPOT,\r\n",
+					"    U_TRANSACTION_DATE,\r\n",
+					"    1 as GRN,\r\n",
+					"    pdn1.Volume,\r\n",
+					"    LineNum,\r\n",
+					"    LineStatus,\r\n",
+					"    ItemCode,\r\n",
+					"    Dscription,\r\n",
+					"    Quantity,\r\n",
+					"    OpenQty,\r\n",
+					"    Price,\r\n",
+					"    Rate,\r\n",
+					"    pdn1.DiscPrcnt,\r\n",
+					"    LineTotal,\r\n",
+					"    OpenSum,\r\n",
+					"    PriceBefDi,\r\n",
+					"    pdn1.DocDate as `DocDate_Line`,\r\n",
+					"    pdn1.Project,\r\n",
+					"    VatPrcnt,\r\n",
+					"    VatGroup,\r\n",
+					"    pdn1.VatSum,\r\n",
+					"    GrssProfit,\r\n",
+					"    U_REASON,\r\n",
+					"    U_LANE,\r\n",
+					"    U_EXPENSEITEM,\r\n",
+					"    pdn1.U_FUELDATE,\r\n",
+					"    U_RATE,\r\n",
+					"    U_ODO_START,\r\n",
+					"    U_ODO_END,\r\n",
+					"    U_IR_NUMBER,\r\n",
+					"    AcctCode,\r\n",
+					"    TrgetEntry,\r\n",
+					"    \"City Logistics New\" as Company,\r\n",
+					"    TargetType,\r\n",
+					"    BaseRef,\r\n",
+					"    pdn1.BaseEntry,\r\n",
+					"    \"Goods Receipt Note\" as `Document_Category`,\r\n",
+					"     LineTotal * -1 as `Line_Total`\r\n",
+					"FROM dboOPDN opdn\r\n",
+					"LEFT JOIN dboPDN1 pdn1\r\n",
+					"ON opdn.DocEntry = pdn1.DocEntry\r\n",
+					"WHERE opdn.CANCELED = 'N'\r\n",
+					"--AND opdn.TransId NOT IN (311478,311479,311480,311481,311482,311484,311485) --Requested Hack  NOT FOUND IN THE CODE AND WHERE FOUND IN CODE IT IS NOT MATCH(etc)\r\n",
+					"ORDER BY opdn.DocEntry\r\n",
+					"\"\"\")\r\n",
+					"#Goods_Receipt_Notes.show()\r\n",
+					"Goods_Receipt_Notes.createOrReplaceTempView(\"Goods_Receipt_Notes\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Goods_Returns = spark.sql(\"\"\"\r\n",
+					"SELECT orpd.DocEntry,\r\n",
+					"    DocNum,\r\n",
+					"    DocType,\r\n",
+					"    CANCELED,\r\n",
+					"    orpd.ObjType,\r\n",
+					"    orpd.DocDate,\r\n",
+					"    DocDueDate,\r\n",
+					"    CardCode,\r\n",
+					"    CardName,\r\n",
+					"    NumAtCard,\r\n",
+					"    orpd.DiscPrcnt as `Discount_%`,\r\n",
+					"    --VatSum,\r\n",
+					"    DiscSum as `DocDisc`,\r\n",
+					"    DocTotal,\r\n",
+					"    Comments,\r\n",
+					"    TransId,\r\n",
+					"    UserSign,\r\n",
+					"    U_DEPOT,\r\n",
+					"    U_USERCODE,\r\n",
+					"    U_EXPENSE_DEPOT,\r\n",
+					"    U_TRANSACTION_DATE,\r\n",
+					"    \"City Logistics New\" as Company,\r\n",
+					"    1 as GR2,\r\n",
+					"    RoundDif,\r\n",
+					"    Rounding,\r\n",
+					"    rpd1.Volume,\r\n",
+					"    LineNum,\r\n",
+					"    LineStatus,\r\n",
+					"    ItemCode,\r\n",
+					"    Dscription,\r\n",
+					"    Quantity,\r\n",
+					"    OpenQty,\r\n",
+					"    Price,\r\n",
+					"    Rate,\r\n",
+					"    rpd1.DiscPrcnt,\r\n",
+					"    LineTotal,\r\n",
+					"    OpenSum,\r\n",
+					"    PriceBefDi,\r\n",
+					"    rpd1.DocDate as `DocDate_Line`,\r\n",
+					"    rpd1.Project,\r\n",
+					"    VatPrcnt,\r\n",
+					"    VatGroup,\r\n",
+					"    rpd1.VatSum,\r\n",
+					"    GrssProfit,\r\n",
+					"    U_REASON,\r\n",
+					"    U_LANE,\r\n",
+					"    U_EXPENSEITEM,\r\n",
+					"    rpd1.U_FUELDATE,\r\n",
+					"    U_IR_NUMBER,\r\n",
+					"    AcctCode,\r\n",
+					"    BaseLine,\r\n",
+					"    \"Goods Return\" as `Document_Category`,\r\n",
+					"     LineTotal as `Line_Total`\r\n",
+					"FROM dboORPD orpd\r\n",
+					"LEFT JOIN dboRPD1 rpd1\r\n",
+					"ON orpd.DocEntry = rpd1.DocEntry\r\n",
+					"WHERE orpd.CANCELED = 'N'\r\n",
+					"ORDER BY orpd.DocEntry\r\n",
+					"\"\"\")\r\n",
+					"#Goods_Returns.show()\r\n",
+					"Goods_Returns.createOrReplaceTempView(\"Goods_Returns\")"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Stock_Revaluation = spark.sql(\"\"\" \r\n",
+					"SELECT omrv.DocEntry, \r\n",
+					"       omrv.ObjType, \r\n",
+					"       TransId, \r\n",
+					"       DocNum as `Document_Number`,\r\n",
+					"       DocDate as `Posting_Date2`, \r\n",
+					"       Comments as `Document_Comments`, \r\n",
+					"       UserSign as `User_Code`, \r\n",
+					"       mrv1.LineNum as `Line_Number`, \r\n",
+					"       Dscription as `Line_Description`,  \r\n",
+					"       ItemCode as `Item_Code`,\r\n",
+					"       Right(Left(ItemCode,5),3) as `SubDepotCode`, \r\n",
+					"       mrv2.RToStock as `Line_Total`, \r\n",
+					"       mrv1.RIncmAcct as `System_Account_Code`, \r\n",
+					"       \"City Logistics New\" as Company,\r\n",
+					"       'Expense' as `Revenue/Expense_Category`,\r\n",
+					"       'Stock Revaluation' as `Document_Category`,\r\n",
+					"       'Actual' as `Type`\r\n",
+					"FROM dboOMRV omrv\r\n",
+					"LEFT JOIN dboMRV1 mrv1\r\n",
+					"ON omrv.DocEntry = mrv1.DocEntry\r\n",
+					"AND omrv.ObjType = mrv1.ObjType\r\n",
+					"LEFT JOIN \r\n",
+					"(SELECT DocEntry,  BaseLine, SUM(RToStock) as RToStock\r\n",
+					"FROM dboMRV2\r\n",
+					"GROUP BY DocEntry,BaseLine) mrv2\r\n",
+					"ON mrv1.DocEntry = mrv2.DocEntry\r\n",
+					"AND mrv1.LineNum = mrv2.BaseLine\r\n",
+					"ORDER BY omrv.DocEntry\r\n",
+					"\"\"\")\r\n",
+					"#Stock_Revaluation.show()\r\n",
+					"Stock_Revaluation.createOrReplaceTempView(\"Stock_Revaluation\")"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"StockTransactions_Table = spark.sql(\"\"\"\r\n",
+					"SELECT TransNum,\r\n",
+					"\t \t  TransType,\r\n",
+					"\t \t  CreatedBy,\r\n",
+					"\t \t  BASE_REF,\r\n",
+					"\t \t  DocLineNum,\r\n",
+					"\t \t  DocDate,\r\n",
+					"\t \t  DocDueDate,\r\n",
+					"\t \t  CardCode,\r\n",
+					"\t \t  CardName,\r\n",
+					"\t \t  ItemCode,\r\n",
+					"\t \t  Dscription,\r\n",
+					"\t \t  InQty,\r\n",
+					"\t \t  OutQty,\r\n",
+					"\t \t  VendorNum,\r\n",
+					"\t \t  Warehouse,\r\n",
+					"\t \t  PrjCode,\r\n",
+					"\t \t  CalcPrice,\r\n",
+					"\t \t  TransValue,\r\n",
+					"\t \t  InvntAct,\r\n",
+					"\t \t  DOffDecAcc,\r\n",
+					"\t \t  IOffIncAcc,\r\n",
+					"\t \t  'City Logistics New' as Company\r\n",
+					"FROM dboOINM\r\n",
+					"\"\"\")\r\n",
+					"#StockTransactions_Table.show()\r\n",
+					"StockTransactions_Table.createOrReplaceTempView(\"StockTransactions_Table\")"
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"GOODS_ISSUES_HEADER = spark.sql(\"\"\"\r\n",
+					"SELECT DocEntry,\r\n",
+					"    DocNum,\r\n",
+					"    DocType,\r\n",
+					"    CANCELED,\r\n",
+					"    ObjType,\r\n",
+					"    DocDate,\r\n",
+					"    DocTime,\r\n",
+					"    DocDueDate,\r\n",
+					"    CardCode,\r\n",
+					"    CardName,\r\n",
+					"    NumAtCard,\r\n",
+					"    DiscPrcnt\tas `Discount_%`,\r\n",
+					"    --VatSum,\r\n",
+					"    DiscSum as `DocDisc`,\r\n",
+					"    DocTotal,\r\n",
+					"    Comments,\r\n",
+					"    TransId,\r\n",
+					"    UserSign,\r\n",
+					"    U_DEPOT,\r\n",
+					"    U_USERCODE,\r\n",
+					"    U_EXPENSE_DEPOT,\r\n",
+					"    U_TRANSACTION_DATE,\r\n",
+					"    'City Logistics New' as Company,\r\n",
+					"    1 as GI\r\n",
+					"FROM dboOIGE\r\n",
+					"\"\"\")\r\n",
+					"#GOODS_ISSUES_HEADER.show()\r\n",
+					"GOODS_ISSUES_HEADER.createOrReplaceTempView(\"GOODS_ISSUES_HEADER\")"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"GOODS_ISSUES_DETAIL = spark.sql(\"\"\" \r\n",
+					"SELECT DocEntry,\r\n",
+					"    Volume,\r\n",
+					"    LineNum,\r\n",
+					"    LineStatus,\r\n",
+					"    ItemCode,\r\n",
+					"    Dscription,\r\n",
+					"    Quantity,\r\n",
+					"    OpenQty,\r\n",
+					"    Price,\r\n",
+					"    Rate,\r\n",
+					"    DiscPrcnt,\r\n",
+					"    Quantity * StockPrice as LineTotal,\r\n",
+					"    OpenSum,\r\n",
+					"    PriceBefDi,\r\n",
+					"    DocDate as `DocDate (Line)`,\r\n",
+					"    Project,\r\n",
+					"    VatPrcnt,\r\n",
+					"    VatGroup,\r\n",
+					"    VatSum,\r\n",
+					"    GrssProfit,\r\n",
+					"    U_REASON,\r\n",
+					"    U_LANE,\r\n",
+					"    U_EXPENSEITEM,\r\n",
+					"    U_FUELDATE,\r\n",
+					"    U_NEWSEAL,\r\n",
+					"    U_ODO_END,\r\n",
+					"    U_ODO_START,\r\n",
+					"    U_OLDSEAL,\r\n",
+					"    U_OPENINGPUMP,\r\n",
+					"    U_CLOSINGPUMP,\r\n",
+					"    U_PUMP,\r\n",
+					"    U_IR_NUMBER,\r\n",
+					"    AcctCode,\r\n",
+					"    'City Logistics New' as Company,\r\n",
+					"    1 as GI\r\n",
+					"FROM dboIGE1\r\n",
+					"\"\"\")\r\n",
+					"#GOODS_ISSUES_DETAIL.show()\r\n",
+					"GOODS_ISSUES_DETAIL.createOrReplaceTempView(\"GOODS_ISSUES_DETAIL\")"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"GOODS_ISSUES = spark.sql(\"\"\"\r\n",
+					"SELECT gih.*,\r\n",
+					"       Volume,\r\n",
+					"       LineNum,\r\n",
+					"       LineStatus,\r\n",
+					"       ItemCode,\r\n",
+					"       Dscription,\r\n",
+					"       Quantity,\r\n",
+					"       OpenQty,\r\n",
+					"       Price,\r\n",
+					"       Rate,\r\n",
+					"       DiscPrcnt,\r\n",
+					"       LineTotal,\r\n",
+					"       OpenSum,\r\n",
+					"       PriceBefDi,\r\n",
+					"       `DocDate (Line)`,\r\n",
+					"        Project,\r\n",
+					"        VatPrcnt,\r\n",
+					"        VatGroup,\r\n",
+					"        VatSum,\r\n",
+					"        GrssProfit,\r\n",
+					"        U_REASON,\r\n",
+					"        U_LANE,\r\n",
+					"        U_EXPENSEITEM,\r\n",
+					"        U_FUELDATE,\r\n",
+					"        U_NEWSEAL,\r\n",
+					"        U_ODO_END,\r\n",
+					"        U_ODO_START,\r\n",
+					"        U_OLDSEAL,\r\n",
+					"        U_OPENINGPUMP,\r\n",
+					"        U_CLOSINGPUMP,\r\n",
+					"        U_PUMP,\r\n",
+					"        U_IR_NUMBER,\r\n",
+					"        AcctCode\r\n",
+					"FROM GOODS_ISSUES_HEADER gih\r\n",
+					"LEFT JOIN GOODS_ISSUES_DETAIL gid\r\n",
+					"       ON gih.DocEntry = gid.DocEntry\r\n",
+					"\"\"\")\r\n",
+					"#GOODS_ISSUES.show()\r\n",
+					"GOODS_ISSUES.createOrReplaceTempView(\"GOODS_ISSUES\")"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"STOCK_TRANSACTIONS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT TransNum as TransId, \r\n",
+					"     TransType as ObjType,\r\n",
+					"     'Item' as `Document_Type`,\r\n",
+					"     CreatedBy, \r\n",
+					"     BASE_REF as `Document_Number`, \r\n",
+					"     DocLineNum as `Line_Number`, \r\n",
+					"     date(DocDate) as `Posting_Date2`, \r\n",
+					"     ItemCode as `Item_Code`, \r\n",
+					"     Dscription as `Line_Description`, \r\n",
+					"     sum(InQty) - sum(OutQty) as Quantity,\r\n",
+					"     TRIM(PrjCode) as Project, \r\n",
+					"     TransValue as `Line_Total`, \r\n",
+					"     IOffIncAcc as `System_Account_Code`, \r\n",
+					"     Company,\r\n",
+					"     'Goods Receipt' as `Document_Category`,\r\n",
+					"     'Actual' as Type,\r\n",
+					"     'Revenue' as `Revenue/Expense_Category`\r\n",
+					"FROM StockTransactions_Table\r\n",
+					"where TransType = 59\r\n",
+					"group by \tTransNum, \r\n",
+					"\t\t\tTransType, \r\n",
+					"\t\t\tCreatedBy, \r\n",
+					"\t\t\tBASE_REF, \r\n",
+					"\t\t\tDocLineNum, \r\n",
+					"\t\t\tDocDate, \r\n",
+					"\t\t\tItemCode, \r\n",
+					"\t\t\tDscription, \r\n",
+					"\t\t\tPrjCode, \r\n",
+					"\t\t\tTransValue, \r\n",
+					"\t\t\tIOffIncAcc, \r\n",
+					"\t\t\tCompany\r\n",
+					"\r\n",
+					"UNION ALL\r\n",
+					"\r\n",
+					"SELECT TransNum as TransId, \r\n",
+					"     TransType as ObjType,\r\n",
+					"     'Item' as `Document_Type`,\r\n",
+					"     CreatedBy, \r\n",
+					"     BASE_REF as `Document_Number`, \r\n",
+					"     DocLineNum as `Line_Number`, \r\n",
+					"     DocDate as `Posting_Date2`, \r\n",
+					"     ItemCode as `Item_Code`, \r\n",
+					"     Dscription as `Line_Description`, \r\n",
+					"     sum(OutQty) - sum(InQty) as Quantity,\r\n",
+					"     TRIM(PrjCode) as Project, \r\n",
+					"     TransValue as `Line_Total`, \r\n",
+					"     DOffDecAcc as `System_Account_Code`, \r\n",
+					"     Company,\r\n",
+					"     'Goods Issues' as `Document_Category`,\r\n",
+					"     'Actual' as Type,\r\n",
+					"     'Expense' as `Revenue/Expense_Category`\r\n",
+					"FROM StockTransactions_Table\r\n",
+					"where TransType = 60\r\n",
+					"group by \tTransNum, \r\n",
+					"\t\t\tTransType, \r\n",
+					"\t\t\tCreatedBy, \r\n",
+					"\t\t\tBASE_REF, \r\n",
+					"\t\t\tDocLineNum, \r\n",
+					"\t\t\tDocDate, \r\n",
+					"\t\t\tItemCode, \r\n",
+					"\t\t\tDscription, \r\n",
+					"\t\t\tPrjCode, \r\n",
+					"\t\t\tTransValue, \r\n",
+					"\t\t\tDOffDecAcc, \r\n",
+					"\t\t\tCompany\r\n",
+					"\r\n",
+					"UNION ALL\r\n",
+					"\r\n",
+					"SELECT TransNum as TransId, \r\n",
+					"     TransType as ObjType,\r\n",
+					"     'Item' as `Document_Type`,\r\n",
+					"     CreatedBy, \r\n",
+					"     BASE_REF as `Document_Number`, \r\n",
+					"     DocLineNum as `Line_Number`, \r\n",
+					"     CAST(\"2015-03-31\" AS DATE) as `Posting_Date2`, \r\n",
+					"     ItemCode as `Item_Code`, \r\n",
+					"     Dscription as `Line_Description`, \r\n",
+					"     sum(OutQty) - sum(InQty) as Quantity, \r\n",
+					"     TRIM(PrjCode) as Project,  \r\n",
+					"     TransValue as `Line_Total`, \r\n",
+					"     '_SYS00000005317' as `System_Account_Code`, \r\n",
+					"     Company,\r\n",
+					"     'Stock Goods Reciept Note' as `Document_Category`,\r\n",
+					"     'Actual' as Type,\r\n",
+					"     'Expense' as `Revenue/Expense_Category`\r\n",
+					"FROM StockTransactions_Table\r\n",
+					"where TransType = 20 and Company = 'City Couriers'\r\n",
+					"\t  and\r\n",
+					"\t  (BASE_REF = '173607' or\r\n",
+					"\t  BASE_REF = '173608'  or\r\n",
+					"\t  BASE_REF = '173654'  or\r\n",
+					"\t  BASE_REF = '173661'  or\r\n",
+					"\t  BASE_REF = '173671'  or\r\n",
+					"\t  BASE_REF = '173679'  or\r\n",
+					"\t  BASE_REF = '174414' )\r\n",
+					"group by \tTransNum, \r\n",
+					"\t\t\tTransType, \r\n",
+					"\t\t\tCreatedBy, \r\n",
+					"\t\t\tBASE_REF, \r\n",
+					"\t\t\tDocLineNum, \r\n",
+					"\t\t\tDocDate, \r\n",
+					"\t\t\tItemCode, \r\n",
+					"\t\t\tDscription, \r\n",
+					"\t\t\tPrjCode, \r\n",
+					"\t\t\tTransValue, \r\n",
+					"\t\t\tDOffDecAcc, \r\n",
+					"\t\t\tCompany\r\n",
+					"\r\n",
+					"UNION ALL\r\n",
+					"\r\n",
+					"SELECT TransNum as TransId, \r\n",
+					"     TransType as ObjType,\r\n",
+					"     'Item' as `Document_Type`,\r\n",
+					"     CreatedBy, \r\n",
+					"     BASE_REF as `Document_Number`, \r\n",
+					"     DocLineNum as `Line_Number`, \r\n",
+					"     CAST(\"2014-10-01\" AS DATE) as `Posting_Date2`,  \r\n",
+					"     ItemCode as `Item_Code`, \r\n",
+					"     Dscription as `Line_Description`, \r\n",
+					"     sum(OutQty) - sum(InQty) as Quantity, \r\n",
+					"     TRIM(PrjCode) as Project, \r\n",
+					"     TransValue as `Line_Total`, \r\n",
+					"     '_SYS00000005317' as `System_Account_Code`, \r\n",
+					"     Company,\r\n",
+					"     'Stock Goods Reciept Note' as `Document_Category`,\r\n",
+					"     'Actual' as Type,\r\n",
+					"     'Expense' as `Revenue/Expense_Category`\r\n",
+					"FROM StockTransactions_Table\r\n",
+					"where TransType = 20 and Company = 'City Couriers'\r\n",
+					"\t  and\r\n",
+					"\t  (BASE_REF = '87478'   or\r\n",
+					"\t  BASE_REF = '141116'  or\r\n",
+					"\t  BASE_REF = '145769'  or\r\n",
+					"\t  BASE_REF = '154853'  or\r\n",
+					"\t  BASE_REF = '164549'  or\r\n",
+					"\t  BASE_REF = '167176'  or\r\n",
+					"\t  BASE_REF = '168414')\r\n",
+					"group by \tTransNum, \r\n",
+					"\t\t\tTransType, \r\n",
+					"\t\t\tCreatedBy,\r\n",
+					"\t\t\tBASE_REF, \r\n",
+					"\t\t\tDocLineNum, \r\n",
+					"\t\t\tDocDate, \r\n",
+					"\t\t\tItemCode, \r\n",
+					"\t\t\tDscription, \r\n",
+					"\t\t\tPrjCode, \r\n",
+					"\t\t\tTransValue, \r\n",
+					"\t\t\tDOffDecAcc, \r\n",
+					"\t\t\tCompany\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#STOCK_TRANSACTIONS.show()\r\n",
+					"STOCK_TRANSACTIONS.createOrReplaceTempView(\"STOCK_TRANSACTIONS\")"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"STOCK_TRANSACTIONS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT st.*, Right(Left(U_EXPENSEITEM,5),3) as SubDepotCode\r\n",
+					"FROM STOCK_TRANSACTIONS st\r\n",
+					"LEFT JOIN GOODS_ISSUES gi \r\n",
+					"       ON st.Company = gi.Company\r\n",
+					"      AND st.Document_Number = gi.DocNum\r\n",
+					"      AND st.Line_Number = gi.LineNum\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#STOCK_TRANSACTIONS.show()\r\n",
+					"STOCK_TRANSACTIONS.createOrReplaceTempView(\"STOCK_TRANSACTIONS\")"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"GENERAL_JOURNAL = spark.sql(\"\"\"\r\n",
+					"SELECT ojdt.TransId,\r\n",
+					"\t   Memo as `Line_Description`,\r\n",
+					"\t   LineMemo as `Line_Detail`,\r\n",
+					"\t   jdt1.Ref1 as `Journal_Item_Ref`,\r\n",
+					"\t   jdt1.Ref2 as  `Journal_BP_Ref`,\r\n",
+					"\t   LocTotal as `Doc_Total`,\r\n",
+					"\t   CASE WHEN ojdt.DocType = 'I' THEN 'Item'\r\n",
+					"            WHEN ojdt.DocType = 'S' THEN 'Service'\r\n",
+					"            ELSE 'Manual'\r\n",
+					"        END AS `Document_Type`,\r\n",
+					"\t   Line_ID as `Line_Number`,\r\n",
+					"\t   Account as `System_Account_Code`,\r\n",
+					"\t   sum(Debit) - sum(Credit) `Line_Total`,\r\n",
+					"\t   CASE WHEN GroupMask = 1 THEN 'Assets'\r\n",
+					"             WHEN GroupMask = 2 THEN 'Liabilities'\r\n",
+					"             WHEN GroupMask = 3 THEN 'Capital & Reserves'\r\n",
+					"             WHEN GroupMask = 4 THEN 'Turnover'\r\n",
+					"             WHEN GroupMask = 5 THEN 'Cost of Sales'\r\n",
+					"             WHEN GroupMask = 6 AND ojdt.TransId NOT IN (311478,311479,311480,311481,311482,311484,311485) THEN 'Operating Costs'\r\n",
+					"             WHEN GroupMask = 8 THEN 'Tax & Extraordinary Items'\r\n",
+					"             END as `Revenue/Expense_Category`,\r\n",
+					"\t   jdt1.DueDate as `Due_Date`,\r\n",
+					"\t   CAST(jdt1.RefDate as DATE) as `Posting_Date2`,\r\n",
+					"\t   jdt1.ObjType,\r\n",
+					"\t   TRIM(jdt1.Project) as Project,\r\n",
+					"\t   jdt1.TransCode,\r\n",
+					"\t   jdt1.UserSign,\r\n",
+					"\t   VatGroup as `VAT_Group`,\r\n",
+					"\t   VatRate as `VAT_%`,\r\n",
+					"\t   jdt1.ObjType as `ObjType_Journal`,\r\n",
+					"\t   sum(VatAmount) as VAT_Value,\r\n",
+					"\t   sum(GrossValue) as Gross_Value,\r\n",
+					"       \"City Logistics New\" as Company,\r\n",
+					"\t   U_DEPOT as `SubDepotCode`,\r\n",
+					"       \"Journal\" as `Document_Category`\r\n",
+					"FROM dboOJDT ojdt\r\n",
+					"LEFT JOIN dboJDT1 jdt1\r\n",
+					"ON ojdt.TransId = jdt1.TransId\r\n",
+					"LEFT JOIN dboOACT oact\r\n",
+					"ON jdt1.Account = oact.AcctCode\r\n",
+					"WHERE (oact.GroupMask IN (1,2,3,4,5,8)\r\n",
+					"OR (oact.GroupMask = 6 AND jdt1.TransId NOT IN (311478,311479,311480,311481,311482,311484,311485)))  ---HACK \r\n",
+					"group by ojdt.TransId,\r\n",
+					"\t     Memo,\r\n",
+					"         LineMemo ,\r\n",
+					"         jdt1.Ref1,\r\n",
+					"         jdt1.Ref2,\r\n",
+					"         LocTotal,\r\n",
+					"         ojdt.DocType,\r\n",
+					"         Line_ID,\r\n",
+					"         Account,\r\n",
+					"         jdt1.DueDate,\r\n",
+					"         jdt1.RefDate,\r\n",
+					"         jdt1.ObjType,\r\n",
+					"         jdt1.Project,\r\n",
+					"         jdt1.TransCode,\r\n",
+					"         jdt1.UserSign,\r\n",
+					"         VatGroup,\r\n",
+					"         VatRate,\r\n",
+					"         jdt1.ObjType,\r\n",
+					"         Company,\r\n",
+					"         U_DEPOT,\r\n",
+					"         GroupMask\r\n",
+					"\"\"\")\r\n",
+					"#GENERAL_JOURNAL.show()\r\n",
+					"GENERAL_JOURNAL.createOrReplaceTempView(\"GENERAL_JOURNAL\")"
+				],
+				"execution_count": 32
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write structured TRANSACTIONS_HEADE&DETAIL back to datalake"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Purchase_Order.write.parquet('/DataLake/Structured/Facts/F_Purchase_Order.parquet', mode='overwrite')\r\n",
+					"#Purchase_Order.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_Purchase_Order\")\r\n",
+					"\r\n",
+					"Sales_Invoice.write.parquet('/DataLake/Structured/Facts/F_Sales_Invoice.parquet', mode='overwrite')\r\n",
+					"#Sales_Invoice.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_Sales_Invoice\")\r\n",
+					"\r\n",
+					"Sales_Credit_Note.write.parquet('/DataLake/Structured/Facts/F_Sales_Credit_Note.parquet', mode='overwrite')\r\n",
+					"#Sales_Credit_Note.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_Sales_Credit_Note\")\r\n",
+					"\r\n",
+					"Purchase_Invoice.write.parquet('/DataLake/Structured/Facts/F_Purchase_Invoice.parquet', mode='overwrite')\r\n",
+					"#Purchase_Invoice.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_Purchase_Invoice\")\r\n",
+					"\r\n",
+					"Purchase_Credit_Note.write.parquet('/DataLake/Structured/Facts/F_Purchase_Credit_Note.parquet', mode='overwrite')\r\n",
+					"#Purchase_Credit_Note.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_Purchase_Credit_Note\")\r\n",
+					"\r\n",
+					"Goods_Receipt_Notes.write.parquet('/DataLake/Structured/Facts/F_Goods_Receipt_Notes.parquet', mode='overwrite')\r\n",
+					"#Goods_Receipt_Notes.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_Goods_Receipt_Notes\")\r\n",
+					"\r\n",
+					"Goods_Returns.write.parquet('/DataLake/Structured/Facts/F_Goods_Returns.parquet', mode='overwrite')\r\n",
+					"#Goods_Returns.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_Goods_Returns\")\r\n",
+					"\r\n",
+					"Stock_Revaluation.write.parquet('/DataLake/Structured/Facts/F_Stock_Revaluation.parquet', mode='overwrite')\r\n",
+					"#Stock_Revaluation.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_Stock_Revaluation\")\r\n",
+					"\r\n",
+					"STOCK_TRANSACTIONS.write.parquet('/DataLake/Structured/Facts/F_STOCK_TRANSACTIONS.parquet', mode='overwrite')\r\n",
+					"#STOCK_TRANSACTIONS.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_STOCK_TRANSACTIONS\")\r\n",
+					"\r\n",
+					"GENERAL_JOURNAL.write.parquet('/DataLake/Structured/Facts/F_GENERAL_JOURNAL.parquet', mode='overwrite')\r\n",
+					"#GENERAL_JOURNAL.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_GENERAL_JOURNAL\")"
+				],
+				"execution_count": 33
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"Scripts have successfully executed\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

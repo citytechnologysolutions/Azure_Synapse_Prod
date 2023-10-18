@@ -1,0 +1,1400 @@
+{
+	"name": "4- Finance_LMS_Activities_Extractor_Main_PROD",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/PROD/Operations Notebooks PROD"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 9,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "9",
+				"spark.dynamicAllocation.maxExecutors": "9",
+				"spark.autotune.trackingId": "63bd0835-5389-4cab-99e9-19729120c1ee"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load Source data from the Datalake"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"#dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"#dboLoads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLoads.parquet', format='parquet')\r\n",
+					"#dboLoads.createOrReplaceTempView(\"dboLoads\")\r\n",
+					"\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"#dboParcel_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"#dboParcel_Archive.createOrReplaceTempView(\"dboParcel_Archive\")\r\n",
+					"\r\n",
+					"#dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"#dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"#dboCustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboCustomer.parquet', format='parquet')\r\n",
+					"#dboCustomer.createOrReplaceTempView(\"dboCustomer\")\r\n",
+					"\r\n",
+					"#dboLocation = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLocation.parquet', format='parquet')\r\n",
+					"#dboLocation.createOrReplaceTempView(\"dboLocation\")\r\n",
+					"\r\n",
+					"#dboTrackType = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrackType.parquet', format='parquet')\r\n",
+					"#dboTrackType.createOrReplaceTempView(\"dboTrackType\")\r\n",
+					"\r\n",
+					"#dboTrack_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrack_Archive.parquet', format='parquet')\r\n",
+					"#dboTrack_Archive.createOrReplaceTempView(\"dboTrack_Archive\")\r\n",
+					"\r\n",
+					"#dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"#dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"\r\n",
+					"#dboSRoute = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboSRoute.parquet', format='parquet')\r\n",
+					"#dboSRoute.createOrReplaceTempView(\"dboSRoute\")\r\n",
+					"\r\n",
+					"#dboZone = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboZone.parquet', format='parquet')\r\n",
+					"#dboZone.createOrReplaceTempView(\"dboZone\")\r\n",
+					"\r\n",
+					"#dboLocation = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLocation.parquet', format='parquet')\r\n",
+					"#dboLocation.createOrReplaceTempView(\"dboLocation\")\r\n",
+					"\r\n",
+					"#F_MFRHISTORY = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/F_MFRHISTORY.parquet', format='parquet')\r\n",
+					"#F_MFRHISTORY.createOrReplaceTempView(\"F_MFRHISTORY\")\r\n",
+					"\r\n",
+					"#DIM_Location = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Dimensions/DIM_Location.parquet', format='parquet')\r\n",
+					"#DIM_Location.createOrReplaceTempView(\"DIM_Location\")"
+				],
+				"execution_count": 35
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Import packages for Python"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#panda package import\r\n",
+					"import pandas as pd"
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load Excel files from Datalake and expose as temp view using pandas"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load EXCEL with TBS_QVD\r\n",
+					"\r\n",
+					"# Variables\r\n",
+					"var_File_Path = \"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Excel_Files/TBS_QVD.xlsx\"\r\n",
+					"var_File_Page = \"Sheet1\"\r\n",
+					"\r\n",
+					"# Processing\r\n",
+					"excel_file = pd.ExcelFile(var_File_Path)\r\n",
+					"excel_file_page = pd.read_excel(excel_file, var_File_Page)\r\n",
+					"from pyspark.sql.types import *\r\n",
+					"df_schema = StructType([StructField(\"Customer Code KEY\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Customer Reference\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Daily Budget Total\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Days in Month\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Depot Code\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Document Category\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Fleet Code\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Input Source\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Line Total\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Parent Depot Code\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Posting Date\", DateType(), True)\\\r\n",
+					"                       ,StructField(\"System Account Code KEY\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"TBS Fleet Owner\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"TBS H Fleet Code Flag\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"TBS Local Load\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"TBS Route\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"TBS Source\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Transaction Detail\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"TransId\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Type\", StringType(), True)\\\r\n",
+					"                       ,StructField(\"Value Type\", StringType(), True)\r\n",
+					"                       ])\r\n",
+					"excel_file_Dataframe = spark.createDataFrame(excel_file_page, schema=df_schema)\r\n",
+					"\r\n",
+					"excel_file_Dataframe.createOrReplaceTempView(\"TBS\")\r\n",
+					"\r\n",
+					"TBS = spark.sql(\"\"\"SELECT * FROM TBS\"\"\")\r\n",
+					"\r\n",
+					"TBS.createOrReplaceTempView(\"TBS\")"
+				],
+				"execution_count": 38
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load EXCEL with TBSACCOUNT_QVD\r\n",
+					"\r\n",
+					"# Variables\r\n",
+					"var_File_Path = \"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Excel_Files/TBSACCOUNT_QVD.xlsx\"\r\n",
+					"var_File_Page = \"Sheet1\"\r\n",
+					"\r\n",
+					"# Processing\r\n",
+					"excel_file = pd.ExcelFile(var_File_Path)\r\n",
+					"excel_file_page = pd.read_excel(excel_file, var_File_Page)\r\n",
+					"excel_file_Dataframe = spark.createDataFrame(excel_file_page)\r\n",
+					"excel_file_Dataframe.createOrReplaceTempView(\"TBSACCOUNT\")\r\n",
+					"\r\n",
+					"TBSACCOUNT = spark.sql(\"\"\"SELECT `Level 1 Name`, `Level 2 Name`, `Level 3 Name`, `Level 4 Name`, `RESTRICTTYPE`, `System Account Code KEY` FROM TBSACCOUNT\"\"\")\r\n",
+					"\r\n",
+					"TBSACCOUNT.createOrReplaceTempView(\"TBSACCOUNT\")"
+				],
+				"execution_count": 39
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## KPI Database"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load EXCEL with KPI Database\r\n",
+					"\r\n",
+					"# Variables\r\n",
+					"var_File_Path = \"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Excel_Files/KMS_LTS_PRE_FY20.xlsx\"\r\n",
+					"var_File_Page = \"Sheet1\"\r\n",
+					"\r\n",
+					"\r\n",
+					"# Processing\r\n",
+					"excel_file = pd.ExcelFile(var_File_Path)\r\n",
+					"excel_file_page = pd.read_excel(excel_file, var_File_Page, skiprows=[1])\r\n",
+					"\r\n",
+					"excel_file_Dataframe = spark.createDataFrame(excel_file_page.astype(str))\r\n",
+					"\r\n",
+					"excel_file_Dataframe.createOrReplaceTempView(\"KPI_Database\")\r\n",
+					"\r\n",
+					"KPI_Database = spark.sql(\"\"\"SELECT `Posting Date`, `LineTotal`, `Depot`, `Fleet Code`, `Document Category`, `System Account Code KEY`, `Type` FROM KPI_Database\"\"\")\r\n",
+					"\r\n",
+					"KPI_Database.createOrReplaceTempView(\"KPI_Database\")"
+				],
+				"execution_count": 41
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Avis_Files"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Load EXCEL for AvisUsage\r\n",
+					"\r\n",
+					"# Variables\r\n",
+					"var_File_Path = \"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Avis_Files/AvisUsage.xlsx\"\r\n",
+					"var_File_Page = \"AvisUsage\"\r\n",
+					"\r\n",
+					"# Processing\r\n",
+					"excel_file = pd.ExcelFile(var_File_Path)\r\n",
+					"excel_file_page = pd.read_excel(excel_file, var_File_Page, skiprows=[1])\r\n",
+					"\r\n",
+					"excel_file_Dataframe = spark.createDataFrame(excel_file_page.astype(str))\r\n",
+					"\r\n",
+					"excel_file_Dataframe.createOrReplaceTempView(\"AvisUsage\")\r\n",
+					"\r\n",
+					"AvisUsage = spark.sql(\"\"\"SELECT `Reg. No`, `Fleet No`, `Date`, `Time`, `FuelCompany`, `Voucher No`, `FuelStation`, `PreviousOdo`, `Odo`, `Trip Km`, `Consum/100`, `Consum/Unit`, \r\n",
+					"                                `L Loss`, `R Loss`, `TripLitres`, `Price Per Unit`, `Fuel Amount`, `Pickup Type`, `Account`, `Cost Centre`, `Division`, `Make`, `Range`, `Model`,\r\n",
+					"                                `Consum. Norm`\r\n",
+					"                         FROM AvisUsage\"\"\")\r\n",
+					"\r\n",
+					"AvisUsage.createOrReplaceTempView(\"AvisUsage\")"
+				],
+				"execution_count": 42
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Strart with QView to SQL scripting to provide structure to the data"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 02a_Finance_LMS_Activities_Extractor_00_Main"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"TMP = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"((SELECT  --t.ParcelID AS `TransID`\r\n",
+					"\t    l.id AS `TransID`\r\n",
+					"        ,'LoadID' AS `LMSTransID Type`\r\n",
+					"        ,0 AS `SpecDel`\r\n",
+					"        ,CAST(t.OpenDt AS DATE) AS `Posting Date`    --CAST(t.OpenDt as VARCHAR(23)) \r\n",
+					"        --,c.ID AS `LMS Bill Customer ID`\t\t\r\n",
+					"        ,c.Name AS `LMS Bill Customer`\r\n",
+					"        ,floc.Description AS `From Location`\r\n",
+					"        ,tloc.Description AS `To Location`\r\n",
+					"        ,dl.D_SAPDepotCode as `Depot Code`\r\n",
+					"        ,tt.Description AS `Movement Type`\r\n",
+					"        ,l.MasterLoadID AS `Linehaul Booking ID`\r\n",
+					"        ,count(p.id) AS `Parcels`\r\n",
+					"        ,sum(p.Weight) AS `Parcel Weight`\r\n",
+					"        ,sum(p.ChargeWeight) AS `Parcel Charge Weight`\r\n",
+					"\r\n",
+					"FROM dbotrack t\r\n",
+					"LEFT JOIN dboLoads l\r\n",
+					"       ON l.id = t.loadid\r\n",
+					"LEFT JOIN ( SELECT id,Weight,ChargeWeight,AcceptanceDate,OrderID \r\n",
+					"            FROM dboparcel\r\n",
+					"\t\t\tUNION ALL \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\r\n",
+					"\t\t\tSelect id,Weight,ChargeWeight,AcceptanceDate,OrderID \r\n",
+					"            FROM dboParcel_Archive\r\n",
+					"\t\t  )\tp\t \r\n",
+					"       ON p.id = t.ParcelID\r\n",
+					"LEFT JOIN dboorder o\r\n",
+					"       ON o.id = p.OrderID\r\n",
+					"LEFT JOIN dboCustomer c\r\n",
+					"       ON c.id = o.BillCustID\r\n",
+					"LEFT JOIN dboLocation floc \r\n",
+					"       ON floc.id = t.fromlocid\r\n",
+					"LEFT JOIN dboLocation tloc \r\n",
+					"       ON tloc.id = t.tolocid\r\n",
+					"LEFT JOIN DIM_Location dl\r\n",
+					"       ON dl.L_LocationID = l.tolocid\r\n",
+					"LEFT JOIN dboTrackType tt\r\n",
+					"       ON tt.ID = l.TTypeID\r\n",
+					"\r\n",
+					"WHERE l.TTypeID in (2,6)\r\n",
+					"  AND coalesce(o.SpecDel,0) <> 1\r\n",
+					"  AND p.AcceptanceDate IS NOT NULL\t\r\n",
+					"\r\n",
+					"\r\n",
+					"GROUP BY --t.ParcelID\t\r\n",
+					"\t     l.id\t\r\n",
+					"        ,CAST(t.OpenDt AS DATE)    --CAST(t.OpenDt as varchar(23))\r\n",
+					"        ,c.ID\t\t\t\t\t\t\t\t\t\t\t\t\r\n",
+					"        ,c.Name\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\r\n",
+					"        ,floc.Description\t\t\t\t\t\t\t\t\t\t\t\t\t\t\r\n",
+					"        ,tloc.Description\r\n",
+					"        ,dl.D_SAPDepotCode\t\t\t\t\t\t\t\t\t\t\t\t\t\t\r\n",
+					"        ,tt.Description\t\r\n",
+					"        ,l.MasterLoadID)\t\r\n",
+					"\r\n",
+					"UNION \r\n",
+					"\r\n",
+					"(SELECT --t.ParcelID AS `TransID`\r\n",
+					"\t   l.id AS `TransID`\r\n",
+					"       ,'LoadID' AS `LMSTransID Type`\r\n",
+					"       ,0 AS `SpecDel`\r\n",
+					"       ,CAST(t.OpenDt AS DATE) AS `Posting Date`         ---cast(t.OpenDt as varchar(23))\r\n",
+					"       --,c.ID AS `LMS Bill Customer ID`\r\n",
+					"       ,c.Name AS `LMS Bill Customer`\r\n",
+					"       ,floc.Description AS `From Location`\r\n",
+					"       ,tloc.Description AS `To Location`\r\n",
+					"       ,dl.D_SAPDepotCode as `Depot Code`\r\n",
+					"       ,tt.Description AS `Movement Type`\r\n",
+					"       ,l.MasterLoadID AS `Linehaul Booking ID`\r\n",
+					"       ,count(p.id) AS `Parcels`\r\n",
+					"       ,sum(p.Weight) AS `Parcel Weight`\r\n",
+					"       ,sum(p.ChargeWeight) AS `Parcel Charge Weight`\r\n",
+					"FROM dboTrack_Archive t\r\n",
+					"LEFT JOIN dboLoads l\r\n",
+					"       ON l.id = t.loadid\r\n",
+					"LEFT JOIN (SELECT id,Weight,ChargeWeight,AcceptanceDate,OrderID \r\n",
+					"           FROM dboparcel\r\n",
+					"\t\t   UNION ALL \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\r\n",
+					"\t\t   SELECT id,Weight,ChargeWeight,AcceptanceDate,OrderID \r\n",
+					"           FROM dboParcel_Archive \r\n",
+					"\t\t   ) p\t \r\n",
+					"       ON p.id = t.ParcelID\r\n",
+					"LEFT JOIN dboorder o\r\n",
+					"       ON o.id = p.OrderID\r\n",
+					"LEFT JOIN dboCustomer c \r\n",
+					"       ON c.id = o.BillCustID\r\n",
+					"LEFT JOIN dboLocation floc \r\n",
+					"       ON floc.id = t.fromlocid\r\n",
+					"LEFT JOIN dboLocation tloc \r\n",
+					"       ON tloc.id = t.tolocid\r\n",
+					"LEFT JOIN DIM_Location dl\r\n",
+					"       ON dl.L_LocationID = l.tolocid\r\n",
+					"LEFT JOIN dboTrackType tt\r\n",
+					"       ON tt.ID = l.TTypeID\r\n",
+					"\r\n",
+					"WHERE l.TTypeID in (2,6)\r\n",
+					"  AND t.OpenDt >= '2016-04-01 00:00:00.000' --and t.OpenDt <='2018-05-31 23:59:59.999'\r\n",
+					"  AND coalesce(o.SpecDel,0) <> 1\r\n",
+					"  AND p.AcceptanceDate IS NOT NULL\t\r\n",
+					"\r\n",
+					"\r\n",
+					"GROUP BY --t.ParcelID\t\r\n",
+					"         l.id\t\t\r\n",
+					"        ,CAST(t.OpenDt AS DATE)    --cast(t.OpenDt as varchar(23))\t\t\t\t\t\t\t\t\t\t\t\t\r\n",
+					"        ,c.ID\r\n",
+					"        ,c.Name\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\r\n",
+					"        ,floc.Description\t\t\t\t\t\t\t\t\t\t\t\t\t\t\r\n",
+					"        ,tloc.Description\r\n",
+					"        ,dl.D_SAPDepotCode\t\t\t\t\t\t\t\t\t\t\t\t\t\r\n",
+					"        ,tt.Description\t\r\n",
+					"        ,l.MasterLoadID)\r\n",
+					"\r\n",
+					"UNION ALL\r\n",
+					"\r\n",
+					"(SELECT DISTINCT con.id AS `TransID`\r\n",
+					"               ,'ConsignID' AS `LMSTransID Type`\r\n",
+					"               ,0 AS `SpecDel`\r\n",
+					"               ,CAST(con.cdate AS DATE) AS `Posting Date`    --cast(con.cdate as varchar(23)) AS `Posting Date`\r\n",
+					"               ,bcus.Name AS `LMS Bill Customer`\r\n",
+					"               ,'' AS `From Location`\r\n",
+					"               ,l.Description AS `To Location`\r\n",
+					"               ,dl.D_SAPDepotCode as `Depot Code`\r\n",
+					"               ,'Consignment' AS `Movement Type`\t\r\n",
+					"               ,NULL AS `Linehaul Booking ID`\r\n",
+					"               ,sum(p.`Parcels`) AS `Parcels`\r\n",
+					"               ,sum(p.Weight) AS `Parcel Weight`\r\n",
+					"               ,sum(p.ChargeWeight) AS `Parcel Charge Weight`\r\n",
+					"FROM dboconsignment con\r\n",
+					"LEFT JOIN dboCustomer dcus \r\n",
+					"       ON dcus.id = con.DeliverCustID\r\n",
+					"LEFT JOIN dboCustomer bcus\t\r\n",
+					"       ON bcus.id = con.BillCust\r\n",
+					"--INNER \r\n",
+					"LEFT JOIN dboSRoute s\r\n",
+					"       ON s.id = dcus.srouteid\r\n",
+					"--INNER \r\n",
+					"LEFT JOIN dboZone z\r\n",
+					"       ON z.id = s.ZoneID\r\n",
+					"--INNER \r\n",
+					"LEFT JOIN dboLocation l\r\n",
+					"       ON l.id = z.LocID\r\n",
+					"LEFT JOIN DIM_Location dl\r\n",
+					"       ON dl.L_LocationID = z.LocID\r\n",
+					"LEFT JOIN  (SELECT DISTINCT p.`ConsignID`\r\n",
+					"\t\t                   ,sum(p.`Weight`) AS `Weight`\r\n",
+					"\t\t                   ,sum(p.`ChargeWeight`) AS `ChargeWeight`\r\n",
+					"\t\t                   ,count(p.`id`) AS `Parcels`\r\n",
+					"\t        FROM dboparcel p\r\n",
+					"\t        LEFT JOIN dboorder o\r\n",
+					"                   on p.OrderID = o.id\r\n",
+					"            WHERE p.AcceptanceDate IS NOT NULL\r\n",
+					"\t          AND coalesce(o.SpecDel,0) <> 1\t\r\n",
+					"\t        GROUP BY p.`ConsignID`\r\n",
+					"\r\n",
+					"            UNION ALL\r\n",
+					"\r\n",
+					"\t\t    SELECT DISTINCT p.`ConsignID`\r\n",
+					"                           ,sum(p.`Weight`) AS `Weight`\r\n",
+					"                           ,sum(p.`ChargeWeight`) AS `ChargeWeight`\r\n",
+					"                           ,count(p.`id`) AS `Parcels`\r\n",
+					"\t        FROM dboParcel_Archive p\r\n",
+					"\t        LEFT JOIN dboorder o\r\n",
+					"                   ON p.OrderID = o.id\r\n",
+					"\t        WHERE p.AcceptanceDate IS NOT NULL\r\n",
+					"\t          AND coalesce(o.SpecDel,0) <> 1\t\r\n",
+					"\t          AND p.AcceptanceDate >= '2016-04-01'\r\n",
+					"            GROUP BY p.`ConsignID`\r\n",
+					"           ) p\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\r\n",
+					"       ON p.ConsignID = con.id\r\n",
+					"WHERE CAST(con.cdate AS DATE) >= '2016-04-01' --cast(con.cdate as varchar(23)) >= '2016-04-01'\r\n",
+					"GROUP BY con.id\r\n",
+					"\t    ,CAST(con.cdate AS DATE)   --cast(con.cdate as varchar(23))\t\r\n",
+					"\t    ,bcus.Name\r\n",
+					"\t    ,l.Description\r\n",
+					"        ,dl.D_SAPDepotCode)\r\n",
+					")\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMP.show()\r\n",
+					"TMP.createOrReplaceTempView(\"TMP\")"
+				],
+				"execution_count": 107
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CONSIGNEDTOPARCELS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT 'PARCELS-CONSIGNED TO-CONSIGNED-ACTIVITY' AS `System Account Code KEY`,\r\n",
+					"\t`TransID`,\r\n",
+					"    `LMSTransID Type`,\r\n",
+					"\t`Linehaul Booking ID`,\r\n",
+					"\tCAST(`Posting Date` AS DATE) AS `Posting Date`,\r\n",
+					"\t`LMS Bill Customer`,\r\n",
+					"\t`To Location` AS `Location`,\r\n",
+					"\t`Movement Type`,\r\n",
+					"\t`SpecDel`,\r\n",
+					"\t'Actual' AS `Type`,\r\n",
+					"\t'Activity' AS `Document Category`,\r\n",
+					"\tSUM(`Parcels`) AS `Line Total`,\r\n",
+					"    SUM(`Parcel Charge Weight`) AS `Charge Weight`,\r\n",
+					"    `Depot Code`\r\n",
+					"FROM TMP t\r\n",
+					"WHERE `Movement Type` = 'Consignment'\r\n",
+					"GROUP BY\r\n",
+					"    `TransID`,\r\n",
+					"    `LMSTransID Type`,\r\n",
+					"\t`Linehaul Booking ID`,\r\n",
+					"    CAST(`Posting Date` AS DATE),\r\n",
+					"    `LMS Bill Customer`,\r\n",
+					"    `To Location`,\r\n",
+					"    `Movement Type`,\r\n",
+					"    `SpecDel`,\r\n",
+					"    `Depot Code`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#CONSIGNEDTOPARCELS.show()\r\n",
+					"CONSIGNEDTOPARCELS.createOrReplaceTempView(\"CONSIGNEDTOPARCELS\")"
+				],
+				"execution_count": 108
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"CONSIGNEDTOKGS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT 'KGS-CONSIGNED TO-CONSIGNED-ACTIVITY' AS `System Account Code KEY`,\r\n",
+					"\t`TransID`,\r\n",
+					"    `LMSTransID Type`,\r\n",
+					"\t`Linehaul Booking ID`,\r\n",
+					"\tCAST(`Posting Date` AS DATE) AS `Posting Date`,\r\n",
+					"\t`LMS Bill Customer`,\r\n",
+					"\t`To Location` AS `Location`,\r\n",
+					"\t`Movement Type`,\r\n",
+					"\t`SpecDel`,\r\n",
+					"\t'Actual' AS `Type`,\r\n",
+					"\t'Activity' AS `Document Category`,\r\n",
+					"\tSUM(`Parcel Weight`) AS `Line Total`,\r\n",
+					"\tSUM(`Parcel Charge Weight`) AS `Charge Weight`,\r\n",
+					"    `Depot Code`\r\n",
+					"FROM TMP t\r\n",
+					"WHERE `Movement Type` = 'Consignment'\r\n",
+					"GROUP BY\r\n",
+					"    `TransID`,\r\n",
+					"    `LMSTransID Type`,\r\n",
+					"\t`Linehaul Booking ID`,\r\n",
+					"    CAST(`Posting Date` AS DATE),\r\n",
+					"    `LMS Bill Customer`,\r\n",
+					"    `To Location`,\r\n",
+					"    `Movement Type`,\r\n",
+					"    `SpecDel`,\r\n",
+					"    `Depot Code`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#CONSIGNEDTOKGS.show()\r\n",
+					"CONSIGNEDTOKGS.createOrReplaceTempView(\"CONSIGNEDTOKGS\")"
+				],
+				"execution_count": 109
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"HANDLEDBYPARCELS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT if( `Movement Type` = 'Load-Manifest Only', 'PARCELS-HANDLED BY-LINEHAUL LOADED-ACTIVITY',\r\n",
+					"\t       if(`Movement Type` = 'Load-Delivery Notes',  'PARCELS-HANDLED BY-DELIVERY LOADED-ACTIVITY',\r\n",
+					"\t            `Movement Type`)) AS `System Account Code KEY`,\r\n",
+					"\t`SpecDel`,\r\n",
+					"\t`TransID`,\r\n",
+					"    `LMSTransID Type`,\r\n",
+					"\t`Linehaul Booking ID`,\r\n",
+					"\tCAST(`Posting Date` AS DATE) AS `Posting Date`,\r\n",
+					"\t`LMS Bill Customer`,\r\n",
+					"\t`From Location` AS `Location`,\r\n",
+					"\t`Movement Type`,\r\n",
+					"\t'Actual' AS `Type`,\r\n",
+					"\t'Activity' AS `Document Category`,\r\n",
+					"\tSUM(`Parcels`) AS `Line Total`,\r\n",
+					"\tSUM(`Parcel Charge Weight`) AS `Charge Weight`,\r\n",
+					"    `Depot Code`\r\n",
+					"FROM TMP t\r\n",
+					"WHERE `Movement Type` IN ('Load-Manifest Only','Load-Delivery Notes')\r\n",
+					"GROUP BY `TransID`,\r\n",
+					"         `LMSTransID Type`,\r\n",
+					"         `Linehaul Booking ID`,\r\n",
+					"         CAST(`Posting Date` AS DATE),\r\n",
+					"         `LMS Bill Customer`,\r\n",
+					"         `From Location`,\r\n",
+					"         `Movement Type`,\r\n",
+					"         `SpecDel`,\r\n",
+					"         `Depot Code`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#HANDLEDBYPARCELS.show()\r\n",
+					"HANDLEDBYPARCELS.createOrReplaceTempView(\"HANDLEDBYPARCELS\")"
+				],
+				"execution_count": 110
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"HANDLEDBYKGS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT if(`Movement Type` = 'Load-Manifest Only',  'KGS-HANDLED BY-LINEHAUL LOADED-ACTIVITY',\r\n",
+					"\t        if(`Movement Type` = 'Load-Delivery Notes', 'KGS-HANDLED BY-DELIVERY LOADED-ACTIVITY',\r\n",
+					"\t`Movement Type`)) AS `System Account Code KEY`,\r\n",
+					"\t`SpecDel`,\r\n",
+					"\t`TransID`,\r\n",
+					"    `LMSTransID Type`,\r\n",
+					"\t`Linehaul Booking ID`,\r\n",
+					"\tCAST(`Posting Date` AS DATE),\r\n",
+					"\t`LMS Bill Customer`,\r\n",
+					"\t`From Location` AS `Location`,\r\n",
+					"\t`Movement Type`,\r\n",
+					"\t'Actual' AS `Type`,\r\n",
+					"\t'Activity' AS `Document Category`,\r\n",
+					"\tSUM(`Parcel Weight`) AS `Line Total`,\r\n",
+					"\tSUM(`Parcel Charge Weight`) AS `Charge Weight`,\r\n",
+					"    `Depot Code`\r\n",
+					"FROM TMP t\r\n",
+					"WHERE `Movement Type` IN ('Load-Manifest Only','Load-Delivery Notes')\r\n",
+					"GROUP BY\r\n",
+					"    `TransID`,\r\n",
+					"    `LMSTransID Type`,\r\n",
+					"\t`Linehaul Booking ID`,\r\n",
+					"    CAST(`Posting Date` AS DATE),\r\n",
+					"    `LMS Bill Customer`,\r\n",
+					"    `From Location`,\r\n",
+					"    `Movement Type`,\r\n",
+					"    `SpecDel`,\r\n",
+					"    `Depot Code`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#HANDLEDBYKGS.show()\r\n",
+					"HANDLEDBYKGS.createOrReplaceTempView(\"HANDLEDBYKGS\")"
+				],
+				"execution_count": 112
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 02b_Finance_KMs_LTs_Extractor_04_PreFY20 (AvisUsage)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"KMSLTSPRE20 = spark.sql(\"\"\"\r\n",
+					"SELECT `Posting Date`,\r\n",
+					" `LineTotal` as `Line Total`,\r\n",
+					" `Depot` as `Depot Code`,\r\n",
+					" `Fleet Code`,\r\n",
+					" `Document Category`,\r\n",
+					" `System Account Code KEY`,\r\n",
+					" `Type`\r\n",
+					"FROM KPI_Database\r\n",
+					"\"\"\")\r\n",
+					"\r\n",
+					"KMSLTSPRE20.createOrReplaceTempView(\"KMSLTSPRE20\")\r\n",
+					""
+				],
+				"execution_count": 114
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 02b_Finance_KMs_LTs_Extractor_04_PostFY20 (AvisUsage)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPKMSLTS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `Reg. No` as `REGISTRATION NUMBER`,\r\n",
+					"       `Fleet No` as `Fleet Code`, \r\n",
+					"        `Date` as `Posting Date`,\r\n",
+					"        `Time`,\r\n",
+					"        FuelCompany,\r\n",
+					"        `Voucher No`,\r\n",
+					"        FuelStation,\r\n",
+					"        PreviousOdo,\r\n",
+					"        Odo,\r\n",
+					"        `Trip Km` as `KMs Line Total`,\r\n",
+					"        `Consum/100`,\r\n",
+					"        `Consum/Unit`,\r\n",
+					"        `L Loss`,\r\n",
+					"        `R Loss`,\r\n",
+					"        TripLitres as `Litres Line Total`,\r\n",
+					"        `Price Per Unit`,\r\n",
+					"        `Fuel Amount`,\r\n",
+					"        `Pickup Type`,\r\n",
+					"        Account,\r\n",
+					"        if(`Cost Centre` = '', 'NON', if(`Cost Centre`= 0,'NON', `Cost Centre`)) as `Depot Code`, \r\n",
+					"        Division\r\n",
+					"FROM AvisUsage\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPKMSLTS.show()\r\n",
+					"TMPKMSLTS.createOrReplaceTempView(\"TMPKMSLTS\")"
+				],
+				"execution_count": 115
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPLTS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `Depot Code`, \t\r\n",
+					"\t `Fleet Code`, \r\n",
+					"\t `Litres Line Total` as `Line Total`,\r\n",
+					"\t `Posting Date`,\r\n",
+					"\t`REGISTRATION NUMBER` as `REGISTRATION NUMBER`,\r\n",
+					"\t if(`Division` = 'SUBBIE', 'LITRES (SUBBIES)LITRES (SUBBIES)SUBBIESACTIVITY',\r\n",
+					"\t if(`Division` = 'OWN', 'LITRES (OWN FLEET)LITRES (OWN FLEET)OWN FLEETACTIVITY',\r\n",
+					"\t if(`Division` = 'HIRED', 'LITRES (HIRED)LITRES (HIRED)HIREDACTIVITY', \r\n",
+					"\t \t\t\t\t 'LITRES (OWN FLEET)LITRES (OWN FLEET)OWN FLEETACTIVITY'))) as `System Account Code KEY`,\r\n",
+					"     \r\n",
+					"\t 'Actual' as Type,\r\n",
+					"\t 'Activity' as `Document Category`,\r\n",
+					"\t concat(CAST(unix_timestamp(Cast(`Posting Date` as Date)) / (24*60*60) + 25569 as int ), CAST(`Fleet Code` as string)) as H_MFRLocationKey,\r\n",
+					"\t if(IsNull(`Depot Code`),'NON',`Depot Code`) as SubDepotCode\r\n",
+					"FROM TMPKMSLTS\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPKMSLTS.show()\r\n",
+					"TMPLTS.createOrReplaceTempView(\"TMPLTS\")"
+				],
+				"execution_count": 116
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPKMS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `Depot Code`, \t\r\n",
+					"\t `Fleet Code`, \r\n",
+					"\t `KMs Line Total` as `Line Total`,\r\n",
+					"\t `Posting Date`,\r\n",
+					"\t`REGISTRATION NUMBER` as `REGISTRATION NUMBER`,\r\n",
+					"\t if(`Division` = 'SUBBIE', 'KM (SUBBIES)KM (SUBBIES)SUBBIESACTIVITY',\r\n",
+					"\t if(`Division` = 'OWN', 'KM (OWN FLEET)KM (OWN FLEET)OWN FLEETACTIVITY',\r\n",
+					"\t if(`Division` = 'HIRED', 'KM (HIRED)KM (HIRED)HIREDACTIVITY', \r\n",
+					"\t \t\t\t\t 'KM (OWN FLEET)KM (OWN FLEET)OWN FLEETACTIVITY'))) as `System Account Code KEY`,\r\n",
+					"     \r\n",
+					"\t 'Actual' as Type,\r\n",
+					"\t 'Activity' as `Document Category`,\r\n",
+					"\t concat(CAST(unix_timestamp(Cast(`Posting Date` as Date)) / (24*60*60) + 25569 as int ), CAST(`Fleet Code` as string)) as H_MFRLocationKey,\r\n",
+					"\t if(IsNull(`Depot Code`),'NON',`Depot Code`) as SubDepotCode\r\n",
+					"FROM TMPKMSLTS\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPKMSLTS.show()\r\n",
+					"TMPKMS.createOrReplaceTempView(\"TMPKMS\")"
+				],
+				"execution_count": 117
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"### Python Union on column names to avoid duplicate creation"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPKMSLTS = TMPLTS.unionByName(TMPKMS, allowMissingColumns=True)\r\n",
+					"KMSLTS = KMSLTSPRE20.unionByName(TMPKMSLTS, allowMissingColumns=True)\r\n",
+					"KMSLTS.createOrReplaceTempView(\"KMSLTS\")"
+				],
+				"execution_count": 118
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Prep tables for Union"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CONSIGNEDTOPARCELS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `Posting Date`,\r\n",
+					"`Line Total`,\r\n",
+					"`Charge Weight`,\r\n",
+					"`Linehaul Booking ID`,\r\n",
+					"`LMS Bill Customer` AS `LMS Customer`,\r\n",
+					"`Location` AS `LMSDepotRegion`,\r\n",
+					"`LMSTransID Type`,\r\n",
+					"TransID AS `LMSTransID`,\r\n",
+					"`SpecDel`,\r\n",
+					"`Movement Type`,\r\n",
+					"`System Account Code KEY`,\r\n",
+					"`Document Category`,\r\n",
+					"`Type`,\r\n",
+					"`Depot Code`\r\n",
+					"FROM CONSIGNEDTOPARCELS\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#CONSIGNEDTOPARCELS.show\r\n",
+					"CONSIGNEDTOPARCELS.createOrReplaceTempView(\"CONSIGNEDTOPARCELS\")"
+				],
+				"execution_count": 119
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CONSIGNEDTOKGS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `Posting Date`,\r\n",
+					"`Line Total`,\r\n",
+					"`Charge Weight`,\r\n",
+					"`Linehaul Booking ID`,\r\n",
+					"`LMS Bill Customer` AS `LMS Customer`,\r\n",
+					"`Location` AS `LMSDepotRegion`,\r\n",
+					"`LMSTransID Type`,\r\n",
+					"TransID AS `LMSTransID`,\r\n",
+					"SpecDel,\r\n",
+					"`Movement Type`,\r\n",
+					"`System Account Code KEY`,\r\n",
+					"`Document Category`,\r\n",
+					"`Type`,\r\n",
+					"`Depot Code`\r\n",
+					"FROM CONSIGNEDTOKGS\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#CONSIGNEDTOKGS.show\r\n",
+					"CONSIGNEDTOKGS.createOrReplaceTempView(\"CONSIGNEDTOKGS\")"
+				],
+				"execution_count": 120
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"HANDLEDBYPARCELS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `Posting Date`,\r\n",
+					"`Line Total`,\r\n",
+					"`Charge Weight`,\r\n",
+					"`Linehaul Booking ID`,\r\n",
+					"`LMS Bill Customer` AS `LMS Customer`,\r\n",
+					"`Location` AS `LMSDepotRegion`,\r\n",
+					"`LMSTransID Type`,\r\n",
+					"TransID AS `LMSTransID`,\r\n",
+					"SpecDel,\r\n",
+					"`Movement Type`,\r\n",
+					"`System Account Code KEY`,\r\n",
+					"`Document Category`,\r\n",
+					"`Type`,\r\n",
+					"`Depot Code`\r\n",
+					"FROM HANDLEDBYPARCELS\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#HANDLEDBYPARCELS.show\r\n",
+					"HANDLEDBYPARCELS.createOrReplaceTempView(\"HANDLEDBYPARCELS\")"
+				],
+				"execution_count": 121
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"HANDLEDBYKGS = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `Posting Date`,\r\n",
+					"`Line Total`,\r\n",
+					"`Charge Weight`,\r\n",
+					"`Linehaul Booking ID`,\r\n",
+					"`LMS Bill Customer` AS `LMS Customer`,\r\n",
+					"`Location` AS `LMSDepotRegion`,\r\n",
+					"`LMSTransID Type`,\r\n",
+					"TransID AS `LMSTransID`,\r\n",
+					"SpecDel,\r\n",
+					"`Movement Type`,\r\n",
+					"`System Account Code KEY`,\r\n",
+					"`Document Category`,\r\n",
+					"`Type`,\r\n",
+					"`Depot Code`\r\n",
+					"FROM HANDLEDBYKGS\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#HANDLEDBYKGS.show\r\n",
+					"HANDLEDBYKGS.createOrReplaceTempView(\"HANDLEDBYKGS\")"
+				],
+				"execution_count": 122
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"TBS = spark.sql(\"\"\"\r\n",
+					"SELECT \r\n",
+					"`Posting Date`,\r\n",
+					"`Line Total`,\r\n",
+					"`System Account Code KEY`,\r\n",
+					"`Document Category`,\r\n",
+					"`Type`,\r\n",
+					"`Fleet Code`,\r\n",
+					"--`Charge Weight`,\r\n",
+					"`Customer Code KEY`,\r\n",
+					"`Depot Code`,\r\n",
+					"`TBS Fleet Owner`,\r\n",
+					"`TBS H Fleet Code Flag`,\r\n",
+					"`TBS Local Load`,\r\n",
+					"`TBS Route`,\r\n",
+					"`TBS Source`\r\n",
+					"FROM TBS\r\n",
+					"\"\"\")\r\n",
+					"#TBS.show\r\n",
+					"TBS.createOrReplaceTempView(\"TBS\")"
+				],
+				"execution_count": 123
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"### Python Union on column names to avoid duplicate creation"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_TransactionsActivities = CONSIGNEDTOPARCELS.unionByName(CONSIGNEDTOKGS, allowMissingColumns=True)\\\r\n",
+					".unionByName(HANDLEDBYPARCELS, allowMissingColumns=True)\\\r\n",
+					".unionByName(HANDLEDBYKGS, allowMissingColumns=True)\\\r\n",
+					".unionByName(TBS, allowMissingColumns=True)\\\r\n",
+					".unionByName(KMSLTS, allowMissingColumns=True)\r\n",
+					"\r\n",
+					"#T_TransactionsActivities.show()\r\n",
+					"T_TransactionsActivities.createOrReplaceTempView(\"T_TransactionsActivities\")"
+				],
+				"execution_count": 124
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_TransactionsActivities = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT CAST(`Posting Date` AS DATE) AS Posting_Date,\r\n",
+					" `Line Total` AS Line_Total,\r\n",
+					" `Charge Weight` AS Charge_Weight,\r\n",
+					" `Linehaul Booking ID` AS Linehaul_Booking_ID,\r\n",
+					" `LMS Customer` AS LMS_Customer,\r\n",
+					" `LMSDepotRegion` AS LMSDepotRegion,\r\n",
+					" `LMSTransID Type` AS LMSTransID_Type,\r\n",
+					" `LMSTransID` AS LMSTransID,\r\n",
+					" `SpecDel` AS SpecDel,\r\n",
+					" `Movement Type` AS Movement_Type,\r\n",
+					" `System Account Code KEY` AS System_Account_Code_KEY,\r\n",
+					" `Document Category` AS Document_Category,\r\n",
+					" `Type` AS `Type`,\r\n",
+					" `Depot Code` AS Depot,\r\n",
+					" `Customer Code KEY` AS Customer_Code_KEY,\r\n",
+					" `Depot Code` AS Depot_Code,\r\n",
+					" `TBS Fleet Owner` AS TBS_Fleet_Owner,\r\n",
+					" `TBS H Fleet Code Flag` AS TBS_H_Fleet_Code_Flag,\r\n",
+					" `TBS Local Load` AS TBS_Local_Load,\r\n",
+					" `TBS Route` AS TBS_Route,\r\n",
+					" `TBS Source` AS TBS_Source,\r\n",
+					" `Fleet Code` AS Fleet_Code\r\n",
+					"FROM T_TransactionsActivities\r\n",
+					"WHERE `Posting Date` IS NOT NULL\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#T_TransactionsActivities.show()\r\n",
+					"T_TransactionsActivities.createOrReplaceTempView(\"T_TransactionsActivities\")"
+				],
+				"execution_count": 63
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Create Final Structure for T_TransactionsActivities"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"T_TransactionsActivities = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT Posting_Date,\r\n",
+					" SUM(Line_Total) Line_Total,\r\n",
+					" SUM(Charge_Weight) Charge_Weight,\r\n",
+					" Linehaul_Booking_ID,\r\n",
+					" LMS_Customer,\r\n",
+					" LMSDepotRegion,\r\n",
+					" LMSTransID_Type,\r\n",
+					" LMSTransID,\r\n",
+					" SpecDel,\r\n",
+					" Movement_Type,\r\n",
+					" System_Account_Code_KEY,\r\n",
+					" Document_Category,\r\n",
+					" `Type`,\r\n",
+					" Depot,\r\n",
+					" Fleet_Code,\r\n",
+					" Customer_Code_KEY,\r\n",
+					" Depot_Code,\r\n",
+					" TBS_Fleet_Owner,\r\n",
+					" TBS_H_Fleet_Code_Flag,\r\n",
+					" TBS_Local_Load,\r\n",
+					" TBS_Route,\r\n",
+					" TBS_Source\r\n",
+					"FROM T_TransactionsActivities\r\n",
+					"WHERE Line_Total > 0                            --Removed to get KM & LITERS > 2000 back into the data\r\n",
+					"GROUP BY Posting_Date,\r\n",
+					" Linehaul_Booking_ID,\r\n",
+					" LMS_Customer,\r\n",
+					" LMSDepotRegion,\r\n",
+					" LMSTransID_Type,\r\n",
+					" LMSTransID,\r\n",
+					" SpecDel,\r\n",
+					" Movement_Type,\r\n",
+					" System_Account_Code_KEY,\r\n",
+					" Document_Category,\r\n",
+					" `Type`,\r\n",
+					" Depot,\r\n",
+					" Customer_Code_KEY,\r\n",
+					" Depot_Code,\r\n",
+					" TBS_Fleet_Owner,\r\n",
+					" TBS_H_Fleet_Code_Flag,\r\n",
+					" TBS_Local_Load,\r\n",
+					" TBS_Route,\r\n",
+					" TBS_Source,\r\n",
+					" Fleet_Code\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#T_TransactionsActivities.show()\r\n",
+					"T_TransactionsActivities.createOrReplaceTempView(\"T_TransactionsActivities\")"
+				],
+				"execution_count": 64
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Print success message on the Production Script"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"Successful run of the script\")"
+				],
+				"execution_count": 66
+			}
+		]
+	}
+}

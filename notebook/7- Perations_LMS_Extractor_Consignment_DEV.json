@@ -1,0 +1,1156 @@
+{
+	"name": "7- Perations_LMS_Extractor_Consignment_DEV",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Archived/Operations Notebooks DEV"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "d0e77cf7-3817-43b9-b75d-4204cc765cf2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"#dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"\r\n",
+					"#dbodb_InServiceReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_InServiceReason.parquet', format='parquet')\r\n",
+					"#dbodb_InServiceReason.createOrReplaceTempView(\"dbodb_InServiceReason\")\r\n",
+					"\r\n",
+					"#dboLoads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLoads.parquet', format='parquet')\r\n",
+					"#dboLoads.createOrReplaceTempView(\"dboLoads\")\r\n",
+					"\r\n",
+					"#dboLocation = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLocation.parquet', format='parquet')\r\n",
+					"#dboLocation.createOrReplaceTempView(\"dboLocation\")\r\n",
+					"\r\n",
+					"#BILLING = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net//DataLake/Structured/Facts/BILLING.parquet', format='parquet')\r\n",
+					"#BILLING.createOrReplaceTempView(\"BILLING\")\r\n",
+					"\r\n",
+					"#T_dispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_dispatch.parquet', format='parquet')\r\n",
+					"#T_dispatch.createOrReplaceTempView(\"T_dispatch\")\r\n",
+					"\r\n",
+					"#T_LOAD = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_LOAD.parquet', format='parquet')\r\n",
+					"#T_LOAD.createOrReplaceTempView(\"T_LOAD\")\r\n",
+					"\r\n",
+					"#Remain uncommented\r\n",
+					"##dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"##dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"##dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"##dboorder.createOrReplaceTempView(\"dboorder\")"
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"#dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"#dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"#dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"#dboWaybillsPerParcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybillsPerParcel.parquet', format='parquet')\r\n",
+					"#dboWaybillsPerParcel.createOrReplaceTempView(\"dboWaybillsPerParcel\")\r\n",
+					"\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"#dboparcel_archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"#dboparcel_archive.createOrReplaceTempView(\"dboparcel_archive\")\r\n",
+					"\r\n",
+					"#dboTrack_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrack_Archive.parquet', format='parquet')\r\n",
+					"#dboTrack_Archive.createOrReplaceTempView(\"dboTrack_Archive\")"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#T_Parcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_Parcel.parquet', format='parquet')\r\n",
+					"#T_Parcel.createOrReplaceTempView(\"T_Parcel\")"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#dboconsignment_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment_Archive.parquet', format='parquet')\r\n",
+					"#dboconsignment_Archive.createOrReplaceTempView(\"dboconsignment_Archive\")"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CONSIGNMENT = spark.sql(\"\"\"\r\n",
+					"SELECT id AS `CN_ID`,\r\n",
+					"       LoadID AS `LD_ID`,\r\n",
+					"       CRef AS `CN_CRef`,\r\n",
+					"       to_timestamp(`CDate`) AS `CN_CDateTime`,\r\n",
+					"       to_date(`CDate`) AS `CN_CDate`,\r\n",
+					"       to_timestamp(`DeliverBy`) AS `CN_DeliverByTime`,\r\n",
+					"       to_date(`DeliverBy`) AS `CN_DeliverBy`,\r\n",
+					"       UserID AS `CN_UserID`,\r\n",
+					"       Appointment AS `CN_Appointment`,\r\n",
+					"       DConfirmed AS `CN_DConfirmed`,\r\n",
+					"       DComment AS `CN_DComment`,\r\n",
+					"       DRefNo AS `CN_DRefNo`,\r\n",
+					"       DUserID AS `CN_DUserID`,\r\n",
+					"       DeliverCustID AS `CN_DeliverCustID`,\r\n",
+					"       mrpCFlag AS `CN_mrpCFlag`,\r\n",
+					"       mrpFlag AS `CN_mrpFlag`,\r\n",
+					"       ChargeWeight AS `CN_ChargeWeight`,\r\n",
+					"       VolumetricWeight AS `CN_VolumetricWeight`,\r\n",
+					"       NoOfParcels AS `CN_NoOfParcels`,\r\n",
+					"       Weight AS `CN_Weight`,\r\n",
+					"       CustAccID AS `CN_CustAccID`,\r\n",
+					"       MinKg AS `CN_MinKg`,\r\n",
+					"       MinRate AS `CN_MinRate`,\r\n",
+					"       AddRate AS `CN_AddRate`,\r\n",
+					"       DocFees AS `CN_DocFees`,\r\n",
+					"       Charge AS `CN_Charge`,\r\n",
+					"       FuelLevy AS `CN_FuelLevy`,\r\n",
+					"       TotFuelLevy AS `CN_TotFuelLevy`,\r\n",
+					"       BillCust AS `CN_BillCust`,\r\n",
+					"       TotalCharge AS `CN_TotalCharge`,\r\n",
+					"       Units AS `CN_Units`,\r\n",
+					"       xFromCustID AS `CN_xFromCustID`,\r\n",
+					"       Scanned AS `CN_Scanned`,\r\n",
+					"       ConsConsignID AS `CN_ConsConsignID`,\r\n",
+					"       ApptCode AS `CN_ApptCode`,\r\n",
+					"       FinalInservice AS `CN_FinalInservice`,\r\n",
+					"       DeliverByOriginal AS `CN_DeliverByOriginal`,\r\n",
+					"       Bill_ServiceType AS `CN_Bill_ServiceType`,\r\n",
+					"       ConsignmentValue AS `CN_ConsignmentValue`,\r\n",
+					"       TripDistance AS `CN_TripDistance`,\r\n",
+					"       Endorsement AS `CN_Endorsement`,\r\n",
+					"       InServiceReasonID AS `CN_InServiceReasonID`,\r\n",
+					"       InServiceComment AS `CN_InServiceComment`,\r\n",
+					"       ReturnFlag AS `CN_ReturnFlag`,\r\n",
+					"       CallProgID AS `CN_CallProgID`,\r\n",
+					"       CallProgUpdDate AS `CN_CallProgUpdDate`,\r\n",
+					"       CServiceID AS `CN_CServiceID`,\r\n",
+					"       LastUpdate AS `CN_LastUpdate`,\r\n",
+					"       BillFlag AS `CN_BillFlag`,\r\n",
+					"       MissingFlag AS `CN_MissingFlag`,\r\n",
+					"       RouteRateID AS `CN_RouteRateID`,\r\n",
+					"       OverBorderFlag AS `CN_OverBorderFlag`,\r\n",
+					"       CollectID AS `CN_CollectID`,\r\n",
+					"       BillUserID AS `CN_BillUserID`,\r\n",
+					"       SpecDel AS `CN_SpecDel`,\r\n",
+					"       QuoteFlag AS `CN_QuoteFlag`,\r\n",
+					"       VehicleTypeID AS `CN_VehicleTypeID`,\r\n",
+					"       DeliverTypeID AS `CN_DeliverTypeID`,\r\n",
+					"       IF(ISNULL(`CDate`) or CDate = '#',0,1)  AS `CN_HasCDate`,\r\n",
+					"       IF(ISNULL(`DeliverBy`) or DeliverBy = '#',0,1) AS `CN_HasDeliverBy`,\r\n",
+					"       FromLocID AS `CF_FromLocID`,\r\n",
+					"       Description AS `CF_Description`\r\n",
+					"FROM( SELECT c.*\r\n",
+					"            ,l.FromLocID\r\n",
+					"            ,loc.Description\r\n",
+					"      FROM dboconsignment c\r\n",
+					"      LEFT JOIN dbodb_InServiceReason sr ON sr.id = c.inservicereasonid\r\n",
+					"      LEFT JOIN dboLoads l ON l.id = c.LoadID\r\n",
+					"      LEFT JOIN dboLocation loc ON loc.id = l.FromLocID\r\n",
+					")a\r\n",
+					"\"\"\")\r\n",
+					"#CONSIGNMENT.show()\r\n",
+					"CONSIGNMENT.createOrReplaceTempView(\"CONSIGNMENT\")"
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"T_CONSIGNMENT = spark.sql(\"\"\"\r\n",
+					"SELECT c.CN_ID,\r\n",
+					"    b.CN_ID AS SL_CN_ID,\r\n",
+					"    LD_ID AS CN_LoadID,\r\n",
+					"\tCF_FromLocID,\r\n",
+					"\tCF_Description,\r\n",
+					"    CN_Bill_ServiceType,\r\n",
+					"    CN_BillFlag,\r\n",
+					"    CN_CDate,\r\n",
+					"    CN_CDateTime,\r\n",
+					"    CN_CollectID,\r\n",
+					"    CN_DeliverBy,\r\n",
+					"    CN_DeliverByTime,\r\n",
+					"    CN_InServiceReasonID,\r\n",
+					"    BL_BillCustomerName,\r\n",
+					"    BL_BillCustomerPickUpRoute,\r\n",
+					"    BL_DeliverCustomerName,\r\n",
+					"    BL_DeliverRoute,\r\n",
+					"    BL_DeliverRouteLocalFlag,\r\n",
+					"    IF(BL_DeliverRouteLocalFlag = 0,'Outlying',\r\n",
+					"    IF(BL_DeliverRouteLocalFlag = 1,'Local',\r\n",
+					"    IF(BL_DeliverRouteLocalFlag = 2,'Export','#'))) AS BL_DeliverRouteGroup,\r\n",
+					"    BL_SAPCode,\r\n",
+					"\tBL_ProductCategory,\r\n",
+					"\tBL_CustomerGroup,\r\n",
+					"    BL_AWeight,\r\n",
+					"    BL_VWeight,\r\n",
+					"    BL_CWeight,\r\n",
+					"    `BL_#Pcls`,\r\n",
+					"    BL_MinRate,\r\n",
+					"    BL_MinWeight,\r\n",
+					"    BL_AddKGRate,\r\n",
+					"    BL_KGRateCharge,\r\n",
+					"    BL_Charge,\r\n",
+					"    BL_FuelLevy,\r\n",
+					"    BL_DocFees,\r\n",
+					"    BL_OtherFees\r\n",
+					"FROM CONSIGNMENT c \r\n",
+					"LEFT JOIN BILLING b \r\n",
+					"ON c.CN_ID = b.CN_ID\r\n",
+					"\"\"\")\r\n",
+					"#T_CONSIGNMENT.show()\r\n",
+					"T_CONSIGNMENT.createOrReplaceTempView(\"T_CONSIGNMENT\")"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Construct the Archive Data"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CONSIGNMENT_Archive = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT id AS `CN_ID`,\r\n",
+					"       LoadID AS `LD_ID`,\r\n",
+					"       CRef AS `CN_CRef`,\r\n",
+					"       to_timestamp(`CDate`) AS `CN_CDateTime`,\r\n",
+					"       to_date(`CDate`) AS `CN_CDate`,\r\n",
+					"       to_timestamp(`DeliverBy`) AS `CN_DeliverByTime`,\r\n",
+					"       to_date(`DeliverBy`) AS `CN_DeliverBy`,\r\n",
+					"       UserID AS `CN_UserID`,\r\n",
+					"       Appointment AS `CN_Appointment`,\r\n",
+					"       DConfirmed AS `CN_DConfirmed`,\r\n",
+					"       DComment AS `CN_DComment`,\r\n",
+					"       DRefNo AS `CN_DRefNo`,\r\n",
+					"       DUserID AS `CN_DUserID`,\r\n",
+					"       DeliverCustID AS `CN_DeliverCustID`,\r\n",
+					"       mrpCFlag AS `CN_mrpCFlag`,\r\n",
+					"       mrpFlag AS `CN_mrpFlag`,\r\n",
+					"       ChargeWeight AS `CN_ChargeWeight`,\r\n",
+					"       VolumetricWeight AS `CN_VolumetricWeight`,\r\n",
+					"       NoOfParcels AS `CN_NoOfParcels`,\r\n",
+					"       Weight AS `CN_Weight`,\r\n",
+					"       CustAccID AS `CN_CustAccID`,\r\n",
+					"       MinKg AS `CN_MinKg`,\r\n",
+					"       MinRate AS `CN_MinRate`,\r\n",
+					"       AddRate AS `CN_AddRate`,\r\n",
+					"       DocFees AS `CN_DocFees`,\r\n",
+					"       Charge AS `CN_Charge`,\r\n",
+					"       FuelLevy AS `CN_FuelLevy`,\r\n",
+					"       TotFuelLevy AS `CN_TotFuelLevy`,\r\n",
+					"       BillCust AS `CN_BillCust`,\r\n",
+					"       TotalCharge AS `CN_TotalCharge`,\r\n",
+					"       Units AS `CN_Units`,\r\n",
+					"       xFromCustID AS `CN_xFromCustID`,\r\n",
+					"       Scanned AS `CN_Scanned`,\r\n",
+					"       ConsConsignID AS `CN_ConsConsignID`,\r\n",
+					"       ApptCode AS `CN_ApptCode`,\r\n",
+					"       FinalInservice AS `CN_FinalInservice`,\r\n",
+					"       DeliverByOriginal AS `CN_DeliverByOriginal`,\r\n",
+					"       Bill_ServiceType AS `CN_Bill_ServiceType`,\r\n",
+					"       ConsignmentValue AS `CN_ConsignmentValue`,\r\n",
+					"       TripDistance AS `CN_TripDistance`,\r\n",
+					"       Endorsement AS `CN_Endorsement`,\r\n",
+					"       InServiceReasonID AS `CN_InServiceReasonID`,\r\n",
+					"       InServiceComment AS `CN_InServiceComment`,\r\n",
+					"       ReturnFlag AS `CN_ReturnFlag`,\r\n",
+					"       CallProgID AS `CN_CallProgID`,\r\n",
+					"       CallProgUpdDate AS `CN_CallProgUpdDate`,\r\n",
+					"       CServiceID AS `CN_CServiceID`,\r\n",
+					"       LastUpdate AS `CN_LastUpdate`,\r\n",
+					"       BillFlag AS `CN_BillFlag`,\r\n",
+					"       MissingFlag AS `CN_MissingFlag`,\r\n",
+					"       RouteRateID AS `CN_RouteRateID`,\r\n",
+					"       OverBorderFlag AS `CN_OverBorderFlag`,\r\n",
+					"       CollectID AS `CN_CollectID`,\r\n",
+					"       BillUserID AS `CN_BillUserID`,\r\n",
+					"       SpecDel AS `CN_SpecDel`,\r\n",
+					"       QuoteFlag AS `CN_QuoteFlag`,\r\n",
+					"       VehicleTypeID AS `CN_VehicleTypeID`,\r\n",
+					"       DeliverTypeID AS `CN_DeliverTypeID`,\r\n",
+					"       IF(ISNULL(`CDate`) or CDate = '#',0,1)  AS `CN_HasCDate`,\r\n",
+					"       IF(ISNULL(`DeliverBy`) or DeliverBy = '#',0,1) AS `CN_HasDeliverBy`,\r\n",
+					"       FromLocID AS `CF_FromLocID`,\r\n",
+					"       Description AS `CF_Description`\r\n",
+					"FROM( SELECT c.*\r\n",
+					"            ,l.FromLocID\r\n",
+					"            ,loc.Description\r\n",
+					"      FROM dboconsignment_Archive c\r\n",
+					"      LEFT JOIN dbodb_InServiceReason sr ON sr.id = c.inservicereasonid\r\n",
+					"      LEFT JOIN dboLoads l ON l.id = c.LoadID\r\n",
+					"      LEFT JOIN dboLocation loc ON loc.id = l.FromLocID\r\n",
+					")a\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#CONSIGNMENT_Archive.show()\r\n",
+					"CONSIGNMENT_Archive.createOrReplaceTempView(\"CONSIGNMENT_Archive\")"
+				],
+				"execution_count": 32
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_CONSIGNMENT_Archive = spark.sql(\"\"\"\r\n",
+					"SELECT c.CN_ID,\r\n",
+					"    b.CN_ID AS SL_CN_ID,\r\n",
+					"    LD_ID AS CN_LoadID,\r\n",
+					"\tCF_FromLocID,\r\n",
+					"\tCF_Description,\r\n",
+					"    CN_Bill_ServiceType,\r\n",
+					"    CN_BillFlag,\r\n",
+					"    CN_CDate,\r\n",
+					"    CN_CDateTime,\r\n",
+					"    CN_CollectID,\r\n",
+					"    CN_DeliverBy,\r\n",
+					"    CN_DeliverByTime,\r\n",
+					"    CN_InServiceReasonID,\r\n",
+					"    BL_BillCustomerName,\r\n",
+					"    BL_BillCustomerPickUpRoute,\r\n",
+					"    BL_DeliverCustomerName,\r\n",
+					"    BL_DeliverRoute,\r\n",
+					"    BL_DeliverRouteLocalFlag,\r\n",
+					"    IF(BL_DeliverRouteLocalFlag = 0,'Outlying',\r\n",
+					"    IF(BL_DeliverRouteLocalFlag = 1,'Local',\r\n",
+					"    IF(BL_DeliverRouteLocalFlag = 2,'Export','#'))) AS BL_DeliverRouteGroup,\r\n",
+					"    BL_SAPCode,\r\n",
+					"\tBL_ProductCategory,\r\n",
+					"\tBL_CustomerGroup,\r\n",
+					"    BL_AWeight,\r\n",
+					"    BL_VWeight,\r\n",
+					"    BL_CWeight,\r\n",
+					"    `BL_#Pcls`,\r\n",
+					"    BL_MinRate,\r\n",
+					"    BL_MinWeight,\r\n",
+					"    BL_AddKGRate,\r\n",
+					"    BL_KGRateCharge,\r\n",
+					"    BL_Charge,\r\n",
+					"    BL_FuelLevy,\r\n",
+					"    BL_DocFees,\r\n",
+					"    BL_OtherFees\r\n",
+					"FROM CONSIGNMENT_Archive c \r\n",
+					"LEFT JOIN BILLING b \r\n",
+					"ON c.CN_ID = b.CN_ID\r\n",
+					"\"\"\")\r\n",
+					"#T_CONSIGNMENT_Archive.show()\r\n",
+					"T_CONSIGNMENT_Archive.createOrReplaceTempView(\"T_CONSIGNMENT_Archive\")"
+				],
+				"execution_count": 33
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"T_CONSIGNMENT = T_CONSIGNMENT.unionByName(T_CONSIGNMENT_Archive, allowMissingColumns=True)\r\n",
+					"\r\n",
+					"#T_CONSIGNMENT.show()\r\n",
+					"T_CONSIGNMENT.createOrReplaceTempView(\"T_CONSIGNMENT\")"
+				],
+				"execution_count": 34
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_CONSIGNMENT.write.parquet('/DataLake/Structured/Facts/T_CONSIGNMENT.parquet', mode='overwrite')"
+				],
+				"execution_count": 35
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPMISSINGDATA1 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT DISTINCT `dispatch.lmsid`\r\n",
+					"FROM T_dispatch\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPMISSINGDATA1.show()\r\n",
+					"TMPMISSINGDATA1.createOrReplaceTempView(\"TMPMISSINGDATA1\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_LOAD_2 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `dispatch.lmsid`,\r\n",
+					"       1 AS Flag\r\n",
+					"FROM T_LOAD\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#T_LOAD_2.show()\r\n",
+					"T_LOAD_2.createOrReplaceTempView(\"T_LOAD_2\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPMISSINGDATA1 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT tmp1.*, Flag\r\n",
+					"FROM TMPMISSINGDATA1 tmp1\r\n",
+					"LEFT JOIN T_LOAD_2 t2\r\n",
+					"       ON tmp1.`dispatch.lmsid` = t2.`dispatch.lmsid`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPMISSINGDATA1.show()\r\n",
+					"TMPMISSINGDATA1.createOrReplaceTempView(\"TMPMISSINGDATA1\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPMISSINGDATA1 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `dispatch.lmsid`\r\n",
+					"FROM TMPMISSINGDATA1\r\n",
+					"WHERE Flag IS NULL\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPMISSINGDATA1.show()\r\n",
+					"TMPMISSINGDATA1.createOrReplaceTempView(\"TMPMISSINGDATA1\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPMISSINGDATA2 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT tmp1.*\r\n",
+					"FROM TMPMISSINGDATA1 tmp1\r\n",
+					"LEFT JOIN T_LOAD_2 tl\r\n",
+					"       ON tmp1.`dispatch.lmsid` = tl.`dispatch.lmsid`\r\n",
+					"\"\"\")\r\n",
+					"#TMPMISSINGDATA2.show()\r\n",
+					"TMPMISSINGDATA2.createOrReplaceTempView(\"TMPMISSINGDATA2\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_LOAD_3 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT LD_ParentLoadID AS `dispatch.lmsid`,\r\n",
+					"    LD_ID,\r\n",
+					"    LD_ID AS WL_LoadID,\r\n",
+					"    LD_DriverID,\r\n",
+					"    LD_DriverName,\r\n",
+					"    LD_VehicleID,     \r\n",
+					"    LD_ParentLoadID,\r\n",
+					"    LD_ChildLoadID,\r\n",
+					"    LD_Debriefed,\r\n",
+					"    LD_finalFlag,\r\n",
+					"    LD_LDate,\r\n",
+					"    LD_ORVID,\r\n",
+					"    LD_ORVStatus,\r\n",
+					"    LD_ORV_Status,\r\n",
+					"    LD_ovrIgnore,\r\n",
+					"\tLD_ORVCode,\r\n",
+					"    LD_ESTDepartureDate,\r\n",
+					"    LD_Site,\r\n",
+					"    LD_FirstScanOnDate,\r\n",
+					"\tLD_LastScanOnDate,\r\n",
+					"\tLD_FirstScanOffDate,\r\n",
+					"\tLD_LastScanOffDate,\r\n",
+					"    LD_FleetNo,\r\n",
+					"    LD_Trailer1FleetNo,\r\n",
+					"    LD_Trailer2FleetNo,\r\n",
+					"    LD_DriverIdPassportNo,\r\n",
+					"    LD_MobileFeedbackReasonID,\r\n",
+					"    LD_EffectiveLoadDurationMinutes,\r\n",
+					"    LD_EffectiveOffLoadDurationMinutes,\r\n",
+					"    LD_TTypeID,\r\n",
+					"    1 AS LD_Exception\r\n",
+					"FROM T_LOAD\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#T_LOAD_3.show()\r\n",
+					"T_LOAD_3.createOrReplaceTempView(\"T_LOAD_3\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPMISSINGDATA2 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT tmp2.*,\r\n",
+					"    LD_ID,\r\n",
+					"    LD_ID AS WL_LoadID,\r\n",
+					"    LD_DriverID,\r\n",
+					"    LD_DriverName,\r\n",
+					"    LD_VehicleID,     \r\n",
+					"    LD_ParentLoadID,\r\n",
+					"    LD_ChildLoadID,\r\n",
+					"    LD_Debriefed,\r\n",
+					"    LD_finalFlag,\r\n",
+					"    LD_LDate,\r\n",
+					"    LD_ORVID,\r\n",
+					"    LD_ORVStatus,\r\n",
+					"    LD_ORV_Status,\r\n",
+					"    LD_ovrIgnore,\r\n",
+					"\tLD_ORVCode,\r\n",
+					"    LD_ESTDepartureDate,\r\n",
+					"    LD_Site,\r\n",
+					"    LD_FirstScanOnDate,\r\n",
+					"\tLD_LastScanOnDate,\r\n",
+					"\tLD_FirstScanOffDate,\r\n",
+					"\tLD_LastScanOffDate,\r\n",
+					"    LD_FleetNo,\r\n",
+					"    LD_Trailer1FleetNo,\r\n",
+					"    LD_Trailer2FleetNo,\r\n",
+					"    LD_DriverIdPassportNo,\r\n",
+					"    LD_MobileFeedbackReasonID,\r\n",
+					"    LD_EffectiveLoadDurationMinutes,\r\n",
+					"    LD_EffectiveOffLoadDurationMinutes,\r\n",
+					"    LD_TTypeID,\r\n",
+					"    1 AS LD_Exception\r\n",
+					"FROM T_LOAD_3 tl3 \r\n",
+					"LEFT JOIN TMPMISSINGDATA2 tmp2\r\n",
+					"       ON tmp2.`dispatch.lmsid` = tl3.`dispatch.lmsid`\r\n",
+					"\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPMISSINGDATA2.show()\r\n",
+					"TMPMISSINGDATA2.createOrReplaceTempView(\"TMPMISSINGDATA2\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_LOAD = T_LOAD_3.unionByName(TMPMISSINGDATA2, allowMissingColumns=True)\r\n",
+					"T_LOAD.createOrReplaceTempView(\"T_LOAD\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPMISSINGDATA3 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT DISTINCT LD_ID --Must use LD_ID and Not ParentLoadID as we need the subloads (merged)\r\n",
+					"FROM TMPMISSINGDATA2\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPMISSINGDATA3.show()\r\n",
+					"TMPMISSINGDATA3.createOrReplaceTempView(\"TMPMISSINGDATA3\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.sql(\"set vCurrentExtractQVDStartDate = '2022-05-01 01:40:04.797'\")\r\n",
+					"spark.sql(\"set vCurrentExtractQVDEndDate = '2022-06-01 01:40:04.797'\")\r\n",
+					"spark.sql(\"set vStartDate = add_months(trunc(current_date(), 'month'), -3)\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_TRACK = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT ID AS TK_ID, \r\n",
+					"ParcelID AS PC_ID, \r\n",
+					"fromlocid AS FL_ID,\r\n",
+					"tolocid AS TL_ID,\r\n",
+					"TrackTypeID AS TT_ID,\r\n",
+					"to_TIMESTAMP(OpenDt, 'YYYY/MM/DD hh:mm:ss') AS TK_OpenDtTime,\r\n",
+					"to_Date(OpenDt,'YYYY/MM/DD') AS TK_OpenDt,\r\n",
+					"to_TIMESTAMP(CloseDt, 'YYYY/MM/DD hh:mm:ss') AS TK_CloseDtTime,\r\n",
+					"to_Date(CloseDt,'YYYY/MM/DD') AS TK_CloseDt,\r\n",
+					"LoadID AS TK_LoadID, \r\n",
+					"UserID AS TK_UserID, \r\n",
+					"touserid AS TK_touserid,  \r\n",
+					"TrackTypeID2 AS TK_TrackTypeID2,\r\n",
+					"WaybillID AS TK_WaybillID\r\n",
+					"\r\n",
+					"FROM(\r\n",
+					"SELECT \r\n",
+					"dbotrack.ID,\r\n",
+					"dbotrack.ParcelID,\r\n",
+					"dbotrack.fromlocid,\r\n",
+					"dbotrack.tolocid,\r\n",
+					"dbotrack.TrackTypeID,\r\n",
+					"\r\n",
+					"dbotrack.OpenDt,\r\n",
+					"dbotrack.CloseDt,\r\n",
+					"dbotrack.LoadID,\r\n",
+					"UserID,\r\n",
+					"\r\n",
+					"dbotrack.touserid,\r\n",
+					"dbotrack.TrackTypeID2,\r\n",
+					"T1.WaybillID AS WaybillID\r\n",
+					"FROM dbotrack\r\n",
+					"LEFT JOIN \r\n",
+					"(\r\n",
+					"\r\n",
+					"\tSELECT \r\n",
+					"\tdboWaybill.LoadID, \r\n",
+					"\tdboWaybill.id AS WaybillID,\r\n",
+					"\tT0.ParcelID\r\n",
+					"\tFROM dboWaybill\r\n",
+					"\tLEFT JOIN\r\n",
+					"\t(\r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tparcelid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM dboWaybillsPerParcel\r\n",
+					"\t\t\tUNION \r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM dboparcel\r\n",
+					"\t\t\tUNION ALL\r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM  dboparcel_archive\r\n",
+					"\t\r\n",
+					"\t) T0 on T0.WaybillID = dboWaybill.id\r\n",
+					")T1 on T1.LoadID = dbotrack.LoadID and T1.ParcelID = dbotrack.ParcelID\r\n",
+					"\r\n",
+					"WHERE OpenDt BETWEEN ${vCurrentExtractQVDStartDate} and ${vCurrentExtractQVDEndDate}\r\n",
+					"AND dbotrack.TrackTypeID in (2,6)\r\n",
+					"\r\n",
+					"UNION ALL\r\n",
+					"\r\n",
+					"SELECT \r\n",
+					"Track_Archive.ID,\r\n",
+					"Track_Archive.ParcelID,\r\n",
+					"Track_Archive.fromlocid,\r\n",
+					"Track_Archive.tolocid,\r\n",
+					"Track_Archive.TrackTypeID,\r\n",
+					"\r\n",
+					"Track_Archive.OpenDt,\r\n",
+					"Track_Archive.CloseDt,\r\n",
+					"Track_Archive.LoadID,\r\n",
+					"UserID,\r\n",
+					"\r\n",
+					"Track_Archive.touserid,\r\n",
+					"Track_Archive.TrackTypeID2,\r\n",
+					"T1.WaybillID AS WaybillID\r\n",
+					"FROM dboTrack_Archive Track_Archive\r\n",
+					"LEFT JOIN \r\n",
+					"(\r\n",
+					"\r\n",
+					"\tSELECT \r\n",
+					"\twaybill.LoadID, \r\n",
+					"\twaybill.id AS WaybillID,\r\n",
+					"\tT0.ParcelID\r\n",
+					"\tFROM dboWaybill waybill\r\n",
+					"\tLEFT JOIN\r\n",
+					"\t(\r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tparcelid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM dboWaybillsPerParcel WaybillsPerParcel\r\n",
+					"\t\t\tUNION \r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM dboparcel parcel\r\n",
+					"\t\t\tUNION ALL\r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM dboparcel_archive Parcel_Archive\r\n",
+					"\t\r\n",
+					"\t) T0 on T0.WaybillID = waybill.id\r\n",
+					")T1 on T1.LoadID = Track_Archive.LoadID and T1.ParcelID = Track_Archive.ParcelID\r\n",
+					"\r\n",
+					"WHERE OpenDt BETWEEN ${vCurrentExtractQVDStartDate} and ${vCurrentExtractQVDEndDate}\r\n",
+					"AND Track_Archive.TrackTypeID in (2,6)\r\n",
+					")a\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#T_TRACK.show()\r\n",
+					"T_TRACK.createOrReplaceTempView(\"T_TRACK\")\r\n",
+					"#STORE * FROM \"TRACK\" INTO 'lib://QlikSense Path (cityc_clickview)/QVDs/LMS/Extractor/Daily/TRACK_$(vStoreSuffex).qvd'"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_TRACK_1 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT TK_ID, \r\n",
+					"       PC_ID, \r\n",
+					"       FL_ID,\r\n",
+					"       TL_ID,\r\n",
+					"       TT_ID,\r\n",
+					"       TK_WaybillID AS WP_WB_ID,\r\n",
+					"       TK_OpenDtTime AS TK_ODatetTime,\r\n",
+					"       TK_OpenDt AS TK_ODate,\r\n",
+					"       TK_CloseDtTime AS TK_CDateTime,\r\n",
+					"       TK_CloseDt AS TK_CDate,\r\n",
+					"       TK_LoadID,\r\n",
+					"       TK_LoadID AS LD_ID, \r\n",
+					"       TK_TrackTypeID2,\r\n",
+					"       TK_WaybillID,\r\n",
+					"       if(isnull(TK_WaybillID),1,0) AS TK_SetLMSNoOfParcelLoadedFlag, --Use this fag to set the number of parcel loaded on the outer joined tracks with no waybill id records to 0 on waybill per load table\r\n",
+					"       1 AS TK_Exception\r\n",
+					"\r\n",
+					"FROM T_TRACK\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#T_TRACK_1.show()\r\n",
+					"T_TRACK_1.createOrReplaceTempView(\"T_TRACK_1\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPMISSINGDATA3 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT t.*\r\n",
+					"FROM T_TRACK_1 t\r\n",
+					"LEFT JOIN TMPMISSINGDATA3 t3\r\n",
+					"      ON t.LD_ID = t3.LD_ID\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPMISSINGDATA3.show()\r\n",
+					"TMPMISSINGDATA3.createOrReplaceTempView(\"TMPMISSINGDATA3\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPMISSINGDATA3 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT t3.*,\r\n",
+					"       PC_Weight AS TK_Weight,\r\n",
+					"       PC_ChargeWeight AS TK_ChargeWeight,\r\n",
+					"       PC_TotCharge\tAS TK_TotChargeAll\r\n",
+					"FROM T_Parcel tp\r\n",
+					"LEFT JOIN TMPMISSINGDATA3 t3\r\n",
+					"       ON tp.PC_ID = t3.PC_ID\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPMISSINGDATA3.show()\r\n",
+					"TMPMISSINGDATA3.createOrReplaceTempView(\"TMPMISSINGDATA3\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TRACK = T_TRACK_1.unionByName(TMPMISSINGDATA3, allowMissingColumns=True)\r\n",
+					"TRACK.createOrReplaceTempView(\"TRACK\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TRACK_1 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT l.LD_ID,\r\n",
+					"       LD_ParentLoadID AS TK_ParentLoadID\r\n",
+					"FROM T_LOAD l\r\n",
+					"LEFT JOIN TRACK t \r\n",
+					"       ON l.LD_ID = t.LD_ID\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TRACK_1.show()\r\n",
+					"TRACK_1.createOrReplaceTempView(\"TRACK_1\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPMISSINGDATA4 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT DISTINCT PC_ID\r\n",
+					"FROM TMPMISSINGDATA3\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPMISSINGDATA4.show()\r\n",
+					"TMPMISSINGDATA4.createOrReplaceTempView(\"TMPMISSINGDATA4\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TMPMISSINGDATA4_1 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT tp.*\r\n",
+					"FROM T_Parcel tp\r\n",
+					"LEFT JOIN TMPMISSINGDATA4 t4\r\n",
+					"       ON tp.PC_ID = t4.PC_ID\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TMPMISSINGDATA4_1.show()\r\n",
+					"TMPMISSINGDATA4_1.createOrReplaceTempView(\"TMPMISSINGDATA4_1\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT DISTINCT CN_ID\r\n",
+					"FROM TMPMISSINGDATA4_1\r\n",
+					"\r\n",
+					"ORDER BY CN_ID"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_CONSIGNMENT.columns"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT `BL_#Pcls`, `BL_AddKGRate`, `BL_AWeight`, `BL_Charge`, `BL_CWeight`, `BL_DeliverCustomerName`, `BL_DeliverRoute`, `BL_KGRateCharge`,\r\n",
+					"       `BL_ProductCategory`, `BL_SAPCode`, `BL_VWeight`, `CN_InServiceReasonID`\r\n",
+					"FROM T_CONSIGNMENT\r\n",
+					"WHERE `BL_#Pcls` IN (1,2,5)\r\n",
+					"AND trunc(`CN_CDate`, 'month') >= '2022-01-01'\r\n",
+					"AND CN_LoadID = 6349238\r\n",
+					"AND BL_ProductCategory = 'Linen'\r\n",
+					"AND BL_DeliverRoute IN ('Nelspruit Outlying', 'Eastern Cape Local', 'Eastern Cape Outlying', 'Bloemfontein Local')\r\n",
+					"AND BL_DeliverCustomerName IN ('EMOYENI MALL','BAYWEST MALL','JEFFREYS BAY','MIMOSA MALL')\r\n",
+					"\r\n",
+					"ORDER BY `BL_#Pcls`"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT *\r\n",
+					"FROM T_CONSIGNMENT\r\n",
+					"WHERE `BL_#Pcls` = 1\r\n",
+					"AND trunc(`CN_CDate`, 'month') >= '2022-01-01'\r\n",
+					"AND CN_LoadID = 6349238\r\n",
+					"AND BL_ProductCategory = 'Linen'\r\n",
+					"AND BL_DeliverRoute IN ('Nelspruit Outlying', 'Eastern Cape Outlying')\r\n",
+					"LIMIT 1000"
+				]
+			}
+		]
+	}
+}

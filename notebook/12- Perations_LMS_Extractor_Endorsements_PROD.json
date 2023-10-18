@@ -1,0 +1,412 @@
+{
+	"name": "12- Perations_LMS_Extractor_Endorsements_PROD",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/PROD/Operations Notebooks PROD"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "9fb77f8a-19d3-4865-a9e0-af735e8e4b18"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load Source Data from the Datalake"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#dbodb_Endorsement = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_Endorsement.parquet', format='parquet')\r\n",
+					"#dbodb_Endorsement.createOrReplaceTempView(\"dbodb_Endorsement\")\r\n",
+					"\r\n",
+					"#dboWBEndorsement = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWBEndorsement.parquet', format='parquet')\r\n",
+					"#dboWBEndorsement.createOrReplaceTempView(\"dboWBEndorsement\")\r\n",
+					"\r\n",
+					"#publicclaim = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicclaim.parquet', format='parquet')\r\n",
+					"#publicclaim.createOrReplaceTempView(\"publicclaim\")\r\n",
+					"\r\n",
+					"#publicdelivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"#publicdelivery.createOrReplaceTempView(\"publicdelivery\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Start QView Scripting Translated to MSSQL for T_ENDORSEMENT Table"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"ENDORSMENTS = spark.sql(\"\"\"\r\n",
+					"SELECT ID AS EN_ETypeID,\r\n",
+					"       Description AS ER_Description\r\n",
+					"FROM dbodb_Endorsement\r\n",
+					"\"\"\")\r\n",
+					"#ENDORSMENTS.show()\r\n",
+					"ENDORSMENTS.createOrReplaceTempView(\"ENDORSMENTS\")"
+				],
+				"execution_count": 147
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"ENDORSMENTSREASON = spark.sql(\"\"\"\r\n",
+					"SELECT ID AS ER_ID,\r\n",
+					"       Barcode AS ER_Barcode,\r\n",
+					"       WaybillID AS WB_ID,\r\n",
+					"       EType AS ER_ETypeID\r\n",
+					"FROM dboWBEndorsement\r\n",
+					"\"\"\")\r\n",
+					"#ENDORSMENTSREASON.show()\r\n",
+					"ENDORSMENTSREASON.createOrReplaceTempView(\"ENDORSMENTSREASON\")"
+				],
+				"execution_count": 148
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"ENDORSMENTS = spark.sql(\"\"\"\r\n",
+					"SELECT *\r\n",
+					"FROM ENDORSMENTSREASON\r\n",
+					"LEFT JOIN ENDORSMENTS\r\n",
+					"\"\"\")\r\n",
+					"#ENDORSMENTS.show()\r\n",
+					"ENDORSMENTS.createOrReplaceTempView(\"ENDORSMENTS\")"
+				],
+				"execution_count": 149
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"ENDORSMENTS = spark.sql(\"\"\"\r\n",
+					"SELECT WB_ID as WL_WaybillID,\r\n",
+					"       WB_ID || '|' || ER_Barcode AS EN_WaybillBarcode,\r\n",
+					"       ER_ID,\r\n",
+					"       ER_Barcode,\r\n",
+					"       ER_ETypeID,\r\n",
+					"       EN_ETypeID,\r\n",
+					"       ER_Description\r\n",
+					"FROM ENDORSMENTS\r\n",
+					"\"\"\")\r\n",
+					"#ENDORSMENTS.show()\r\n",
+					"ENDORSMENTS.createOrReplaceTempView(\"ENDORSMENTS\")"
+				],
+				"execution_count": 150
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## END OF 03e_Operations_LMS_OnRouteDet_3MRolling_11_Endorsement scripting part"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"claim = spark.sql(\"\"\"\r\n",
+					"SELECT delid AS `delivery.id`,\r\n",
+					"       id AS `claim.id`,\r\n",
+					"       claimtype AS `claim.claimtype`,\r\n",
+					"       claimdate AS `claim.claimdate`,\r\n",
+					"       did AS `claim.did`,\r\n",
+					"       parcelid AS `claim.parcelid`,\r\n",
+					"       barcode AS `claim.barcode`,\r\n",
+					"       attachid AS `claim.attachid`,\r\n",
+					"       note AS `claim.note`\r\n",
+					"FROM publicclaim\r\n",
+					"\"\"\")\r\n",
+					"#claim.show()\r\n",
+					"claim.createOrReplaceTempView(\"claim\")"
+				],
+				"execution_count": 151
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"delivery = spark.sql(\"\"\"\r\n",
+					"SELECT id `delivery.id`,\r\n",
+					"\t   waybillid `delivery.waybillid`\r\n",
+					"FROM publicdelivery\r\n",
+					"\"\"\")\r\n",
+					"#delivery.show()\r\n",
+					"delivery.createOrReplaceTempView(\"delivery\")"
+				],
+				"execution_count": 152
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"CLAIM = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"\r\n",
+					"SELECT --`delivery.id`,\r\n",
+					"\t   --`delivery.waybillid`,\r\n",
+					"    `delivery.waybillid` || '|' || `claim.barcode` AS EN_WaybillBarcode,\r\n",
+					"    `claim.id`,\r\n",
+					"    `claim.barcode`,\r\n",
+					"    `claim.claimtype`,\r\n",
+					"    `claim.claimdate`,\r\n",
+					"    `claim.did`,\r\n",
+					"    `claim.parcelid`,\r\n",
+					"    `claim.attachid`,\r\n",
+					"    `claim.note`\r\n",
+					"FROM claim c\r\n",
+					"LEFT JOIN delivery d\r\n",
+					"ON c.`delivery.id` = d.`delivery.id`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#CLAIM.show()\r\n",
+					"CLAIM.createOrReplaceTempView(\"CLAIM\")\r\n",
+					""
+				],
+				"execution_count": 153
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Script Final Structure of T_ENDORSEMENT"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"T_ENDORSEMENT = spark.sql(\"\"\"\r\n",
+					"SELECT WL_WaybillID,\r\n",
+					"       ER_ID,\r\n",
+					"       ER_Barcode,\r\n",
+					"       ER_ETypeID,\r\n",
+					"       EN_ETypeID,\r\n",
+					"       ER_Description,\r\n",
+					"       e.EN_WaybillBarcode,\r\n",
+					"       `claim.id`,\r\n",
+					"       `claim.barcode`,\r\n",
+					"       `claim.claimtype`,\r\n",
+					"       `claim.claimdate`,\r\n",
+					"       `claim.did`,\r\n",
+					"       `claim.parcelid`,\r\n",
+					"       `claim.attachid`,\r\n",
+					"       `claim.note`\r\n",
+					"FROM ENDORSMENTS e \r\n",
+					"LEFT JOIN CLAIM c \r\n",
+					"ON e.EN_WaybillBarcode = c.EN_WaybillBarcode\r\n",
+					"\"\"\")\r\n",
+					"#T_ENDORSEMENT.show()\r\n",
+					"T_ENDORSEMENT.createOrReplaceTempView(\"T_ENDORSEMENT\")"
+				],
+				"execution_count": 154
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Print success message on the Production Script"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"Successful run of the script\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

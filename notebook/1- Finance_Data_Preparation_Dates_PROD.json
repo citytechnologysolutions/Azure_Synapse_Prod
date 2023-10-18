@@ -1,0 +1,467 @@
+{
+	"name": "1- Finance_Data_Preparation_Dates_PROD",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/PROD/Transactions Notebooks PROD"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "5e77dbff-4d05-47cc-b82a-6577d5068b09"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load Source Data from BlobStorage"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#dboHLD1 = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboHLD1.parquet', format='parquet')\r\n",
+					"#dboHLD1.createOrReplaceTempView(\"dboHLD1\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"CurrentDate = spark.sql(\"\"\"SELECT IF(month(current_date) >= 1 and month(current_date) <=3, \r\n",
+					"                            Year(current_date) || '-03-31', \r\n",
+					"                            Year(current_date) + 1 || '-03-31') as mydate\r\n",
+					"                        \"\"\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql import Row\r\n",
+					"from pyspark.sql.functions import *\r\n",
+					"from multiprocessing import Queue\r\n",
+					"\r\n",
+					"df = spark.sparkContext.parallelize([Row(vyge_id=1000, vFirstDate ='2008-04-01', vCurrentDate = CurrentDate.first()['mydate'] )]).toDF()\r\n",
+					"diffDaysDF = df.withColumn(\"diffDays\", datediff('vCurrentDate', 'vFirstDate'))\r\n",
+					"#diffDaysDF.show()"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Dates = diffDaysDF.withColumn(\"repeat\", expr(\"split(repeat(',', diffDays), ',')\"))\\\r\n",
+					"    .select(\"*\", posexplode(\"repeat\").alias(\"txnDt\", \"val\"))\\\r\n",
+					"    .drop(\"repeat\", \"val\")\\\r\n",
+					"    .withColumn(\"Posting Date\", expr(\"date_add(vFirstDate, txnDt)\"))\r\n",
+					"\r\n",
+					"Dates.createOrReplaceTempView(\"Dates\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DATES_1 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT distinct `Posting Date` as `Posting Date`,\r\n",
+					"       date_format(`Posting Date`, 'E') as `Day of Week`,\r\n",
+					"       if(date_format(`Posting Date`, 'E') = 'Sat', 0, if(date_format(`Posting Date`, 'E') = 'Sun', 0, 1)) as WeekEnd,\r\n",
+					"       last_day(`Posting Date`) as `Posting MonthEndDate`,\r\n",
+					"       date_add(last_day(add_months(`Posting Date`, -1)),1) as `Posting MonthStartDate`,\r\n",
+					"       date_format(`Posting Date`, 'MMM') as `Posting MonthNo`,\r\n",
+					"       year(`Posting Date`) as `Posting Year`,\r\n",
+					"       CONCAT(date_format(`Posting Date`, 'MMM'), ' ' , year(`Posting Date`))as `Posting Period`,\r\n",
+					"       date_format(`Posting Date`, 'MMM') as `Posting Month`,\r\n",
+					"       if(month(`Posting Date`) = 4, 1, \r\n",
+					"                  if(month(`Posting Date`) >= 1 and month(`Posting Date`) <= 3, 9 + month(`Posting Date`),\r\n",
+					"\t\t              month(`Posting Date`) - 3)\r\n",
+					"                )  as `Fin MonthNo`,\r\n",
+					"       if(month(`Posting Date`) >= 4, year(`Posting Date`) + 1, year(`Posting Date`)) as `Fin Year`,\r\n",
+					"\r\n",
+					"       if(month(`Posting Date`) = 1 and (`Posting Date`= date_add(last_day(add_months(`Posting Date`, -1)),1)), 1, 0) as TmpWeek\r\n",
+					"\r\n",
+					"FROM Dates\r\n",
+					"ORDER BY `Posting Date`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#DATES_1.show()\r\n",
+					"DATES_1.createOrReplaceTempView(\"DATES_1\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DATES_J1 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `Fin Year`,\r\n",
+					"        min(`Posting Date`) as Min1stWeek\r\n",
+					"FROM DATES_1\r\n",
+					"where `Day of Week` = 'Sun'\r\n",
+					"GROUP BY `Fin Year`\r\n",
+					"ORDER BY `Fin Year`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#DATES_J1.show()\r\n",
+					"DATES_J1.createOrReplaceTempView(\"DATES_J1\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DATES_2 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT d1.*, dj1.Min1stWeek\r\n",
+					"FROM DATES_1 d1\r\n",
+					"LEFT JOIN DATES_J1 dj1\r\n",
+					"       ON d1.`Fin Year` = dj1.`Fin Year`\r\n",
+					"ORDER BY d1.`Posting Date`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#DATES_2.show()\r\n",
+					"DATES_2.createOrReplaceTempView(\"DATES_2\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DATES_J2 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `Fin Year`,\r\n",
+					"\t`Posting Date`,\r\n",
+					"\tif(`Posting Date` <= Min1stWeek, 1, 0) as FirstWeek,\r\n",
+					"       IF(CEILING((datediff(`Posting Date`,Min1stWeek)/7) + 1) = 53, 52, CEILING((datediff(`Posting Date`,Min1stWeek)/7) + 1)) as `Posting WeekNo`\r\n",
+					"FROM DATES_2\r\n",
+					"ORDER BY `Posting Date`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#DATES_J2.show()\r\n",
+					"DATES_J2.createOrReplaceTempView(\"DATES_J2\")"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DATES_3 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT d2.*, dj2.FirstWeek, dj2.`Posting WeekNo`\r\n",
+					"FROM DATES_2 d2\r\n",
+					"LEFT JOIN DATES_J2 dj2\r\n",
+					"       ON d2.`Fin Year` = dj2.`Fin Year`\r\n",
+					"      AND d2.`Posting Date` = dj2.`Posting Date`\r\n",
+					"ORDER BY d2.`Posting Date`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#DATES_3.show()\r\n",
+					"DATES_3.createOrReplaceTempView(\"DATES_3\")"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DATES_J3 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT distinct LEFT(StrDate, 4) as `Posting Year`,\r\n",
+					"                date(StrDate) as `Posting Date`,\r\n",
+					"                0 as Holiday\r\n",
+					"FROM dboHLD1\r\n",
+					"WHERE LEFT(HldCode, 2) = 'ZA'\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#DATES_J3.show()\r\n",
+					"DATES_J3.createOrReplaceTempView(\"DATES_J3\")"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DATES_4 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT d3.*\r\n",
+					"      ,dj3.Holiday\r\n",
+					"      ,if(WeekEnd = 0, 0,if(Holiday = 0, 0, 1)) as `Working Day`\r\n",
+					"FROM DATES_3 d3\r\n",
+					"LEFT JOIN DATES_J3 dj3\r\n",
+					"       ON d3.`Posting Year` = dj3.`Posting Year`\r\n",
+					"      AND d3.`Posting Date` = dj3.`Posting Date`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#DATES_4.show()\r\n",
+					"DATES_4.createOrReplaceTempView(\"DATES_4\")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Final Structure scripting of Dim_Dates Table"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DIM_DATES = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT date_format(`Posting Date`, \"yyyy/MM/dd\") AS `Posting_Date`,\r\n",
+					"       date_format(`Posting Date`, \"yyyy/MM/dd hh:mm:ss\") AS `Posting_DateTime`,\r\n",
+					"       `Day of Week` AS `Day_of_Week`,\r\n",
+					"       WeekEnd,\r\n",
+					"       date_format(`Posting MonthEndDate`, \"yyyy/MM/dd\") AS `Posting_MonthEndDate`,\r\n",
+					"       date_format(`Posting MonthStartDate`, \"yyyy/MM/dd\") AS `Posting_MonthStartDate`,\r\n",
+					"       `Posting MonthNo` AS `Posting_MonthNo`,\r\n",
+					"       `Posting Year` AS `Posting_Year`,\r\n",
+					"       `Posting Period` AS `Posting_Period`,\r\n",
+					"       `Posting Month` AS `Posting_Month`,\r\n",
+					"       `Fin MonthNo` AS `Fin_MonthNo`,\r\n",
+					"       `Fin Year` AS `Fin_Year`,\r\n",
+					"       TmpWeek,\r\n",
+					"       date_format(Min1stWeek, \"yyyy/MM/dd\") AS Min1stWeek,\r\n",
+					"       FirstWeek,\r\n",
+					"       `Posting WeekNo` AS `Posting_WeekNo`,\r\n",
+					"       Holiday,\r\n",
+					"       `Working Day` AS `Working_Day`\r\n",
+					"FROM DATES_4\r\n",
+					"WHERE `Posting Date` >= \"2016-04-01\"\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#DIM_DATES.show()\r\n",
+					"DIM_DATES.createOrReplaceTempView(\"DIM_DATES\")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write success message for production script"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"Scripts have successfully executed\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

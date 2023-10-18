@@ -1,0 +1,588 @@
+{
+	"name": "1- OnRoute_Extractor_Dispatch_DEV",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Archived/Operations Notebooks DEV"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "6631c7ef-6bec-449c-88fd-81fd61eac397"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"#Uncommected for the Productionized scripting(Please remove the `#` when trouble shooting this script)\r\n",
+					"#publicdispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
+					"#publicdispatch.createOrReplaceTempView(\"publicdispatch\")\r\n",
+					"\r\n",
+					"#Remain Uncommented\r\n",
+					"#--#load = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/load.parquet', format='parquet')\r\n",
+					"#--#load.createOrReplaceTempView(\"load\")"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT to_utc_timestamp(to_timestamp(estdepdate), 'GMT-2') AS estdepdate,\r\n",
+					"       to_date(to_utc_timestamp(to_timestamp(estdepdate), 'GMT-2')) AS estdepdate,\r\n",
+					"       date_format(to_utc_timestamp(to_timestamp(estdepdate), 'GMT-2'), 'HH:mm:ss') AS estdepdate\r\n",
+					"FROM publicdispatch\r\n",
+					"\r\n",
+					"LIMIT 100"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"dispatch = spark.sql(\"\"\"\r\n",
+					"SELECT id AS `dispatch.id`,\r\n",
+					"       lmsid AS `dispatch.lmsid`,\r\n",
+					"       vid AS `dispatch.vid`,\r\n",
+					"       did AS `dispatch.did`,\r\n",
+					"       status AS `dispatch.status.original`,\t\r\n",
+					"       Cast(to_timestamp(startdate) as TIMESTAMP) AS `dispatch.startdatetime`,\r\n",
+					"       to_date(to_utc_timestamp(to_timestamp(startdate), 'GMT-2')) AS `dispatch.startdate`,\r\n",
+					"       date_format(to_utc_timestamp(to_timestamp(startdate), 'GMT-2'), 'HH:mm:ss') AS `dispatch.starttime`,\r\n",
+					"       --Date(timezone('GMT-2'::text, to_timestamp(startdate::double precision))) AS startdate,\r\n",
+					"       --Cast (timezone('GMT-2'::text, to_timestamp(startdate::double precision)) as time) AS starttime,\r\n",
+					"       Cast(to_timestamp(stopdate) as TIMESTAMP) AS `dispatch.stopdatetime`,\r\n",
+					"       to_date(to_utc_timestamp(to_timestamp(stopdate), 'GMT-2')) AS `dispatch.stopdate`,\r\n",
+					"       date_format(to_utc_timestamp(to_timestamp(stopdate), 'GMT-2'), 'HH:mm:ss') AS `dispatch.stoptime`,\r\n",
+					"       --Date(timezone('GMT-2'::text, to_timestamp(stopdate::double precision))) AS stopdate,\r\n",
+					"       --Cast (timezone('GMT-2'::text, to_timestamp(stopdate::double precision)) as time) AS stoptime,\r\n",
+					"       vehicletype AS `dispatch.vehicletype`,\r\n",
+					"       uid AS `dispatch.uid`,\r\n",
+					"       Cast(to_timestamp(estdepdate) as TIMESTAMP) AS `dispatch.estdepdatetime`,\r\n",
+					"       to_date(to_utc_timestamp(to_timestamp(estdepdate), 'GMT-2')) AS `dispatch.estdepdate`,\r\n",
+					"       date_format(to_utc_timestamp(to_timestamp(estdepdate), 'GMT-2'), 'HH:mm:ss') AS `dispatch.estdeptime`,\r\n",
+					"       --Date(timezone('GMT-2'::text, to_timestamp(estdepdate::double precision))) AS estdepdate,\r\n",
+					"       --Cast (timezone('GMT-2'::text, to_timestamp(estdepdate::double precision)) as time) AS estdeptime,\r\n",
+					"       trailer AS `dispatch.trailer`,\r\n",
+					"       trailer2 AS `dispatch.trailer2`,\r\n",
+					"       fromlocid AS `dispatch.fromlocid`,\r\n",
+					"       tolocid AS `dispatch.tolocid`,\r\n",
+					"       site AS `dispatch.site`,\r\n",
+					"       to_date(to_utc_timestamp(to_timestamp(lastupdate), 'GMT-2')) AS `dispatch.lastupdate`,\r\n",
+					"       --Date(timezone('GMT-2'::text, to_timestamp(lastupdate::double precision))) AS lastupdate,\r\n",
+					"       etastatus AS `dispatch.etastatus`,\r\n",
+					"       startinglat AS `dispatch.startinglat`,\r\n",
+					"       startinglng AS `dispatch.startinglng`,\r\n",
+					"       endinglat AS `dispatch.endinglat`,\r\n",
+					"       endinglng AS `dispatch.endinglng`,\r\n",
+					"       startingfrom AS `dispatch.startingfrom`,\r\n",
+					"       goingto AS `dispatch.goingto`,\r\n",
+					"       importissue AS `dispatch.importissue`,\r\n",
+					"       to_date(to_utc_timestamp(to_timestamp(insdate), 'GMT-2')) AS `dispatch.insdate`,\r\n",
+					"       --Date(timezone('GMT-2'::text, to_timestamp(insdate::double precision))) AS insdate,\r\n",
+					"       to_date(to_utc_timestamp(to_timestamp(estarrdate), 'GMT-2')) AS `dispatch.estarrdate`,\r\n",
+					"       --Date(timezone('GMT-2'::text, to_timestamp(estarrdate::double precision))) AS estarrdate,\r\n",
+					"       duration AS `dispatch.duration`,\r\n",
+					"       distance AS `dispatch.distance`,\r\n",
+					"       cost AS `dispatch.cost`,\r\n",
+					"       stoplat AS `dispatch.stoplat`,\r\n",
+					"       stoplng AS `dispatch.stoplng`,\r\n",
+					"       stopreason AS `dispatch.stopreason`,\r\n",
+					"       startodo AS `dispatch.startodo`,\r\n",
+					"       stopodo AS `dispatch.stopodo`,\r\n",
+					"       expduration AS `dispatch.expduration`,\r\n",
+					"       expdistance AS `dispatch.expdistance`,\r\n",
+					"       expcost AS `dispatch.expcost`,\r\n",
+					"       collectionid AS `dispatch.collectionid`,\r\n",
+					"       crew AS `dispatch.crew`,\r\n",
+					"       crewnames AS `dispatch.crewnames`,\r\n",
+					"       bocloseuid AS `dispatch.bocloseuid`,\r\n",
+					"       routing AS `dispatch.routing`,\r\n",
+					"       swapct AS `dispatch.swapct`,\r\n",
+					"       debriefed AS `dispatch.debriefed`,\r\n",
+					"       debriefnotes AS `dispatch.debriefnotes`,\r\n",
+					"       bopin AS `dispatch.bopin`,\r\n",
+					"       cpicost AS `dispatch.cpicost`,\r\n",
+					"       labourcost AS `dispatch.labourcost`,\r\n",
+					"       maintcost AS `dispatch.maintcost`,\r\n",
+					"       inscost AS `dispatch.inscost`,\r\n",
+					"       tollcost AS `dispatch.tollcost`,\r\n",
+					"       fuelcost AS `dispatch.fuelcost`,\r\n",
+					"       internal AS `dispatch.internal`,\r\n",
+					"       childids AS `dispatch.childids`,\r\n",
+					"       guid AS `dispatch.guid`,\r\n",
+					"       timedefinite AS `dispatch.timedefinite`,\r\n",
+					"       orvcode AS `dispatch.orvcode`,\r\n",
+					"       Cast(to_timestamp(tsstopdepoenter) as TIMESTAMP) AS `dispatch.tsstopdepoenter`,\r\n",
+					"       Cast(to_timestamp(tsstartdepoexit) as TIMESTAMP) AS `dispatch.tsstartdepoexit`,\r\n",
+					"       reroutect AS `dispatch.reroutect`,\r\n",
+					"       actualarrdate AS `dispatch.actualarrdate`,\r\n",
+					"       physicalstartlat AS `dispatch.physicalstartlat`,\r\n",
+					"       physicalstartlng AS `dispatch.physicalstartlng`,\r\n",
+					"       tsstartdepoexitapp AS `dispatch.tsstartdepoexitapp`,\r\n",
+					"       tsstopdepoenterapp AS `dispatch.tsstopdepoenterapp`,\r\n",
+					"       uncanceldate AS `dispatch.uncanceldate`,\r\n",
+					"       uncancelusername AS `dispatch.uncancelusername`\r\n",
+					"FROM publicdispatch\r\n",
+					"\"\"\")\r\n",
+					"#dispatch.show()\r\n",
+					"dispatch.createOrReplaceTempView(\"dispatch\")"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"dispatch = spark.sql(\"\"\"\r\n",
+					"SELECT `dispatch.id`,\r\n",
+					"`dispatch.lmsid`,\r\n",
+					"`dispatch.vid`,\r\n",
+					"`dispatch.did`,\r\n",
+					"`dispatch.status.original`,\r\n",
+					"UPPER(if(`dispatch.status.original` = 'completed' and `dispatch.debriefnotes`= 'NO LMS DEBRIEF. Force closed used.', 'canceled', `dispatch.status.original`)) AS `dispatch.status.revised`,\r\n",
+					"`dispatch.startdatetime`,\r\n",
+					"`dispatch.startdate`,\r\n",
+					"`dispatch.starttime`,\r\n",
+					"`dispatch.stopdatetime`,\r\n",
+					"`dispatch.stopdate`,\r\n",
+					"`dispatch.stoptime`,\r\n",
+					"`dispatch.vehicletype`,\r\n",
+					"`dispatch.uid`,\r\n",
+					"`dispatch.estdepdatetime`,\r\n",
+					"`dispatch.estdepdate`,\r\n",
+					"`dispatch.estdeptime`,\r\n",
+					"`dispatch.trailer`,\r\n",
+					"`dispatch.trailer2`,\r\n",
+					"`dispatch.fromlocid`,\r\n",
+					"`dispatch.tolocid`,\r\n",
+					"`dispatch.site`,\r\n",
+					"`dispatch.lastupdate`,\r\n",
+					"`dispatch.etastatus`,\r\n",
+					"`dispatch.startinglat`,\r\n",
+					"`dispatch.startinglng`,\r\n",
+					"`dispatch.endinglat`,\r\n",
+					"`dispatch.endinglng`,\r\n",
+					"`dispatch.startingfrom`,\r\n",
+					"`dispatch.goingto`,\r\n",
+					"`dispatch.importissue`,\r\n",
+					"`dispatch.insdate`,\r\n",
+					"`dispatch.estarrdate`,\r\n",
+					"`dispatch.duration`,\r\n",
+					"`dispatch.distance`,\r\n",
+					"`dispatch.cost`,\r\n",
+					"`dispatch.stoplat`,\r\n",
+					"`dispatch.stoplng`,\r\n",
+					"`dispatch.stopreason`,\r\n",
+					"`dispatch.startodo`,\r\n",
+					"`dispatch.stopodo`,\r\n",
+					"`dispatch.expduration`,\r\n",
+					"`dispatch.expdistance`,\r\n",
+					"`dispatch.expcost`,\r\n",
+					"`dispatch.collectionid`,\r\n",
+					"`dispatch.crew`,\r\n",
+					"`dispatch.crewnames`,\r\n",
+					"`dispatch.bocloseuid`,\r\n",
+					"`dispatch.routing`,\r\n",
+					"`dispatch.swapct`,\r\n",
+					"`dispatch.debriefed`,\r\n",
+					"`dispatch.debriefnotes`,\r\n",
+					"`dispatch.bopin`,\r\n",
+					"`dispatch.cpicost`,\r\n",
+					"`dispatch.labourcost`,\r\n",
+					"`dispatch.maintcost`,\r\n",
+					"`dispatch.inscost`,\r\n",
+					"`dispatch.tollcost`,\r\n",
+					"`dispatch.fuelcost`,\r\n",
+					"`dispatch.internal`,\r\n",
+					"`dispatch.childids`,\r\n",
+					"`dispatch.guid`,\r\n",
+					"`dispatch.timedefinite`,\r\n",
+					"`dispatch.orvcode`,\r\n",
+					"`dispatch.tsstopdepoenter`,\r\n",
+					"`dispatch.tsstartdepoexit`,\r\n",
+					"`dispatch.reroutect`,\r\n",
+					"`dispatch.actualarrdate`,\r\n",
+					"`dispatch.physicalstartlat`,\r\n",
+					"`dispatch.physicalstartlng`,\r\n",
+					"`dispatch.tsstartdepoexitapp`,\r\n",
+					"`dispatch.tsstopdepoenterapp`,\r\n",
+					"`dispatch.uncanceldate`,\r\n",
+					"`dispatch.uncancelusername`\r\n",
+					"FROM dispatch\r\n",
+					"\"\"\")\r\n",
+					"#dispatch.show()\r\n",
+					"dispatch.createOrReplaceTempView(\"dispatch\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"dispatch = spark.sql(\"\"\"\r\n",
+					"SELECT `dispatch.id`,\r\n",
+					"    `dispatch.lmsid`,\r\n",
+					"--  `dispatch.lmsid` AS `LD_ID`,\r\n",
+					"--  `dispatch.id` AS `dispatch.id.delivery`,\r\n",
+					"    `dispatch.id` AS `dispatch.lastdispatchid`,\r\n",
+					"    `dispatch.vid`,\r\n",
+					"    `dispatch.did`,\r\n",
+					"    `dispatch.status.original`,\r\n",
+					"    if(isnull(`dispatch.status.revised`),'Not imported',`dispatch.status.revised`) AS `dispatch.status.revised`,\r\n",
+					"    to_timestamp(`dispatch.startdatetime`) AS `dispatch.startdatetime`,\r\n",
+					"    to_date(`dispatch.startdate`) AS `dispatch.startdate`,\r\n",
+					"    `dispatch.starttime`,\r\n",
+					"    to_timestamp(`dispatch.stopdatetime`) AS `dispatch.stopdatetime`,\r\n",
+					"    to_date(`dispatch.stopdate`) AS `dispatch.stopdate`,\r\n",
+					"    `dispatch.stoptime`,\r\n",
+					"    `dispatch.vehicletype`, --if(isNull(`dispatch.vehicletype`),`load.ttypeid`,`dispatch.vehicletype`) AS `dispatch.vehicletype`,\r\n",
+					"    `dispatch.uid`,\r\n",
+					"    to_timestamp(`dispatch.estdepdatetime`) AS `dispatch.estdepdatetime`,\r\n",
+					"    `dispatch.estdepdate`, --to_date(if(IsNull(`dispatch.estdepdate`),`load.estdeparturedatetime`,`dispatch.estdepdate`)) AS `dispatch.estdepdate`,\r\n",
+					"    `dispatch.estdeptime`,\r\n",
+					"    `dispatch.trailer`,\r\n",
+					"    `dispatch.trailer2`,\r\n",
+					"    `dispatch.fromlocid`,\r\n",
+					"    `dispatch.tolocid`,\r\n",
+					"    `dispatch.site`, --if(IsNull(`dispatch.site`),`load.site`,`dispatch.site`) AS `dispatch.site`,\r\n",
+					"    `dispatch.lastupdate`,\r\n",
+					"    `dispatch.etastatus`,\r\n",
+					"    CONCAT(`dispatch.startinglat`, `dispatch.startinglng`) as `dispatch.geopointstart`,\r\n",
+					"    `dispatch.startinglat`,\r\n",
+					"    `dispatch.startinglng`,\r\n",
+					"    CONCAT(`dispatch.endinglat`, `dispatch.endinglng`) as `dispatch.geopointending`,\r\n",
+					"    `dispatch.endinglat`,\r\n",
+					"    `dispatch.endinglng`,\r\n",
+					"    `dispatch.startingfrom`, --if(IsNull(`dispatch.startingfrom`),`load.fromsite`,`dispatch.startingfrom`)\tAS `dispatch.startingfrom`,\r\n",
+					"    `dispatch.goingto`, --if(IsNull(`dispatch.goingto`),`load.tosite`,`dispatch.goingto`)\tAS `dispatch.goingto`,\r\n",
+					"    if(isnull(`dispatch.importissue`),0,`dispatch.importissue`) as `dispatch.importissue`,\r\n",
+					"    `dispatch.insdate`,\r\n",
+					"    `dispatch.estarrdate`,\r\n",
+					"    `dispatch.duration`,\r\n",
+					"    `dispatch.distance`,\r\n",
+					"    `dispatch.cost`,\r\n",
+					"    CONCAT(`dispatch.stoplat`, `dispatch.stoplng`) as `dispatch.geopointstop`,\r\n",
+					"    `dispatch.stoplat`,\r\n",
+					"    `dispatch.stoplng`,\r\n",
+					"    `dispatch.stopreason`,\r\n",
+					"    `dispatch.startodo`,\r\n",
+					"    `dispatch.stopodo`,\r\n",
+					"    `dispatch.expduration`,\r\n",
+					"    `dispatch.expdistance`,\r\n",
+					"    `dispatch.expcost`,\r\n",
+					"    `dispatch.collectionid`,\r\n",
+					"    `dispatch.crew`,\r\n",
+					"    `dispatch.crewnames`,\r\n",
+					"    `dispatch.bocloseuid`,\r\n",
+					"    `dispatch.routing`,\r\n",
+					"    `dispatch.swapct`,\r\n",
+					"    `dispatch.debriefed`,\r\n",
+					"    `dispatch.debriefnotes`,\r\n",
+					"    `dispatch.bopin`,\r\n",
+					"    `dispatch.cpicost`,\r\n",
+					"    `dispatch.labourcost`,\r\n",
+					"    `dispatch.maintcost`,\r\n",
+					"    `dispatch.inscost`,\r\n",
+					"    `dispatch.tollcost`,\r\n",
+					"    `dispatch.fuelcost`,\r\n",
+					"    `dispatch.internal`,\r\n",
+					"\t`dispatch.childids`,\r\n",
+					"\t`dispatch.guid`,\r\n",
+					"\t`dispatch.timedefinite`,\r\n",
+					"\t`dispatch.orvcode`,\r\n",
+					"    `dispatch.tsstopdepoenter`,\r\n",
+					"    `dispatch.tsstartdepoexit`,\r\n",
+					"    `dispatch.reroutect`,\r\n",
+					"\t`dispatch.actualarrdate`,\r\n",
+					"    `dispatch.physicalstartlat`,\r\n",
+					"\t`dispatch.physicalstartlng`,\r\n",
+					"\t`dispatch.tsstartdepoexitapp`,\r\n",
+					"\t`dispatch.tsstopdepoenterapp`,\r\n",
+					"\t`dispatch.uncanceldate`,\r\n",
+					"\t`dispatch.uncancelusername`\r\n",
+					"FROM dispatch\r\n",
+					"\"\"\")\r\n",
+					"#dispatch.show()\r\n",
+					"dispatch.createOrReplaceTempView(\"dispatch\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"dispatch = spark.sql(\"\"\"\r\n",
+					"SELECT `dispatch.actualarrdate`,\r\n",
+					"`dispatch.bocloseuid`,\r\n",
+					"`dispatch.bopin`,\r\n",
+					"`dispatch.childids`,\r\n",
+					"`dispatch.collectionid`,\r\n",
+					"`dispatch.cost`,\r\n",
+					"`dispatch.cpicost`,\r\n",
+					"`dispatch.crew`,\r\n",
+					"`dispatch.crewnames`,\r\n",
+					"`dispatch.debriefed`,\r\n",
+					"`dispatch.debriefnotes`,\r\n",
+					"`dispatch.did`,\r\n",
+					"`dispatch.distance`,\r\n",
+					"`dispatch.duration`,\r\n",
+					"`dispatch.endinglat`,\r\n",
+					"`dispatch.endinglng`,\r\n",
+					"`dispatch.estarrdate`,\r\n",
+					"`dispatch.estdepdate`,\r\n",
+					"`dispatch.estdeptime`,\r\n",
+					"`dispatch.etastatus`,\r\n",
+					"`dispatch.expcost`,\r\n",
+					"`dispatch.expdistance`,\r\n",
+					"`dispatch.expduration`,\r\n",
+					"`dispatch.fromlocid`,\r\n",
+					"`dispatch.fuelcost`,\r\n",
+					"`dispatch.geopointending`,\r\n",
+					"`dispatch.geopointstart`,\r\n",
+					"`dispatch.geopointstop`,\r\n",
+					"`dispatch.goingto`,\r\n",
+					"`dispatch.guid`,\r\n",
+					"`dispatch.id` AS `dispatch.lastdispatchid`,\r\n",
+					"`dispatch.id`,\r\n",
+					"`dispatch.importissue`,\r\n",
+					"`dispatch.inscost`,\r\n",
+					"`dispatch.insdate`,\r\n",
+					"`dispatch.internal`,\r\n",
+					"`dispatch.labourcost`,\r\n",
+					"`dispatch.lastupdate`,\r\n",
+					"`dispatch.lmsid`,\r\n",
+					"`dispatch.maintcost`,\r\n",
+					"`dispatch.orvcode`,\r\n",
+					"`dispatch.physicalstartlat`,\r\n",
+					"`dispatch.physicalstartlng`,\r\n",
+					"`dispatch.reroutect`,\r\n",
+					"`dispatch.routing`,\r\n",
+					"`dispatch.site`,\r\n",
+					"`dispatch.startingfrom`,\r\n",
+					"`dispatch.startinglat`,\r\n",
+					"`dispatch.startinglng`,\r\n",
+					"`dispatch.startodo`,\r\n",
+					"`dispatch.starttime`,\r\n",
+					"`dispatch.status.original`,\r\n",
+					"`dispatch.status.revised`,\r\n",
+					"`dispatch.stoplat`,\r\n",
+					"`dispatch.stoplng`,\r\n",
+					"`dispatch.stopodo`,\r\n",
+					"`dispatch.stopreason`,\r\n",
+					"`dispatch.stoptime`,\r\n",
+					"`dispatch.swapct`,\r\n",
+					"`dispatch.timedefinite`,\r\n",
+					"`dispatch.tollcost`,\r\n",
+					"`dispatch.tolocid`,\r\n",
+					"`dispatch.trailer`,\r\n",
+					"`dispatch.trailer2`,\r\n",
+					"`dispatch.tsstartdepoexit`,\r\n",
+					"`dispatch.tsstartdepoexitapp`,\r\n",
+					"`dispatch.tsstopdepoenter`,\r\n",
+					"`dispatch.tsstopdepoenterapp`,\r\n",
+					"`dispatch.uid`,\r\n",
+					"`dispatch.uncanceldate`,\r\n",
+					"`dispatch.uncancelusername`,\r\n",
+					"`dispatch.vehicletype`,\r\n",
+					"`dispatch.vid`,\r\n",
+					"`dispatch.estdepdatetime`,\r\n",
+					"`dispatch.startdate`,\r\n",
+					"`dispatch.startdatetime`,\r\n",
+					"`dispatch.stopdate`,\r\n",
+					"`dispatch.stopdatetime`\r\n",
+					"FROM dispatch\r\n",
+					"WHERE `dispatch.lmsid` IS NOT NULL  \r\n",
+					"AND (`dispatch.estdepdate`)<=(Now())\r\n",
+					"\"\"\")\r\n",
+					"#dispatch.show()\r\n",
+					"dispatch.createOrReplaceTempView(\"dispatch\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT *\r\n",
+					"FROM dispatch\r\n",
+					"\r\n",
+					"LIMIT 100"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT trunc(`dispatch.startdate`, 'month') mydate, COUNT(`dispatch.id`)\r\n",
+					"FROM dispatch\r\n",
+					"GROUP BY trunc(`dispatch.startdate`, 'month')\r\n",
+					"\r\n",
+					"ORDER by mydate"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dispatch.write.parquet('/DataLake/Structured/Facts/T_dispatch.parquet', mode='overwrite')"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT COUNT(*)\r\n",
+					"FROM dispatch"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"Successful run of the script\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

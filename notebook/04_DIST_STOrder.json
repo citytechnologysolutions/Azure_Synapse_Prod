@@ -108,7 +108,7 @@
 					"# dboweekendholiday = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboweekendholiday.parquet', format='parquet')\r\n",
 					"# dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")"
 				],
-				"execution_count": 2
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -156,6 +156,12 @@
 					"    ,o.CustAccID as lms_order_custaccid\r\n",
 					"    ,o.Airfreightflag as lms_order_airfreightflag\r\n",
 					"    ,o.SpecDel as lms_order_specdel\r\n",
+					"    ,o.Quote as lms_order_quote\r\n",
+					"    ,o.QuoteWeight as lms_order_quoteweight\r\n",
+					"    ,o.QuoteFuelLevy as lms_order_quotefuellevy\r\n",
+					"    ,o.QuoteOtherSurcharges as lms_order_quoteothersurcharges\r\n",
+					"    ,o.QuoteDocFees as lms_order_quotedocfees\r\n",
+					"\r\n",
 					"    ,pbo.lms_parcelbyorder_aggrweight\r\n",
 					"    ,pbo.lms_parcelbyorder_aggrchargeweight\r\n",
 					"    ,pbo.lms_parcelbyorder_aggrvolweight\r\n",
@@ -173,7 +179,7 @@
 					"LEFT JOIN sstparcelbyorder pbo on pbo.lms_parcelbyorder_orderid =  o.id\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -210,7 +216,7 @@
 					"GROUP BY p.orderid\r\n",
 					""
 				],
-				"execution_count": 4
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -250,7 +256,7 @@
 					"FROM storder_tmp1 o\r\n",
 					"LEFT JOIN storder_tmp2 o2 ON o2.orderid = o.lms_order_id"
 				],
-				"execution_count": 5
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -281,7 +287,7 @@
 					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_order_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_order_actualleaddaysenddate))\r\n",
 					"GROUP BY o.lms_order_id"
 				],
-				"execution_count": 6
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -311,7 +317,7 @@
 					"FROM storder_tmp3 o\r\n",
 					"LEFT JOIN storder_tmp4 o1 on o1.lms_order_id = o.lms_order_id"
 				],
-				"execution_count": 7
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -355,7 +361,7 @@
 					"FROM storder_tmp5\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -373,7 +379,7 @@
 				"source": [
 					"storder = spark.sql(\"SELECT * FROM storder\")"
 				],
-				"execution_count": 9
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -391,7 +397,7 @@
 				"source": [
 					"# storder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/storder.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -409,7 +415,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 11
+				"execution_count": 14
 			}
 		]
 	}

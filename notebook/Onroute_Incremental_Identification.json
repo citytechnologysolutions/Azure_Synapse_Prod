@@ -1,0 +1,342 @@
+{
+	"name": "Onroute_Incremental_Identification",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Archived/Onroute Interval Refreshes"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 3,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "3",
+				"spark.dynamicAllocation.maxExecutors": "3",
+				"spark.autotune.trackingId": "07005204-71ec-4368-ae3e-6599f2d022b7"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"publictablechanges = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publictablechanges.parquet', format='parquet')\r\n",
+					"publictablechanges.createOrReplaceTempView(\"publictablechanges\")\r\n",
+					"\r\n",
+					"publicdispatchsegment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatchsegment.parquet', format='parquet')\r\n",
+					"publicdispatchsegment.createOrReplaceTempView(\"publicdispatchsegment\")\r\n",
+					"\r\n",
+					"publiclhdispatchsegment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publiclhdispatchsegment.parquet', format='parquet')\r\n",
+					"publiclhdispatchsegment.createOrReplaceTempView(\"publiclhdispatchsegment\")"
+				],
+				"execution_count": 130
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"Lhdispatchsegment_Update = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT a.*\r\n",
+					"FROM(\r\n",
+					"SELECT pc.entityid, pc.entitytype, last(pc.action) as action, max(pc.insdate) as mydate\r\n",
+					"FROM publictablechanges pc\r\n",
+					"WHERE pc.action = 'insert'\r\n",
+					"  AND pc.entitytype = 'Lhdispatchsegment'\r\n",
+					"GROUP BY pc.entityid, pc.entitytype--, action\r\n",
+					"ORDER BY pc.entityid, mydate)a\r\n",
+					"LEFT JOIN publiclhdispatchsegment ps\r\n",
+					"       ON CAST(a.entityid as INT) = CAST(ps.id AS INT)\r\n",
+					"WHERE ISNULL(CAST(ps.id AS INT)) = 1\r\n",
+					"ORDER BY entityid\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#Lhdispatchsegment_Update.show()\r\n",
+					"Lhdispatchsegment_Update.createOrReplaceTempView(\"Lhdispatchsegment_Update\")"
+				],
+				"execution_count": 131
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"Lhdispatchsegment_Update_IDs = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT mygroup, array_join(collect_set(entityid), ', ') AS entityids\r\n",
+					"FROM(\r\n",
+					"SELECT DISTINCT '1' as mygroup, entityid\r\n",
+					"FROM Lhdispatchsegment_Update\r\n",
+					"ORDER BY entityid\r\n",
+					")a \r\n",
+					"GROUP BY mygroup\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#Lhdispatchsegment_Update_IDs.show()\r\n",
+					"Lhdispatchsegment_Update_IDs.createOrReplaceTempView(\"Lhdispatchsegment_Update_IDs\")"
+				],
+				"execution_count": 132
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"test1 = spark.sql(\" SELECT entityids FROM Lhdispatchsegment_Update_IDs ORDER BY entityids\")\r\n",
+					"string = test1.toPandas().iloc[0, 0]\r\n",
+					"n = 3800\r\n",
+					"\r\n",
+					"words = iter(string.split())\r\n",
+					"lines, current = [], next(words)\r\n",
+					"for word in words:\r\n",
+					"    if len(current) + 1 + len(word) > n:\r\n",
+					"        lines.append(current)\r\n",
+					"        current = word\r\n",
+					"    else:\r\n",
+					"        current += \" \" + word\r\n",
+					"lines.append(current)\r\n",
+					"\r\n",
+					"newlines = []\r\n",
+					"for line in lines:\r\n",
+					"    if str.rstrip(line[-1]) == ',':\r\n",
+					"        line = line[:-1]\r\n",
+					"        newlines.append(line)\r\n",
+					"\r\n",
+					"Lhdispatchsegment_Update_List = spark.createDataFrame( [(number, str(newlines[number])) for (number, x) in enumerate(newlines, 0)],['Lines', 'IDs'] )\r\n",
+					"Lhdispatchsegment_Update_List.createOrReplaceTempView(\"Lhdispatchsegment_Update_List\")"
+				],
+				"execution_count": 133
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT RIGHT(IDs, 5)\r\n",
+					"FROM Lhdispatchsegment_Update_List"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Dispatchsegment_Update = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT a.*\r\n",
+					"FROM(\r\n",
+					"SELECT pc.entityid, pc.entitytype, last(pc.action) as action, max(pc.insdate) as mydate\r\n",
+					"FROM publictablechanges pc\r\n",
+					"WHERE pc.action = 'insert'\r\n",
+					"  AND pc.entitytype = 'Dispatchsegment'\r\n",
+					"GROUP BY pc.entityid, pc.entitytype--, action\r\n",
+					"ORDER BY pc.entityid, mydate)a\r\n",
+					"LEFT JOIN publicdispatchsegment ps\r\n",
+					"       ON CAST(a.entityid as INT) = CAST(ps.id AS INT)\r\n",
+					"WHERE ISNULL(CAST(ps.id AS INT)) = 1\r\n",
+					"ORDER BY entityid\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#Dispatchsegment_Update.show()\r\n",
+					"Dispatchsegment_Update.createOrReplaceTempView(\"Dispatchsegment_Update\")"
+				],
+				"execution_count": 134
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Dispatchsegment_Update_IDs = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT mygroup, array_join(collect_set(entityid), ', ') AS entityids\r\n",
+					"FROM(\r\n",
+					"SELECT DISTINCT '1' as mygroup, entityid\r\n",
+					"FROM Dispatchsegment_Update\r\n",
+					"ORDER BY entityid\r\n",
+					")a \r\n",
+					"GROUP BY mygroup\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#Dispatchsegment_Update_IDs.show()\r\n",
+					"Dispatchsegment_Update_IDs.createOrReplaceTempView(\"Dispatchsegment_Update_IDs\")"
+				],
+				"execution_count": 135
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"test1 = spark.sql(\" SELECT entityids FROM Dispatchsegment_Update_IDs ORDER BY entityids\")\r\n",
+					"string = test1.toPandas().iloc[0, 0]\r\n",
+					"n = 3800\r\n",
+					"\r\n",
+					"words = iter(string.split())\r\n",
+					"lines, current = [], next(words)\r\n",
+					"for word in words:\r\n",
+					"    if len(current) + 1 + len(word) > n:\r\n",
+					"        lines.append(current)\r\n",
+					"        current = word\r\n",
+					"    else:\r\n",
+					"        current += \" \" + word\r\n",
+					"lines.append(current)\r\n",
+					"\r\n",
+					"newlines = []\r\n",
+					"for line in lines:\r\n",
+					"    if str.rstrip(line[-1]) == ',':\r\n",
+					"        line = line[:-1]\r\n",
+					"        newlines.append(line)\r\n",
+					"\r\n",
+					"Dispatchsegment_Update_List = spark.createDataFrame( [(number, str(newlines[number])) for (number, x) in enumerate(newlines, 0)],['Lines', 'IDs'] )\r\n",
+					"Dispatchsegment_Update_List.createOrReplaceTempView(\"Dispatchsegment_Update_List\")"
+				],
+				"execution_count": 136
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Dispatchsegment_Update_List = spark.createDataFrame( [(number, str(lines[number])) for (number, x) in enumerate(lines, 0)],['Lines', 'IDs'] )"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Lhdispatchsegment_Update.write.parquet('/Unstructured Data/Onroute_Incremental_Data/Lhdispatchsegment_Update.parquet', mode='overwrite')\r\n",
+					"Lhdispatchsegment_Update.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_onroute.Lhdispatchsegment_Update\")\r\n",
+					"\r\n",
+					"Lhdispatchsegment_Update_IDs.write.parquet('/Unstructured Data/Onroute_Incremental_Data/Lhdispatchsegment_Update_IDs.parquet', mode='overwrite')\r\n",
+					"Lhdispatchsegment_Update_IDs.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_onroute.Lhdispatchsegment_Update_IDs\")\r\n",
+					"\r\n",
+					"Lhdispatchsegment_Update_List.write.parquet('/Unstructured Data/Onroute_Incremental_Data/Lhdispatchsegment_Update_List.parquet', mode='overwrite')\r\n",
+					"Lhdispatchsegment_Update_List.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_onroute.Lhdispatchsegment_Update_List\")\r\n",
+					"\r\n",
+					"Dispatchsegment_Update.write.parquet('/Unstructured Data/Onroute_Incremental_Data/Dispatchsegment_Update.parquet', mode='overwrite')\r\n",
+					"Dispatchsegment_Update.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_onroute.Dispatchsegment_Update\")\r\n",
+					"\r\n",
+					"Dispatchsegment_Update_IDs.write.parquet('/Unstructured Data/Onroute_Incremental_Data/Dispatchsegment_Update_IDs.parquet', mode='overwrite')\r\n",
+					"Dispatchsegment_Update_IDs.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_onroute.Dispatchsegment_Update_IDs\")\r\n",
+					"\r\n",
+					"Dispatchsegment_Update_List.write.parquet('/Unstructured Data/Onroute_Incremental_Data/Dispatchsegment_Update_List.parquet', mode='overwrite')\r\n",
+					"Dispatchsegment_Update_List.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_onroute.Dispatchsegment_Update_List\")"
+				],
+				"execution_count": 137
+			}
+		]
+	}
+}

@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "TESTSparkPool",
+			"referenceName": "PRDSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "e632a9cc-135b-4bb2-ad34-8b0c9b344c84"
+				"spark.autotune.trackingId": "2277b22f-5261-4757-962c-34c4a76e1c02"
 			}
 		},
 		"metadata": {
@@ -34,15 +34,15 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
-				"name": "TESTSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
 				"memory": 28,
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 6
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -95,9 +95,14 @@
 					"# #Create DataFrame for the publicreportdistotmgntdispatchdt ORV Table\r\n",
 					"# publicreportdistotmgntdispatchdt = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicreportdistotmgntdispatchdt.parquet', format='parquet')\r\n",
 					"# publicreportdistotmgntdispatchdt.createOrReplaceTempView(\"publicreportdistotmgntdispatchdt\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stmdvehicle ORV Table\r\n",
+					"# stmdvehicle = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/MD/stmdvehicle.parquet', format='parquet')\r\n",
+					"# stmdvehicle.createOrReplaceTempView(\"stmdvehicle\")\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -116,7 +121,7 @@
 					"# from pyspark.sql.functions import *\r\n",
 					"# from pyspark.sql.window import Window"
 				],
-				"execution_count": 9
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -136,7 +141,7 @@
 					"stloadchild = stloadchild.withColumn(\"rn\",row_number().over(partitionparent))\r\n",
 					"stloadchild.createOrReplaceTempView(\"stloadchild\")"
 				],
-				"execution_count": 10
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -162,6 +167,7 @@
 					"AS\r\n",
 					"SELECT \r\n",
 					"    lc.lms_loadchild_parentloadid\r\n",
+					"    ,lc2.lms_loadchild_vehicleid\r\n",
 					"    ,lc2.lms_loadchild_ldate\r\n",
 					"    ,lc2.lms_loadchild_vehodo\r\n",
 					"    ,lc2.lms_loadchild_vehodo2\r\n",
@@ -182,12 +188,13 @@
 					"WHERE lc.lms_loadchild_parentloadid is not null\r\n",
 					"GROUP BY \r\n",
 					"    lc.lms_loadchild_parentloadid\r\n",
+					"    ,lc2.lms_loadchild_vehicleid\r\n",
 					"    ,lc2.lms_loadchild_ldate\r\n",
 					"    ,lc2.lms_loadchild_vehodo\r\n",
 					"    ,lc2.lms_loadchild_vehodo2\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -205,7 +212,7 @@
 				"source": [
 					"stloadparent_tmp = spark.sql(\"SELECT * FROM stloadparent_tmp\")"
 				],
-				"execution_count": 12
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -231,6 +238,7 @@
 					"AS\r\n",
 					"SELECT\r\n",
 					"    t.lms_loadchild_parentloadid as  lms_loadparent_parentloadid \r\n",
+					"    ,t.lms_loadchild_vehicleid as lms_loadparent_vehicleid\r\n",
 					"    ,t.lms_loadchild_ldate as lms_loadparent_ldate\r\n",
 					"    ,t.lms_loadchild_vehodo as  lms_loadparent_vehodo \r\n",
 					"    ,t.lms_loadchild_vehodo2 as  lms_loadparent_vehodo2 \r\n",
@@ -246,6 +254,7 @@
 					"    ,t.lms_loadchild_aggrvolumiserweightexclspecdel  as  lms_loadparent_aggrvolumiserweightexclspecdel\r\n",
 					"    ,t.lms_loadchild_aggrmaxweightexclspecdel  as  lms_loadparent_aggrmaxweightexclspecdel\r\n",
 					"    ,t.lms_loadchild_aggrnoparcelsexclspecdel  as  lms_loadparent_aggrnoparcelsexclspecdel\r\n",
+					"    ,v.md_vehicle_vehicletype\r\n",
 					"    ,d.id as orv_dispatch_id\r\n",
 					"    ,d.lmsid as orv_dispatch_lmsid\r\n",
 					"    ,d.vid as orv_dispatch_vid\r\n",
@@ -361,9 +370,10 @@
 					"\r\n",
 					"FROM stloadparent_tmp t\r\n",
 					"LEFT JOIN publicdispatch d on d.lmsid = t.lms_loadchild_parentloadid and d.vehicletype = 6\r\n",
-					"LEFT JOIN publicreportdistotmgntdispatchdt x on x.dispatchid = d.id"
+					"LEFT JOIN publicreportdistotmgntdispatchdt x on x.dispatchid = d.id\r\n",
+					"LEFT JOIN stmdvehicle v on v.md_vehicle_lmsid = t.lms_loadchild_vehicleid"
 				],
-				"execution_count": 13
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -381,7 +391,7 @@
 				"source": [
 					"stloadparent = spark.sql(\"SELECT * FROM stloadparent\")"
 				],
-				"execution_count": 14
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -397,9 +407,9 @@
 					}
 				},
 				"source": [
-					"stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
+					"# stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 15
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",

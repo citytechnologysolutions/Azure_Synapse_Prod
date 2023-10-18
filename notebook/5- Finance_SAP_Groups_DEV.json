@@ -1,0 +1,167 @@
+{
+	"name": "5- Finance_SAP_Groups_DEV",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Archived/Transactions Notebooks DEV"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "4be2d911-2d5a-4b8e-b07d-af6f60ce5116"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#ListDepots = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/CCMasterData/ListDepots.parquet', format='parquet')\r\n",
+					"#ListDepots.createOrReplaceTempView(\"ListDepots\")"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"ListDepots = spark.sql(\"\"\"\r\n",
+					"SELECT --DepotID,\r\n",
+					"    DepotName AS DEPOTNAME,\r\n",
+					"    DepotCode AS DEPOTCODE,\r\n",
+					"    ParentDepotCode AS PARENTDEPOTCODE,\r\n",
+					"    Division AS DIVISION,\r\n",
+					"    Address,\r\n",
+					"    Latitude,\r\n",
+					"    Longitude,\r\n",
+					"    SAPDepreciationAccountCode,\r\n",
+					"    MFRAuthoriser,\r\n",
+					"    MFRApplicationFlag,\r\n",
+					"    ActiveFlag,\r\n",
+					"    OperationsManager,\r\n",
+					"    BranchManager,\r\n",
+					"    FleetManager\r\n",
+					"FROM ListDepots\r\n",
+					"\"\"\")\r\n",
+					"#ListDepots.show()\r\n",
+					"ListDepots.createOrReplaceTempView(\"ListDepots\")"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"GROUP_Expose = spark.sql(\"\"\"\r\n",
+					"SELECT DEPOTCODE as Depot_Code,\r\n",
+					"       DEPOTCODE as MFRDepotCode,\r\n",
+					"       DEPOTCODE,\r\n",
+					"       DIVISION,\r\n",
+					"       ActiveFlag\r\n",
+					"FROM ListDepots\r\n",
+					"\"\"\")\r\n",
+					"#GROUP_Expose.show()\r\n",
+					"GROUP_Expose.createOrReplaceTempView(\"GROUP_Expose\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"GROUP_Expose.write.parquet('/DataLake/Structured/Dimensions/DIM_GROUP_Expose.parquet', mode='overwrite')\r\n",
+					"GROUP_Expose.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.DIM_GROUP_Expose\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"Scripts have successfully executed\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

@@ -1,0 +1,288 @@
+{
+	"name": "14_STPRPClocking",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Finance"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "c6f51943-031f-480b-aa03-5a33794e2c2e"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 53
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the prpclockinghoursdetail CLMasterData Table\r\n",
+					"# prpclockinghoursdetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/prpclockinghoursdetail.parquet', format='parquet')\r\n",
+					"# prpclockinghoursdetail.createOrReplaceTempView(\"prpclockinghoursdetail\")"
+				],
+				"execution_count": 54
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stprpclockinghoursdetail\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    id as prp_clockinghoursdetail_id\r\n",
+					"    ,division as prp_clockinghoursdetail_division\r\n",
+					"    ,costcentredescription as prp_clockinghoursdetail_costcentredescription\r\n",
+					"    ,costcentrecode as prp_clockinghoursdetail_costcentrecode\r\n",
+					"    ,teamname as prp_clockinghoursdetail_teamname\r\n",
+					"    ,payroll as prp_clockinghoursdetail_payroll\r\n",
+					"    ,employee as prp_clockinghoursdetail_employee\r\n",
+					"    ,assignment as prp_clockinghoursdetail_assignment\r\n",
+					"    ,employeenumber as prp_clockinghoursdetail_employeenumber\r\n",
+					"    ,vendorempnumber as prp_clockinghoursdetail_vendorempnumber\r\n",
+					"    ,vendor as prp_clockinghoursdetail_vendor\r\n",
+					"    ,jobcategory as prp_clockinghoursdetail_jobcategory\r\n",
+					"    ,rate as prp_clockinghoursdetail_rate\r\n",
+					"    ,to_date(date, 'dd MMM yyyy')  as prp_clockinghoursdetail_date\r\n",
+					"    ,weekofyear(to_date(date, 'dd MMM yyyy'))-12  as prp_clockinghoursdetail_week\r\n",
+					"    ,shift as prp_clockinghoursdetail_shift\r\n",
+					"    ,shifttime as prp_clockinghoursdetail_shifttime\r\n",
+					"    ,calctime as prp_clockinghoursdetail_calctime\r\n",
+					"    ,clockin as prp_clockinghoursdetail_clockin\r\n",
+					"    ,clockout as prp_clockinghoursdetail_clockout\r\n",
+					"    ,approvalstatus as prp_clockinghoursdetail_approvalstatus\r\n",
+					"    ,totinvval as prp_clockinghoursdetail_totinvval\r\n",
+					"    ,finalflag as prp_clockinghoursdetail_finalflag\r\n",
+					"FROM prpclockinghoursdetail\r\n",
+					""
+				],
+				"execution_count": 66
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stprpclockinghoursdetail = spark.sql(\"SELECT * FROM stprpclockinghoursdetail\")"
+				],
+				"execution_count": 67
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stprpclockinghoursdetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stprpclockinghoursdetail.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 68
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stprpclockinghoursdaily\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"     division as prp_clockinghoursdaily_division\r\n",
+					"    ,costcentredescription as prp_clockinghoursdaily_costcentredescription\r\n",
+					"    ,costcentrecode as prp_clockinghoursdaily_costcentrecode\r\n",
+					"    ,teamname as prp_clockinghoursdaily_teamname\r\n",
+					"    ,payroll as prp_clockinghoursdaily_payroll\r\n",
+					"    ,vendor as prp_clockinghoursdaily_vendor\r\n",
+					"    ,jobcategory as prp_clockinghoursdaily_jobcategory\r\n",
+					"    ,to_date(date, 'dd MMM yyyy')  as prp_clockinghoursdaily_date\r\n",
+					"    ,weekofyear(to_date(date, 'dd MMM yyyy'))-12  as prp_clockinghoursdaily_week\r\n",
+					"    ,approvalstatus as prp_clockinghoursdaily_approvalstatus\r\n",
+					"    ,sum(totinvval) as prp_clockinghoursdaily_totinvval\r\n",
+					"    ,finalflag as prp_clockinghoursdaily_finalflag\r\n",
+					"FROM prpclockinghoursdetail\r\n",
+					"GROUP BY\r\n",
+					"     division\r\n",
+					"    ,costcentredescription\r\n",
+					"    ,costcentrecode\r\n",
+					"    ,teamname\r\n",
+					"    ,payroll\r\n",
+					"    ,vendor\r\n",
+					"    ,jobcategory\r\n",
+					"    ,to_date(date, 'dd MMM yyyy')\r\n",
+					"    ,weekofyear(to_date(date, 'dd MMM yyyy'))-12\r\n",
+					"    ,approvalstatus\r\n",
+					"    ,finalflag\r\n",
+					""
+				],
+				"execution_count": 59
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stprpclockinghoursdaily = spark.sql(\"SELECT * FROM stprpclockinghoursdaily\")"
+				],
+				"execution_count": 60
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stprpclockinghoursdaily.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stprpclockinghoursdaily.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 61
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 62
+			}
+		]
+	}
+}

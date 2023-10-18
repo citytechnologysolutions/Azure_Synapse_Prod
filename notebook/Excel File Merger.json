@@ -1,0 +1,374 @@
+{
+	"name": "Excel File Merger",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Archived"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "de560e95-d889-4b9a-986a-b7aebec2cf04"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import os\r\n",
+					"import pandas as pd"
+				],
+				"execution_count": 106
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## OLD Join of files that stop reading if the row count got greater than (2 to the power of 10)\r\n",
+					"\r\n",
+					"# Load EXCEL with KPI Database\r\n",
+					"\r\n",
+					"# Variables\r\n",
+					"var_File_Path = \"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Excel_Files/Combined.xlsx\"\r\n",
+					"var_File_Page = \"OneDrive_2_7-13-2022\"\r\n",
+					"\r\n",
+					"# Processing\r\n",
+					"excel_file = pd.ExcelFile(var_File_Path)\r\n",
+					"excel_file_page = pd.read_excel(excel_file, var_File_Page, skiprows=[1])\r\n",
+					"\r\n",
+					"excel_file_Dataframe = spark.createDataFrame(excel_file_page.astype(str))\r\n",
+					"\r\n",
+					"excel_file_Dataframe.createOrReplaceTempView(\"KPI_Database\")\r\n",
+					"\r\n",
+					"KPI_Database = spark.sql(\"\"\"SELECT `CODE` as `Depot Code1`, `FLEET NUMBER` as `Fleet Code`, `REGISTRATION NUMBER`, Attribute as `Date`, Value FROM KPI_Database\"\"\")\r\n",
+					"\r\n",
+					"KPI_Database.createOrReplaceTempView(\"KPI_Database\")"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"data_file_folder = 'abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Excel_Files/FleetKMS'\r\n",
+					"df = []\r\n",
+					"\r\n",
+					"for file in mssparkutils.fs.ls(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Excel_Files/FleetKMS/\"):\r\n",
+					"    #print('Loading file {0}...'.format(file.path))\r\n",
+					"    #file = file.iloc[1: , :]\r\n",
+					"    df.append(pd.read_excel(file.path, sheet_name='KMs'))"
+				],
+				"execution_count": 107
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Ensure that all files are beign read\r\n",
+					"\r\n",
+					"df = spark.createDataFrame(\r\n",
+					"    [(number, str(x.path)) for (number, x) in enumerate(mssparkutils.fs.ls(\"abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Excel_Files/FleetKMS/\"), 0)]\r\n",
+					"    ,['number', 'directories'],\r\n",
+					"    )\r\n",
+					"display(df)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.types import StringType"
+				],
+				"execution_count": 108
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dex1 = df[1]\r\n",
+					"print(dex1)"
+				],
+				"execution_count": 109
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.createDataFrame(data=df[0])"
+				],
+				"execution_count": 93
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#finaldf = []\r\n",
+					"counter = 0\r\n",
+					"#DFfinal = spark.createDataFrame(data=finaldf, schema=None)\r\n",
+					"\r\n",
+					"for dataframe in df:\r\n",
+					"    if counter == 0:\r\n",
+					"        DFfinal1 = spark.createDataFrame(data=dataframe[counter], schema=None)\r\n",
+					"        print(\"Finished step 1\")\r\n",
+					"        counter =+ counter\r\n",
+					"    if counter > 0:\r\n",
+					"        DFfinal2 = spark.createDataFrame(data=dataframe, schema=None)\r\n",
+					"        print (\"Finished step 2\")\r\n",
+					"        #DFfinal1 = DFfinal1.unionByName(DFfinal2, allowMissingColumns=True)"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"fd2 = spark.createDataFrame(df, schema= None)"
+				],
+				"execution_count": 56
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df_master = pd.concat(df, axis=0)"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Unstructured Data/Excel_Files/Merger.parquet"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Merger = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Excel_Files/Merger.parquet', format='parquet')\r\n",
+					"Merger.createOrReplaceTempView(\"Merger\")"
+				],
+				"execution_count": 82
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Merger.columns"
+				],
+				"execution_count": 83
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT *\r\n",
+					"FROM Merger"
+				],
+				"execution_count": 86
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT COUNT(*)\r\n",
+					"FROM Merger"
+				],
+				"execution_count": 85
+			}
+		]
+	}
+}

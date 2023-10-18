@@ -1,0 +1,2385 @@
+{
+	"name": "21- Operations_LMS_OnRouteDet_3MRolling_DeliveryCustomer_DEV",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Archived/Operations Notebooks DEV"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "1beeca41-a72d-412e-bd0d-d7cdaf80caf9"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## T_WAYBILLPERLOAD"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#publiccustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publiccustomer.parquet', format='parquet')\r\n",
+					"#publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
+					"\r\n",
+					"#dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"#dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"#dbodb_DelayReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_DelayReason.parquet', format='parquet')\r\n",
+					"#dbodb_DelayReason.createOrReplaceTempView(\"dbodb_DelayReason\")\r\n",
+					"\r\n",
+					"#dbodb_NotDbReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_NotDbReason.parquet', format='parquet')\r\n",
+					"#dbodb_NotDbReason.createOrReplaceTempView(\"dbodb_NotDbReason\")\r\n",
+					"\r\n",
+					"#dbodb_DeliveryStatus = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_DeliveryStatus.parquet', format='parquet')\r\n",
+					"#dbodb_DeliveryStatus.createOrReplaceTempView(\"dbodb_DeliveryStatus\")\r\n",
+					"\r\n",
+					"#dbodb_ReasonGroup = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_ReasonGroup.parquet', format='parquet')\r\n",
+					"#dbodb_ReasonGroup.createOrReplaceTempView(\"dbodb_ReasonGroup\")\r\n",
+					"\r\n",
+					"#dbodb_ReasonDetail = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_ReasonDetail.parquet', format='parquet')\r\n",
+					"#dbodb_ReasonDetail.createOrReplaceTempView(\"dbodb_ReasonDetail\")\r\n",
+					"\r\n",
+					"#dbodb_InServiceReason = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbodb_InServiceReason.parquet', format='parquet')\r\n",
+					"#dbodb_InServiceReason.createOrReplaceTempView(\"dbodb_InServiceReason\")\r\n",
+					"\r\n",
+					"#publicdelivery = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"#publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
+					"\r\n",
+					"#publicpod = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
+					"#publicpod.createOrReplaceTempView(\"publicpod\")\r\n",
+					"\r\n",
+					"#T_TRACK = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/F_TRACK.parquet', format='parquet')\r\n",
+					"#T_TRACK.createOrReplaceTempView(\"T_TRACK\")\r\n",
+					"\r\n",
+					"#T_LOAD = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_LOAD.parquet', format='parquet')\r\n",
+					"#T_LOAD.createOrReplaceTempView(\"T_LOAD\")\r\n",
+					"\r\n",
+					"#dboTrack_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrack_Archive.parquet', format='parquet')\r\n",
+					"#dboTrack_Archive.createOrReplaceTempView(\"dboTrack_Archive\")\r\n",
+					"\r\n",
+					"#dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"#dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"#dboWaybillsPerParcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybillsPerParcel.parquet', format='parquet')\r\n",
+					"#dboWaybillsPerParcel.createOrReplaceTempView(\"dboWaybillsPerParcel\")\r\n",
+					"\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"#dboparcel_archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboParcel_Archive.parquet', format='parquet')\r\n",
+					"#dboparcel_archive.createOrReplaceTempView(\"dboparcel_archive\")\r\n",
+					"\r\n",
+					"#T_dispatch = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake/Structured/Facts/T_dispatch.parquet', format='parquet')\r\n",
+					"#T_dispatch.createOrReplaceTempView(\"T_dispatch\")"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dboCollect = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboCollect.parquet', format='parquet')\r\n",
+					"dboCollect.createOrReplaceTempView(\"dboCollect\")\r\n",
+					"\r\n",
+					"dboCustomer = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboCustomer.parquet', format='parquet')\r\n",
+					"dboCustomer.createOrReplaceTempView(\"dboCustomer\")\r\n",
+					"\r\n",
+					"dboorv_collect = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorv_collect.parquet', format='parquet')\r\n",
+					"dboorv_collect.createOrReplaceTempView(\"dboorv_collect\")\r\n",
+					"\r\n",
+					"dboLocation = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLocation.parquet', format='parquet')\r\n",
+					"dboLocation.createOrReplaceTempView(\"dboLocation\")\r\n",
+					"\r\n",
+					"publicdraftcollection = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/Onroute/publicdraftcollection.parquet', format='parquet')\r\n",
+					"publicdraftcollection.createOrReplaceTempView(\"publicdraftcollection\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 01a_OnRoute_Extractor_Weekly_10_Customer"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"billcustomer = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT id AS `delcustomer.parent`,\r\n",
+					"       id AS `billcustomer.id`,\r\n",
+					"       name AS `billcustomer.name`,\r\n",
+					"       contact AS `billcustomer.contact`,\r\n",
+					"       email AS `billcustomer.email`,\r\n",
+					"       mobileno AS `billcustomer.mobileno`,\r\n",
+					"       landline AS `billcustomer.landline`,\r\n",
+					"       ctype AS `billcustomer.ctype`,\r\n",
+					"       parent AS `billcustomer.parent`,\r\n",
+					"       lastupdate AS `billcustomer.lastupdate`,\r\n",
+					"       lmsid AS `billcustomer.lmsid`,\r\n",
+					"       insdate AS `billcustomer.insdate`,\r\n",
+					"       srouteid AS `billcustomer.srouteid`,\r\n",
+					"       verified AS `billcustomer.verified`\r\n",
+					"FROM(\r\n",
+					"    SELECT id,\r\n",
+					"           name,\r\n",
+					"           contact,\r\n",
+					"           email,\r\n",
+					"           mobileno,\r\n",
+					"           landline,\r\n",
+					"           ctype,\r\n",
+					"           parent,\r\n",
+					"           lastupdate,\r\n",
+					"           lmsid,\r\n",
+					"           insdate,\r\n",
+					"           srouteid,\r\n",
+					"           verified\r\n",
+					"    FROM publiccustomer\r\n",
+					"    WHERE ctype = 'billing'\r\n",
+					")a\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#billcustomer.show\r\n",
+					"billcustomer.createOrReplaceTempView(\"billcustomer\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"delcustomer = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT id AS `delivery.customerid`,\r\n",
+					"       id AS `delcustomer.id`,\r\n",
+					"       name AS `delcustomer.name`,\r\n",
+					"       contact AS `delcustomer.contact`,\r\n",
+					"       email AS `delcustomer.email`,\r\n",
+					"       mobileno AS `delcustomer.mobileno`,\r\n",
+					"       landline AS `delcustomer.landline`,\r\n",
+					"       ctype AS `delcustomer.ctype`,\r\n",
+					"       parent AS `delcustomer.parent`,\r\n",
+					"       lastupdate AS `delcustomer.lastupdate`,\r\n",
+					"       lmsid  AS `delcustomer.lmsid`,\r\n",
+					"       insdate AS `delcustomer.insdate`,\r\n",
+					"       srouteid AS `delcustomer.srouteid`,\r\n",
+					"       verified AS `delcustomer.verified`\r\n",
+					"FROM(\r\n",
+					"    SELECT id,\t\r\n",
+					"\t       name,\r\n",
+					"           contact,\r\n",
+					"           email,\r\n",
+					"           mobileno,\r\n",
+					"           landline,\r\n",
+					"           ctype,\r\n",
+					"           parent,\r\n",
+					"           lastupdate,\r\n",
+					"           lmsid,\r\n",
+					"           insdate,\r\n",
+					"           srouteid,\r\n",
+					"           verified\r\n",
+					"    FROM publiccustomer\r\n",
+					"    WHERE ctype = 'delivery'\r\n",
+					")a\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#delcustomer.show\r\n",
+					"delcustomer.createOrReplaceTempView(\"delcustomer\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"customer = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT id AS `customer.id`,\r\n",
+					"       name AS `customer.name`,\r\n",
+					"       contact AS `customer.contact`,\r\n",
+					"       email AS `customer.email`,\r\n",
+					"       mobileno AS `customer.mobileno`,\r\n",
+					"       landline AS `customer.landline`,\r\n",
+					"       ctype AS `customer.ctype`,\r\n",
+					"       parent AS `customer.parent`,\r\n",
+					"       lastupdate AS `customer.lastupdate`,\r\n",
+					"       lmsid  AS `customer.lmsid`,\r\n",
+					"       insdate AS `customer.insdate`,\r\n",
+					"       srouteid AS `customer.srouteid`,\r\n",
+					"       verified AS `customer.verified`\r\n",
+					"FROM(\r\n",
+					"    SELECT id,\t\r\n",
+					"\t       name,\r\n",
+					"           contact,\r\n",
+					"           email,\r\n",
+					"           mobileno,\r\n",
+					"           landline,\r\n",
+					"           ctype,\r\n",
+					"           parent,\r\n",
+					"           lastupdate,\r\n",
+					"           lmsid,\r\n",
+					"           insdate,\r\n",
+					"           srouteid,\r\n",
+					"           verified\r\n",
+					"    FROM publiccustomer\r\n",
+					")a\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#customer.show\r\n",
+					"customer.createOrReplaceTempView(\"customer\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End Of 01a_OnRoute_Extractor_Weekly_10_Customer"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 03a_Perations_LMS_Extractor_Daily_18_Waybill"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"WAYBILL = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT ID AS `WB_ID`,\r\n",
+					"       TIMESTAMP(`Date`) AS `WB_DDateTime`, --, 'YYYY/MM/DD hh:mm:ss'\r\n",
+					"       Date(`Date`) AS `WB_DDate`, --,'YYYY/MM/DD'\r\n",
+					"       TIMESTAMP(`PODDate`) AS `WB_PODDateTime`,  --, 'YYYY/MM/DD hh:mm:ss'\r\n",
+					"       Date(`PODDate`) AS `WB_PODDate`,  --,'YYYY/MM/DD'\r\n",
+					"       CustomerID AS `WB_CustomerID`,\r\n",
+					"       BService AS `WB_BService`,\r\n",
+					"       CService AS `WB_CService`,\r\n",
+					"       OriginID AS `WB_OriginID`,\r\n",
+					"       DefUser AS `WB_DefUser`,\r\n",
+					"       Distance AS `WB_Distance`,\r\n",
+					"       CourierID AS `WB_CourierID`,\r\n",
+					"       CourierWBNo AS `WB_CourierWBNo`,\r\n",
+					"       Weight AS `WB_Weight`,\r\n",
+					"       Volume AS `WB_Volume`,\r\n",
+					"       VolumetricWeight AS `WB_VolumetricWeight`,\r\n",
+					"       ChargeWeight AS `WB_ChargeWeight`,\r\n",
+					"       BillType AS `WB_BillType`,\r\n",
+					"       NoOfParcels AS `WB_NoOfParcels`,\r\n",
+					"       CapDate AS `WB_CapDate`,\r\n",
+					"       Surcharge AS `WB_Surcharge`,\r\n",
+					"       Insurance AS `WB_Insurance`,\r\n",
+					"       Tax AS `WB_Tax`,\r\n",
+					"       TotalCharge AS `WB_TotalCharge`,\r\n",
+					"       DestinationName AS `WB_DestinationName`,\r\n",
+					"       OrderType AS `WB_OrderType`,\r\n",
+					"       PickupCustID AS `WB_PickupCustID`,\r\n",
+					"       DeliverCustID AS `WB_DeliverCustID`,\r\n",
+					"       BillTo AS `WB_BillTo`,\r\n",
+					"       Claimable AS `WB_Claimable`,\r\n",
+					"       Override AS `WB_Override`,\r\n",
+					"       VehicleCapacity AS `WB_VehicleCapacity`,\r\n",
+					"       CustPODDate AS `WB_CustPODDate`,\r\n",
+					"       Signee AS `WB_Signee`,\r\n",
+					"       GRVNo AS `WB_GRVNo`,\r\n",
+					"       Endorsements AS `WB_Endorsements`,\r\n",
+					"       BillCust AS `WB_BillCust`,\r\n",
+					"       COURIER_FROM AS `WB_COURIER_FROM`,\r\n",
+					"       COURIER_TO AS `WB_COURIER_TO`,\r\n",
+					"       Charge AS `WB_Charge`,\r\n",
+					"       TVALUE AS `WB_TVALUE`,\r\n",
+					"       InService AS `WB_InService`,\r\n",
+					"       DBTotalCharge AS `WB_DBTotalCharge`,\r\n",
+					"       LoadID AS `WB_LoadID`,\r\n",
+					"       RouteID AS `WB_RouteID`,\r\n",
+					"       mrpFlag AS `WB_mrpFlag`,\r\n",
+					"       Printed AS `WB_Printed`,\r\n",
+					"       SReasonID AS `WB_SReasonID`,\r\n",
+					"       MinKg AS `WB_MinKg`,\r\n",
+					"       MinRate AS `WB_MinRate`,\r\n",
+					"       Addrate AS `WB_Addrate`,\r\n",
+					"       DocFees AS `WB_DocFees`,\r\n",
+					"       Volumetric AS `WB_Volumetric`,\r\n",
+					"       HasPrinted AS `WB_HasPrinted`,\r\n",
+					"       Site AS `WB_Site`,\r\n",
+					"       DeliveryNo AS `WB_DeliveryNo`,\r\n",
+					"       FuelLevy AS `WB_FuelLevy`,\r\n",
+					"       TotFuelLevy AS `WB_TotFuelLevy`,\r\n",
+					"       CustAccID AS `WB_CustAccID`,\r\n",
+					"       PODADDED AS `WB_PODADDED`,\r\n",
+					"       Scanned AS `WB_Scanned`,\r\n",
+					"       UserID AS `WB_UserID`,\r\n",
+					"       Autoprinted AS `WB_Autoprinted`,\r\n",
+					"       PodUserID AS `WB_PodUserID`,\r\n",
+					"       ScanUserID AS `WB_ScanUserID`,\r\n",
+					"       cref AS `WB_cref`,\r\n",
+					"       UShort AS `WB_UShort`,\r\n",
+					"       Delays AS `WB_Delays`,\r\n",
+					"       DeBriefed AS `WB_DeBriefed`,\r\n",
+					"       DeBriefDt AS `WB_DeBriefDt`,\r\n",
+					"       DBCtnsRet AS `WB_DBCtnsRet`,\r\n",
+					"       Uploaded AS `WB_Uploaded`,\r\n",
+					"       ServiceExclude AS `WB_ServiceExclude`,\r\n",
+					"       Failed AS `WB_Failed`,\r\n",
+					"       PODURL AS `WB_PODURL`,\r\n",
+					"       DelayReasonID AS `WB_DelayReasonID`,\r\n",
+					"       NotDebrievReasonID AS `WB_NotDebrievReasonID`,\r\n",
+					"       DeliveryStatID AS `WB_DeliveryStatID`,\r\n",
+					"       ReasonGroupID AS `WB_ReasonGroupID`,\r\n",
+					"       eMailCust AS `WB_eMailCust`,\r\n",
+					"       MobileIssueReportedID AS `WB_MobileIssueReportedID`,\r\n",
+					"       isMobile AS `WB_isMobile`,\r\n",
+					"       CustComment AS `WB_CustComment`,\r\n",
+					"       CustFeedback AS `WB_CustFeedback`,\r\n",
+					"       ReasonDetailID AS `WB_ReasonDetailID`,\r\n",
+					"       MobileComments AS `WB_MobileComments`,\r\n",
+					"       InServiceReasonID AS `WB_InServiceReasonID`,\r\n",
+					"       NotDebrievCom AS `WB_NotDebrievCom`,\r\n",
+					"       CallProgID AS `WB_CallProgID`,\r\n",
+					"       LastUpdate AS `WB_LastUpdate`,\r\n",
+					"       Dropsequence AS `WB_Dropsequence`,\r\n",
+					"       Noofparcelssreturned AS `WB_Noofparcelssreturned`,\r\n",
+					"       lat AS `WB_lat`,\r\n",
+					"       lng AS `WB_lng`,\r\n",
+					"       SignatureURL AS `WB_SignatureURL`,\r\n",
+					"       `Comment` AS `WB_Comment`,\r\n",
+					"       ORVCode AS `WB_ORVCode`,\r\n",
+					"       DeliverBy  AS `WB_DeliverBy`,\r\n",
+					"       IF(ISNULL(`Date`) or Date = '#',0,1) AS `WB_HasDDate`,\r\n",
+					"       IF(ISNULL(`PODDate`) or PODDate = '#',0,1) AS `WB_HasPODDate`,\r\n",
+					"       DelayReason AS `WB_DelayReason`,\r\n",
+					"       DeliveryStatus AS `WB_DeliveryStatus`,\r\n",
+					"       InServiceReason AS `WB_InServiceReason`,\r\n",
+					"       InServiceReasonGroup AS `WB_InServiceReasonGroup`,\r\n",
+					"       NotDebriefedReason AS `WB_NotDebriefedReason`,\r\n",
+					"       ReasonDetail AS `WB_ReasonDetail`,\r\n",
+					"       ReasonGroup AS `WB_ReasonGroup`\r\n",
+					"FROM(\r\n",
+					"SELECT w.*\r\n",
+					"      ,dr.Description AS DelayReason\r\n",
+					"      ,nd.Description AS NotDebriefedReason\r\n",
+					"      ,ds.Description AS DeliveryStatus\r\n",
+					"      ,rg.Description AS ReasonGroup\r\n",
+					"      ,rd.Description AS ReasonDetail\r\n",
+					"      ,isr.Reason AS InServiceReason\r\n",
+					"      ,isrg.Description AS InServiceReasonGroup\r\n",
+					"FROM dboWaybill w\r\n",
+					"LEFT JOIN dbodb_DelayReason dr \r\n",
+					"       ON dr.id = w.DelayReasonID\r\n",
+					"LEFT JOIN dbodb_NotDbReason nd\r\n",
+					"       ON nd.id = w.NotDebrievReasonID\r\n",
+					"LEFT JOIN dbodb_DeliveryStatus ds\r\n",
+					"       ON ds.id = w.DeliveryStatID\r\n",
+					"LEFT JOIN dbodb_ReasonGroup rg\r\n",
+					"       ON rg.id = w.ReasonGroupID\r\n",
+					"LEFT JOIN dbodb_ReasonDetail rd\r\n",
+					"       ON rd.id = w.ReasonDetailID\r\n",
+					"LEFT JOIN dbodb_InServiceReason isr\r\n",
+					"       ON isr.id = w.InServiceReasonID\r\n",
+					"LEFT JOIN dbodb_ReasonGroup isrg\r\n",
+					"       ON isrg.id = isr.ReasonGroupID\r\n",
+					")a\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#WAYBILL.show()\r\n",
+					"WAYBILL.createOrReplaceTempView(\"WAYBILL\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End Of 03a_Perations_LMS_Extractor_Daily_18_Waybill"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 01a_OnRoute_Extractor_Weekly_06_Delivery"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"delivery = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT did \t\t\t\t\t\t\t\t\tAS `dispatch.id`,\r\n",
+					"\tid\t \t\t\t\t\t\t\t\t\tAS `delivery.id`,\r\n",
+					"\tdid \t\t\t\t\t\t\t\t\tAS `delivery.dispatch.id`,\r\n",
+					"\tcustomerid\t \t\t\t\t\t\t\tAS `delivery.customerid`,\r\n",
+					"\twaybillid\t \t\t\t\t\t\t\tAS `delivery.waybillid`,\r\n",
+					"\taddress \t\t\t\t\t\t\t\tAS `delivery.address`,\r\n",
+					"\ttown\t\t\t\t\t\t\t\t\tAS `delivery.town`,\r\n",
+					"\tprovince \t\t\t\t\t\t\t\tAS `delivery.province`,\r\n",
+					"\tcountry \t\t\t\t\t\t\t\tAS `delivery.country`,\r\n",
+					"\tlat \t\t\t\t\t\t\t\t\tAS `delivery.lat`,\r\n",
+					"\tlng \t\t\t\t\t\t\t\t\tAS `delivery.lng`,\r\n",
+					"\tplaceid \t\t\t\t\t\t\t\tAS `delivery.placeid`,\r\n",
+					"\twhat3words\t \t\t\t\t\t\t\tAS `delivery.what3words`,\r\n",
+					"\tzipcode \t\t\t\t\t\t\t\tAS `delivery.zipcode`,\r\n",
+					"\tbillingcustid\t \t\t\t\t\t\tAS `delivery.billingcustid`,\r\n",
+					"\teta\t\t\t\t\t\t\t\t\t\tAS `delivery.eta`,\r\n",
+					"\tactualeta\t \t\t\t\t\t\t\tAS `delivery.actualeta`,\r\n",
+					"\tdeliverydatetime \t\t\t\t\t\tAS `delivery.deliverydatetime`,\r\n",
+					"\tdeliverydate \t\t\t\t\t\t\tAS `delivery.deliverydate`,\r\n",
+					"\tdeliverytime \t\t\t\t\t\t\tAS `delivery.deliverytime`,\r\n",
+					"\tdeliverbydatetime \t\t\t\t\t\tAS `delivery.deliverbydatetime`,\r\n",
+					"\tdeliverbydate \t\t\t\t\t\t\tAS `delivery.deliverbydate`,\r\n",
+					"\tdeliverbytime \t\t\t\t\t\t\tAS `delivery.deliverbytime`,\r\n",
+					"\tdeliveryorder \t\t\t\t\t\t\tAS `delivery.deliveryorder`,\r\n",
+					"\ttsgeofenceenter \t\t\t\t\t\tAS `delivery.tsgeofenceenter`,\r\n",
+					"\ttsscanningstart \t\t\t\t\t\tAS `delivery.tsscanningstart`,\r\n",
+					"\ttsscanningstop\t \t\t\t\t\t\tAS `delivery.tsscanningstop`,\r\n",
+					"\ttspodsignature \t\t\t\t\t\t\tAS `delivery.tspodsignature`,\r\n",
+					"\taid \t\t\t\t\t\t\t\t\tAS `delivery.aid`,\r\n",
+					"\tnumprcls \t\t\t\t\t\t\t\tAS `delivery.numprcls`,\r\n",
+					"\tgeocodingstatus \t\t\t\t\t\tAS `delivery.geocodingstatus`,\r\n",
+					"\tskipdate \t\t\t\t\t\t\t\tAS `delivery.skipdate`,\r\n",
+					"\tskipreason \t\t\t\t\t\t\t\tAS `delivery.skipreason`,\r\n",
+					"\tstatus\t \t\t\t\t\t\t\t\tAS `delivery.status`,\r\n",
+					"\tpartialmatch \t\t\t\t\t\t\tAS `delivery.partialmatch`,\r\n",
+					"\tapproximated \t\t\t\t\t\t\tAS `delivery.approximated`,\r\n",
+					"\tlmsorder \t\t\t\t\t\t\t\tAS `delivery.lmsorder`,\r\n",
+					"\toptimizedorder\t \t\t\t\t\t\tAS `delivery.optimizedorder`,\r\n",
+					"\tseal \t\t\t\t\t\t\t\t\tAS `delivery.seal`,\r\n",
+					"\tcustomerinvoice \t\t\t\t\t\tAS `delivery.customerinvoice`,\r\n",
+					"\tcustomerdn\t \t\t\t\t\t\t\tAS `delivery.customerdn`,\r\n",
+					"\tgrv \t\t\t\t\t\t\t\t\tAS `delivery.grv`,\r\n",
+					"\tchepslip \t\t\t\t\t\t\t\tAS `delivery.chepslip`,\r\n",
+					"\tcleandelivery \t\t\t\t\t\t\tAS `delivery.cleandelivery`,\r\n",
+					"\ttrackingcode \t\t\t\t\t\t\tAS `delivery.trackingcode`,\r\n",
+					"\tif(IsNull(`mode`),'Delivery',`mode`) \tAS `delivery.mode`,\r\n",
+					"\tcustomorder\t\t\t\t\t\t\t\tAS `delivery.customorder`,\r\n",
+					"\tverified \t\t\t\t\t\t\t\tAS `delivery.verified`,\r\n",
+					"\taltered \t\t\t\t\t\t\t\tAS `delivery.altered`,\r\n",
+					"\torderid \t\t\t\t\t\t\t\tAS `delivery.orderid`,\r\n",
+					"\tlastregioncrossed\t \t\t\t\t\tAS `delivery.lastregioncrossed`,\r\n",
+					"    mergeid\t \t\t\t\t\t\t\t\tAS `delivery.mergeid`,\r\n",
+					"    orderref\t \t\t\t\t\t\t\tAS `delivery.orderref`,\r\n",
+					"    drivernote\t \t\t\t\t\t\t\tAS `delivery.drivernote`,\r\n",
+					"    timedefinite\t \t\t\t\t\t\tAS `delivery.timedefinite`,\r\n",
+					"    orvcode\t \t\t\t\t\t\t\t\tAS `delivery.orvcode`,\r\n",
+					"    vaid\t \t\t\t\t\t\t\t\tAS `delivery.vaid`,\r\n",
+					"    delegatedate\t \t\t\t\t\t\tAS `delivery.delegatedate`,\r\n",
+					"    delegatemode\t \t\t\t\t\t\tAS `delivery.delegatemode`,\r\n",
+					"    debriefmode\t \t\t\t\t\t\t\tAS `delivery.debriefmode`,\r\n",
+					"    debriefed\t \t\t\t\t\t\t\tAS `delivery.debriefed`,\r\n",
+					"    insdate\t\t\t\t\t\t\t\t\tAS `delivery.insdate`,\r\n",
+					"    reviseddebrief\t\t\t\t\t\t\tAS `delivery.reviseddebrief`,\r\n",
+					"    lmsdebriefed\t\t\t\t\t\t\tAS `delivery.lmsdebriefed`,\r\n",
+					"    uncanceldate\t\t\t\t\t\t\tAS `delivery.uncanceldate`,\r\n",
+					"    podlaterdate\t\t\t\t\t\t\tAS `delivery.podlaterdate`,\r\n",
+					"    podmanualdate\t\t\t\t\t\t\tAS `delivery.podmanualdate`,\r\n",
+					"    manualdebriefreason\t\t\t\t\t\tAS `delivery.manualdebriefreason`,\r\n",
+					"    submanualdebriefreason\t\t\t\t\tAS `delivery.submanualdebriefreason`,\r\n",
+					"    outofgeofencereason\t\t\t\t\t\tAS `delivery.outofgeofencereason`,\r\n",
+					"\ttsentergeofenceapp\t\t\t\t\t\tAS `delivery.tsentergeofenceapp`,\r\n",
+					"\ttsexitgeofenceapp\t\t\t\t\t\tAS `delivery.tsexitgeofenceapp`,\r\n",
+					"\tcomebacklater\t\t\t\t\t\t\tAS `delivery.comebacklater`,\r\n",
+					"\tuncancelusername\t\t\t\t\t\tAS `delivery.uncancelusername`,\r\n",
+					"    poddistancefromdeliverypoint\t\t\tAS `delivery.poddistancefromdeliverypoint`\r\n",
+					"FROM(\r\n",
+					"SELECT \r\n",
+					"\tdelivery.id,\t\r\n",
+					"\tdelivery.did,\r\n",
+					"\tcustomerid,\r\n",
+					"\twaybillid,\r\n",
+					"\taddress,\r\n",
+					"\ttown,\r\n",
+					"\tprovince,\r\n",
+					"\tcountry,\r\n",
+					"\tdelivery.lat,\r\n",
+					"\tdelivery.lng,\r\n",
+					"\tplaceid,\r\n",
+					"\twhat3words,\r\n",
+					"\tzipcode,\r\n",
+					"\tbillingcustid,\r\n",
+					"\tCast(to_timestamp(eta) as TIMESTAMP) AS eta,\r\n",
+					"\tCast(to_timestamp(actualeta) as TIMESTAMP) AS actualeta,\r\n",
+					"\tCast(to_timestamp(deliverydate) as TIMESTAMP) AS deliverydatetime,\r\n",
+					"    to_date(to_utc_timestamp(to_timestamp(deliverydate), 'GMT-2')) AS `deliverydate`,\r\n",
+					"\t--Date(timezone('GMT-2'::text, to_timestamp(deliverydate::double precision))) AS deliverydate,\r\n",
+					"    date_format(to_utc_timestamp(to_timestamp(deliverydate), 'GMT-2'), 'HH:mm:ss') AS deliverytime,\r\n",
+					"\t--Cast (timezone('GMT-2'::text, to_timestamp(deliverydate::double precision)) as time) AS deliverytime,\r\n",
+					"\t\r\n",
+					"    Cast(to_timestamp(deliverby) as TIMESTAMP) AS deliverbydatetime,\r\n",
+					"\tto_date(to_utc_timestamp(to_timestamp(deliverydate), 'GMT-2')) AS `deliverbydate`,\r\n",
+					"    --Date(timezone('GMT-2'::text, to_timestamp(deliverby:double precision))) AS deliverbydate,\r\n",
+					"    date_format(to_utc_timestamp(to_timestamp(deliverby), 'GMT-2'), 'HH:mm:ss') AS deliverbytime,\r\n",
+					"\t--Cast (timezone('GMT-2'::text, to_timestamp(deliverby::double precision)) as time) AS deliverbytime,\r\n",
+					"\t\r\n",
+					"    deliveryorder,\r\n",
+					"\tCast(to_timestamp(tsgeofenceenter) as TIMESTAMP) AS tsgeofenceenter,\r\n",
+					"\tCast(to_timestamp(tsscanningstart) as TIMESTAMP) AS tsscanningstart,\r\n",
+					"\tCast(to_timestamp(tsscanningstop) as TIMESTAMP) AS tsscanningstop,\r\n",
+					"\tCast(to_timestamp(tspodsignature) as TIMESTAMP) AS tspodsignature,\r\n",
+					"\taid,\r\n",
+					"\tnumprcls,\r\n",
+					"\tgeocodingstatus,\r\n",
+					"\tskipdate,\r\n",
+					"\tskipreason,\r\n",
+					"\tstatus,\r\n",
+					"\tpartialmatch,\r\n",
+					"\tapproximated,\r\n",
+					"\tlmsorder,\r\n",
+					"\toptimizedorder,\r\n",
+					"\tseal,\r\n",
+					"\tcustomerinvoice,\r\n",
+					"\tcustomerdn,\r\n",
+					"\tgrv,\r\n",
+					"\tchepslip,\r\n",
+					"\tcleandelivery,\r\n",
+					"\ttrackingcode,\r\n",
+					"\tmode,\r\n",
+					"\tcustomorder,\r\n",
+					"\tverified,\r\n",
+					"\taltered,\r\n",
+					"\torderid,\r\n",
+					"\tlastregioncrossed,\r\n",
+					"    \r\n",
+					"    mergeid,\r\n",
+					"    orderref,\r\n",
+					"    drivernote,\r\n",
+					"    timedefinite,\r\n",
+					"    orvcode,\r\n",
+					"    vaid,\r\n",
+					"    delegatedate,\r\n",
+					"    delegatemode,\r\n",
+					"    debriefmode,\r\n",
+					"    debriefed,\r\n",
+					"    insdate,\r\n",
+					"    reviseddebrief,\r\n",
+					"    lmsdebriefed,\r\n",
+					"    uncanceldate,\r\n",
+					"    podlaterdate,\r\n",
+					"    podmanualdate,\r\n",
+					"    manualdebriefreason,\r\n",
+					"    submanualdebriefreason,\r\n",
+					"    outofgeofencereason,\r\n",
+					"\ttsentergeofenceapp,\r\n",
+					"\ttsexitgeofenceapp,\r\n",
+					"\tcomebacklater,\r\n",
+					"\tuncancelusername,\r\n",
+					"\r\n",
+					"    2 * 3961 * asin(sqrt(pow(sin(radians((pod.lat - delivery.lat) / 2)),2) + cos(radians(delivery.lat)) * cos(radians(pod.lat)) * pow(sin(radians((pod.lng - delivery.lng ) / 2)),2)))*1.60934 as poddistancefromdeliverypoint\r\n",
+					"    --2 * 3961 * asin(sqrt((sin(radians((pod.lat - delivery.lat) / 2))) ^ 2 + cos(radians(delivery.lat)) * cos(radians(pod.lat)) * (sin(radians((pod.lng - delivery.lng ) / 2))) ^ 2))*1.60934 as poddistancefromdeliverypoint\r\n",
+					"\t\r\n",
+					"FROM publicdelivery delivery\r\n",
+					"LEFT JOIN publicpod pod\r\n",
+					"       ON pod.did = delivery.id\r\n",
+					")a\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#delivery.show()\r\n",
+					"delivery.createOrReplaceTempView(\"delivery\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End Of 01a_OnRoute_Extractor_Weekly_06_Delivery"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 03a_Perations_LMS_Extractor_Daily_10_Track"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"spark.sql(\"set vCurrentExtractQVDStartDate = '2022-05-01 01:40:04.797'\")\r\n",
+					"spark.sql(\"set vCurrentExtractQVDEndDate = '2022-06-01 01:40:04.797'\")\r\n",
+					"spark.sql(\"set vStartDate = add_months(trunc(current_date(), 'month'), -3)\")"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"TRACK = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT ID AS TK_ID, \r\n",
+					"ParcelID AS PC_ID, \r\n",
+					"fromlocid AS FL_ID,\r\n",
+					"tolocid AS TL_ID,\r\n",
+					"TrackTypeID AS TT_ID,\r\n",
+					"to_TIMESTAMP(OpenDt, 'YYYY/MM/DD hh:mm:ss') AS TK_OpenDtTime,\r\n",
+					"to_Date(OpenDt,'YYYY/MM/DD') AS TK_OpenDt,\r\n",
+					"to_TIMESTAMP(CloseDt, 'YYYY/MM/DD hh:mm:ss') AS TK_CloseDtTime,\r\n",
+					"to_Date(CloseDt,'YYYY/MM/DD') AS TK_CloseDt,\r\n",
+					"LoadID AS TK_LoadID, \r\n",
+					"UserID AS TK_UserID, \r\n",
+					"touserid AS TK_touserid,  \r\n",
+					"TrackTypeID2 AS TK_TrackTypeID2,\r\n",
+					"WaybillID AS TK_WaybillID\r\n",
+					"\r\n",
+					"FROM(\r\n",
+					"SELECT \r\n",
+					"dbotrack.ID,\r\n",
+					"dbotrack.ParcelID,\r\n",
+					"dbotrack.fromlocid,\r\n",
+					"dbotrack.tolocid,\r\n",
+					"dbotrack.TrackTypeID,\r\n",
+					"\r\n",
+					"dbotrack.OpenDt,\r\n",
+					"dbotrack.CloseDt,\r\n",
+					"dbotrack.LoadID,\r\n",
+					"UserID,\r\n",
+					"\r\n",
+					"dbotrack.touserid,\r\n",
+					"dbotrack.TrackTypeID2,\r\n",
+					"T1.WaybillID AS WaybillID\r\n",
+					"FROM dbotrack\r\n",
+					"LEFT JOIN \r\n",
+					"(\r\n",
+					"\r\n",
+					"\tSELECT \r\n",
+					"\tdboWaybill.LoadID, \r\n",
+					"\tdboWaybill.id AS WaybillID,\r\n",
+					"\tT0.ParcelID\r\n",
+					"\tFROM dboWaybill\r\n",
+					"\tLEFT JOIN\r\n",
+					"\t(\r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tparcelid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM dboWaybillsPerParcel\r\n",
+					"\t\t\tUNION \r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM dboparcel\r\n",
+					"\t\t\tUNION ALL\r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM  dboparcel_archive\r\n",
+					"\t\r\n",
+					"\t) T0 on T0.WaybillID = dboWaybill.id\r\n",
+					")T1 on T1.LoadID = dbotrack.LoadID and T1.ParcelID = dbotrack.ParcelID\r\n",
+					"\r\n",
+					"WHERE OpenDt BETWEEN ${vCurrentExtractQVDStartDate} and ${vCurrentExtractQVDEndDate}\r\n",
+					"AND dbotrack.TrackTypeID in (2,6)\r\n",
+					"\r\n",
+					"UNION ALL\r\n",
+					"\r\n",
+					"SELECT \r\n",
+					"Track_Archive.ID,\r\n",
+					"Track_Archive.ParcelID,\r\n",
+					"Track_Archive.fromlocid,\r\n",
+					"Track_Archive.tolocid,\r\n",
+					"Track_Archive.TrackTypeID,\r\n",
+					"\r\n",
+					"Track_Archive.OpenDt,\r\n",
+					"Track_Archive.CloseDt,\r\n",
+					"Track_Archive.LoadID,\r\n",
+					"UserID,\r\n",
+					"\r\n",
+					"Track_Archive.touserid,\r\n",
+					"Track_Archive.TrackTypeID2,\r\n",
+					"T1.WaybillID AS WaybillID\r\n",
+					"FROM dboTrack_Archive Track_Archive\r\n",
+					"LEFT JOIN \r\n",
+					"(\r\n",
+					"\r\n",
+					"\tSELECT \r\n",
+					"\twaybill.LoadID, \r\n",
+					"\twaybill.id AS WaybillID,\r\n",
+					"\tT0.ParcelID\r\n",
+					"\tFROM dboWaybill waybill\r\n",
+					"\tLEFT JOIN\r\n",
+					"\t(\r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tparcelid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM dboWaybillsPerParcel WaybillsPerParcel\r\n",
+					"\t\t\tUNION \r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM dboparcel parcel\r\n",
+					"\t\t\tUNION ALL\r\n",
+					"\t\tSELECT DISTINCT \r\n",
+					"\t\tid,\r\n",
+					"\t\tWaybillid\r\n",
+					"\t\tFROM dboparcel_archive Parcel_Archive\r\n",
+					"\t\r\n",
+					"\t) T0 on T0.WaybillID = waybill.id\r\n",
+					")T1 on T1.LoadID = Track_Archive.LoadID and T1.ParcelID = Track_Archive.ParcelID\r\n",
+					"\r\n",
+					"WHERE OpenDt BETWEEN ${vCurrentExtractQVDStartDate} and ${vCurrentExtractQVDEndDate}\r\n",
+					"AND Track_Archive.TrackTypeID in (2,6)\r\n",
+					")a\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#TRACK.show()\r\n",
+					"TRACK.createOrReplaceTempView(\"TRACK\")\r\n",
+					"#STORE * FROM \"TRACK\" INTO 'lib://QlikSense Path (cityc_clickview)/QVDs/LMS/Extractor/Daily/TRACK_$(vStoreSuffex).qvd'"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of 03a_Perations_LMS_Extractor_Daily_10_Track"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 01a_OnRoute_Extractor_Weekly_08_POD"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"pod = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT did AS `delivery.id`,\r\n",
+					"       id AS `pod.id`,\r\n",
+					"       name AS `pod.name`,\r\n",
+					"       poddate AS `pod.poddate`,\r\n",
+					"       lat AS `pod.lat`,\r\n",
+					"       lng AS `pod.lng`,\r\n",
+					"       customerrating AS `pod.customerrating`,\r\n",
+					"       customerfeedback AS `pod.customerfeedback`\r\n",
+					"FROM(\r\n",
+					"    SELECT id,\t\r\n",
+					"\t       did,\r\n",
+					"           name,\r\n",
+					"           poddate,\r\n",
+					"           lat,\r\n",
+					"\t       lng,\r\n",
+					"\t       customerrating,\r\n",
+					"\t       customerfeedback\r\n",
+					"    FROM publicpod \r\n",
+					")a\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#pod.show()\r\n",
+					"pod.createOrReplaceTempView(\"pod\")"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of 01a_OnRoute_Extractor_Weekly_08_POD"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 01a_OnRoute_Extractor_Weekly_03_LMS_Collection"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"collection = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT id as `collection.id`,\r\n",
+					"       Date as `collection.date`,\r\n",
+					"       BillCustID as `collection.billcustid`,\r\n",
+					"       BillCustName as `collection.billcustname`,\r\n",
+					"       PickupCustID as `collection.pickupcustid`,\r\n",
+					"       PickupCustName as `collection.pickupcustname`,\r\n",
+					"       DeliverCustID as `collection.delivercustid`, \r\n",
+					"       DeliverCustName as `collection.delivercustname`,\r\n",
+					"       LocationID as `collection.locationid`,\r\n",
+					"       Description as `collection.locationdescription`,\r\n",
+					"       NoOfParcels as `collection.noofparcels`,\r\n",
+					"       Weight as `collection.weight`,\r\n",
+					"       CollectRefNo as `collection.collectrefno`,\r\n",
+					"       OrderID as `collection.orderid`,\r\n",
+					"       OrderDate as `collection.orderdate`,\r\n",
+					"       ConfirmedDate as `collection.confirmeddate`,\r\n",
+					"       TransferredDate as `collection.transfereddate`,\r\n",
+					"       SendDate as `collection.senddate`,\r\n",
+					"       OrvcollectsDate as `collection.orvcollectsdate`,\r\n",
+					"       SentToORVFlag as `collection.senttoorvflag`\r\n",
+					"FROM(\r\n",
+					"SELECT c.id\r\n",
+					"      ,CAST(c.`date` as VARCHAR(23)) AS Date\r\n",
+					"      ,c.BillCust AS BillCustID\r\n",
+					"      ,bc.name AS BillCustName\r\n",
+					"      ,c.PickupCustID\t\r\n",
+					"      ,pc.name as PickupCustName\r\n",
+					"      ,c.DeliverCustID\r\n",
+					"      ,dc.name as DeliverCustName\r\n",
+					"      ,c.LocationID\r\n",
+					"      ,l.Description\r\n",
+					"      ,c.NoOfParcels\r\n",
+					"      ,c.Weight\r\n",
+					"      ,c.CollectRefNo\r\n",
+					"      ,c.OrderID\r\n",
+					"      ,CAST(c.`OrderDate` as VARCHAR(23)) AS OrderDate\r\n",
+					"      ,CAST(c.`ConfirmedDate`as VARCHAR(23)) AS ConfirmedDate\r\n",
+					"      ,CAST(c.`TransferredDate`as VARCHAR(23)) AS TransferredDate\r\n",
+					"      ,CAST(c.`SendDate`as VARCHAR(23)) AS SendDate\r\n",
+					"      ,CAST(oc.`sDate`as VARCHAR(23)) AS OrvcollectsDate\r\n",
+					"      ,CASE WHEN oc.CollectID is not null THEN 1 \r\n",
+					"\t        ELSE 0\r\n",
+					"       END AS SentToORVFlag\r\n",
+					"FROM dboCollect c\r\n",
+					"left join dboCustomer bc on bc.id = c.BillCust\r\n",
+					"left join dboCustomer pc on pc.id = c.PickupCustID\r\n",
+					"left join dboCustomer dc on dc.id = c.DeliverCustID\r\n",
+					"left join dboorv_collect oc on oc.CollectID = c.id\r\n",
+					"left join dboLocation l on l.id = c.LocationID \r\n",
+					"where  c.Date >='2019-10-01 00:00:00.000'\r\n",
+					")a\r\n",
+					"\"\"\")\r\n",
+					"#collection.show()\r\n",
+					"collection.createOrReplaceTempView(\"collection\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 01c_OnRoute_Data_Preparation_Incremental_04_DraftCollection.sql"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"draftcollection = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT id AS `draftcollection.id`,\r\n",
+					"\t   did AS `draftcollection.did`,\r\n",
+					"       tolocid AS `draftcollection.tolocid`,\r\n",
+					"       fromlocid AS `draftcollection.fromlocid`,\r\n",
+					"       loadid AS `draftcollection.loadid`,\r\n",
+					"       status AS `draftcollection.status`,\r\n",
+					"       importedate AS `draftcollection.importedate`,\r\n",
+					"       fromstr AS `draftcollection.fromstr`,\r\n",
+					"       tostr AS `draftcollection.tostr`,\r\n",
+					"       mergedlmsid AS `draftcollection.mergedlmsid`,\r\n",
+					"       rejectdate  AS `draftcollection.rejectdate`,\r\n",
+					"       confirmdate AS `draftcollection.confirmdate`,\r\n",
+					"       handledby AS `draftcollection.handledby`,\r\n",
+					"       jsondata AS `draftcollection.jsondata`,\r\n",
+					"       nocollection AS `draftcollection.nocollection`,\r\n",
+					"       customerref AS `draftcollection.customerref`,\r\n",
+					"       collectionwaybillid AS `draftcollection.collectionwaybillid`,\r\n",
+					"       collectbytime AS `draftcollection.collectbytime`,\r\n",
+					"       collectbydate AS `draftcollection.collectbydate`,\r\n",
+					"       rejectreason AS `draftcollection.rejectreason`,\r\n",
+					"       cancelctr AS `draftcollection.cancelctr`\r\n",
+					"FROM(\r\n",
+					"SELECT `id`,\t\r\n",
+					"\t`tolocid`,\r\n",
+					"\t`fromlocid`,\r\n",
+					"\t`loadid`,\r\n",
+					"\t`status`,\r\n",
+					"    to_date(to_utc_timestamp(to_timestamp(importedate), 'GMT-2')) AS `importedate`,\r\n",
+					"\t--Date(timezone('GMT-2'::text, to_timestamp(`importedate`::double precision))) AS `importedate`,\r\n",
+					"\t`fromstr`,\r\n",
+					"\t`tostr`,\r\n",
+					"\t`did`,\r\n",
+					"\t`mergedlmsid`,\r\n",
+					"\t`rejectdate`,\r\n",
+					"\t`confirmdate`,\r\n",
+					"\t`handledby`,\r\n",
+					"\t`jsondata`,\r\n",
+					"\t`nocollection`,\r\n",
+					"\t`customerref`,\r\n",
+					"\t`collectionwaybillid`,\r\n",
+					"    to_date(to_utc_timestamp(to_timestamp(collectbydate), 'GMT-2')) AS `collectbydate`,\r\n",
+					"\t--Date(timezone('GMT-2'::text, to_timestamp(`collectbydate`::double precision))) AS `collectbydate`,\r\n",
+					"   date_format(to_utc_timestamp(to_timestamp(collectbydate), 'GMT-2'), 'HH:mm:ss') AS `collectbytime`,\r\n",
+					"\t--Cast (timezone('GMT-2'::text, to_timestamp(`collectbydate`::double precision)) as time) AS `collectbytime`,\r\n",
+					"\t`rejectreason`,\r\n",
+					"\t`cancelctr`\r\n",
+					"FROM publicdraftcollection\r\n",
+					"WHERE to_utc_timestamp(to_timestamp(collectbydate), 'GMT-2') >='2019-10-01 00:00:00.000'\r\n",
+					")a\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#draftcollection.show()\r\n",
+					"draftcollection.createOrReplaceTempView(\"draftcollection\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"draftcollectiontmp = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `draftcollection.collectionwaybillid` AS `collection.id`,\r\n",
+					"       `draftcollection.collectionwaybillid`,\r\n",
+					"       `draftcollection.id`,\r\n",
+					"       `draftcollection.did`,\r\n",
+					"       `draftcollection.tolocid`,\r\n",
+					"       `draftcollection.fromlocid`,\r\n",
+					"       `draftcollection.loadid`,\r\n",
+					"       `draftcollection.status`,\r\n",
+					"       `draftcollection.importedate`,\r\n",
+					"       `draftcollection.fromstr`,\r\n",
+					"       `draftcollection.tostr`,\r\n",
+					"       `draftcollection.mergedlmsid`,\r\n",
+					"       `draftcollection.rejectdate`,\r\n",
+					"       `draftcollection.confirmdate`,\r\n",
+					"       `draftcollection.handledby`,\r\n",
+					"       `draftcollection.jsondata`,\r\n",
+					"       `draftcollection.nocollection`,\r\n",
+					"       `draftcollection.customerref`,\r\n",
+					"       `draftcollection.collectbytime`,\r\n",
+					"       `draftcollection.collectbydate`,\r\n",
+					"       `draftcollection.rejectreason`,\r\n",
+					"       `draftcollection.cancelctr`\r\n",
+					"FROM draftcollection\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#draftcollectiontmp.show()\r\n",
+					"draftcollectiontmp.createOrReplaceTempView(\"draftcollectiontmp\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"collection = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT c.*,\r\n",
+					"      `draftcollection.collectionwaybillid` AS `delivery.waybillid`,\r\n",
+					"      `draftcollection.collectionwaybillid`,\r\n",
+					"      `draftcollection.id`,\r\n",
+					"      `draftcollection.did`,\r\n",
+					"      `draftcollection.tolocid`,\r\n",
+					"      `draftcollection.fromlocid`,\r\n",
+					"      `draftcollection.loadid`,\r\n",
+					"      `draftcollection.status`,\r\n",
+					"      `draftcollection.importedate`,\r\n",
+					"      `draftcollection.fromstr`,\r\n",
+					"      `draftcollection.tostr`,\r\n",
+					"      `draftcollection.mergedlmsid`,\r\n",
+					"      `draftcollection.rejectdate`,\r\n",
+					"      `draftcollection.confirmdate`,\r\n",
+					"      `draftcollection.handledby`,\r\n",
+					"      `draftcollection.jsondata`,\r\n",
+					"      `draftcollection.nocollection`,\r\n",
+					"      `draftcollection.customerref`,\r\n",
+					"      `draftcollection.collectbytime`,\r\n",
+					"      `draftcollection.collectbydate`,\r\n",
+					"      `draftcollection.rejectreason`,\r\n",
+					"      `draftcollection.cancelctr`\r\n",
+					"FROM `collection` c\r\n",
+					"LEFT JOIN draftcollectiontmp d \r\n",
+					"       ON c.`collection.id` = d.`collection.id`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#collection.show()\r\n",
+					"collection.createOrReplaceTempView(\"collection\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 01c_OnRoute_Data_Preparation_Incremental_05_Delivery"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"delivery = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `dispatch.id`,\r\n",
+					"\t`delivery.id`,\r\n",
+					"\t`delivery.dispatch.id`,\r\n",
+					"\t`delivery.customerid`,\r\n",
+					"\t`delivery.waybillid`,\r\n",
+					"\t`delivery.address`,\r\n",
+					"\t`delivery.town`,\r\n",
+					"\t`delivery.province`,\r\n",
+					"\t`delivery.country`,\r\n",
+					"\t`delivery.lat`,\r\n",
+					"\t`delivery.lng`,\r\n",
+					"\t`delivery.placeid`,\r\n",
+					"\t`delivery.what3words`,\r\n",
+					"\t`delivery.zipcode`,\r\n",
+					"\t`delivery.billingcustid`,\r\n",
+					"\t`delivery.eta`,\r\n",
+					"\t`delivery.actualeta`,\r\n",
+					"\t`delivery.deliverydatetime`,\r\n",
+					"\t`delivery.deliverydate`,\r\n",
+					"\t`delivery.deliverytime`,\r\n",
+					"\t`delivery.deliverbydatetime`,\r\n",
+					"\t`delivery.deliverbydate`,\r\n",
+					"\t`delivery.deliverbytime`,\r\n",
+					"\t`delivery.deliveryorder`,\r\n",
+					"\t`delivery.tsgeofenceenter`,\r\n",
+					"\t`delivery.tsscanningstart`,\r\n",
+					"\t`delivery.tsscanningstop`,\r\n",
+					"\t`delivery.tspodsignature`,\r\n",
+					"\t`delivery.aid`,\r\n",
+					"\t`delivery.numprcls`,\r\n",
+					"\t`delivery.geocodingstatus`,\r\n",
+					"\t`delivery.skipdate`,\r\n",
+					"\t`delivery.skipreason`,\r\n",
+					"\t`delivery.status`,\r\n",
+					"\t`delivery.partialmatch`,\r\n",
+					"\t`delivery.approximated`,\r\n",
+					"\t`delivery.lmsorder`,\r\n",
+					"\t`delivery.optimizedorder`,\r\n",
+					"\t`delivery.seal`,\r\n",
+					"\t`delivery.customerinvoice`,\r\n",
+					"\t`delivery.customerdn`,\r\n",
+					"\t`delivery.grv`,\r\n",
+					"\t`delivery.chepslip`,\r\n",
+					"\t`delivery.cleandelivery`,\r\n",
+					"\t`delivery.trackingcode`,\r\n",
+					"\t`delivery.mode`,\r\n",
+					"\t`delivery.customorder`,\r\n",
+					"\t`delivery.verified`,\r\n",
+					"\t`delivery.altered`,\r\n",
+					"\t`delivery.orderid`,\r\n",
+					"\t`delivery.lastregioncrossed`,\r\n",
+					"    `delivery.mergeid`,\r\n",
+					"    `delivery.orderref`,\r\n",
+					"    `delivery.drivernote`,\r\n",
+					"    `delivery.timedefinite`,\r\n",
+					"    `delivery.orvcode`,\r\n",
+					"    `delivery.vaid`,\r\n",
+					"    `delivery.delegatedate`,\r\n",
+					"    `delivery.delegatemode`,\r\n",
+					"    `delivery.debriefmode`,\r\n",
+					"    `delivery.debriefed`,\r\n",
+					"    `delivery.insdate`,\r\n",
+					"    `delivery.reviseddebrief`,\r\n",
+					"    `delivery.lmsdebriefed`,\r\n",
+					"    `delivery.uncanceldate`,\r\n",
+					"    `delivery.podlaterdate`,\r\n",
+					"    `delivery.podmanualdate`,\r\n",
+					"    `delivery.manualdebriefreason`,\r\n",
+					"    `delivery.submanualdebriefreason`,\r\n",
+					"    `delivery.outofgeofencereason`,\r\n",
+					"\t`delivery.tsentergeofenceapp`,\r\n",
+					"\t`delivery.tsexitgeofenceapp`,\r\n",
+					"\t`delivery.comebacklater`,\r\n",
+					"\t`delivery.uncancelusername`,\r\n",
+					"    `delivery.poddistancefromdeliverypoint`\r\n",
+					"FROM delivery\r\n",
+					"WHERE `dispatch.id` IS NOT NULL\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#delivery.show()\r\n",
+					"delivery.createOrReplaceTempView(\"delivery\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT *\r\n",
+					"FROM delivery\r\n",
+					"WHERE `delivery.poddistancefromdeliverypoint` IS NOT NULL"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"delivery = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT d.*,\r\n",
+					"    c.`draftcollection.collectionwaybillid` AS `delivery.waybillid`, \r\n",
+					"    c.`collection.id`,\r\n",
+					"    c.`collection.date`,\r\n",
+					"    c.`collection.billcustid`,\r\n",
+					"    c.`collection.billcustname`,\r\n",
+					"    c.`collection.pickupcustid`,\r\n",
+					"    c.`collection.pickupcustname`,\r\n",
+					"    c.`collection.delivercustid`, \r\n",
+					"    c.`collection.delivercustname`,\r\n",
+					"    c.`collection.locationid`,\r\n",
+					"    c.`collection.locationdescription`,\r\n",
+					"    c.`collection.noofparcels`,\r\n",
+					"    c.`collection.weight`,\r\n",
+					"    c.`collection.collectrefno`,\r\n",
+					"    c.`collection.orderid`,\r\n",
+					"    c.`collection.orderdate`,\r\n",
+					"    c.`collection.confirmeddate`,\r\n",
+					"    c.`collection.transfereddate`,\r\n",
+					"    c.`collection.senddate`,\r\n",
+					"    c.`collection.orvcollectsdate`,\r\n",
+					"    c.`collection.senttoorvflag`,\r\n",
+					"    c.`draftcollection.id`,\r\n",
+					"\tc.`draftcollection.did`,\r\n",
+					"\tc.`draftcollection.tolocid`,\r\n",
+					"\tc.`draftcollection.fromlocid`,\r\n",
+					"\tc.`draftcollection.loadid`,\r\n",
+					"\tc.`draftcollection.status`,\r\n",
+					"\tc.`draftcollection.importedate`,\r\n",
+					"\tc.`draftcollection.fromstr`,\r\n",
+					"\tc.`draftcollection.tostr`,\r\n",
+					"\tc.`draftcollection.mergedlmsid`,\r\n",
+					"\tc.`draftcollection.rejectdate`,\r\n",
+					"\tc.`draftcollection.confirmdate`,\r\n",
+					"\tc.`draftcollection.handledby`,\r\n",
+					"\tc.`draftcollection.jsondata`,\r\n",
+					"\tc.`draftcollection.nocollection`,\r\n",
+					"\tc.`draftcollection.customerref`,\r\n",
+					"    c.`draftcollection.collectionwaybillid`, \r\n",
+					"\tc.`draftcollection.collectbytime`,\r\n",
+					"\tc.`draftcollection.collectbydate`,\r\n",
+					"\tc.`draftcollection.rejectreason`,\r\n",
+					"\tc.`draftcollection.cancelctr`\r\n",
+					"FROM `collection` c\r\n",
+					"LEFT OUTER JOIN `delivery` d\r\n",
+					"USING (`delivery.waybillid`)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#delivery.show()\r\n",
+					"delivery.createOrReplaceTempView(\"delivery\")"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## END OF:  01c_OnRoute_Data_Preparation_Incremental_05_Delivery"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT wl3.*,\r\n",
+					"\r\n",
+					"`delivery.id` AS `WL_delivery.id`,\r\n",
+					"`dispatch.id` AS `WL_dispatch.id`,\r\n",
+					"--`delivery.waybillid` AS `WL_WaybillID`,\r\n",
+					"`delivery.dispatch.id` AS `WL_delivery.dispatch.id`,\r\n",
+					"`delivery.customerid` AS `WL_delivery.customerid`,\r\n",
+					"\r\n",
+					"`delivery.address` AS `WL_delivery.address`,\r\n",
+					"`delivery.town` AS `WL_delivery.town`,\r\n",
+					"`delivery.province` AS `WL_delivery.province`,\r\n",
+					"`delivery.country` AS `WL_delivery.country`,\r\n",
+					"`delivery.lat` AS `WL_delivery.lat`,\r\n",
+					"`delivery.lng` AS `WL_delivery.lng`,\r\n",
+					"concat(`delivery.lat`, `delivery.lng`) AS `WL_delivery.geopoint`,\r\n",
+					"`delivery.placeid` AS `WL_delivery.placeid`,\r\n",
+					"`delivery.what3words` AS `WL_delivery.what3words`,\r\n",
+					"`delivery.zipcode` AS `WL_delivery.zipcode`,\r\n",
+					"`delivery.billingcustid` AS `WL_delivery.billingcustid`,\r\n",
+					"Timestamp(`delivery.eta`) AS `WL_delivery.eta`, --,'YYYY/MM/DD hh:mm:ss`.fff`'\r\n",
+					"Timestamp(`delivery.actualeta`) AS `WL_delivery.actualeta`, --,'YYYY/MM/DD hh:mm:ss`.fff`'\r\n",
+					"Timestamp(`delivery.deliverydatetime`) AS `WL_delivery.deliverydatetime`, --,'YYYY/MM/DD hh:mm:ss`.fff`'\r\n",
+					"Date(`delivery.deliverydate`) AS `WL_delivery.deliverydate`, --,'YYYY/MM/DD'\r\n",
+					"`delivery.deliverytime` AS `WL_delivery.deliverytime`,\r\n",
+					"Timestamp(`delivery.deliverbydatetime`) AS `WL_delivery.deliverbydatetime`, --,'YYYY/MM/DD hh:mm:ss`.fff`'\r\n",
+					"Date(`delivery.deliverbydate`) AS `WL_delivery.deliverbydate`, --,'YYYY/MM/DD'\r\n",
+					"`delivery.deliverbytime` AS `WL_delivery.deliverbytime`,\r\n",
+					"`delivery.deliveryorder` AS `WL_delivery.deliveryorder`,\r\n",
+					"`delivery.tsgeofenceenter` AS `WL_delivery.tsgeofenceenter`,\r\n",
+					"`delivery.tsscanningstart` AS `WL_delivery.tsscanningstart`,\r\n",
+					"`delivery.tsscanningstop` AS `WL_delivery.tsscanningstop`,\r\n",
+					"`delivery.tspodsignature` AS `WL_delivery.tspodsignature`,\r\n",
+					"`delivery.aid` AS `WL_delivery.aid`,\r\n",
+					"`delivery.numprcls` AS `WL_delivery.numprcls`,\r\n",
+					"`delivery.geocodingstatus` AS `WL_delivery.geocodingstatus`,\r\n",
+					"`delivery.skipdate` AS `WL_delivery.skipdate`,\r\n",
+					"`delivery.skipreason` AS `WL_delivery.skipreason`,\r\n",
+					"`delivery.status` AS `WL_delivery.status`,\r\n",
+					"`delivery.partialmatch` AS `WL_delivery.partialmatch`,\r\n",
+					"`delivery.approximated` AS `WL_delivery.approximated`,\r\n",
+					"`delivery.lmsorder` AS `WL_delivery.lmsorder`,\r\n",
+					"`delivery.optimizedorder` AS `WL_delivery.optimizedorder`,\r\n",
+					"`delivery.seal` AS `WL_delivery.seal`,\r\n",
+					"`delivery.customerinvoice` AS `WL_delivery.customerinvoice`,\r\n",
+					"`delivery.customerdn` AS `WL_delivery.customerdn`,\r\n",
+					"`delivery.grv` AS `WL_delivery.grv`,\r\n",
+					"`delivery.chepslip` AS `WL_delivery.chepslip`,\r\n",
+					"`delivery.cleandelivery` AS `WL_delivery.cleandelivery`,\r\n",
+					"`delivery.trackingcode` AS `WL_delivery.trackingcode`,\r\n",
+					"if(isnull(`delivery.mode`),'deliver',`delivery.mode`) AS `WL_delivery.mode`,\r\n",
+					"`delivery.customorder` AS `WL_delivery.customorder`,\r\n",
+					"`delivery.verified` AS `WL_delivery.verified`,\r\n",
+					"`delivery.altered` AS `WL_delivery.altered`,\r\n",
+					"`delivery.orderid` AS `WL_delivery.orderid`,\r\n",
+					"`delivery.lastregioncrossed` AS `WL_delivery.lastregioncrossed`,\r\n",
+					"\r\n",
+					"`delivery.mergeid` AS `WL_delivery.mergeid`,\r\n",
+					"`delivery.orderref` AS `WL_delivery.orderref`,\r\n",
+					"`delivery.drivernote` AS `WL_delivery.drivernote`,\r\n",
+					"`delivery.timedefinite` AS `WL_delivery.timedefinite`,\r\n",
+					"`delivery.orvcode` AS `WL_delivery.orvcode`,\r\n",
+					"`delivery.vaid` AS `WL_delivery.vaid`,\r\n",
+					"`delivery.delegatedate` AS `WL_delivery.delegatedate`,\r\n",
+					"`delivery.delegatemode` AS `WL_delivery.delegatemode`,\r\n",
+					"`delivery.debriefmode` AS `WL_delivery.debriefmode`,\r\n",
+					"`delivery.debriefed` AS `WL_delivery.debriefed`,\r\n",
+					"`delivery.insdate` AS `WL_delivery.insdate`,\r\n",
+					"`delivery.reviseddebrief` AS `WL_delivery.reviseddebrief`,\r\n",
+					"`delivery.lmsdebriefed` AS `WL_delivery.lmsdebriefed`,\r\n",
+					"`delivery.uncanceldate` AS `WL_delivery.uncanceldate`,\r\n",
+					"`delivery.podlaterdate` AS `WL_delivery.podlaterdate`,\r\n",
+					"`delivery.podmanualdate` AS `WL_delivery.podmanualdate`,\r\n",
+					"`delivery.manualdebriefreason` AS `WL_delivery.manualdebriefreason`,\r\n",
+					"`delivery.submanualdebriefreason` AS `WL_delivery.submanualdebriefreason`,\r\n",
+					"`delivery.outofgeofencereason` AS `WL_delivery.outofgeofencereason`,\r\n",
+					"`delivery.tsentergeofenceapp` AS `WL_delivery.tsentergeofenceapp`,\r\n",
+					"`delivery.tsexitgeofenceapp` AS `WL_delivery.tsexitgeofenceapp`,\r\n",
+					"`delivery.comebacklater` AS `WL_delivery.comebacklater`,\r\n",
+					"`delivery.uncancelusername` AS `WL_delivery.uncancelusername`,\r\n",
+					"`delivery.poddistancefromdeliverypoint` AS `WL_delivery.poddistancefromdeliverypoint`\r\n",
+					"\r\n",
+					"FROM WAYBILLPERLOAD_3 wl3\r\n",
+					"LEFT JOIN delivery\r\n",
+					"ON wl3.WL_WaybillID = `delivery.waybillid`\r\n",
+					"WHERE `dispatch.id` IS NOT NULL\r\n",
+					"--WHERE `delivery.poddistancefromdeliverypoint` IS NOT NULL"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 03e_Operations_LMS_OnRouteDet_3MRolling_44_WaybillPerLoad"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"WAYBILLPERLOAD = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT DISTINCT TK_LoadID AS WL_LoadID,\r\n",
+					"\tTK_WaybillID AS WL_WaybillID,\r\n",
+					"    TK_SetLMSNoOfParcelLoadedFlag AS WL_SetLMSNoOfParcelLoadedFlag,\r\n",
+					"    Count(PC_ID) AS WL_NoOfParcelsLoaded -- adding this to be able to count the number of parcel at the time of load -> Waybill id on the parcel table is the waybill the parcel was delivered on and the waybill per parel table is inaccurate so we need to count parcels loaded through track\r\n",
+					"    \r\n",
+					"FROM T_TRACK\r\n",
+					"GROUP BY TK_LoadID, TK_WaybillID, TK_SetLMSNoOfParcelLoadedFlag\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#WAYBILLPERLOAD.show()\r\n",
+					"WAYBILLPERLOAD.createOrReplaceTempView(\"WAYBILLPERLOAD\")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"WAYBILLPERLOAD_2 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT wl.*,\r\n",
+					"       l.LD_ParentLoadID AS WL_ParentLoadID\r\n",
+					"FROM WAYBILLPERLOAD wl\r\n",
+					"LEFT JOIN T_LOAD l\r\n",
+					"       ON wl.WL_LoadID = l.LD_ID\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#WAYBILLPERLOAD_2.show\r\n",
+					"WAYBILLPERLOAD_2.createOrReplaceTempView(\"WAYBILLPERLOAD_2\")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"WAYBILLPERLOAD_3 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT wl2.*,\r\n",
+					"       \r\n",
+					"       w.WB_DDate AS WL_DDate,\r\n",
+					"       w.WB_DDateTime AS WL_DDateTime,\r\n",
+					"       w.WB_PODDate AS WL_PODDate,\r\n",
+					"       w.WB_PODDateTime AS WL_PODDateTime,\r\n",
+					"       w.WB_DelayReason AS WL_DelayReason,\r\n",
+					"       w.WB_DeliveryStatus AS WL_DeliveryStatus,\r\n",
+					"       w.WB_InServiceReason AS WL_InServiceReason,\r\n",
+					"       w.WB_InServiceReasonGroup AS WL_InServiceReasonGroup,\r\n",
+					"       w.WB_NotDebriefedReason AS WL_NotDebriefedReason,\r\n",
+					"       w.WB_ReasonDetail AS WL_ReasonDetail,\r\n",
+					"       w.WB_DeBriefed AS WL_DeBriefed,\r\n",
+					"       w.WB_DeBriefDt AS WL_DeBriefDt,\r\n",
+					"       w.WB_ReasonGroup AS WL_ReasonGroup,\r\n",
+					"       w.WB_NoOfParcels AS WL_NoOfParcelsDelivered --effectively this is what was delivered on the waybill on the load as the parcel moves to a new waybill if returned and redelivered\r\n",
+					"FROM WAYBILLPERLOAD_2 wl2\r\n",
+					"LEFT JOIN WAYBILL w\r\n",
+					"       ON wl2.WL_WaybillID = w.WB_ID\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#WAYBILLPERLOAD_3.show()\r\n",
+					"WAYBILLPERLOAD_3.createOrReplaceTempView(\"WAYBILLPERLOAD_3\")"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT * --DISTINCT WL_WaybillID\r\n",
+					"FROM WAYBILLPERLOAD_3\r\n",
+					"WHERE WL_WaybillID IS NULL\r\n",
+					"ORDER BY WL_WaybillID\r\n",
+					"LIMIT 1000"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End Of 03e_Operations_LMS_OnRouteDet_3MRolling_44_WaybillPerLoad"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 03e_Operations_LMS_OnRouteDet_3MRolling_45_DeliveryWaybillPerLoad"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"WAYBILLPERLOAD_4 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT w3.*,\r\n",
+					"`delivery.id` AS `WL_delivery.id`,\r\n",
+					"`dispatch.id` AS `WL_dispatch.id`,\r\n",
+					"--`delivery.waybillid` AS `WL_WaybillID`,\r\n",
+					"`delivery.dispatch.id` AS `WL_delivery.dispatch.id`,\r\n",
+					"`delivery.customerid` AS `WL_delivery.customerid`,\r\n",
+					"\r\n",
+					"`delivery.address` AS `WL_delivery.address`,\r\n",
+					"`delivery.town` AS `WL_delivery.town`,\r\n",
+					"`delivery.province` AS `WL_delivery.province`,\r\n",
+					"`delivery.country` AS `WL_delivery.country`,\r\n",
+					"`delivery.lat` AS `WL_delivery.lat`,\r\n",
+					"`delivery.lng` AS `WL_delivery.lng`,\r\n",
+					"concat(`delivery.lat`, `delivery.lng`) AS `WL_delivery.geopoint`,\r\n",
+					"`delivery.placeid` AS `WL_delivery.placeid`,\r\n",
+					"`delivery.what3words` AS `WL_delivery.what3words`,\r\n",
+					"`delivery.zipcode` AS `WL_delivery.zipcode`,\r\n",
+					"`delivery.billingcustid` AS `WL_delivery.billingcustid`,\r\n",
+					"Timestamp(`delivery.eta`) AS `WL_delivery.eta`, --,'YYYY/MM/DD hh:mm:ss`.fff`'\r\n",
+					"Timestamp(`delivery.actualeta`) AS `WL_delivery.actualeta`, --,'YYYY/MM/DD hh:mm:ss`.fff`'\r\n",
+					"Timestamp(`delivery.deliverydatetime`) AS `WL_delivery.deliverydatetime`, --,'YYYY/MM/DD hh:mm:ss`.fff`'\r\n",
+					"Date(`delivery.deliverydate`) AS `WL_delivery.deliverydate`, --,'YYYY/MM/DD'\r\n",
+					"`delivery.deliverytime` AS `WL_delivery.deliverytime`,\r\n",
+					"Timestamp(`delivery.deliverbydatetime`) AS `WL_delivery.deliverbydatetime`, --,'YYYY/MM/DD hh:mm:ss`.fff`'\r\n",
+					"Date(`delivery.deliverbydate`) AS `WL_delivery.deliverbydate`,  --,'YYYY/MM/DD'\r\n",
+					"`delivery.deliverbytime` AS `WL_delivery.deliverbytime`,\r\n",
+					"`delivery.deliveryorder` AS `WL_delivery.deliveryorder`,\r\n",
+					"`delivery.tsgeofenceenter` AS `WL_delivery.tsgeofenceenter`,\r\n",
+					"`delivery.tsscanningstart` AS `WL_delivery.tsscanningstart`,\r\n",
+					"`delivery.tsscanningstop` AS `WL_delivery.tsscanningstop`,\r\n",
+					"`delivery.tspodsignature` AS `WL_delivery.tspodsignature`,\r\n",
+					"`delivery.aid` AS `WL_delivery.aid`,\r\n",
+					"`delivery.numprcls` AS `WL_delivery.numprcls`,\r\n",
+					"`delivery.geocodingstatus` AS `WL_delivery.geocodingstatus`,\r\n",
+					"`delivery.skipdate` AS `WL_delivery.skipdate`,\r\n",
+					"`delivery.skipreason` AS `WL_delivery.skipreason`,\r\n",
+					"`delivery.status` AS `WL_delivery.status`,\r\n",
+					"`delivery.partialmatch` AS `WL_delivery.partialmatch`,\r\n",
+					"`delivery.approximated` AS `WL_delivery.approximated`,\r\n",
+					"`delivery.lmsorder` AS `WL_delivery.lmsorder`,\r\n",
+					"`delivery.optimizedorder` AS `WL_delivery.optimizedorder`,\r\n",
+					"`delivery.seal` AS `WL_delivery.seal`,\r\n",
+					"`delivery.customerinvoice` AS `WL_delivery.customerinvoice`,\r\n",
+					"`delivery.customerdn` AS `WL_delivery.customerdn`,\r\n",
+					"`delivery.grv` AS `WL_delivery.grv`,\r\n",
+					"`delivery.chepslip` AS `WL_delivery.chepslip`,\r\n",
+					"`delivery.cleandelivery` AS `WL_delivery.cleandelivery`,\r\n",
+					"`delivery.trackingcode` AS `WL_delivery.trackingcode`,\r\n",
+					"if(isnull(`delivery.mode`),'deliver',`delivery.mode`) AS `WL_delivery.mode`,\r\n",
+					"`delivery.customorder` AS `WL_delivery.customorder`,\r\n",
+					"`delivery.verified` AS `WL_delivery.verified`,\r\n",
+					"`delivery.altered` AS `WL_delivery.altered`,\r\n",
+					"`delivery.orderid` AS `WL_delivery.orderid`,\r\n",
+					"`delivery.lastregioncrossed` AS `WL_delivery.lastregioncrossed`,\r\n",
+					"\r\n",
+					"`delivery.mergeid` AS `WL_delivery.mergeid`,\r\n",
+					"`delivery.orderref` AS `WL_delivery.orderref`,\r\n",
+					"`delivery.drivernote` AS `WL_delivery.drivernote`,\r\n",
+					"`delivery.timedefinite` AS `WL_delivery.timedefinite`,\r\n",
+					"`delivery.orvcode` AS `WL_delivery.orvcode`,\r\n",
+					"`delivery.vaid` AS `WL_delivery.vaid`,\r\n",
+					"`delivery.delegatedate` AS `WL_delivery.delegatedate`,\r\n",
+					"`delivery.delegatemode` AS `WL_delivery.delegatemode`,\r\n",
+					"`delivery.debriefmode` AS `WL_delivery.debriefmode`,\r\n",
+					"`delivery.debriefed` AS `WL_delivery.debriefed`,\r\n",
+					"`delivery.insdate` AS `WL_delivery.insdate`,\r\n",
+					"`delivery.reviseddebrief` AS `WL_delivery.reviseddebrief`,\r\n",
+					"`delivery.lmsdebriefed` AS `WL_delivery.lmsdebriefed`,\r\n",
+					"`delivery.uncanceldate` AS `WL_delivery.uncanceldate`,\r\n",
+					"`delivery.podlaterdate` AS `WL_delivery.podlaterdate`,\r\n",
+					"`delivery.podmanualdate` AS `WL_delivery.podmanualdate`,\r\n",
+					"`delivery.manualdebriefreason` AS `WL_delivery.manualdebriefreason`,\r\n",
+					"`delivery.submanualdebriefreason` AS `WL_delivery.submanualdebriefreason`,\r\n",
+					"`delivery.outofgeofencereason` AS `WL_delivery.outofgeofencereason`,\r\n",
+					"`delivery.tsentergeofenceapp` AS `WL_delivery.tsentergeofenceapp`,\r\n",
+					"`delivery.tsexitgeofenceapp` AS `WL_delivery.tsexitgeofenceapp`,\r\n",
+					"`delivery.comebacklater` AS `WL_delivery.comebacklater`,\r\n",
+					"`delivery.uncancelusername` AS `WL_delivery.uncancelusername`,\r\n",
+					"`delivery.poddistancefromdeliverypoint` AS `WL_delivery.poddistancefromdeliverypoint`\r\n",
+					"FROM delivery\r\n",
+					"LEFT JOIN WAYBILLPERLOAD_3 w3\r\n",
+					"       ON `delivery.waybillid` = w3.WL_WaybillID\r\n",
+					"--FROM `lib://QlikSense Path (cityc_clickview)/QVDs/OnRoute/delivery_prepared.qvd` (qvd)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#WAYBILLPERLOAD_4.show()\r\n",
+					"WAYBILLPERLOAD_4.createOrReplaceTempView(\"WAYBILLPERLOAD_4\")"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"WAYBILLPERLOAD_5 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT w4.*,\r\n",
+					"\t`dispatch.lmsid` AS WL_ParentLoadIDTMP\r\n",
+					"FROM T_dispatch\r\n",
+					"LEFT JOIN WAYBILLPERLOAD_4 w4\r\n",
+					"       ON `dispatch.id` = `WL_dispatch.id`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#WAYBILLPERLOAD_5.show()\r\n",
+					"WAYBILLPERLOAD_5.createOrReplaceTempView(\"WAYBILLPERLOAD_5\")"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"WAYBILLPERLOADTMP = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `WL_WaybillID`,\r\n",
+					"if(isnull(WL_LoadID),WL_ParentLoadIDTMP,WL_LoadID) AS `WL_LoadID`,\r\n",
+					"if(isnull(WL_ParentLoadID),WL_ParentLoadIDTMP,WL_ParentLoadID) AS `WL_ParentLoadID`, \r\n",
+					"`WL_DDate`,\r\n",
+					"`WL_DDateTime`,\r\n",
+					"`WL_DeBriefDt`,\r\n",
+					"`WL_DeBriefed`,\r\n",
+					"`WL_DelayReason`,\r\n",
+					"`WL_DeliveryStatus`,\r\n",
+					"`WL_InServiceReason`,\r\n",
+					"`WL_InServiceReasonGroup`,\r\n",
+					"`WL_NoOfParcelsDelivered`,\r\n",
+					"`WL_SetLMSNoOfParcelLoadedFlag`, \r\n",
+					"`WL_NoOfParcelsLoaded`,\r\n",
+					"`WL_NotDebriefedReason`,  \r\n",
+					"`WL_PODDate`,\r\n",
+					"`WL_PODDateTime`,\r\n",
+					"`WL_ReasonDetail`,\r\n",
+					"`WL_ReasonGroup`,\r\n",
+					"    \r\n",
+					"`WL_dispatch.id`,\r\n",
+					"`WL_delivery.id`,\r\n",
+					"`WL_delivery.dispatch.id`,\r\n",
+					"`WL_delivery.customerid`,\r\n",
+					"`WL_delivery.address`,\r\n",
+					"`WL_delivery.town`,\r\n",
+					"`WL_delivery.province`,\r\n",
+					"`WL_delivery.country`,\r\n",
+					"`WL_delivery.lat`,\r\n",
+					"`WL_delivery.lng`,\r\n",
+					"`WL_delivery.geopoint`,\r\n",
+					"`WL_delivery.placeid`,\r\n",
+					"`WL_delivery.what3words`,\r\n",
+					"`WL_delivery.zipcode`,\r\n",
+					"`WL_delivery.billingcustid`,\r\n",
+					"`WL_delivery.eta`,\r\n",
+					"`WL_delivery.actualeta`,\r\n",
+					"`WL_delivery.deliverydatetime`,\r\n",
+					"`WL_delivery.deliverydate`,\r\n",
+					"`WL_delivery.deliverytime`,\r\n",
+					"`WL_delivery.deliverbydatetime`,\r\n",
+					"`WL_delivery.deliverbydate`,\r\n",
+					"`WL_delivery.deliverbytime`,\r\n",
+					"`WL_delivery.deliveryorder`,\r\n",
+					"`WL_delivery.tsgeofenceenter`,\r\n",
+					"`WL_delivery.tsscanningstart`,\r\n",
+					"`WL_delivery.tsscanningstop`,\r\n",
+					"`WL_delivery.tspodsignature`,\r\n",
+					"`WL_delivery.aid`,\r\n",
+					"`WL_delivery.numprcls`,\r\n",
+					"`WL_delivery.geocodingstatus`,\r\n",
+					"`WL_delivery.skipdate`,\r\n",
+					"`WL_delivery.skipreason`,\r\n",
+					"`WL_delivery.status`,\r\n",
+					"`WL_delivery.partialmatch`,\r\n",
+					"`WL_delivery.approximated`,\r\n",
+					"`WL_delivery.lmsorder`,\r\n",
+					"`WL_delivery.optimizedorder`,\r\n",
+					"`WL_delivery.seal`,\r\n",
+					"`WL_delivery.customerinvoice`,\r\n",
+					"`WL_delivery.customerdn`,\r\n",
+					"`WL_delivery.grv`,\r\n",
+					"`WL_delivery.chepslip`,\r\n",
+					"`WL_delivery.cleandelivery`,\r\n",
+					"`WL_delivery.trackingcode`,\r\n",
+					"`WL_delivery.mode`,\r\n",
+					"`WL_delivery.customorder`,\r\n",
+					"`WL_delivery.verified`,\r\n",
+					"`WL_delivery.altered`,\r\n",
+					"`WL_delivery.orderid`,\r\n",
+					"`WL_delivery.lastregioncrossed`,\r\n",
+					"`WL_delivery.mergeid`,\r\n",
+					"`WL_delivery.orderref`,\r\n",
+					"`WL_delivery.drivernote`,\r\n",
+					"`WL_delivery.timedefinite`,\r\n",
+					"`WL_delivery.orvcode`,\r\n",
+					"`WL_delivery.vaid`,\r\n",
+					"`WL_delivery.delegatedate`,\r\n",
+					"`WL_delivery.delegatemode`,\r\n",
+					"`WL_delivery.debriefmode`,\r\n",
+					"`WL_delivery.debriefed`,\r\n",
+					"`WL_delivery.insdate`,\r\n",
+					"`WL_delivery.reviseddebrief`,\r\n",
+					"`WL_delivery.lmsdebriefed`,\r\n",
+					"`WL_delivery.uncanceldate`,\r\n",
+					"`WL_delivery.podlaterdate`,\r\n",
+					"`WL_delivery.podmanualdate`,\r\n",
+					"`WL_delivery.manualdebriefreason`,\r\n",
+					"`WL_delivery.submanualdebriefreason`,\r\n",
+					"`WL_delivery.outofgeofencereason`,\r\n",
+					"`WL_delivery.tsentergeofenceapp`,\r\n",
+					"`WL_delivery.tsexitgeofenceapp`,\r\n",
+					"`WL_delivery.comebacklater`,\r\n",
+					"`WL_delivery.uncancelusername`,\r\n",
+					"`WL_delivery.poddistancefromdeliverypoint`\r\n",
+					"FROM WAYBILLPERLOAD_5\r\n",
+					"WHERE WL_WaybillID IS NOT NULL\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#WAYBILLPERLOADTMP.show()\r\n",
+					"WAYBILLPERLOADTMP.createOrReplaceTempView(\"WAYBILLPERLOADTMP\")"
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End Of 03e_Operations_LMS_OnRouteDet_3MRolling_45_DeliveryWaybillPerLoad"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 03e_Operations_LMS_OnRouteDet_3MRolling_47_PODWaybillPerLoad"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"WAYBILLPERLOAD_6 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT *,\r\n",
+					"       `pod.id` AS `WL_pod.id`,\r\n",
+					"       `pod.name` AS `WL_pod.name`,\r\n",
+					"       `pod.poddate` AS `WL_pod.poddate`,\r\n",
+					"       concat(`pod.lat`, `pod.lng`) AS `WL_pod.geopoint`,\r\n",
+					"       `pod.lat` AS `WL_pod.lat`,\r\n",
+					"       `pod.lng` AS `WL_pod.lng`,\r\n",
+					"       `pod.customerrating` AS `WL_pod.customerrating`,\r\n",
+					"       `pod.customerfeedback` AS `WL_pod.customerfeedback`\r\n",
+					"FROM WAYBILLPERLOADTMP w\r\n",
+					"LEFT JOIN pod p\r\n",
+					"       ON w.`WL_delivery.id` = p.`delivery.id`\r\n",
+					"ORDER BY WL_WaybillID\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#WAYBILLPERLOAD_6.show()\r\n",
+					"WAYBILLPERLOAD_6.createOrReplaceTempView(\"WAYBILLPERLOAD_6\")"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End of 03e_Operations_LMS_OnRouteDet_3MRolling_47_PODWaybillPerLoad"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 03e_Operations_LMS_OnRouteDet_3MRolling_48_BillingCustomer"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"billcustomer_2 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `billcustomer.id` as `delivery.billingcustid`,\r\n",
+					"       --`delcustomer.parent`,\r\n",
+					"       `billcustomer.name`,\r\n",
+					"       `billcustomer.contact`,\r\n",
+					"       `billcustomer.email`,\r\n",
+					"       `billcustomer.mobileno`,\r\n",
+					"       `billcustomer.landline`,\r\n",
+					"       `billcustomer.ctype`,\r\n",
+					"       `billcustomer.parent`,\r\n",
+					"       `billcustomer.lastupdate`,\r\n",
+					"       `billcustomer.lmsid`,\r\n",
+					"       `billcustomer.insdate`,\r\n",
+					"       `billcustomer.srouteid`,\r\n",
+					"       `billcustomer.verified`\r\n",
+					"FROM billcustomer\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#billcustomer_2.show\r\n",
+					"billcustomer_2.createOrReplaceTempView(\"billcustomer_2\")"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"WAYBILLPERLOAD_7 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT w6.*,\r\n",
+					"       b.`billcustomer.name` as `WL_billcustomer.name`\r\n",
+					"FROM WAYBILLPERLOAD_6 w6\r\n",
+					"LEFT JOIN billcustomer b\r\n",
+					"       ON w6.`WL_delivery.billingcustid` = b.`billcustomer.id`\r\n",
+					"--ORDER BY WL_WaybillID\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#WAYBILLPERLOAD_7.show()\r\n",
+					"WAYBILLPERLOAD_7.createOrReplaceTempView(\"WAYBILLPERLOAD_7\")"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End Of 03e_Operations_LMS_OnRouteDet_3MRolling_48_BillingCustomer"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## 03e_Operations_LMS_OnRouteDet_3MRolling_49_DeliveryCustomer"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"delcustomer_2 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `delivery.customerid`,\r\n",
+					"       --`delcustomer.id`,\r\n",
+					"       `delcustomer.name`,\r\n",
+					"       `delcustomer.contact`,\r\n",
+					"       `delcustomer.email`,\r\n",
+					"       `delcustomer.mobileno`,\r\n",
+					"       `delcustomer.landline`,\r\n",
+					"       `delcustomer.ctype`,\r\n",
+					"       `delcustomer.parent`,\r\n",
+					"       `delcustomer.lastupdate`,\r\n",
+					"       `delcustomer.lmsid`,\r\n",
+					"       `delcustomer.insdate`,\r\n",
+					"       `delcustomer.srouteid`,\r\n",
+					"       `delcustomer.verified`\r\n",
+					"FROM delcustomer\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#delcustomer_2.show()\r\n",
+					"delcustomer_2.createOrReplaceTempView(\"delcustomer_2\")"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"WAYBILLPERLOAD_8 = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT w7.*,\r\n",
+					"       d.`delcustomer.name` as `WL_delcustomer.name`\r\n",
+					"FROM WAYBILLPERLOAD_7 w7\r\n",
+					"LEFT JOIN delcustomer d\r\n",
+					"       ON w7.`WL_delivery.billingcustid` = d.`delivery.customerid`\r\n",
+					"ORDER BY WL_WaybillID\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#WAYBILLPERLOAD_8.show()\r\n",
+					"WAYBILLPERLOAD_8.createOrReplaceTempView(\"WAYBILLPERLOAD_8\")"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"T_WAYBILLPERLOAD = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT `WL_billcustomer.name`,\r\n",
+					"`WL_DDate`,\r\n",
+					"`WL_DDateTime`,\r\n",
+					"`WL_DeBriefDt`,\r\n",
+					"`WL_DeBriefed`,\r\n",
+					"`WL_DelayReason`,\r\n",
+					"`WL_delcustomer.name`,\r\n",
+					"`WL_delivery.actualeta`,\r\n",
+					"`WL_delivery.address`,\r\n",
+					"`WL_delivery.aid`,\r\n",
+					"`WL_delivery.altered`,\r\n",
+					"`WL_delivery.approximated`,\r\n",
+					"`WL_delivery.billingcustid`,\r\n",
+					"`WL_delivery.chepslip`,\r\n",
+					"`WL_delivery.cleandelivery`,\r\n",
+					"`WL_delivery.comebacklater`,\r\n",
+					"`WL_delivery.country`,\r\n",
+					"`WL_delivery.customerdn`,\r\n",
+					"`WL_delivery.customerid`,\r\n",
+					"`WL_delivery.debriefed`,\r\n",
+					"`WL_delivery.debriefmode`,\r\n",
+					"`WL_delivery.delegatedate`,\r\n",
+					"`WL_delivery.delegatemode`,\r\n",
+					"`WL_delivery.deliverbydate`,\r\n",
+					"`WL_delivery.deliverbydatetime`,\r\n",
+					"`WL_delivery.deliverbytime`,\r\n",
+					"`WL_delivery.deliverydate`,\r\n",
+					"`WL_delivery.deliverydatetime`,\r\n",
+					"`WL_delivery.deliveryorder`,\r\n",
+					"`WL_delivery.deliverytime`,\r\n",
+					"`WL_delivery.dispatch.id`,\r\n",
+					"`WL_delivery.drivernote`,\r\n",
+					"`WL_delivery.eta`,\r\n",
+					"`WL_delivery.geocodingstatus`,\r\n",
+					"`WL_delivery.geopoint`,\r\n",
+					"`WL_delivery.grv`,\r\n",
+					"`WL_delivery.id`,\r\n",
+					"`WL_delivery.insdate`,\r\n",
+					"`WL_delivery.lastregioncrossed`,\r\n",
+					"`WL_delivery.lat`,\r\n",
+					"`WL_delivery.lmsdebriefed`,\r\n",
+					"`WL_delivery.lmsorder`,\r\n",
+					"`WL_delivery.lng`,\r\n",
+					"`WL_delivery.manualdebriefreason`,\r\n",
+					"`WL_delivery.mergeid`,\r\n",
+					"`WL_delivery.mode`,\r\n",
+					"`WL_delivery.numprcls`,\r\n",
+					"`WL_delivery.optimizedorder`,\r\n",
+					"`WL_delivery.orderid`,\r\n",
+					"`WL_delivery.orderref`,\r\n",
+					"`WL_delivery.orvcode`,\r\n",
+					"`WL_delivery.outofgeofencereason`,\r\n",
+					"`WL_delivery.partialmatch`,\r\n",
+					"`WL_delivery.placeid`,\r\n",
+					"`WL_delivery.poddistancefromdeliverypoint`,\r\n",
+					"`WL_delivery.podlaterdate`,\r\n",
+					"`WL_delivery.podmanualdate`,\r\n",
+					"`WL_delivery.province`,\r\n",
+					"`WL_delivery.reviseddebrief`,\r\n",
+					"`WL_delivery.seal`,\r\n",
+					"`WL_delivery.skipdate`,\r\n",
+					"`WL_delivery.skipreason`,\r\n",
+					"`WL_delivery.status`,\r\n",
+					"`WL_delivery.submanualdebriefreason`,\r\n",
+					"`WL_delivery.timedefinite`,\r\n",
+					"`WL_delivery.town`,\r\n",
+					"`WL_delivery.trackingcode`,\r\n",
+					"`WL_delivery.tsentergeofenceapp`,\r\n",
+					"`WL_delivery.tsexitgeofenceapp`,\r\n",
+					"`WL_delivery.tsgeofenceenter`,\r\n",
+					"`WL_delivery.tspodsignature`,\r\n",
+					"`WL_delivery.tsscanningstart`,\r\n",
+					"`WL_delivery.tsscanningstop`,\r\n",
+					"`WL_delivery.uncanceldate`,\r\n",
+					"`WL_delivery.uncancelusername`,\r\n",
+					"`WL_delivery.vaid`,\r\n",
+					"`WL_delivery.verified`,\r\n",
+					"`WL_delivery.what3words`,\r\n",
+					"`WL_delivery.zipcode`,\r\n",
+					"`WL_DeliveryStatus`,\r\n",
+					"`WL_dispatch.id`,\r\n",
+					"`WL_InServiceReason`,\r\n",
+					"`WL_InServiceReasonGroup`,\r\n",
+					"`WL_LoadID`,\r\n",
+					"`WL_NoOfParcelsDelivered`,\r\n",
+					"`WL_NoOfParcelsLoaded`,\r\n",
+					"`WL_NotDebriefedReason`,\r\n",
+					"`WL_ParentLoadID`,\r\n",
+					"`WL_pod.customerfeedback`,\r\n",
+					"`WL_pod.customerrating`,\r\n",
+					"`WL_pod.geopoint`,\r\n",
+					"`WL_pod.id`,\r\n",
+					"`WL_pod.lat`,\r\n",
+					"`WL_pod.lng`,\r\n",
+					"`WL_pod.name`,\r\n",
+					"`WL_pod.poddate`,\r\n",
+					"`WL_PODDate`,\r\n",
+					"`WL_PODDateTime`,\r\n",
+					"`WL_ReasonDetail`,\r\n",
+					"`WL_ReasonGroup`,\r\n",
+					"`WL_SetLMSNoOfParcelLoadedFlag`,\r\n",
+					"`WL_WaybillID`\r\n",
+					"FROM WAYBILLPERLOAD_8\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#T_WAYBILLPERLOAD.show()\r\n",
+					"T_WAYBILLPERLOAD.createOrReplaceTempView(\"T_WAYBILLPERLOAD\")"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## End Of 03e_Operations_LMS_OnRouteDet_3MRolling_49_DeliveryCustomer"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"T_WAYBILLPERLOAD.write.parquet('/DataLake/Structured/Facts/T_WAYBILLPERLOAD.parquet', mode='overwrite')"
+				],
+				"execution_count": 24
+			}
+		]
+	}
+}

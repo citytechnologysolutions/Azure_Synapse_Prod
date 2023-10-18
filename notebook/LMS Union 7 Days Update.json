@@ -1,0 +1,600 @@
+{
+	"name": "LMS Union 7 Days Update",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Archived/LMS Interval Refreshes"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "49d7a692-df14-4f9c-a72d-e055528f87be"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## This Notebook is used to update the LMS Data in 3 Months Intervals incrementaly"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Load Orginal and New Temp \"Incremental Data\"from Blob-storage"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "python"
+					}
+				},
+				"source": [
+					"%%pyspark\r\n",
+					"#dboconsignment\r\n",
+					"dboconsignment_temp = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS_Incremental_Data/dboconsignment_7_Days.parquet', format='parquet')\r\n",
+					"dboconsignment_temp.createOrReplaceTempView(\"dboconsignment_temp\")\r\n",
+					"\r\n",
+					"dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"\r\n",
+					"#dboLoads\r\n",
+					"dboLoads_temp = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS_Incremental_Data/dboLoads_7_Days.parquet', format='parquet')\r\n",
+					"dboLoads_temp.createOrReplaceTempView(\"dboLoads_temp\")\r\n",
+					"\r\n",
+					"dboLoads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLoads.parquet', format='parquet')\r\n",
+					"dboLoads.createOrReplaceTempView(\"dboLoads\")\r\n",
+					"\r\n",
+					"#dboorder\r\n",
+					"dboorder_temp = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS_Incremental_Data/dboorder_7_Days.parquet', format='parquet')\r\n",
+					"dboorder_temp.createOrReplaceTempView(\"dboorder_temp\")\r\n",
+					"\r\n",
+					"dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"#dboparcel\r\n",
+					"dboparcel_temp = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS_Incremental_Data/dboparcel_7_Days.parquet', format='parquet')\r\n",
+					"dboparcel_temp.createOrReplaceTempView(\"dboparcel_temp\")\r\n",
+					"\r\n",
+					"dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"#dbotrack\r\n",
+					"dbotrack_temp = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS_Incremental_Data/dbotrack_7_Days.parquet', format='parquet')\r\n",
+					"dbotrack_temp.createOrReplaceTempView(\"dbotrack_temp\")\r\n",
+					"\r\n",
+					"dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"#dboWaybill\r\n",
+					"dboWaybill_temp = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS_Incremental_Data/dboWaybill_7_Days.parquet', format='parquet')\r\n",
+					"dboWaybill_temp.createOrReplaceTempView(\"dboWaybill_temp\")\r\n",
+					"\r\n",
+					"dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"dboWaybill.createOrReplaceTempView(\"dboWaybill\")"
+				],
+				"attachments": null,
+				"execution_count": 1
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Drop 3 Months of the current data"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"dboconsignment_drop = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT *\r\n",
+					"FROM dboconsignment\r\n",
+					"WHERE CDate <= (SELECT date_add(MAX(CDate), -7) CDate FROM dboconsignment)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"\r\n",
+					"dboconsignment_drop.createOrReplaceTempView(\"dboconsignment_drop\")"
+				],
+				"attachments": null,
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dboLoads_drop = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT *\r\n",
+					"FROM dboLoads\r\n",
+					"WHERE Ldate <= (SELECT date_add(MAX(Ldate), -7) Ldate FROM dboLoads)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"\r\n",
+					"dboLoads_drop.createOrReplaceTempView(\"dboLoads_drop\")"
+				],
+				"attachments": null,
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dboorder_drop = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT *\r\n",
+					"FROM dboorder\r\n",
+					"WHERE HODate <= (SELECT date_add(MAX(HODate), -7) HODate FROM dboorder)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"\r\n",
+					"dboorder_drop.createOrReplaceTempView(\"dboorder_drop\")"
+				],
+				"attachments": null,
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dboparcel_drop = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT *\r\n",
+					"FROM dboparcel\r\n",
+					"WHERE AcceptanceDate <= (SELECT date_add(MAX(AcceptanceDate), -7) AcceptanceDate FROM dboparcel)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"\r\n",
+					"dboparcel_drop.createOrReplaceTempView(\"dboparcel_drop\")"
+				],
+				"attachments": null,
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dbotrack_drop = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT *\r\n",
+					"FROM dbotrack\r\n",
+					"WHERE LastUpdate <= (SELECT date_add(MAX(LastUpdate), -7) LastUpdate FROM dbotrack)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"\r\n",
+					"dbotrack_drop.createOrReplaceTempView(\"dbotrack_drop\")"
+				],
+				"attachments": null,
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dboWaybill_drop = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT *\r\n",
+					"FROM dboWaybill\r\n",
+					"WHERE Date <= (SELECT date_add(MAX(Date), -7) Date FROM dboWaybill)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"\r\n",
+					"dboWaybill_drop.createOrReplaceTempView(\"dboWaybill_drop\")"
+				],
+				"attachments": null,
+				"execution_count": 7
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Union Old data with the New Data"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"consignment = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"(SELECT *\r\n",
+					"FROM dboconsignment_drop\r\n",
+					"EXCEPT\r\n",
+					"SELECT * FROM dboconsignment_temp)\r\n",
+					"UNION ALL\r\n",
+					"(SELECT * FROM dboconsignment_temp\r\n",
+					"EXCEPT \r\n",
+					"SELECT * FROM dboconsignment_drop)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"consignment.createOrReplaceTempView(\"consignment\")"
+				],
+				"attachments": null,
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Loads = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"(SELECT *\r\n",
+					"FROM dboLoads_drop\r\n",
+					"EXCEPT\r\n",
+					"SELECT * FROM dboLoads_temp)\r\n",
+					"UNION ALL\r\n",
+					"(SELECT * FROM dboLoads_temp\r\n",
+					"EXCEPT \r\n",
+					"SELECT * FROM dboLoads_drop)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"Loads.createOrReplaceTempView(\"Loads\")"
+				],
+				"attachments": null,
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"order = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"(SELECT *\r\n",
+					"FROM dboorder_drop\r\n",
+					"EXCEPT\r\n",
+					"SELECT * FROM dboorder_temp)\r\n",
+					"UNION ALL\r\n",
+					"(SELECT * FROM dboorder_temp\r\n",
+					"EXCEPT \r\n",
+					"SELECT * FROM dboorder_drop)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"order.createOrReplaceTempView(\"order\")"
+				],
+				"attachments": null,
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"parcel = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"(SELECT *\r\n",
+					"FROM dboparcel_drop\r\n",
+					"EXCEPT\r\n",
+					"SELECT * FROM dboparcel_temp)\r\n",
+					"UNION ALL\r\n",
+					"(SELECT * FROM dboparcel_temp\r\n",
+					"EXCEPT \r\n",
+					"SELECT * FROM dboparcel_drop)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"parcel.createOrReplaceTempView(\"parcel\")"
+				],
+				"attachments": null,
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"track = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"(SELECT *\r\n",
+					"FROM dbotrack_drop\r\n",
+					"EXCEPT\r\n",
+					"SELECT * FROM dbotrack_temp)\r\n",
+					"UNION ALL\r\n",
+					"(SELECT * FROM dbotrack_temp\r\n",
+					"EXCEPT \r\n",
+					"SELECT * FROM dbotrack_drop)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"track.createOrReplaceTempView(\"track\")"
+				],
+				"attachments": null,
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Waybill = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"(SELECT *\r\n",
+					"FROM dboWaybill_drop\r\n",
+					"EXCEPT\r\n",
+					"SELECT * FROM dboWaybill_temp)\r\n",
+					"UNION ALL\r\n",
+					"(SELECT * FROM dboWaybill_temp\r\n",
+					"EXCEPT \r\n",
+					"SELECT * FROM dboWaybill_drop)\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"Waybill.createOrReplaceTempView(\"Waybill\")"
+				],
+				"attachments": null,
+				"execution_count": 13
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"consignment = dboconsignment_drop.union(dboconsignment_temp)\r\n",
+					"consignment.createOrReplaceTempView(\"consignment\")\r\n",
+					"\r\n",
+					"Loads = dboLoads_drop.union(dboLoads_temp)\r\n",
+					"Loads.createOrReplaceTempView(\"Loads\")\r\n",
+					"\r\n",
+					"order = dboorder_drop.union(dboorder_temp)\r\n",
+					"order.createOrReplaceTempView(\"order\")\r\n",
+					"\r\n",
+					"parcel = dboparcel_drop.union(dboparcel_temp)\r\n",
+					"parcel.createOrReplaceTempView(\"parcel\")\r\n",
+					"\r\n",
+					"track = dbotrack_drop.union(dbotrack_temp)\r\n",
+					"track.createOrReplaceTempView(\"track\")\r\n",
+					"\r\n",
+					"Waybill = dboWaybill_drop.union(dboWaybill_temp)\r\n",
+					"Waybill.createOrReplaceTempView(\"Waybill\")"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Write new Union File Back to Blobstorage"
+				],
+				"attachments": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"consignment.write.parquet('/Unstructured Data/LMS_test/dboconsignment_7_Days.parquet/', mode='overwrite')\r\n",
+					"\r\n",
+					"Loads.write.parquet('/Unstructured Data/LMS_test/dboLoads_7_Days.parquet/', mode='overwrite')\r\n",
+					"\r\n",
+					"order.write.parquet('/Unstructured Data/LMS_test/dboorder_7_Days.parquet/', mode='overwrite')\r\n",
+					"\r\n",
+					"parcel.write.parquet('/Unstructured Data/LMS_test/dboparcel_7_Days.parquet/', mode='overwrite')\r\n",
+					"\r\n",
+					"track.write.parquet('/Unstructured Data/LMS_test/dbotrack_7_Days.parquet/', mode='overwrite')\r\n",
+					"\r\n",
+					"Waybill.write.parquet('/Unstructured Data/LMS_test/dboWaybill_7_Days.parquet/', mode='overwrite')"
+				],
+				"attachments": null,
+				"execution_count": 14
+			}
+		]
+	}
+}

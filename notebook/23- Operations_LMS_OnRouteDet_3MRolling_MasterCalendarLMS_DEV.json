@@ -1,0 +1,334 @@
+{
+	"name": "23- Operations_LMS_OnRouteDet_3MRolling_MasterCalendarLMS_DEV",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Archived/Operations Notebooks DEV"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "fd91faf5-a3bc-49cc-b14f-b72412e04bae"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#dbotrack = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"#dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"#dboTrack_Archive = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboTrack_Archive.parquet', format='parquet')\r\n",
+					"#dboTrack_Archive.createOrReplaceTempView(\"dboTrack_Archive\")\r\n",
+					"\r\n",
+					"#dboWaybill = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboWaybill.parquet', format='parquet')\r\n",
+					"#dboWaybill.createOrReplaceTempView(\"dboWaybill\")\r\n",
+					"\r\n",
+					"#dboparcel = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"#dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"\r\n",
+					"#dboLoads = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboLoads.parquet', format='parquet')\r\n",
+					"#dboLoads.createOrReplaceTempView(\"dboLoads\")\r\n",
+					"\r\n",
+					"#dboorder = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"#dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"#dboconsignment = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"#dboconsignment.createOrReplaceTempView(\"dboconsignment\")"
+				],
+				"execution_count": 128
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#vMinPCADate = LET vMinDateCal = num(AddMonths(MonthStart(today()),-3))\r\n",
+					"#vMaxPCADate = LET vMaxDateCal = num((today()))"
+				],
+				"execution_count": 129
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"vMinPCADate = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT add_months(date_add(last_day(current_date),1),-4) as mydate\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#vMinPCADate.show()\r\n",
+					"vMinPCADate.createOrReplaceTempView(\"vMinPCADate\")"
+				],
+				"execution_count": 130
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"vMaxPCADate = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT current_date as mydate\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#vMaxPCADate.show()\r\n",
+					"vMaxPCADate.createOrReplaceTempView(\"vMaxPCADate\")"
+				],
+				"execution_count": 131
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql import Row\r\n",
+					"from pyspark.sql.functions import *\r\n",
+					"from multiprocessing import Queue\r\n",
+					"\r\n",
+					"df = spark.sparkContext.parallelize([Row(vyge_id=1000, vMinPCADate = vMinPCADate.first()['mydate'], vMaxPCADate = vMaxPCADate.first()['mydate'] )]).toDF()\r\n",
+					"diffDaysDF = df.withColumn(\"diffDays\", datediff('vMaxPCADate', 'vMinPCADate'))"
+				],
+				"execution_count": 132
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Dates = diffDaysDF.withColumn(\"repeat\", expr(\"split(repeat(',', diffDays), ',')\"))\\\r\n",
+					"    .select(\"*\", posexplode(\"repeat\").alias(\"txnDt\", \"val\"))\\\r\n",
+					"    .drop(\"repeat\", \"val\")\\\r\n",
+					"    .withColumn(\"Date\", expr(\"date_add(vMinPCADate, txnDt)\"))\r\n",
+					"\r\n",
+					"Dates.createOrReplaceTempView(\"Dates\")"
+				],
+				"execution_count": 133
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT *\r\n",
+					"FROM Dates"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"DIM_DATES_OP = spark.sql(\"\"\"\r\n",
+					"\r\n",
+					"SELECT DISTINCT date_format(`Date`,\"yyyy/MM/dd\") AS Date,\r\n",
+					"                DAY(`Date`) AS Day,\r\n",
+					"WEEKDAY(`Date`) + 1 AS DayofWeek,\r\n",
+					"weekofyear(Date) AS Week,  \r\n",
+					"date_format(`Date`, \"MMMM\") AS Month,\r\n",
+					"date_format(`Date`, \"MM\") AS MonthNo,\r\n",
+					"CASE WHEN date_format(`Date`, \"MM\") IN ('04','05','06') THEN 'Q1'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") IN ('07','08','09') THEN 'Q2'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") IN ('10','11','12') THEN 'Q3'\r\n",
+					"    ELSE 'Q4'\r\n",
+					"END AS `Quarter`,\r\n",
+					"date_format(`Date`, \"MMM\") || \"-\" || RIGHT(year(`Date`), 02) AS MonthYear, \r\n",
+					"YEAR(`Date`) AS Year,  \r\n",
+					"CASE WHEN date_format(`Date`, \"MM\") = '04' THEN '01'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '05' THEN '02'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '06' THEN '03'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '07' THEN '04'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '08' THEN '05'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '09' THEN '06'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '10' THEN '07'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '11' THEN '08'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '12' THEN '09'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '01' THEN '10'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '02' THEN '11'\r\n",
+					"    ELSE '12'\r\n",
+					"END AS `FinMonthNo`,\r\n",
+					"IF(date_format(`Date`, \"MM\") IN('04','05','06','07','08','09','10','11','12'),YEAR(`Date`)+1,YEAR(`Date`)) AS FinYear  \r\n",
+					"FROM Dates\r\n",
+					"ORDER BY `Date`\r\n",
+					"\r\n",
+					"\"\"\")\r\n",
+					"#DIM_DATES_OP.show()\r\n",
+					"DIM_DATES_OP.createOrReplaceTempView(\"DIM_DATES_OP\")"
+				],
+				"execution_count": 134
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"\r\n",
+					"SELECT DISTINCT date_format(`Date`,\"yyyy/MM/dd\") AS `PC_ADate`,\r\n",
+					"                DAY(`Date`) AS `PC_ADay`,\r\n",
+					"                WEEKDAY(`Date`) + 1 AS `PC_ADayofWeek`,\r\n",
+					"                weekofyear(Date) AS `PC_AWeek`,\r\n",
+					"                date_format(`Date`, \"MMMM\") AS `PC_AMonth`,\r\n",
+					"                date_format(`Date`, \"MM\") AS `PC_AMonthNo`,\r\n",
+					"\r\n",
+					"CASE WHEN date_format(`Date`, \"MM\") IN ('04','05','06') THEN 'Q1'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") IN ('07','08','09') THEN 'Q2'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") IN ('10','11','12') THEN 'Q3'\r\n",
+					"    ELSE 'Q4'\r\n",
+					"END AS `PC_AQuarter`,\r\n",
+					"\r\n",
+					"date_format(`Date`, \"MMM\") || \"-\" || RIGHT(year(`Date`), 02) AS `PC_AMonthYear`,\r\n",
+					"\r\n",
+					"YEAR(`Date`) AS `PC_AYear`,\r\n",
+					"\r\n",
+					"CASE WHEN date_format(`Date`, \"MM\") = '04' THEN '01'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '05' THEN '02'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '06' THEN '03'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '07' THEN '04'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '08' THEN '05'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '09' THEN '06'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '10' THEN '07'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '11' THEN '08'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '12' THEN '09'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '01' THEN '10'\r\n",
+					"     WHEN date_format(`Date`, \"MM\") = '02' THEN '11'\r\n",
+					"    ELSE '12'\r\n",
+					"END AS `PC_AFinMonthNo`,\r\n",
+					"\r\n",
+					"IF(date_format(`Date`, \"MM\") IN('04','05','06','07','08','09','10','11','12'),YEAR(`Date`)+1,YEAR(`Date`)) AS `PC_AFinYear`\r\n",
+					"FROM Dates"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"DIM_DATES_OP.write.parquet('/DataLake/Structured/Dimensions/DIM_DATES_OP.parquet', mode='overwrite')"
+				],
+				"execution_count": 135
+			}
+		]
+	}
+}

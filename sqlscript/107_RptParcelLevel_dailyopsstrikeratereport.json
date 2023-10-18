@@ -1,0 +1,20 @@
+{
+	"name": "107_RptParcelLevel_dailyopsstrikeratereport",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.dailyopsstrikeratereport') )\n    DROP EXTERNAL TABLE dbo.dailyopsstrikeratereport\nGO\n\nCREATE EXTERNAL TABLE dbo.dailyopsstrikeratereport (\n\n[delcustomerref] nvarchar(4000),\n[billingcustomerid] int,\n[billingcustomername] nvarchar(4000),\n[deliverycustomerid] int,\n[deliverycustomername] nvarchar(4000),\n[deliverycustomersrouteid] int,\n[deliverycustomersroutecode] nvarchar(4000),\n[depot] nvarchar(4000),\n[date] date,\n[podyear] int,\n[podmonth] int,\n[podday] int,\n[noofparcels] bigint,\n\n\t\n\t)\n\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/dailyopsstrikeratereport.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.dailyopsstrikeratereport \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

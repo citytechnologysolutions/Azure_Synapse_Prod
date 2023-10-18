@@ -1178,9 +1178,67 @@
 					}
 				},
 				"source": [
-					"print(\"SUCCESS\")"
+					"#Create DataFrame for the prpclockinghoursdetail CLMasterData Table\r\n",
+					"prpclockinghoursdetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/prpclockinghoursdetail.parquet', format='parquet')\r\n",
+					"prpclockinghoursdetail.createOrReplaceTempView(\"prpclockinghoursdetail\")"
 				],
 				"execution_count": 44
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/Finance/14_STPRPClocking"
+				],
+				"execution_count": 45
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stprpclockinghoursdetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stprpclockinghoursdetail.parquet', mode = \"overwrite\")\r\n",
+					"stprpclockinghoursdaily.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stprpclockinghoursdaily.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 47
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 48
 			}
 		]
 	}

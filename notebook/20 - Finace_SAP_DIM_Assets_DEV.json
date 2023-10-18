@@ -1,0 +1,196 @@
+{
+	"name": "20 - Finace_SAP_DIM_Assets_DEV",
+	"properties": {
+		"folder": {
+			"name": "ARCHIVE/DEV/Archived/Transactions Notebooks DEV"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "0282bebe-0daf-4496-a70a-8a05087f2e7b"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# The scource files are uncommented for the Productionized run (Remove the `#` when troubleshooting these scripts)\r\n",
+					"\r\n",
+					"#dboXTSD_XA_ASR = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboXTSD_XA_ASR.parquet', format='parquet')\r\n",
+					"#dboXTSD_XA_ASR.createOrReplaceTempView(\"dboXTSD_XA_ASR\")\r\n",
+					"\r\n",
+					"#dboXTSD_XA_DEP = spark.read.load('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Unstructured Data/SAP/dboXTSD_XA_DEP.parquet', format='parquet')\r\n",
+					"#dboXTSD_XA_DEP.createOrReplaceTempView(\"dboXTSD_XA_DEP\")"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"F_FIXED_ASSETS_CURRENT_VALUE = spark.sql(\"\"\"\r\n",
+					"SELECT `Asset_Number`, \r\n",
+					"\t\t   `Asset_Group`, \r\n",
+					"\t\t   `Asset_Type`, \r\n",
+					"\t\t   `Purch_Date`, \r\n",
+					"\t\t   `Orig_Inv_DocEntry`, \r\n",
+					"\t\t   Description, \r\n",
+					"\t\t   `Unit_Cost`, \r\n",
+					"\t\t   `Net_Asset_Value`, \r\n",
+					"\t\t   Status, \r\n",
+					"\t\t   `Disposal_Date`,\r\n",
+					"\t\t   `Depr_Period`,\r\n",
+					"\t\t   `Remaining_Life`, \r\n",
+					"\t\t   PrcCode, \r\n",
+					"\t\t   PrjCode, \r\n",
+					"\t\t   `Acc_Asset`,\r\n",
+					"\t\t   `Acc_AccuDepr`, \r\n",
+					"\t\t   `Acc_Depr`, \r\n",
+					"\t\t   `Acc_AssetDisp`, \r\n",
+					"\t\t   `Acc_ExtrItem`, \r\n",
+					"\t\t   `Calc_Rem_Life`, \r\n",
+					"\t\t   doDepr, \r\n",
+					"\t\t   BarCode, \r\n",
+					"\t\t   Supplier, \r\n",
+					"\t\t   `Residual_Value`, \r\n",
+					"\t\t   SerialNumber, \r\n",
+					"\t\t   `Full_Asset_Life`, \r\n",
+					"\t\t   `Orig_Unit_Cost`, \r\n",
+					"\t\t   `Acc_RevalDiff`, \r\n",
+					"\t\t   `Depr_Start_Date`, \r\n",
+					"\t\t   `Parent_Number`, \r\n",
+					"\t\t   \"City Logistics New\" as Company\r\n",
+					"FROM dboXTSD_XA_ASR\r\n",
+					"\"\"\")\r\n",
+					"#F_FIXED_ASSETS_CURRENT_VALUE.show()\r\n",
+					"F_FIXED_ASSETS_CURRENT_VALUE.createOrReplaceTempView(\"F_FIXED_ASSETS_CURRENT_VALUE\")"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"F_FIXED_ASSETS_DEPRECIATION = spark.sql(\"\"\"\r\n",
+					"SELECT `Asset_Number`, \r\n",
+					"\t\t   `Depr_Date`, \r\n",
+					"\t\t   `Depr_Type`, \r\n",
+					"\t\t   `Depr_Days`, \r\n",
+					"\t\t   `GROSS_AV`, \r\n",
+					"\t\t   `NAV_Bef_Depr`, \r\n",
+					"\t\t   `Depr_Value`, \r\n",
+					"\t\t   `NAV_Aft_Depr`, \r\n",
+					"\t\t   JnlID, \r\n",
+					"\t\t   `Asset_Grp`, \r\n",
+					"\t\t   \"City Logistics New\" as Company\r\n",
+					"FROM dboXTSD_XA_DEP\r\n",
+					"\"\"\")\r\n",
+					"#F_FIXED_ASSETS_DEPRECIATION.show()\r\n",
+					"F_FIXED_ASSETS_DEPRECIATION.createOrReplaceTempView(\"F_FIXED_ASSETS_DEPRECIATION\")"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"F_FIXED_ASSETS_CURRENT_VALUE.write.parquet('/DataLake/Structured/Facts/F_FIXED_ASSETS_CURRENT_VALUE.parquet', mode='overwrite')\r\n",
+					"F_FIXED_ASSETS_CURRENT_VALUE.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_FIXED_ASSETS_CURRENT_VALUE\")\r\n",
+					"\r\n",
+					"F_FIXED_ASSETS_DEPRECIATION.write.parquet('/DataLake/Structured/Facts/F_FIXED_ASSETS_DEPRECIATION.parquet', mode='overwrite')\r\n",
+					"F_FIXED_ASSETS_DEPRECIATION.write.mode(\"overwrite\").saveAsTable(\"mdw_uat_Transactions.F_FIXED_ASSETS_DEPRECIATION\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"Scripts have successfully executed\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

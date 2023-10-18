@@ -1,0 +1,246 @@
+{
+	"name": "_01_RptParcelLevel",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/LMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "f235a39f-d2d0-4d35-b3d4-706c96736ed7"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the stparcel LMS Table\r\n",
+					"# stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', format='parquet')\r\n",
+					"# stparcel.createOrReplaceTempView(\"stparcel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stdeliverypickupcustomer LMS Table\r\n",
+					"# stdeliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', format='parquet')\r\n",
+					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stbillcustomer LMS Table\r\n",
+					"# stbillcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbillcustomer.parquet', format='parquet')\r\n",
+					"# stbillcustomer.createOrReplaceTempView(\"stbillcustomer\")\r\n",
+					"\r\n",
+					"# #create dataframe for the stsroute lms table\r\n",
+					"# stsroute = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', format='parquet')\r\n",
+					"# stsroute.createOrReplaceTempView(\"stsroute\")\r\n",
+					"\r\n",
+					"# #create dataframe for the storder lms table\r\n",
+					"# storder = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/storder.parquet', format='parquet')\r\n",
+					"# storder.createOrReplaceTempView(\"storder\")\r\n",
+					""
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"rptparcellevel\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"     p.*\r\n",
+					"    ,bc.lms_customer_name as lms_parcel_orderbillcustname\r\n",
+					"    ,dc.lms_customer_name as lms_parcel_orderdelivercustname\r\n",
+					"    ,dc.lms_customer_cref as lms_parcel_orderdelivercustcref\r\n",
+					"    ,dc.lms_customer_srouteid as lms_parcel_orderdelivercustsrouteid\r\n",
+					"    ,ds.lms_sroute_code as lms_parcel_sroutecodedelivercust\r\n",
+					"    ,ds.lms_sroute_description as lms_parcel_sroutedescriptiondelivercust\r\n",
+					"    ,pc.lms_customer_name as lms_parcel_orderpickupcustname\r\n",
+					"    ,pc.lms_customer_cref as lms_parcel_orderpickupcustcref\r\n",
+					"    ,pc.lms_customer_srouteid as lms_parcel_orderpickupcustsrouteid\r\n",
+					"    ,ps.lms_sroute_code as lms_parcel_sroutecodepickupcust\r\n",
+					"    ,ps.lms_sroute_description as lms_parcel_sroutedescriptionpickupcust\r\n",
+					"   \r\n",
+					"  \r\n",
+					"FROM stparcel p\r\n",
+					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id =  p.lms_parcel_orderbillcustid\r\n",
+					"LEFT JOIN stdeliverypickupcustomer dc on dc.lms_customer_id =  p.lms_parcel_orderdelivercustid\r\n",
+					"LEFT JOIN stdeliverypickupcustomer pc on pc.lms_customer_id =  p.lms_parcel_orderpickupcustid\r\n",
+					"LEFT JOIN stsroute ds on ds.lms_sroute_id = dc.lms_customer_srouteid\r\n",
+					"LEFT JOIN stsroute ps on ps.lms_sroute_id = pc.lms_customer_srouteid\r\n",
+					"LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rptparcellevel = spark.sql(\"SELECT * FROM rptparcellevel\")"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"rptparcellevellimitload\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    * \r\n",
+					"FROM rptparcellevel\r\n",
+					"\r\n",
+					"WHERE lms_parcel_pdate >= to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01')"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rptparcellevellimitload = spark.sql(\"SELECT * FROM rptparcellevellimitload\")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# rptparcellevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', mode = \"overwrite\")\r\n",
+					"# rptparcellevellimitload.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevellimitload.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 14
+			}
+		]
+	}
+}

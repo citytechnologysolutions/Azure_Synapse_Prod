@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2230ed3c-bbe3-4e2f-9e78-2fcec2f25d9f"
+				"spark.autotune.trackingId": "56d3a1e3-5eca-4657-aaa7-2b27bb57c56e"
 			}
 		},
 		"metadata": {
@@ -404,6 +404,73 @@
 					}
 				},
 				"source": [
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## ALERTS"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"threshold = 100  \r\n",
+					"alert_df = df.filter(df['your_column_name'] > threshold)"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"if alert_df.count() > 0:\r\n",
+					"    # Send an email alert\r\n",
+					"    # You will need to use an external email service for this (e.g., SendGrid, SMTP).\r\n",
+					"\r\n",
+					"    # Example using SendGrid for sending an email\r\n",
+					"    from sendgrid import SendGridAPIClient\r\n",
+					"    from sendgrid.helpers.mail import Mail\r\n",
+					"\r\n",
+					"    message = Mail(\r\n",
+					"        from_email='email@example.com',\r\n",
+					"        to_emails='recipient@example.com',\r\n",
+					"        subject='Alert: Your Condition is Met',\r\n",
+					"        plain_text_content='The condition in your DataFrame is met. Take action!'\r\n",
+					"    )\r\n",
+					"\r\n",
+					"    sg = SendGridAPIClient('your_sendgrid_api_key')\r\n",
+					"    response = sg.send(message)\r\n",
 					""
 				],
 				"execution_count": null

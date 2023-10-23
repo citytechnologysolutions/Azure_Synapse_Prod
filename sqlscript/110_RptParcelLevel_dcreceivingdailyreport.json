@@ -1,0 +1,20 @@
+{
+	"name": "110_RptParcelLevel_dcreceivingdailyreport",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.dcreceivingdailyreport') )\n    DROP EXTERNAL TABLE dbo.dcreceivingdailyreport\nGO\n\nCREATE EXTERNAL TABLE dbo.dcreceivingdailyreport (\n\t[billingcustomerid] int,\n\t[billingcustomername] nvarchar(4000),\n\t[deliverycustomerid] int,\n\t[deliverycustomername] nvarchar(4000),\n\t[date]  datetime2(7),\n\t[supplierdescription] nvarchar(4000),\n\t[purchaseordernumber] nvarchar(4000),\n\t[appointmentcode] nvarchar(4000),\n\t[appointmentstartdatetime] datetime2(7),\n\t[appointmentenddatetime] datetime2(7),\n\t[arrivedat] datetime2(7),\n\t[lastuploadeddate] datetime2(7),\n\t[dccode] nvarchar(4000),\n\t[ispandaenabled] int,\n\t[dcprepacklength] numeric(36,6),\n\t[dcprepackheight] numeric(36,6),\n\t[dcprepackwidth] numeric(36,6),\n\t[dctransfercode] nvarchar(4000),\n\t[dctransferacceptancedate] datetime2(7),\n\t[dctransferauditflag] int,\n\t[dctransfercounted] int,\n\t[dctransferuploaded] int,\n\t[parcelweight] float,\n\t[parcelvolweight] float,\n\t[parcelchargeweight] numeric(36,6),\n\t[waybillid] int,\n\t[consignid] int,\n\t[parcellocation] nvarchar(4000),\n\t)\n\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/dcreceivingdailyreport.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.dcreceivingdailyreport \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

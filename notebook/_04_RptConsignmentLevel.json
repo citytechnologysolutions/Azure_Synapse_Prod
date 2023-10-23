@@ -1,0 +1,349 @@
+{
+	"name": "_04_RptConsignmentLevel",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/LMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "b8ee4c2e-8896-434e-afc6-9cec020aa353"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the stconsignment LMS Table\r\n",
+					"# stconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stconsignment.parquet', format='parquet')\r\n",
+					"# stconsignment.createOrReplaceTempView(\"stconsignment\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stbillcustomer LMS Table\r\n",
+					"# stbillcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbillcustomer.parquet', format='parquet')\r\n",
+					"# stbillcustomer.createOrReplaceTempView(\"stbillcustomer\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stdeliverypickupcustomer LMS Table\r\n",
+					"# stdeliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', format='parquet')\r\n",
+					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
+					"\r\n",
+					"# #create dataframe for the stsroute lms table\r\n",
+					"# stsroute = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', format='parquet')\r\n",
+					"# stsroute.createOrReplaceTempView(\"stsroute\")\r\n",
+					"\r\n",
+					"# #create dataframe for the stzone lms table\r\n",
+					"# stzone = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stzone.parquet', format='parquet')\r\n",
+					"# stzone.createOrReplaceTempView(\"stzone\")\r\n",
+					"\r\n",
+					"# #create dataframe for the stlocation lms table\r\n",
+					"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
+					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbobillconsignmentr LMS Table\r\n",
+					"# dbobillconsignmentr = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
+					"# dbobillconsignmentr.createOrReplaceTempView(\"dbobillconsignmentr\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbobillexceptionr LMS Table\r\n",
+					"# dbobillexceptionr = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_exceptionr.parquet', format='parquet')\r\n",
+					"# dbobillexceptionr.createOrReplaceTempView(\"dbobillexceptionr\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbobillzoneroute LMS Table\r\n",
+					"# dbobillzoneroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_zoneroute.parquet', format='parquet')\r\n",
+					"# dbobillzoneroute.createOrReplaceTempView(\"dbobillzoneroute\")"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"rptconsignmentlevel\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"       c.*\r\n",
+					"      ,bc.lms_customer_name as billingcustomername\r\n",
+					"      ,dc.lms_customer_name as deliverycustomername\r\n",
+					"      ,ds.lms_sroute_description as deliverycustomersroutedescription\r\n",
+					"      ,dz.lms_zone_description as deliverycustomerzonedescription\r\n",
+					"      ,l.lms_location_description as deliverycustomerzonelocationdescription\r\n",
+					"      \r\n",
+					"FROM stconsignment c\r\n",
+					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id = c.lms_consignment_billcust\r\n",
+					"LEFT JOIN stdeliverypickupcustomer dc on dc.lms_customer_id = c.lms_consignment_delivercustid\r\n",
+					"LEFT JOIN stsroute ds on ds.lms_sroute_id = dc.lms_customer_srouteid\r\n",
+					"LEFT JOIN stzone dz on dz.lms_zone_id =  ds.lms_sroute_zoneid\r\n",
+					"LEFT JOIN stlocation l on l.lms_location_id =  dz.lms_zone_locid \r\n",
+					"\r\n",
+					"\r\n",
+					"WHERE lms_consignment_cdate >= to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01')"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rptconsignmentlevel = spark.sql(\"SELECT * FROM rptconsignmentlevel\")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# rptconsignmentlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptconsignmentlevel.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"rptbillconsignmentlevel\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     bc.*\r\n",
+					"    ,zr.description as zonedescription\r\n",
+					"    ,cust.lms_customer_name as billingcustomername\r\n",
+					"\r\n",
+					"FROM dbobillconsignmentr bc \r\n",
+					"LEFT JOIN stbillcustomer cust on cust.lms_customer_id = bc.BillCust\r\n",
+					"LEFT JOIN dbobillzoneroute zr  on zr.ID = bc.DeliverRouteID\r\n",
+					"WHERE bc.cdate1 >= (to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01'))\r\n",
+					"AND bc.chargeweight > 0\r\n",
+					"AND coalesce(bc.RouteMissingInd,0) = 0\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rptbillconsignmentlevel = spark.sql(\"SELECT * FROM rptbillconsignmentlevel\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# rptbillconsignmentlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptbillconsignmentlevel.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"rptbillconsignmentexceptionlevel\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     bc.*\r\n",
+					"    ,zr.description as zonedescription\r\n",
+					"    ,cust.lms_customer_name as billingcustomername\r\n",
+					"\r\n",
+					"FROM dbobillexceptionr bc \r\n",
+					"LEFT JOIN stbillcustomer cust on cust.lms_customer_id = bc.BillCust\r\n",
+					"LEFT JOIN dbobillzoneroute zr  on zr.ID = bc.DeliverRouteID\r\n",
+					"WHERE bc.cdate1 >= (to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01'))\r\n",
+					"AND bc.chargeweight != 0\r\n",
+					"AND coalesce(bc.RouteMissingInd,0) = 0\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rptbillconsignmentexceptionlevel = spark.sql(\"SELECT * FROM rptbillconsignmentexceptionlevel\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# rptbillconsignmentexceptionlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptbillconsignmentexceptionlevel.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

@@ -1,0 +1,194 @@
+{
+	"name": "01_107_RptParcelLevel_DailyOpsStrikeRateReport",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/LMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "8408f10b-9ac2-42de-bc6c-ded92a42a782"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the rptparcellevel LMS Table\r\n",
+					"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
+					"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolocation LMS Table\r\n",
+					"# dbolocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
+					"# dbolocation.createOrReplaceTempView(\"dbolocation\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbozone LMS Table\r\n",
+					"# dbozone = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbozone.parquet', format='parquet')\r\n",
+					"# dbozone.createOrReplaceTempView(\"dbozone\")"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"dailyopsstrikeratereport\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\t\r\n",
+					"     p.lms_parcel_orderdelivercustcref as delcustomerref\r\n",
+					"    ,p.lms_parcel_orderbillcustid as billingcustomerid\r\n",
+					"    ,p.lms_parcel_orderbillcustname as billingcustomername\r\n",
+					"    ,p.lms_parcel_orderdelivercustid as deliverycustomerid\r\n",
+					"    ,p.lms_parcel_orderdelivercustname as deliverycustomername\r\n",
+					"    ,p.lms_parcel_orderdelivercustsrouteid as deliverycustomersrouteid\r\n",
+					"    ,p.lms_parcel_sroutecodedelivercust as deliverycustomersroutecode\r\n",
+					"    ,l.description as depot\r\n",
+					"    ,to_date(p.lms_parcel_waybillpoddate) as date\r\n",
+					"    ,MAX(YEAR(p.lms_parcel_waybillpoddate)) as podyear\r\n",
+					"    ,MAX(MONTH(p.lms_parcel_waybillpoddate)) as podmonth\r\n",
+					"    ,MAX(DAY(p.lms_parcel_waybillpoddate)) as podday\r\n",
+					"    ,COUNT(p.lms_parcel_id) as noofparcels\r\n",
+					"\r\n",
+					"FROM  rptparcellevel p\r\n",
+					"LEFT JOIN dbozone z on z.id = p.lms_parcel_orderdelivercustsrouteid\r\n",
+					"LEFT JOIN dbolocation l on l.id = z.locid \r\n",
+					"WHERE p.lms_parcel_waybillpoddate >= to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01')\r\n",
+					"GROUP BY\r\n",
+					"     lms_parcel_orderdelivercustcref\r\n",
+					"    ,lms_parcel_orderbillcustid\r\n",
+					"    ,lms_parcel_orderbillcustname\r\n",
+					"    ,lms_parcel_orderdelivercustid\r\n",
+					"    ,lms_parcel_orderdelivercustname\r\n",
+					"    ,lms_parcel_orderdelivercustsrouteid\r\n",
+					"    ,lms_parcel_sroutecodedelivercust\r\n",
+					"    ,l.description\r\n",
+					"    ,to_date(p.lms_parcel_waybillpoddate)"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dailyopsstrikeratereport = spark.sql(\"SELECT * FROM dailyopsstrikeratereport\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# dailyopsstrikeratereport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/dailyopsstrikeratereport.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 10
+			}
+		]
+	}
+}

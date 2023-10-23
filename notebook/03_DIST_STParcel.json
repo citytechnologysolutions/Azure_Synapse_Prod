@@ -21,7 +21,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "5870eeb6-d6ab-461b-8973-a55f344c9800"
+				"spark.autotune.trackingId": "daed2ae0-1302-44df-beee-47122f2bff55"
 			}
 		},
 		"metadata": {
@@ -80,7 +80,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -126,7 +126,7 @@
 					"# dbocustacc.createOrReplaceTempView(\"dbocustacc\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -168,7 +168,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",
@@ -226,18 +226,23 @@
 					"    ,p.Volumiserid as lms_parcel_volumiserid\r\n",
 					"    ,p.LastUpdate as lms_parcel_lastupdate\r\n",
 					"    ,p.customerbarcode as lms_parcel_customerbarcode\r\n",
+					"    ,p.Cref as lms_parcel_cref\r\n",
 					"    ,o.HODate as lms_parcel_orderhodate\r\n",
 					"    ,o.PickUpCustID as lms_parcel_orderpickupcustid\r\n",
 					"    ,o.DeliverCustID as lms_parcel_orderdelivercustid\r\n",
 					"    ,o.BillCustID as lms_parcel_orderbillcustid\r\n",
 					"    ,o.specdel as lms_parcel_orderspecdel\r\n",
 					"    ,o.custaccid as lms_parcel_ordercustaccid\r\n",
+					"    ,o.custref as lms_parcel_ordercustref\r\n",
+					"    ,o.corderno as lms_parcel_ordercorderno\r\n",
 					"    ,ca.description as lms_parcel_custaccdescription\r\n",
-					"\t,ca.cref as lms_parcel_custacccref\r\n",
+					"\t,ca.Cref as lms_parcel_custacccref\r\n",
 					"    ,c.CDate as lms_parcel_consignmentcdate\r\n",
 					"    ,c.DeliverBy as lms_parcel_consignmentdeliverby\r\n",
+					"    ,c.Cref as lms_parcel_consignmentcref\r\n",
 					"    ,w.PODDate  as lms_parcel_waybillpoddate \r\n",
 					"    ,w.Date as lms_parcel_waybilldate\r\n",
+					"    ,w.cref as lms_parcel_waybillcref\r\n",
 					"    ,pd.id as lms_parcel_parceldetailid\r\n",
 					"    ,pd.InServiceStart as lms_parcel_parceldetailinservicestart\r\n",
 					"    ,pd.DeliverBy as lms_parcel_parceldetaildeliverby\r\n",
@@ -298,7 +303,7 @@
 					"AND p.locid NOT IN (163,110,213,27)\r\n",
 					""
 				],
-				"execution_count": 4
+				"execution_count": 36
 			},
 			{
 				"cell_type": "code",
@@ -331,7 +336,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": 37
 			},
 			{
 				"cell_type": "code",
@@ -361,7 +366,7 @@
 					"FROM stparcel_tmp2 p\r\n",
 					"LEFT JOIN stparcel_tmp3 p1 on p1.lms_parcel_id = p.lms_parcel_id"
 				],
-				"execution_count": 6
+				"execution_count": 38
 			},
 			{
 				"cell_type": "code",
@@ -405,7 +410,7 @@
 					"FROM stparcel_tmp4\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -444,7 +449,7 @@
 					"FROM stparcel_tmp5 p\r\n",
 					"LEFT JOIN stvsmparcel v ON v.lms_track_parcelid = p.lms_parcel_id"
 				],
-				"execution_count": 8
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
@@ -480,7 +485,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 41
 			},
 			{
 				"cell_type": "code",
@@ -516,7 +521,7 @@
 					"p.lms_parcel_orderid\r\n",
 					""
 				],
-				"execution_count": 10
+				"execution_count": 42
 			},
 			{
 				"cell_type": "code",
@@ -550,7 +555,7 @@
 					"p.lms_parcel_orderid\r\n",
 					",p.lms_parcel_waybillid"
 				],
-				"execution_count": 11
+				"execution_count": 43
 			},
 			{
 				"cell_type": "code",
@@ -584,7 +589,7 @@
 					"GROUP BY\r\n",
 					"p.lms_parcel_orderid"
 				],
-				"execution_count": 12
+				"execution_count": 44
 			},
 			{
 				"cell_type": "code",
@@ -620,7 +625,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 13
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -638,7 +643,7 @@
 				"source": [
 					"stparcel = spark.sql(\"SELECT * FROM stparcel\")"
 				],
-				"execution_count": 14
+				"execution_count": 46
 			},
 			{
 				"cell_type": "code",
@@ -656,7 +661,7 @@
 				"source": [
 					"# stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 15
+				"execution_count": 47
 			},
 			{
 				"cell_type": "code",
@@ -674,7 +679,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 16
+				"execution_count": 48
 			}
 		]
 	}

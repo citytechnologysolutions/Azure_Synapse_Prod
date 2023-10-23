@@ -1,0 +1,20 @@
+{
+	"name": "T_STMRPCSVFiles",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STMRPCSVFiles') )\n    DROP EXTERNAL TABLE dbo.T_STMRPCSVFiles\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STMRPCSVFiles (\n[billingextractid] int,\n[retailyear] int,\n[retailweek] int,\n[consignmentnumber] nvarchar(4000),\n[transfernumber] nvarchar(4000),\n[transferoutdate] datetime2(7),\n[quantity] int,\n[volumetricweight] decimal(36,6),\n[weigtmeasuretypeid] int,\n[islinehaul] nvarchar(4000),\n[isdistribution] nvarchar(4000),\n[fromstoreid] int,\n[destinationstoreid] int,\n[routecode] nvarchar(4000),\n[routedesc] nvarchar(4000),\n[subroutecode] nvarchar(4000),\n[subroutedesc] nvarchar(4000),\n[zoneid] int,\n[zrsnumber] nvarchar(4000),\n[volumetricrateexdc] decimal(36,6),\n[volumetricrateexdepot] decimal(36,6),\n[volumetricrateexdccarriagecost] decimal(36,6),\n[volumetricrateexdepotcarriagecost] decimal(36,6),\n[lhcarriagecost] decimal(36,6),\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stmrpcsvfiles.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STMRPCSVFiles \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

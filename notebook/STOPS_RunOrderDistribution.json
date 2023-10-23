@@ -86,7 +86,10 @@
 				"source": [
 					"from pyspark.sql.functions import *\r\n",
 					"import pandas as pd\r\n",
-					"from pyspark.sql import Window   "
+					"from pyspark.sql import Window   \r\n",
+					"import os\r\n",
+					"from pyspark.sql.types import StructType, StructField, DoubleType, StringType, DecimalType, IntegerType, DateType\r\n",
+					""
 				],
 				"execution_count": 2
 			},
@@ -1148,6 +1151,65 @@
 					"stopsfintransactions.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stopsfintransactions.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 51
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Variables\r\n",
+					"\r\n",
+					"var_File_Path = \"abfss://synapse@\"+ StorageAccountRead2 +\".dfs.core.windows.net/Unstructured Data/MRP\"\r\n",
+					"# Processing\r\n",
+					"\r\n",
+					"mrp_csv_files = spark.read.option(\"header\", True).csv(var_File_Path)"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/14_DIST_STReadMRPFiles"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stmrpcsvfiles.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stmrpcsvfiles.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",

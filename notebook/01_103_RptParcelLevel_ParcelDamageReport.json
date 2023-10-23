@@ -1,0 +1,203 @@
+{
+	"name": "01_103_RptParcelLevel_ParcelDamageReport",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/LMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "3419a0db-c1af-4d7d-968e-caa45de02fef"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the rptparcellevel LMS Table\r\n",
+					"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
+					"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolocation LMS Table\r\n",
+					"# dbolocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
+					"# dbolocation.createOrReplaceTempView(\"dbolocation\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbocsdmessageparcel LMS Table\r\n",
+					"# dbocsdmessageparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocsd_messageparcel.parquet', format='parquet')\r\n",
+					"# dbocsdmessageparcel.createOrReplaceTempView(\"dbocsdmessageparcel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbocsdmessage  LMS Table\r\n",
+					"# dbocsdmessage = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocsd_message.parquet', format='parquet')\r\n",
+					"# dbocsdmessage.createOrReplaceTempView(\"dbocsdmessage\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbousers LMS Table\r\n",
+					"# dbousers = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbousers.parquet', format='parquet')\r\n",
+					"# dbousers.createOrReplaceTempView(\"dbousers\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stloadchild LMS Table\r\n",
+					"# stloadchild = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', format='parquet')\r\n",
+					"# stloadchild.createOrReplaceTempView(\"stloadchild\")"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"parceldamagereport\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"    csdmp.parcelid id,\r\n",
+					"\tCOALESCE((COALESCE(p.lms_parcel_barcode,cast(p.lms_parcel_id as varchar(30)))),cast(csdmp.parcelid as varchar(30))) parcelbarcode,\r\n",
+					"\tCAST(SUBSTRING(csdm.msbody,30,70) as int) loadid,\r\n",
+					"\tcsdmp.msdate date, \r\n",
+					"\tcsdm.msbody msg,\r\n",
+					"    l.lms_loadchild_ldate loaddate,\r\n",
+					"\tfloc.id fromdepotid,\r\n",
+					"    floc.description fromdepot,\r\n",
+					"\ttloc.id todepotid,\r\n",
+					"    tloc.description todepot,\r\n",
+					"\tu.id loggedbyid,\r\n",
+					"    u.fullname loggedby,\r\n",
+					"    uloc.id userdepotid, \r\n",
+					"\tuloc.description userdepot\r\n",
+					"    \r\n",
+					"FROM dbocsdmessage csdm\r\n",
+					"LEFT JOIN dbocsdmessageparcel csdmp on csdmp.messageid = csdm.id\r\n",
+					"LEFT JOIN rptparcellevel p on p.lms_parcel_id = csdmp.parcelid\r\n",
+					"LEFT JOIN dbousers u on u.id = csdmp.userid\r\n",
+					"LEFT JOIN dbolocation uloc on uloc.id = u.locid\r\n",
+					"LEFT JOIN dbolocation tloc on tloc.id = u.locid\r\n",
+					"LEFT JOIN stloadchild l on lms_loadchild_id = SUBSTRING(csdm.msbody,30,70)\r\n",
+					"LEFT JOIN dbolocation floc on floc.id = l.lms_loadchild_fromlocid\r\n",
+					"\r\n",
+					"WHERE MSBody like 'Damaged Carton on Manifest%'\r\n",
+					"AND csdmp.msdate >= to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01')"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"parceldamagereport = spark.sql(\"SELECT * FROM parceldamagereport\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# parceldamagereport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/parceldamagereport.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 5
+			}
+		]
+	}
+}

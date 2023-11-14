@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "c090652f-c4aa-42f3-bc05-3ccbe5a35246"
+				"spark.autotune.trackingId": "a3853342-6a97-489c-932e-8444bc0ef744"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 2
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -128,10 +128,6 @@
 					"# sttrip = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', format='parquet')\r\n",
 					"# sttrip.createOrReplaceTempView(\"sttrip\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the sttrip LMS Table\r\n",
-					"# sttrip = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', format='parquet')\r\n",
-					"# sttrip.createOrReplaceTempView(\"sttrip\")\r\n",
-					"\r\n",
 					"# #Create DataFrame for the stbooking LMS Table\r\n",
 					"# stbooking = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', format='parquet')\r\n",
 					"# stbooking.createOrReplaceTempView(\"stbooking\")\r\n",
@@ -169,7 +165,7 @@
 					"# publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -667,6 +663,153 @@
 				"cell_type": "code",
 				"metadata": {
 					"jupyter": {
+						"source_hidden": true,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"# OLD CODE \r\n",
+					"# -- %%sql\r\n",
+					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
+					"# -- stactivityconsignedto\r\n",
+					"# -- AS\r\n",
+					"# -- SELECT\r\n",
+					"# --     c.lms_consignment_id as lms_activity_transid\r\n",
+					"# --     ,'consignmentid' as lms_activity_transidtype\r\n",
+					"# --     ,to_date(c.lms_consignment_cdate,'yyyy-MM-dd') as lms_activity_date\r\n",
+					"# --     ,c.lms_consignment_billcust as lms_activity_billcustid\r\n",
+					"# --     ,bc.lms_customer_name as lms_activity_billcustname\r\n",
+					"# --     --,'' as lms_activity_fromlocation\r\n",
+					"# --     ,l.lms_location_description as lms_activity_location\r\n",
+					"# --     ,'consignment' as lms_activity_movementtype\r\n",
+					"# --     ,'' as lms_activity_linehualbookingid\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrweight) as lms_activity_aggrweight\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrchargeweight) as lms_activity_aggrchargeweight\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrvolweight) as lms_activity_aggrvolweight\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrvolumiserweight) as lms_activity_aggrvolumiserweight\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrmaxweight) as lms_activity_aggrmaxweight\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrnoparcels) as lms_activity_aggrnoparcels\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrweightexclspecdel) as lms_activity_aggrweightexclspecdel\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrchargeweightexclspecdel) as lms_activity_aggrchargeweightexclspecdel\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrvolweightexclspecdel) as lms_activity_aggrvolweightexclspecdel\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrvolumiserweightexclspecdel) as lms_activity_aggrvolumiserweightexclspecdel\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrmaxweightexclspecdel) as lms_activity_aggrmaxweightexclspecdel\r\n",
+					"# --     ,(c.lms_parcelbyconsignment_aggrnoparcelsexclspecdel) as lms_activity_aggrnoparcelsexclspecdel\r\n",
+					"\r\n",
+					"\r\n",
+					"# -- FROM stconsignment c\r\n",
+					"# -- LEFT JOIN stbillcustomer bc on bc.lms_customer_id = c.lms_consignment_billcust\r\n",
+					"# -- LEFT JOIN stdeliverypickupcustomer dpc on dpc.lms_customer_id = c.lms_consignment_delivercustid\r\n",
+					"# -- LEFT JOIN stsroute sr on sr.lms_sroute_id = dpc.lms_customer_srouteid\r\n",
+					"# -- LEFT JOIN stzone z on z.lms_zone_id = sr.lms_sroute_zoneid\r\n",
+					"# -- LEFT JOIN stlocation l on l.lms_location_id = z.lms_zone_locid\r\n",
+					"\r\n",
+					"\r\n",
+					"# -- --LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
+					"\r\n",
+					"# -- WHERE to_date(c.lms_consignment_cdate,'yyyy-MM-dd') >= '2016-04-01'\r\n",
+					""
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcelorder_tmp\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT\r\n",
+					"     p.lms_parcel_consignid\r\n",
+					"    ,p.lms_parcel_orderid\r\n",
+					"    ,o.lms_order_billcustid\r\n",
+					"    ,o.lms_order_delivercustid\r\n",
+					"    ,sum(p.lms_parcel_weight) as lms_activity_aggrweight\r\n",
+					"    ,sum(p.lms_parcel_chargeweight) as lms_activity_aggrchargeweight\r\n",
+					"    ,sum(p.lms_parcel_volweight) as lms_activity_aggrvolweight\r\n",
+					"    ,sum(p.lms_parcel_volumiserweight) as lms_activity_aggrvolumiserweight\r\n",
+					"    ,sum(greatest(p.lms_parcel_weight,p.lms_parcel_chargeweight,p.lms_parcel_volweight,p.lms_parcel_volumiserweight)) as lms_activity_aggrmaxweight\r\n",
+					"    ,count(p.lms_parcel_id) as lms_activity_aggrnoparcels\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_weight\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrweightexclspecdel\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_chargeweight\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrchargeweightexclspecdel\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_volweight\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrvolweightexclspecdel\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_volumiserweight\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrvolumiserweightexclspecdel\r\n",
+					"\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN greatest(p.lms_parcel_weight,p.lms_parcel_chargeweight,p.lms_parcel_volweight,p.lms_parcel_volumiserweight)\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrmaxweightexclspecdel\r\n",
+					"\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN 1\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrnoparcelsexclspecdel\r\n",
+					"FROM stparcel p \r\n",
+					"LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
+					"GROUP BY  \r\n",
+					"     p.lms_parcel_consignid\r\n",
+					"    ,p.lms_parcel_orderid\r\n",
+					"    ,o.lms_order_billcustid\r\n",
+					"    ,o.lms_order_delivercustid\r\n",
+					""
+				],
+				"execution_count": 72
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stparcelorder_tmp = spark.sql(\"SELECT * FROM stparcelorder_tmp\")"
+				],
+				"execution_count": 73
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
 						"source_hidden": false,
 						"outputs_hidden": false
 					},
@@ -686,43 +829,44 @@
 					"stactivityconsignedto\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					"    c.lms_consignment_id as lms_activity_transid\r\n",
-					"    ,'consignmentid' as lms_activity_transidtype\r\n",
+					"    po.lms_parcel_consignid||'|'|| po.lms_parcel_orderid as lms_activity_transid\r\n",
+					"    ,'consignmentid|orderid' as lms_activity_transidtype\r\n",
 					"    ,to_date(c.lms_consignment_cdate,'yyyy-MM-dd') as lms_activity_date\r\n",
-					"    ,c.lms_consignment_billcust as lms_activity_billcustid\r\n",
+					"    ,po.lms_order_billcustid as lms_activity_billcustid\r\n",
 					"    ,bc.lms_customer_name as lms_activity_billcustname\r\n",
-					"    --,'' as lms_activity_fromlocation\r\n",
+					"    ,po.lms_order_delivercustid as lms_activity_delivercustid\r\n",
+					"    ,dpc.lms_customer_name as lms_activity_delivercustname\r\n",
 					"    ,l.lms_location_description as lms_activity_location\r\n",
 					"    ,'consignment' as lms_activity_movementtype\r\n",
 					"    ,'' as lms_activity_linehualbookingid\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrweight) as lms_activity_aggrweight\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrchargeweight) as lms_activity_aggrchargeweight\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrvolweight) as lms_activity_aggrvolweight\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrvolumiserweight) as lms_activity_aggrvolumiserweight\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrmaxweight) as lms_activity_aggrmaxweight\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrnoparcels) as lms_activity_aggrnoparcels\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrweightexclspecdel) as lms_activity_aggrweightexclspecdel\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrchargeweightexclspecdel) as lms_activity_aggrchargeweightexclspecdel\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrvolweightexclspecdel) as lms_activity_aggrvolweightexclspecdel\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrvolumiserweightexclspecdel) as lms_activity_aggrvolumiserweightexclspecdel\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrmaxweightexclspecdel) as lms_activity_aggrmaxweightexclspecdel\r\n",
-					"    ,(c.lms_parcelbyconsignment_aggrnoparcelsexclspecdel) as lms_activity_aggrnoparcelsexclspecdel\r\n",
+					"    ,CAST(po.lms_activity_aggrweight AS decimal(18,2)) as lms_activity_aggrweight\r\n",
+					"    ,CAST(po.lms_activity_aggrchargeweight AS decimal(18,2)) as lms_activity_aggrchargeweight\r\n",
+					"    ,CAST(po.lms_activity_aggrvolweight AS decimal(18,2)) as lms_activity_aggrvolweight\r\n",
+					"    ,CAST(po.lms_activity_aggrvolumiserweight AS decimal(18,2)) as lms_activity_aggrvolumiserweight\r\n",
+					"    ,CAST(po.lms_activity_aggrmaxweight AS decimal(18,2)) as lms_activity_aggrmaxweight\r\n",
+					"    ,po.lms_activity_aggrnoparcels\r\n",
+					"    ,CAST(po.lms_activity_aggrweightexclspecdel AS decimal(18,2)) as lms_activity_aggrweightexclspecdel\r\n",
+					"    ,CAST(po.lms_activity_aggrchargeweightexclspecdel AS decimal(18,2)) as lms_activity_aggrchargeweightexclspecdel\r\n",
+					"    ,CAST(po.lms_activity_aggrvolweightexclspecdel AS decimal(18,2)) as lms_activity_aggrvolweightexclspecdel\r\n",
+					"    ,CAST(po.lms_activity_aggrvolumiserweightexclspecdel AS decimal(18,2)) as lms_activity_aggrvolumiserweightexclspecdel\r\n",
+					"    ,CAST(po.lms_activity_aggrmaxweightexclspecdel AS decimal(18,2)) as lms_activity_aggrmaxweightexclspecdel\r\n",
+					"    ,po.lms_activity_aggrnoparcelsexclspecdel\r\n",
 					"\r\n",
 					"\r\n",
-					"FROM stconsignment c\r\n",
-					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id = c.lms_consignment_billcust\r\n",
-					"LEFT JOIN stdeliverypickupcustomer dpc on dpc.lms_customer_id = c.lms_consignment_delivercustid\r\n",
+					"FROM stparcelorder_tmp po\r\n",
+					"LEFT JOIN stconsignment c on c.lms_consignment_id = po.lms_parcel_consignid\r\n",
+					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id = po.lms_order_billcustid\r\n",
+					"LEFT JOIN stdeliverypickupcustomer dpc on dpc.lms_customer_id = po.lms_order_delivercustid\r\n",
 					"LEFT JOIN stsroute sr on sr.lms_sroute_id = dpc.lms_customer_srouteid\r\n",
 					"LEFT JOIN stzone z on z.lms_zone_id = sr.lms_sroute_zoneid\r\n",
 					"LEFT JOIN stlocation l on l.lms_location_id = z.lms_zone_locid\r\n",
 					"\r\n",
-					"\r\n",
-					"--LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
-					"\r\n",
 					"WHERE to_date(c.lms_consignment_cdate,'yyyy-MM-dd') >= '2016-04-01'\r\n",
+					"AND po.lms_parcel_consignid||'|'|| po.lms_parcel_orderid  is not null\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": 4
+				"execution_count": 74
 			},
 			{
 				"cell_type": "code",
@@ -740,7 +884,7 @@
 				"source": [
 					"stactivityconsignedto = spark.sql(\"SELECT * FROM stactivityconsignedto\")"
 				],
-				"execution_count": 5
+				"execution_count": 75
 			},
 			{
 				"cell_type": "code",
@@ -788,6 +932,8 @@
 					"    ,to_date(lms_track_opendt,'yyyy-MM-dd') as lms_activity_date\r\n",
 					"    ,p.lms_parcel_orderbillcustid as lms_activity_billcustid\r\n",
 					"    ,bc.lms_customer_name as lms_activity_billcustname\r\n",
+					"    ,p.lms_parcel_orderdelivercustid as lms_activity_delivercustid\r\n",
+					"    ,dpc.lms_customer_name as lms_activity_delivercustname\r\n",
 					"    ,CASE \r\n",
 					"        WHEN lms_track_tracktypeid = 2 THEN 'linehaul' \r\n",
 					"        WHEN lms_track_tracktypeid = 6 THEN 'distribution'\r\n",
@@ -795,54 +941,38 @@
 					"    END as lms_activity_movementtype\r\n",
 					"    ,lc.lms_loadchild_masterloadid as lms_activity_linehualbookingid\r\n",
 					"    ,fl.lms_location_description as lms_activity_location\r\n",
+					"    ,sum(p.lms_parcel_weight) as lms_activity_aggrweight\r\n",
+					"    ,sum(p.lms_parcel_chargeweight) as lms_activity_aggrchargeweight\r\n",
+					"    ,sum(p.lms_parcel_volweight) as lms_activity_aggrvolweight\r\n",
+					"    ,sum(p.lms_parcel_volumiserweight) as lms_activity_aggrvolumiserweight\r\n",
+					"    ,sum(greatest(p.lms_parcel_weight,p.lms_parcel_chargeweight,p.lms_parcel_volweight,p.lms_parcel_volumiserweight)) as lms_activity_aggrmaxweight\r\n",
+					"    ,count(p.lms_parcel_id) as lms_activity_aggrnoparcels\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_weight\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrweightexclspecdel\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_chargeweight\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrchargeweightexclspecdel\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_volweight\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrvolweightexclspecdel\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_volumiserweight\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrvolumiserweightexclspecdel\r\n",
 					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN o.lms_order_specdel = 1 THEN SUM(p.lms_parcel_weight)\r\n",
-					"    END as lms_activity_aggrweight\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN greatest(p.lms_parcel_weight,p.lms_parcel_chargeweight,p.lms_parcel_volweight,p.lms_parcel_volumiserweight)\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrmaxweightexclspecdel\r\n",
 					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN lms_order_specdel = 1 THEN SUM(p.lms_parcel_chargeweight)\r\n",
-					"    END as lms_activity_aggrchargeweight\r\n",
-					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN o.lms_order_specdel = 1 THEN SUM(p.lms_parcel_volweight)\r\n",
-					"    END as lms_activity_aggrvolweight\r\n",
-					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN o.lms_order_specdel = 1 THEN SUM(p.lms_parcel_volumiserweight)\r\n",
-					"    END as lms_activity_aggrvolumiserweight\r\n",
-					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN o.lms_order_specdel = 1 THEN SUM(p.lms_parcel_pweight)\r\n",
-					"    END as lms_activity_aggrmaxweight\r\n",
-					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN o.lms_order_specdel = 1 THEN COUNT(p.lms_parcel_id)\r\n",
-					"    END as lms_activity_aggrnoparcels\r\n",
-					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN o.lms_order_specdel = 0 THEN SUM(p.lms_parcel_weight)\r\n",
-					"    END as lms_activity_aggrweightexclspecdel\r\n",
-					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN o.lms_order_specdel = 0 THEN SUM(p.lms_parcel_chargeweight)\r\n",
-					"    END as lms_activity_aggrchargeweightexclspecdel\r\n",
-					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN o.lms_order_specdel = 0 THEN SUM(p.lms_parcel_volweight)\r\n",
-					"    END as lms_activity_aggrvolweightexclspecdel\r\n",
-					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN o.lms_order_specdel = 0 THEN SUM(p.lms_parcel_volumiserweight)\r\n",
-					"    END as lms_activity_aggrvolumiserweightexclspecdel\r\n",
-					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN o.lms_order_specdel = 0 THEN SUM(p.lms_parcel_pweight)\r\n",
-					"    END as lms_activity_aggrmaxweightexclspecdel\r\n",
-					"\r\n",
-					"    ,CASE \r\n",
-					"        WHEN o.lms_order_specdel = 0 THEN COUNT(p.lms_parcel_id)\r\n",
-					"    END as lms_activity_aggrnoparcelsexclspecdel\r\n",
+					"    ,sum(CASE\r\n",
+					"            WHEN o.lms_order_specdel = 0 THEN 1\r\n",
+					"            ELSE 0 \r\n",
+					"        END) as lms_activity_aggrnoparcelsexclspecdel\r\n",
 					"\r\n",
 					"\r\n",
 					"FROM stlmstrack t\r\n",
@@ -850,6 +980,7 @@
 					"LEFT JOIN stloadchild lc on lc.lms_loadchild_id = t.lms_track_loadid\r\n",
 					"LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
 					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id = p.lms_parcel_orderbillcustid\r\n",
+					"LEFT JOIN stdeliverypickupcustomer dpc on dpc.lms_customer_id = p.lms_parcel_orderdelivercustid\r\n",
 					"LEFT JOIN stlocation fl on fl.lms_location_id = t.lms_track_fromlocid\r\n",
 					"LEFT JOIN stlocation tl on tl.lms_location_id = t.lms_track_tolocid\r\n",
 					"\r\n",
@@ -861,6 +992,8 @@
 					"    ,to_date(t.lms_track_opendt,'yyyy-MM-dd')\r\n",
 					"    ,p.lms_parcel_orderbillcustid\r\n",
 					"    ,bc.lms_customer_name\r\n",
+					"    ,p.lms_parcel_orderdelivercustid\r\n",
+					"    ,dpc.lms_customer_name\r\n",
 					"    ,lc.lms_loadchild_masterloadid\r\n",
 					"    ,fl.lms_location_description\r\n",
 					"    ,tl.lms_location_description\r\n",
@@ -868,7 +1001,7 @@
 					"    ,o.lms_order_specdel\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 77
 			},
 			{
 				"cell_type": "code",
@@ -886,7 +1019,7 @@
 				"source": [
 					"stactivityhandled_tmp1 = spark.sql(\"SELECT * FROM stactivityhandled_tmp1\")"
 				],
-				"execution_count": 7
+				"execution_count": 78
 			},
 			{
 				"cell_type": "code",
@@ -916,9 +1049,10 @@
 					"    ,t1.lms_activity_date\r\n",
 					"    ,t1.lms_activity_billcustid\r\n",
 					"    ,t1.lms_activity_billcustname\r\n",
+					"    ,t1.lms_activity_delivercustid\r\n",
+					"    ,t1.lms_activity_delivercustname\r\n",
 					"    ,t1.lms_activity_movementtype\r\n",
 					"    ,t1.lms_activity_linehualbookingid\r\n",
-					"    --,t1.lms_activity_fromlocation\r\n",
 					"    ,t1.lms_activity_location\r\n",
 					"    ,CAST(t1.lms_activity_aggrweight AS decimal(18,2)) as lms_activity_aggrweight\r\n",
 					"    ,CAST(t1.lms_activity_aggrchargeweight AS decimal(18,2)) as lms_activity_aggrchargeweight\r\n",
@@ -939,7 +1073,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": 79
 			},
 			{
 				"cell_type": "code",
@@ -957,7 +1091,7 @@
 				"source": [
 					"stactivityhandled = spark.sql(\"SELECT * FROM stactivityhandled\")"
 				],
-				"execution_count": 9
+				"execution_count": 80
 			},
 			{
 				"cell_type": "code",
@@ -994,7 +1128,7 @@
 					"stactivitydetail = stactivityhandled.unionByName(stactivityconsignedto, allowMissingColumns = True)\r\n",
 					"stactivitydetail.createOrReplaceTempView(\"stactivitydetail\")"
 				],
-				"execution_count": 10
+				"execution_count": 81
 			},
 			{
 				"cell_type": "code",
@@ -1012,7 +1146,7 @@
 				"source": [
 					"# stactivitydetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stactivitydetail.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 11
+				"execution_count": 83
 			},
 			{
 				"cell_type": "code",
@@ -1038,7 +1172,7 @@
 					"AS\r\n",
 					"SELECT\r\n",
 					"\r\n",
-					"lms_activity_date\r\n",
+					" lms_activity_date\r\n",
 					",lms_activity_movementtype\r\n",
 					",lms_activity_location\r\n",
 					",lms_activity_billcustname\r\n",
@@ -1063,7 +1197,7 @@
 					",lms_activity_billcustname\r\n",
 					""
 				],
-				"execution_count": 13
+				"execution_count": 88
 			},
 			{
 				"cell_type": "code",
@@ -1081,7 +1215,7 @@
 				"source": [
 					"stactivitysummary = spark.sql(\"SELECT * FROM stactivitysummary\")"
 				],
-				"execution_count": 14
+				"execution_count": 85
 			},
 			{
 				"cell_type": "code",
@@ -1099,7 +1233,7 @@
 				"source": [
 					"# stactivitysummary.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stactivitysummary.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 15
+				"execution_count": 86
 			},
 			{
 				"cell_type": "code",

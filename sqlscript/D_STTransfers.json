@@ -1,0 +1,20 @@
+{
+	"name": "D_STTransfers",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STTransfers') )\n    DROP EXTERNAL TABLE dbo.D_STTransfers\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STTransfers (\n\n[combinetransfers] nvarchar(4000),\n[prefix] nvarchar(4000),\n[lms_parcel_pdate] date,\n[transferoutdate] date,\n[existsinmrponly] int,\n[existsinlmsonly] int,\n[date]  date,\n[counter] int,\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/sttransfers.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STTransfers \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

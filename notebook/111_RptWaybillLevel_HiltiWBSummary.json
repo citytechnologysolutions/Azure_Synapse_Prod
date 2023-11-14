@@ -1,0 +1,243 @@
+{
+	"name": "111_RptWaybillLevel_HiltiWBSummary",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/LMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "ff10602e-b0ef-4639-b523-a281d1aa9ee9"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the rptwaybilllevel LMS Table\r\n",
+					"# rptwaybilllevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptwaybilllevel.parquet', format='parquet')\r\n",
+					"# rptwaybilllevel.createOrReplaceTempView(\"rptwaybilllevel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stparcel LMS Table\r\n",
+					"# stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/stparcel.parquet', format='parquet')\r\n",
+					"# stparcel.createOrReplaceTempView(\"stparcel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the deliverypickupcustomer LMS Table\r\n",
+					"# deliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/deliverypickupcustomer.parquet', format='parquet')\r\n",
+					"# deliverypickupcustomer.createOrReplaceTempView(\"deliverypickupcustomer\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbocustacc LMS Table\r\n",
+					"# dbocustacc = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustacc.parquet', format='parquet')\r\n",
+					"# dbocustacc.createOrReplaceTempView(\"dbocustacc\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbohiltigroupcode LMS Table\r\n",
+					"# dbohiltigroupcode = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbohiltigroupcode.parquet', format='parquet')\r\n",
+					"# dbohiltigroupcode.createOrReplaceTempView(\"dbohiltigroupcode\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbohiltigroup LMS Table\r\n",
+					"# dbohiltigroup = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbohiltigroup.parquet', format='parquet')\r\n",
+					"# dbohiltigroup.createOrReplaceTempView(\"dbohiltigroup\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbohiltirouteratetype LMS Table\r\n",
+					"# dbohiltirouteratetype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbohiltirouteratetype.parquet', format='parquet')\r\n",
+					"# dbohiltirouteratetype.createOrReplaceTempView(\"dbohiltirouteratetype\")\r\n",
+					""
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"hiltiwbsummaryreport_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"    to_date(w.lms_waybill_date) date,\r\n",
+					"    w.lms_waybill_id waybillid,\r\n",
+					"\thgr.Description division,\r\n",
+					"\tCASE \r\n",
+					"        WHEN CAST(CONVERT(VARCHAR(10),w.lms_waybill_inservice+1, 111) AS DATETIME) +'00:00:00'  > w.lms_waybill_poddate THEN 1 \r\n",
+					"\t    ELSE 0 \r\n",
+					"\tEND tfhinserviceindicator,\r\n",
+					"    CASE \r\n",
+					"\t    WHEN w.lms_waybill_inservice >  w.lms_waybill_poddate THEN 1 \r\n",
+					"\t    ELSE 0 \r\n",
+					"\tEND inserviceindicator\r\n",
+					"FROM rptwaybilllevel w\r\n",
+					"INNER JOIN stparcel p ON p.lms_parcel_waybillid =  w.lms_waybill_id\r\n",
+					"INNER JOIN deliverypickupcustomer dc ON dc.lms_customer_id = p.lms_parcel_orderdelivercustid    \r\n",
+					"LEFT JOIN dbocustacc ca ON ca.id = w.lms_waybill_custaccid\r\n",
+					"LEFT JOIN dbohiltigroupcode hg ON custAcc.CRef = hg.Code  \r\n",
+					"LEFT JOIN dbohiltigroup hgr ON hgr.ID = COALEASCE(hg.hiltigroupid,1)  \r\n",
+					"LEFT JOIN dbohiltirouteratetype rt ON rt.routeratetypeid = dc.lms_customer_brouteid AND COALEASCE(hg.hiltigroupid,1) = rt.hiltigroupid\r\n",
+					"\t\r\n",
+					"GROUP BY\r\n",
+					"w.lms_waybill_id,\r\n",
+					"w.lms_waybill_poddate,\r\n",
+					"w.lms_waybill_inservice,\r\n",
+					"hgr.description"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"hiltiwbsummaryreport\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\tdivision,\r\n",
+					"    date,\r\n",
+					"\tCount(waybillid) waybills,\r\n",
+					"\tSum(tfhinserviceindicator) inservicemidnight,\t\r\n",
+					"\tSum(inserviceindicator) inservicetargetdeliverytime,\r\n",
+					"\tCast((Cast(Sum(InserviceIndicator) as numeric (13,2))/Cast(Count(Waybill)as numeric(13,2)))*100 as numeric (13,2)) as inservicemidnightpct,\r\n",
+					"\tCast((Cast(Sum(TFHInserviceIndicator) as numeric (13,2))/cast(Count(Waybill)as numeric (13,2)))*100 as numeric (13,2)) as inservicetargetdeliverytimepct\r\n",
+					"    \r\n",
+					"FROM hiltiwbsummaryreport_tmp \r\n",
+					"GROUP BY\r\n",
+					"division,\r\n",
+					"date"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"hiltiwbregionsummaryreport = spark.sql(\"SELECT * FROM hiltiwbregionsummaryreport\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# hiltiwbregionsummaryreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/hiltiwbregionsummaryreport.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "113_RptParcelLevel_ecombillingreport",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.ecombillingreport') )\n    DROP EXTERNAL TABLE dbo.ecombillingreport\nGO\n\nCREATE EXTERNAL TABLE dbo.ecombillingreport (\n[billingcustomerid] int,\n[billingcustomername] nvarchar(4000),\n[deliverycustomerid] int,\n[deliverycustomername] nvarchar(4000),\n[pickupcustomerid] int,\n[pickucustomername] nvarchar(4000),\n[barcode] nvarchar(4000),\n[weight] float,\n[volweight] float,\n[orderno] nvarchar(4000),\n[waybillid] int,\n[consigndate] datetime2(7),\n[date] datetime2(7),\n[deliverycreatedateldate] datetime2(7),\n[deliverypoddate] datetime2(7),\n[parceldescription] nvarchar(4000),\n[deliverycustomersroutedescription] nvarchar(4000),\n[ptype] int,\n[assembly] int,\n[deladres1] nvarchar(4000),\n[deladres2] nvarchar(4000),\n[delpcode] nvarchar(4000),\n[podcaptured] datetime2(7),\n[courier] nvarchar(4000),\n[parcellocationid] int,\n[parcellocationdescription] nvarchar(4000),\n[parceltypedescription] nvarchar(4000),\n\n\n\n\t)\n\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/ecombillingreport.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.ecombillingreport \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

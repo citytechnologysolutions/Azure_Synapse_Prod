@@ -1,0 +1,307 @@
+{
+	"name": "104_RptParcelLevel_QCParcelDamageReport",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/LMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "162303da-a82b-45e7-9fa5-e9085786bf63"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 41
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the rptparcellevel LMS Table\r\n",
+					"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
+					"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodamagedparcelaudit LMS Table\r\n",
+					"# dbodamagedparcelaudit = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit.parquet', format='parquet')\r\n",
+					"# dbodamagedparcelaudit.createOrReplaceTempView(\"dbodamagedparcelaudit\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodamagedparcelaudittapetype LMS Table\r\n",
+					"# dbodamagedparcelaudittapetype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit_tapetype.parquet', format='parquet')\r\n",
+					"# dbodamagedparcelaudittapetype.createOrReplaceTempView(\"dbodamagedparcelaudittapetype\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbovolumiserlocation  LMS Table\r\n",
+					"# dbovolumiserlocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbovolumiserlocation.parquet', format='parquet')\r\n",
+					"# dbovolumiserlocation.createOrReplaceTempView(\"dbovolumiserlocation\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodamagedparcelauditfluteprofiles  LMS Table\r\n",
+					"# dbodamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit_flute_profiles.parquet', format='parquet')\r\n",
+					"# dbodamagedparcelauditfluteprofiles.createOrReplaceTempView(\"dbodamagedparcelauditfluteprofiles\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbousers LMS Table\r\n",
+					"# dbousers = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbousers.parquet', format='parquet')\r\n",
+					"# dbousers.createOrReplaceTempView(\"dbousers\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbolocation LMS Table\r\n",
+					"# dbolocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
+					"# dbolocation.createOrReplaceTempView(\"dbolocation\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 42
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# from pyspark.sql.functions import *\r\n",
+					"# from pyspark.sql.window import Window"
+				],
+				"execution_count": 43
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"dbodamagedparcelaudit_tmp1\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"dpa.*,\r\n",
+					"fp.description as flutedescription\r\n",
+					"FROM  dbodamagedparcelaudit dpa\r\n",
+					"LEFT JOIN dbodamagedparcelauditfluteprofiles fp on dpa.flutemeasure between fp.startrange and fp.endrange"
+				],
+				"execution_count": 44
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dbodamagedparcelaudit_tmp1 = spark.sql(\"SELECT * FROM dbodamagedparcelaudit_tmp1\")"
+				],
+				"execution_count": 45
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"partitionda=Window.partitionBy(\"parcelid\").orderBy(col(\"parcelid\").asc(),col(\"id\").desc())\r\n",
+					"dbodamagedparcelaudit_tmp1 = dbodamagedparcelaudit_tmp1.withColumn(\"rn\",row_number().over(partitionda))\r\n",
+					"dbodamagedparcelaudit_tmp1.createOrReplaceTempView(\"dbodamagedparcelaudit_tmp2\")"
+				],
+				"execution_count": 46
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"qcparceldamagereport\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"     dpa.id\r\n",
+					"    ,p.lms_parcel_id parcelid\r\n",
+					"    ,COALESCE((COALESCE(p.lms_parcel_barcode,cast(p.lms_parcel_id as varchar(30)))),cast(dpa.parcelid as varchar(30))) parcelbarcode\r\n",
+					"    ,p.lms_parcel_orderbillcustid as billingcustomerid\r\n",
+					"    ,p.lms_parcel_orderbillcustname as billingcustomer\r\n",
+					"    ,u.id auditbyid\r\n",
+					"    ,u.fullname auditby\r\n",
+					"    ,l.id locationid\r\n",
+					"    ,l.description location\r\n",
+					"    ,dpa.auditdatetime date\r\n",
+					"    ,p.lms_parcel_weight parcelweightkg\r\n",
+					"    ,p.lms_parcel_pw parcelwidthcm\r\n",
+					"    ,p.lms_parcel_pl parcellengthcm\r\n",
+					"    ,p.lms_parcel_ph parcelheightcm\r\n",
+					"    ,p.lms_parcel_volumiserweight volumiserweightcm\r\n",
+					"    ,p.lms_parcel_volumiserlength volumiserlengthcm\r\n",
+					"    ,p.lms_parcel_volumiserheight volumiserheightcm\r\n",
+					"    ,p.lms_parcel_volumiserwidth as volumiserwidth\r\n",
+					"    ,dpa.quantity auditquantity\r\n",
+					"    ,dpa.weight auditweight\r\n",
+					"    ,dpa.flutemeasure\r\n",
+					"    ,dpa.shrinkwrap \r\n",
+					"    ,dpa.comment\r\n",
+					"    ,CAST(dpa.parcelutilization as varchar(128)) || ' %' as utilization\r\n",
+					"\t,dpa.missing as missing\r\n",
+					"\t,dpa.damaged as damaged\r\n",
+					"    ,dpa.flutedescription as flutedescription\r\n",
+					"    ,dpatt.description as tapetype\r\n",
+					"    \r\n",
+					"FROM dbodamagedparcelaudit_tmp2 dpa \r\n",
+					"LEFT JOIN dbodamagedparcelaudittapetype dpatt on dpatt.id = dpa.tapeusedid\r\n",
+					"LEFT JOIN rptparcellevel p on p.lms_parcel_id = dpa.parcelid \r\n",
+					"LEFT JOIN dbousers u on u.id = dpa.userid\r\n",
+					"LEFT JOIN dbolocation l on l.id = dpa.locid\r\n",
+					"WHERE COALESCE(dpa.damagetypeid,3) = 3 and dpa.id <> 0\r\n",
+					"AND dpa.auditdatetime >= to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01')\r\n",
+					""
+				],
+				"execution_count": 47
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"qcparceldamagereport = spark.sql(\"SELECT * FROM qcparceldamagereport\")"
+				],
+				"execution_count": 48
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# qcparceldamagereport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/qcparceldamagereport.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 49
+			}
+		]
+	}
+}

@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "2277b22f-5261-4757-962c-34c4a76e1c02"
+				"spark.autotune.trackingId": "0032ba84-8d87-4b50-ac05-0b3072edf7b6"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 10
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -102,7 +102,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -121,7 +121,7 @@
 					"# from pyspark.sql.functions import *\r\n",
 					"# from pyspark.sql.window import Window"
 				],
-				"execution_count": 12
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -141,7 +141,7 @@
 					"stloadchild = stloadchild.withColumn(\"rn\",row_number().over(partitionparent))\r\n",
 					"stloadchild.createOrReplaceTempView(\"stloadchild\")"
 				],
-				"execution_count": 13
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -194,7 +194,7 @@
 					"    ,lc2.lms_loadchild_vehodo2\r\n",
 					""
 				],
-				"execution_count": 14
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -212,7 +212,7 @@
 				"source": [
 					"stloadparent_tmp = spark.sql(\"SELECT * FROM stloadparent_tmp\")"
 				],
-				"execution_count": 15
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -255,6 +255,7 @@
 					"    ,t.lms_loadchild_aggrmaxweightexclspecdel  as  lms_loadparent_aggrmaxweightexclspecdel\r\n",
 					"    ,t.lms_loadchild_aggrnoparcelsexclspecdel  as  lms_loadparent_aggrnoparcelsexclspecdel\r\n",
 					"    ,v.md_vehicle_vehicletype\r\n",
+					"    ,v.md_vehicle_internalvolume\r\n",
 					"    ,d.id as orv_dispatch_id\r\n",
 					"    ,d.lmsid as orv_dispatch_lmsid\r\n",
 					"    ,d.vid as orv_dispatch_vid\r\n",
@@ -373,7 +374,7 @@
 					"LEFT JOIN publicreportdistotmgntdispatchdt x on x.dispatchid = d.id\r\n",
 					"LEFT JOIN stmdvehicle v on v.md_vehicle_lmsid = t.lms_loadchild_vehicleid"
 				],
-				"execution_count": 16
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -391,7 +392,7 @@
 				"source": [
 					"stloadparent = spark.sql(\"SELECT * FROM stloadparent\")"
 				],
-				"execution_count": 17
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -409,7 +410,7 @@
 				"source": [
 					"# stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 19
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -427,7 +428,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 16
+				"execution_count": 11
 			}
 		]
 	}

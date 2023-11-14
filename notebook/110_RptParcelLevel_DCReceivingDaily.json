@@ -1,0 +1,213 @@
+{
+	"name": "110_RptParcelLevel_DCReceivingDaily",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/LMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "ae4c4f6d-4a11-4dde-ab58-1a8d98cc177c"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the rptparcellevel LMS Table\r\n",
+					"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
+					"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the rpttracklevel LMS Table\r\n",
+					"# rpttracklevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rpttracklevel.parquet', format='parquet')\r\n",
+					"# rpttracklevel.createOrReplaceTempView(\"rpttracklevel\")\r\n",
+					"\r\n",
+					"# #create dataframe for the stlocation lms table\r\n",
+					"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
+					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
+					"\r\n",
+					"# #create dataframe for the dbodcorder lms table\r\n",
+					"# dbodcorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodc_order.parquet', format='parquet')\r\n",
+					"# dbodcorder.createOrReplaceTempView(\"dbodcorder\")\r\n",
+					"\r\n",
+					"# #create dataframe for the dbodctransfer lms table\r\n",
+					"# dbodctransfer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodc_transfer.parquet', format='parquet')\r\n",
+					"# dbodctransfer.createOrReplaceTempView(\"dbodctransfer\")\r\n",
+					"\r\n",
+					"# #create dataframe for the dbodcprepack lms table\r\n",
+					"# dbodcprepack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodc_prepack.parquet', format='parquet')\r\n",
+					"# dbodcprepack.createOrReplaceTempView(\"dbodcprepack\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"dcreceivingdailyreport\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					" p.lms_parcel_orderbillcustid as billingcustomerid\r\n",
+					",p.lms_parcel_orderbillcustname as billingcustomername\r\n",
+					",p.lms_parcel_orderdelivercustid as deliverycustomerid\r\n",
+					",p.lms_parcel_orderdelivercustname as deliverycustomername\r\n",
+					",p.lms_parcel_consignmentcdate as date\r\n",
+					",dco.supplierdesc as supplierdescription\r\n",
+					",dco.purchordernumber as purchaseordernumber\r\n",
+					",dco.appointmentcode\r\n",
+					",dco.apptstartdatetime as appointmentstartdatetime\r\n",
+					",dco.apptenddatetime as appointmentenddatetime\r\n",
+					",dco.arrivedat\r\n",
+					",dco.lastuploadeddate\r\n",
+					",dco.dccode\r\n",
+					",dco.ispandaenabled\r\n",
+					",dcpp.length as dcprepacklength\r\n",
+					",dcpp.height as dcprepackheight\r\n",
+					",dcpp.width as dcprepackwidth\r\n",
+					",dct.transfercode as dctransfercode\r\n",
+					",dct.acceptancedate as dctransferacceptancedate\r\n",
+					",dct.auditflag as dctransferauditflag\r\n",
+					",dct.counted as dctransfercounted\r\n",
+					",dct.uploaded as dctransferuploaded\r\n",
+					",p.lms_parcel_weight as parcelweight\r\n",
+					",p.lms_parcel_volweight as parcelvolweight\r\n",
+					",p.lms_parcel_chargeweight as parcelchargeweight\r\n",
+					",p.lms_parcel_waybillid as waybillid\r\n",
+					",p.lms_parcel_consignid as consignid\r\n",
+					",lms_location_description as parcellocation\r\n",
+					"\r\n",
+					"FROM dbodcorder dco\r\n",
+					"LEFT JOIN dbodcprepack dcpp on dcpp.dc_orderid = dco.id\r\n",
+					"LEFT JOIN dbodctransfer dct on dct.dc_prepackid = dcpp.id\r\n",
+					"LEFT JOIN rptparcellevel p on p.lms_parcel_barcode = dct.transfercode\r\n",
+					"LEFT JOIN stlocation l on l.lms_location_id = p.lms_parcel_locid\r\n",
+					""
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"dcreceivingdailyreport = spark.sql(\"SELECT * FROM dcreceivingdailyreport\")"
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# dcreceivingdailyreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/dcreceivingdailyreport.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 32
+			}
+		]
+	}
+}

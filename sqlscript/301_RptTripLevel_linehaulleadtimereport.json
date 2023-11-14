@@ -1,0 +1,20 @@
+{
+	"name": "301_RptTripLevel_linehaulleadtimereport",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.linehaulleadtimereport') )\n    DROP EXTERNAL TABLE dbo.linehaulleadtimereport\nGO\n\nCREATE EXTERNAL TABLE dbo.linehaulleadtimereport (\n\n[tripid] bigint,\n[thirdpartyid] bigint,\n[thirdpartyname] nvarchar(4000),\n[bookingids] nvarchar(4000),\n[loadids] nvarchar(4000),\n[noofparcels] bigint,\n[weight] float,\n[chargeweight] numeric(36,6),\n[volweight] float,\n[volumiserweight] numeric(36,6),\n[closeloadtostartdispatch] bigint,\n[closeloadtoexitgeofence] bigint,\n[effectiveloaddurationminutes] bigint,\n[effectiveoffloaddurationminutes] bigint,\n\t)\n\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/linehaulleadtimereport.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.linehaulleadtimereport\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

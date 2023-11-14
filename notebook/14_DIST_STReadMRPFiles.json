@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "d28c6ce3-22ff-4686-86f1-b8f382f14703"
+				"spark.autotune.trackingId": "56c2546b-4d50-45fa-8c68-5753b6da454d"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,27 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #create dataframe for the stparcel lms table\r\n",
+					"# stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet/', format='parquet')\r\n",
+					"# stparcel.createOrReplaceTempView(\"stparcel\")"
+				],
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -100,7 +120,7 @@
 					"# from pyspark.sql.types import StructType, StructField, DoubleType, StringType, DecimalType, IntegerType, DateType\r\n",
 					"# from pyspark.sql.functions import *"
 				],
-				"execution_count": 2
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -125,7 +145,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -156,7 +176,7 @@
 					".withColumn('VolumetricRateExDepot (Carriage Cost)', col('VolumetricRateExDepot (Carriage Cost)').cast(DecimalType(36,6)))\\\r\n",
 					".withColumn('LH Carriage Cost', col('LH Carriage Cost').cast(DecimalType(36,6)))"
 				],
-				"execution_count": 4
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -176,7 +196,7 @@
 					".withColumnRenamed(\"VolumetricRateExDepot (Carriage Cost)\",\"VolumetricRateExDepotCarriageCost\")\\\r\n",
 					".withColumnRenamed(\"LH Carriage Cost\",\"LHCarriageCost\")"
 				],
-				"execution_count": 5
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -194,7 +214,7 @@
 				"source": [
 					"mrp_csv_files = mrp_csv_files.fillna(\"NULL\")"
 				],
-				"execution_count": 6
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -212,7 +232,7 @@
 				"source": [
 					"mrp_csv_files.createOrReplaceTempView(\"mrp_csv_files\")"
 				],
-				"execution_count": 7
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -264,7 +284,7 @@
 					"\r\n",
 					"FROM mrp_csv_files"
 				],
-				"execution_count": 8
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -282,7 +302,7 @@
 				"source": [
 					"stmrpcsvfiles = spark.sql(\"SELECT * FROM stmrpcsvfiles\")"
 				],
-				"execution_count": 9
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -301,7 +321,217 @@
 				"source": [
 					"# stmrpcsvfiles.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stmrpcsvfiles.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": 32
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparcelmrprecon\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    * \r\n",
+					"FROM stparcel\r\n",
+					"WHERE lms_parcel_pdate >= '2023-04-01 00:00:00' and lms_parcel_pdate <= '2024-03-31 23:59:59' \r\n",
+					"AND lms_parcel_orderbillcustid IN (15,16,17,18,20,293941,293942,293943,293944,293945)"
+				],
+				"execution_count": 33
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stparcelmrprecon = spark.sql(\"SELECT * FROM stparcelmrprecon\")"
+				],
+				"execution_count": 34
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stparcelmrprecon.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcelmrprecon.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 35
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttransfers_tmp1\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT\r\n",
+					"    lms_parcel_barcode as combinetransfers\r\n",
+					"    \r\n",
+					"FROM stparcelmrprecon\r\n",
+					"\r\n",
+					"UNION\r\n",
+					"\r\n",
+					"SELECT DISTINCT\r\n",
+					"    transfernumber as combinetransfers\r\n",
+					"    \r\n",
+					"FROM stmrpcsvfiles\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttransfers_tmp1 = spark.sql(\"SELECT * FROM sttransfers_tmp1\")"
+				],
+				"execution_count": 37
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sttransfers\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT\r\n",
+					"     t.combinetransfers\r\n",
+					"    ,LEFT(t.combinetransfers,5) as prefix\r\n",
+					"    ,to_date(p.lms_parcel_pdate) as lms_parcel_pdate\r\n",
+					"    ,to_date(m.transferoutdate) as transferoutdate\r\n",
+					"    ,to_date(COALESCE(p.lms_parcel_pdate,m.transferoutdate)) as date\r\n",
+					"    ,CASE \r\n",
+					"        WHEN p.lms_parcel_pdate is null THEN 1\r\n",
+					"        ELSE 0\r\n",
+					"    END as existsinmrponly\r\n",
+					"    ,CASE \r\n",
+					"        WHEN m.transferoutdate is null THEN 1\r\n",
+					"        ELSE 0\r\n",
+					"    END as existsinlmsonly\r\n",
+					"    ,CASE \r\n",
+					"        WHEN p.lms_parcel_pdate is not null AND (m.transferoutdate) is not null THEN 1\r\n",
+					"        ELSE 0\r\n",
+					"    END as counter\r\n",
+					"    \r\n",
+					"\r\n",
+					"    \r\n",
+					"FROM sttransfers_tmp1 t\r\n",
+					"LEFT JOIN stparcelmrprecon p on p.lms_parcel_barcode = t.combinetransfers\r\n",
+					"LEFT JOIN stmrpcsvfiles m on m.transfernumber = t.combinetransfers\r\n",
+					"WHERE t.combinetransfers is not NULL\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 45
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sttransfers = spark.sql(\"SELECT * FROM sttransfers\")"
+				],
+				"execution_count": 46
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# sttransfers.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttransfers.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 47
 			},
 			{
 				"cell_type": "code",

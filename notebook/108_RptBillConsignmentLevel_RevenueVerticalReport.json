@@ -1,0 +1,475 @@
+{
+	"name": "108_RptBillConsignmentLevel_RevenueVerticalReport",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/LMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "9e33349b-81b8-4f49-9760-c749cf1e1276"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the rptbillconsignmentlevel LMS Table\r\n",
+					"# rptbillconsignmentlevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptbillconsignmentlevel.parquet', format='parquet')\r\n",
+					"# rptbillconsignmentlevel.createOrReplaceTempView(\"rptbillconsignmentlevel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the rptbillconsignmentexceptionlevel LMS Table\r\n",
+					"# rptbillconsignmentexceptionlevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptbillconsignmentexceptionlevel.parquet', format='parquet')\r\n",
+					"# rptbillconsignmentexceptionlevel.createOrReplaceTempView(\"rptbillconsignmentexceptionlevel\")\r\n",
+					""
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"revenueverticalreport_tmp1\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     bc.billcust as billingcustomerid\r\n",
+					"    ,bc.billingcustomername\r\n",
+					"    ,bc.pickupcustid\r\n",
+					"    ,bc.pickupcustomername\r\n",
+					"    ,bc.deliverycustid\r\n",
+					"    ,bc.deliverycustomername\r\n",
+					"    ,bc.pickupsrouteid\r\n",
+					"    ,bc.pickupsroutedescription\r\n",
+					"    ,bc.deliverysrouteid\r\n",
+					"    ,bc.deliverysroutedescription\r\n",
+					"    ,bc.pickupzoneid\r\n",
+					"    ,bc.pickupzonedescription\r\n",
+					"    ,bc.deliveryzoneid\r\n",
+					"    ,bc.deliveryzonedescription\r\n",
+					"    ,bc.pickuplocationid\r\n",
+					"    ,bc.pickuplocationdescription\r\n",
+					"    ,bc.deliverylocationid\r\n",
+					"    ,bc.deliverylocationdescription\r\n",
+					"    ,CASE \r\n",
+					"        WHEN (coalesce(bc.overborderflag,0) = 0 AND coalesce(bc.specdel,0) = 0)  THEN 'Local Normal Distribution'\r\n",
+					"        WHEN (coalesce(bc.overborderflag,0) = 1 AND coalesce(bc.specdel,0) = 0)  THEN 'OverBorder Normal Distribution'\r\n",
+					"        WHEN (coalesce(bc.overborderflag,0) = 0 AND coalesce(bc.specdel,0) = 1)  THEN 'Local Special/Direct Distribution'\r\n",
+					"        WHEN (coalesce(bc.overborderflag,0) = 1 AND coalesce(bc.specdel,0) = 1)  THEN 'OverBorder Special/Direct Distribution'\r\n",
+					"    END AS  distributiondesc\r\n",
+					"    ,to_date(bc.cdate1) as date\r\n",
+					"    ,SUM(coalesce(bc.noofparcels, 0)) as noofparcels\r\n",
+					"    ,SUM(coalesce(bc.aweight, 0)) kgsconsignedaweight\r\n",
+					"    ,SUM(coalesce(bc.vweight, 0)) kgsconsignedvweight\r\n",
+					"    ,SUM(coalesce(bc.chargeweight, 0)) as kgsconsignedchargeweight\r\n",
+					"    ,SUM(CASE WHEN coalesce(bc.specdel, 0) = 0 THEN coalesce(bc.chargeWeight, 0) ELSE 0 END) as normalchargeweight\r\n",
+					"    ,SUM(CASE WHEN coalesce(bc.specdel, 0) = 1 THEN coalesce(bc.chargeWeight, 0) ELSE 0 END) as specialdeliverychargeweight\r\n",
+					"\r\n",
+					"    ,CASE\r\n",
+					"        WHEN coalesce(bc.samedelcount,0) > 1 THEN SUM(coalesce(bc.CombineRouteCharge, 0))\r\n",
+					"        ELSE SUM(coalesce(bc.RouteCharge, 0))\r\n",
+					"    END + SUM(coalesce(bc.TotFuelSurcharge, 0)) + SUM(coalesce(bc.TotDocSurcharge, 0)) + SUM(coalesce(bc.TotOtherSurcharge, 0)) + SUM(coalesce(bc.TotCovidSurcharge, 0)) totalcharge\r\n",
+					"\r\n",
+					"    ,SUM(coalesce(bc.RouteCharge, 0)) as standardcharge\r\n",
+					"\r\n",
+					"    ,CASE\r\n",
+					"        WHEN (coalesce(bc.samedelcount,0) > 1)THEN SUM(coalesce(bc.CombineRouteCharge, 0))\r\n",
+					"        ELSE 0\r\n",
+					"    END sdconsolidatedcharge\r\n",
+					"    ,SUM(coalesce(bc.TotFuelSurcharge, 0)) as fuelsurcharge\r\n",
+					"    ,SUM(coalesce(bc.TotDocSurcharge, 0)) as docsurcharge\r\n",
+					"    ,SUM(coalesce(bc.TotOtherSurcharge, 0)) as othersurcharge\r\n",
+					"    ,SUM(coalesce(bc.TotCovidSurcharge, 0)) as covidsurcharge\r\n",
+					"    ,0.00 as exception\r\n",
+					"FROM rptbillconsignmentlevel bc \r\n",
+					"WHERE bc.chargeweight > 0\r\n",
+					"AND coalesce(bc.RouteMissingInd,0) = 0\r\n",
+					"GROUP BY\r\n",
+					"     bc.billcust\r\n",
+					"    ,bc.billingcustomername\r\n",
+					"    ,bc.pickupcustid\r\n",
+					"    ,bc.pickupcustomername\r\n",
+					"    ,bc.deliverycustid\r\n",
+					"    ,bc.deliverycustomername\r\n",
+					"    ,bc.pickupsrouteid\r\n",
+					"    ,bc.pickupsroutedescription\r\n",
+					"    ,bc.deliverysrouteid\r\n",
+					"    ,bc.deliverysroutedescription\r\n",
+					"    ,bc.pickupzoneid\r\n",
+					"    ,bc.pickupzonedescription\r\n",
+					"    ,bc.deliveryzoneid\r\n",
+					"    ,bc.deliveryzonedescription\r\n",
+					"    ,bc.pickuplocationid\r\n",
+					"    ,bc.pickuplocationdescription\r\n",
+					"    ,bc.deliverylocationid\r\n",
+					"    ,bc.deliverylocationdescription\r\n",
+					"    ,bc.samedelcount\r\n",
+					"    ,bc.specdel\r\n",
+					"    ,bc.overborderflag\r\n",
+					"    ,to_date(bc.cdate1)\r\n",
+					""
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"revenueverticalreport_tmp1 = spark.sql(\"SELECT * FROM revenueverticalreport_tmp1\")"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"revenueverticalreport_tmp2\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     bc.billcust as billingcustomerid\r\n",
+					"    ,bc.billingcustomername\r\n",
+					"    ,bc.pickupcustid\r\n",
+					"    ,bc.pickupcustomername\r\n",
+					"    ,bc.deliverycustid\r\n",
+					"    ,bc.deliverycustomername\r\n",
+					"    ,bc.pickupsrouteid\r\n",
+					"    ,bc.pickupsroutedescription\r\n",
+					"    ,bc.deliverysrouteid\r\n",
+					"    ,bc.deliverysroutedescription\r\n",
+					"    ,bc.pickupzoneid\r\n",
+					"    ,bc.pickupzonedescription\r\n",
+					"    ,bc.deliveryzoneid\r\n",
+					"    ,bc.deliveryzonedescription\r\n",
+					"    ,bc.pickuplocationid\r\n",
+					"    ,bc.pickuplocationdescription\r\n",
+					"    ,bc.deliverylocationid\r\n",
+					"    ,bc.deliverylocationdescription\r\n",
+					"    ,CASE \r\n",
+					"        WHEN (coalesce(bc.overborderflag,0) = 0 AND coalesce(bc.specdel,0) = 0)  THEN 'Local Normal Distribution'\r\n",
+					"        WHEN (coalesce(bc.overborderflag,0) = 1 AND coalesce(bc.specdel,0) = 0)  THEN 'OverBorder Normal Distribution'\r\n",
+					"        WHEN (coalesce(bc.overborderflag,0) = 0 AND coalesce(bc.specdel,0) = 1)  THEN 'Local Special/Direct Distribution'\r\n",
+					"        WHEN (coalesce(bc.overborderflag,0) = 1 AND coalesce(bc.specdel,0) = 1)  THEN 'OverBorder Special/Direct Distribution'\r\n",
+					"    END AS  distributiondesc\r\n",
+					"    ,to_date(bc.cdate1) as date\r\n",
+					"    ,SUM(coalesce(bc.noofparcels, 0)) as noofparcels\r\n",
+					"    ,SUM(coalesce(bc.aweight, 0)) kgsconsignedaweight\r\n",
+					"    ,SUM(coalesce(bc.vweight, 0)) kgsconsignedvweight\r\n",
+					"    ,SUM(coalesce(bc.chargeweight, 0)) as kgsconsignedchargeweight\r\n",
+					"    ,SUM(CASE WHEN coalesce(bc.specdel, 0) = 0 THEN coalesce(bc.chargeWeight, 0) ELSE 0 END) as normalchargeweight\r\n",
+					"    ,SUM(CASE WHEN coalesce(bc.specdel, 0) = 1 THEN coalesce(bc.chargeWeight, 0) ELSE 0 END) as specialdeliverychargeweight\r\n",
+					"\r\n",
+					"    ,CASE\r\n",
+					"        WHEN coalesce(bc.samedelcount,0) > 1 THEN SUM(coalesce(bc.CombineRouteCharge, 0))\r\n",
+					"        ELSE SUM(coalesce(bc.RouteCharge, 0))\r\n",
+					"    END + SUM(coalesce(bc.TotFuelSurcharge, 0)) + SUM(coalesce(bc.TotDocSurcharge, 0)) + SUM(coalesce(bc.TotOtherSurcharge, 0)) + SUM(coalesce(bc.TotCovidSurcharge, 0)) totalcharge\r\n",
+					"\r\n",
+					"    ,SUM(coalesce(bc.RouteCharge, 0)) as standardcharge\r\n",
+					"\r\n",
+					"    ,CASE\r\n",
+					"        WHEN (coalesce(bc.samedelcount,0) > 1)THEN SUM(coalesce(bc.CombineRouteCharge, 0))\r\n",
+					"        ELSE 0\r\n",
+					"    END sdconsolidatedcharge\r\n",
+					"\r\n",
+					"\r\n",
+					"    ,SUM(coalesce(bc.TotFuelSurcharge, 0)) as fuelsurcharge\r\n",
+					"    ,SUM(coalesce(bc.TotDocSurcharge, 0)) as docsurcharge\r\n",
+					"    ,SUM(coalesce(bc.TotOtherSurcharge, 0)) as othersurcharge\r\n",
+					"    ,SUM(coalesce(bc.TotCovidSurcharge, 0)) as covidsurcharge\r\n",
+					"    ,SUM(coalesce(bc.Routecharge, 0.00)) exception\r\n",
+					"FROM rptbillconsignmentexceptionlevel bc \r\n",
+					"WHERE bc.chargeweight != 0\r\n",
+					"AND coalesce(bc.RouteMissingInd,0) = 0\r\n",
+					"GROUP BY\r\n",
+					"     bc.billcust\r\n",
+					"    ,bc.billingcustomername\r\n",
+					"    ,bc.pickupcustid\r\n",
+					"    ,bc.pickupcustomername\r\n",
+					"    ,bc.deliverycustid\r\n",
+					"    ,bc.deliverycustomername\r\n",
+					"    ,bc.pickupsrouteid\r\n",
+					"    ,bc.pickupsroutedescription\r\n",
+					"    ,bc.deliverysrouteid\r\n",
+					"    ,bc.deliverysroutedescription\r\n",
+					"    ,bc.pickupzoneid\r\n",
+					"    ,bc.pickupzonedescription\r\n",
+					"    ,bc.deliveryzoneid\r\n",
+					"    ,bc.deliveryzonedescription\r\n",
+					"    ,bc.pickuplocationid\r\n",
+					"    ,bc.pickuplocationdescription\r\n",
+					"    ,bc.deliverylocationid\r\n",
+					"    ,bc.deliverylocationdescription\r\n",
+					"    ,bc.samedelcount\r\n",
+					"    ,bc.specdel\r\n",
+					"    ,bc.overborderflag\r\n",
+					"    ,to_date(bc.cdate1)"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"revenueverticalreport_tmp2 = spark.sql(\"SELECT * FROM revenueverticalreport_tmp2\")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"revenueverticalreport_tmp3 = revenueverticalreport_tmp1.unionByName(revenueverticalreport_tmp2, allowMissingColumns = True)\r\n",
+					"revenueverticalreport_tmp3.createOrReplaceTempView(\"revenueverticalreport_tmp3\")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"revenueverticalreport\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     billingcustomerid\r\n",
+					"    ,billingcustomername\r\n",
+					"    ,pickupcustid\r\n",
+					"    ,pickupcustomername\r\n",
+					"    ,deliverycustid\r\n",
+					"    ,deliverycustomername\r\n",
+					"    ,pickupsrouteid\r\n",
+					"    ,pickupsroutedescription\r\n",
+					"    ,deliverysrouteid\r\n",
+					"    ,deliverysroutedescription\r\n",
+					"    ,pickupzoneid\r\n",
+					"    ,pickupzonedescription\r\n",
+					"    ,deliveryzoneid\r\n",
+					"    ,deliveryzonedescription\r\n",
+					"    ,pickuplocationid\r\n",
+					"    ,pickuplocationdescription\r\n",
+					"    ,deliverylocationid\r\n",
+					"    ,deliverylocationdescription\r\n",
+					"    ,distributiondesc\r\n",
+					"    ,date\r\n",
+					"    ,SUM(noofparcels) as noofparcels\r\n",
+					"    ,SUM(kgsconsignedaweight) as kgsconsignedaweight\r\n",
+					"    ,SUM(kgsconsignedvweight) as kgsconsignedvweight\r\n",
+					"    ,SUM(kgsconsignedchargeweight) as kgsconsignedchargeweight\r\n",
+					"    ,SUM(normalchargeweight) as normalchargeweight\r\n",
+					"    ,SUM(specialdeliverychargeweight) as specialdeliverychargeweight\r\n",
+					"    ,SUM(totalcharge) as totalcharge\r\n",
+					"    ,SUM(standardcharge) as standardcharge\r\n",
+					"    ,SUM(sdconsolidatedcharge) as sdconsolidatedcharge\r\n",
+					"    ,SUM(fuelsurcharge) as fuelsurcharge\r\n",
+					"    ,SUM(docsurcharge) as docsurcharge\r\n",
+					"    ,SUM(othersurcharge) as othersurcharge\r\n",
+					"    ,SUM(covidsurcharge) as covidsurcharge\r\n",
+					"    ,SUM(exception) as exception\r\n",
+					"FROM revenueverticalreport_tmp3\r\n",
+					"GROUP BY      \r\n",
+					"     billingcustomerid\r\n",
+					"    ,billingcustomername\r\n",
+					"    ,pickupcustid\r\n",
+					"    ,pickupcustomername\r\n",
+					"    ,deliverycustid\r\n",
+					"    ,deliverycustomername\r\n",
+					"    ,pickupsrouteid\r\n",
+					"    ,pickupsroutedescription\r\n",
+					"    ,deliverysrouteid\r\n",
+					"    ,deliverysroutedescription\r\n",
+					"    ,pickupzoneid\r\n",
+					"    ,pickupzonedescription\r\n",
+					"    ,deliveryzoneid\r\n",
+					"    ,deliveryzonedescription\r\n",
+					"    ,pickuplocationid\r\n",
+					"    ,pickuplocationdescription\r\n",
+					"    ,deliverylocationid\r\n",
+					"    ,deliverylocationdescription\r\n",
+					"    ,distributiondesc\r\n",
+					"    ,date"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"revenueverticalreport = spark.sql(\"SELECT * FROM revenueverticalreport\")"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# revenueverticalreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/revenueverticalreport.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 16
+			}
+		]
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "111_RptWaybillLevel_hiltiwbregionsummaryreport",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.hiltiwbregionsummaryreport') )\n    DROP EXTERNAL TABLE dbo.hiltiwbregionsummaryreport\nGO\n\nCREATE EXTERNAL TABLE dbo.hiltiwbregionsummaryreport (\n\t[billingcustomerid] int,\n\t[billingcustomername] nvarchar(4000),\n\n    [waybillid] int,\n    [hcode] nvarchar(4000),\n    [deliverycustomerid] int,\n    [deliverycustomername] nvarchar(4000),\n    [pickupcustomername] nvarchar(4000),\n    [date] DATETIME2,\n\n\t)\n\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/hiltiwbregionsummaryreport.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.hiltiwbregionsummaryreport \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

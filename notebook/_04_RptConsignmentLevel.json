@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "b8ee4c2e-8896-434e-afc6-9cec020aa353"
+				"spark.autotune.trackingId": "49b55784-01c6-4f77-aa1c-800b9cc23dd7"
 			}
 		},
 		"metadata": {
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 10
+				"execution_count": 38
 			},
 			{
 				"cell_type": "code",
@@ -84,6 +84,10 @@
 					}
 				},
 				"source": [
+					"# #Create DataFrame for the stparcel LMS Table\r\n",
+					"# stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', format='parquet')\r\n",
+					"# stparcel.createOrReplaceTempView(\"stparcel\")\r\n",
+					"\r\n",
 					"# #Create DataFrame for the stconsignment LMS Table\r\n",
 					"# stconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stconsignment.parquet', format='parquet')\r\n",
 					"# stconsignment.createOrReplaceTempView(\"stconsignment\")\r\n",
@@ -120,7 +124,7 @@
 					"# dbobillzoneroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_zoneroute.parquet', format='parquet')\r\n",
 					"# dbobillzoneroute.createOrReplaceTempView(\"dbobillzoneroute\")"
 				],
-				"execution_count": 11
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -162,7 +166,7 @@
 					"\r\n",
 					"WHERE lms_consignment_cdate >= to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01')"
 				],
-				"execution_count": 12
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
@@ -180,7 +184,7 @@
 				"source": [
 					"rptconsignmentlevel = spark.sql(\"SELECT * FROM rptconsignmentlevel\")"
 				],
-				"execution_count": 13
+				"execution_count": 41
 			},
 			{
 				"cell_type": "code",
@@ -198,7 +202,7 @@
 				"source": [
 					"# rptconsignmentlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptconsignmentlevel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 14
+				"execution_count": 42
 			},
 			{
 				"cell_type": "code",
@@ -214,7 +218,56 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stparceldistinctconsignment_tmp\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT\r\n",
+					"     lms_parcel_consignid\r\n",
+					"    ,lms_parcel_orderdelivercustid\r\n",
+					"    ,lms_parcel_orderpickupcustid\r\n",
+					"FROM stparcel"
+				],
+				"execution_count": 43
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
 					}
+				},
+				"source": [
+					"stparceldistinctconsignment_tmp = spark.sql(\"SELECT * FROM stparceldistinctconsignment_tmp\")"
+				],
+				"execution_count": 44
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
@@ -222,19 +275,51 @@
 					"rptbillconsignmentlevel\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					"     bc.*\r\n",
-					"    ,zr.description as zonedescription\r\n",
-					"    ,cust.lms_customer_name as billingcustomername\r\n",
+					"     bcr.*\r\n",
+					"    ,p.lms_parcel_orderpickupcustid as pickupcustid\r\n",
+					"    ,p.lms_parcel_orderdelivercustid as deliverycustid\r\n",
+					"    ,bc.lms_customer_name as billingcustomername\r\n",
+					"    ,pc.lms_customer_name as pickupcustomername\r\n",
+					"    ,dc.lms_customer_name as deliverycustomername\r\n",
+					"    ,pzr.description as pickupbillzonedescription\r\n",
+					"    ,dzr.description as deliverybillzonedescription\r\n",
 					"\r\n",
-					"FROM dbobillconsignmentr bc \r\n",
-					"LEFT JOIN stbillcustomer cust on cust.lms_customer_id = bc.BillCust\r\n",
-					"LEFT JOIN dbobillzoneroute zr  on zr.ID = bc.DeliverRouteID\r\n",
-					"WHERE bc.cdate1 >= (to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01'))\r\n",
-					"AND bc.chargeweight > 0\r\n",
-					"AND coalesce(bc.RouteMissingInd,0) = 0\r\n",
+					"    ,ps.lms_sroute_id as pickupsrouteid\r\n",
+					"    ,ps.lms_sroute_description as pickupsroutedescription\r\n",
+					"    ,ds.lms_sroute_id as deliverysrouteid\r\n",
+					"    ,ds.lms_sroute_description as deliverysroutedescription\r\n",
+					"\r\n",
+					"    ,pz.lms_zone_id as pickupzoneid\r\n",
+					"    ,pz.lms_zone_description as pickupzonedescription\r\n",
+					"    ,dz.lms_zone_id as deliveryzoneid\r\n",
+					"    ,dz.lms_zone_description as deliveryzonedescription\r\n",
+					"\r\n",
+					"    ,pl.lms_location_id as pickuplocationid\r\n",
+					"    ,pl.lms_location_description as pickuplocationdescription\r\n",
+					"    ,dl.lms_location_id as deliverylocationid\r\n",
+					"    ,dl.lms_location_description as deliverylocationdescription\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dbobillconsignmentr bcr \r\n",
+					"LEFT JOIN stparceldistinctconsignment_tmp p on p.lms_parcel_consignid = bcr.consignid\r\n",
+					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id = bcr.BillCust\r\n",
+					"LEFT JOIN stdeliverypickupcustomer pc on pc.lms_customer_id = p.lms_parcel_orderpickupcustid\r\n",
+					"LEFT JOIN stdeliverypickupcustomer dc on dc.lms_customer_id = p.lms_parcel_orderdelivercustid\r\n",
+					"LEFT JOIN dbobillzoneroute pzr  on pzr.ID = bcr.PickUpRouteID\r\n",
+					"LEFT JOIN dbobillzoneroute dzr  on dzr.ID = bcr.DeliverRouteID\r\n",
+					"LEFT JOIN stsroute ps on ps.lms_sroute_id = pc.lms_customer_srouteid\r\n",
+					"LEFT JOIN stzone pz on pz.lms_zone_id =  ps.lms_sroute_zoneid\r\n",
+					"LEFT JOIN stlocation pl on pl.lms_location_id =  pz.lms_zone_locid \r\n",
+					"LEFT JOIN stsroute ds on ds.lms_sroute_id = dc.lms_customer_srouteid\r\n",
+					"LEFT JOIN stzone dz on dz.lms_zone_id =  ds.lms_sroute_zoneid\r\n",
+					"LEFT JOIN stlocation dl on dl.lms_location_id =  dz.lms_zone_locid \r\n",
+					"\r\n",
+					"WHERE bcr.cdate1 >= (to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01'))\r\n",
+					"AND bcr.chargeweight > 0\r\n",
+					"AND coalesce(bcr.RouteMissingInd,0) = 0\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -252,7 +337,7 @@
 				"source": [
 					"rptbillconsignmentlevel = spark.sql(\"SELECT * FROM rptbillconsignmentlevel\")"
 				],
-				"execution_count": null
+				"execution_count": 46
 			},
 			{
 				"cell_type": "code",
@@ -270,7 +355,7 @@
 				"source": [
 					"# rptbillconsignmentlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptbillconsignmentlevel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 47
 			},
 			{
 				"cell_type": "code",
@@ -286,7 +371,8 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
@@ -294,19 +380,52 @@
 					"rptbillconsignmentexceptionlevel\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					"     bc.*\r\n",
-					"    ,zr.description as zonedescription\r\n",
-					"    ,cust.lms_customer_name as billingcustomername\r\n",
+					"     bcr.*\r\n",
+					"    ,p.lms_parcel_orderpickupcustid as pickupcustid\r\n",
+					"    ,p.lms_parcel_orderdelivercustid as deliverycustid\r\n",
+					"    ,bc.lms_customer_name as billingcustomername\r\n",
+					"    ,pc.lms_customer_name as pickupcustomername\r\n",
+					"    ,dc.lms_customer_name as deliverycustomername\r\n",
+					"    ,pzr.description as pickupbillzonedescription\r\n",
+					"    ,dzr.description as deliverybillzonedescription\r\n",
 					"\r\n",
-					"FROM dbobillexceptionr bc \r\n",
-					"LEFT JOIN stbillcustomer cust on cust.lms_customer_id = bc.BillCust\r\n",
-					"LEFT JOIN dbobillzoneroute zr  on zr.ID = bc.DeliverRouteID\r\n",
-					"WHERE bc.cdate1 >= (to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01'))\r\n",
-					"AND bc.chargeweight != 0\r\n",
-					"AND coalesce(bc.RouteMissingInd,0) = 0\r\n",
+					"    ,ps.lms_sroute_id as pickupsrouteid\r\n",
+					"    ,ps.lms_sroute_description as pickupsroutedescription\r\n",
+					"    ,ds.lms_sroute_id as deliverysrouteid\r\n",
+					"    ,ds.lms_sroute_description as deliverysroutedescription\r\n",
+					"\r\n",
+					"    ,pz.lms_zone_id as pickupzoneid\r\n",
+					"    ,pz.lms_zone_description as pickupzonedescription\r\n",
+					"    ,dz.lms_zone_id as deliveryzoneid\r\n",
+					"    ,dz.lms_zone_description as deliveryzonedescription\r\n",
+					"\r\n",
+					"    ,pl.lms_location_id as pickuplocationid\r\n",
+					"    ,pl.lms_location_description as pickuplocationdescription\r\n",
+					"    ,dl.lms_location_id as deliverylocationid\r\n",
+					"    ,dl.lms_location_description as deliverylocationdescription\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM dbobillexceptionr bcr\r\n",
+					"LEFT JOIN stparceldistinctconsignment_tmp p on p.lms_parcel_consignid = bcr.consignid\r\n",
+					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id = bcr.BillCust\r\n",
+					"LEFT JOIN stdeliverypickupcustomer pc on pc.lms_customer_id = p.lms_parcel_orderpickupcustid\r\n",
+					"LEFT JOIN stdeliverypickupcustomer dc on dc.lms_customer_id = p.lms_parcel_orderdelivercustid\r\n",
+					"LEFT JOIN dbobillzoneroute pzr  on pzr.ID = bcr.PickUpRouteID\r\n",
+					"LEFT JOIN dbobillzoneroute dzr  on dzr.ID = bcr.DeliverRouteID\r\n",
+					"LEFT JOIN stsroute ps on ps.lms_sroute_id = pc.lms_customer_srouteid\r\n",
+					"LEFT JOIN stzone pz on pz.lms_zone_id =  ps.lms_sroute_zoneid\r\n",
+					"LEFT JOIN stlocation pl on pl.lms_location_id =  pz.lms_zone_locid \r\n",
+					"LEFT JOIN stsroute ds on ds.lms_sroute_id = dc.lms_customer_srouteid\r\n",
+					"LEFT JOIN stzone dz on dz.lms_zone_id =  ds.lms_sroute_zoneid\r\n",
+					"LEFT JOIN stlocation dl on dl.lms_location_id =  dz.lms_zone_locid \r\n",
+					"\r\n",
+					"WHERE bcr.cdate1 >= (to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01'))\r\n",
+					"AND bcr.chargeweight > 0\r\n",
+					"AND coalesce(bcr.RouteMissingInd,0) = 0\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 48
 			},
 			{
 				"cell_type": "code",
@@ -324,7 +443,7 @@
 				"source": [
 					"rptbillconsignmentexceptionlevel = spark.sql(\"SELECT * FROM rptbillconsignmentexceptionlevel\")"
 				],
-				"execution_count": null
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
@@ -342,7 +461,7 @@
 				"source": [
 					"# rptbillconsignmentexceptionlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptbillconsignmentexceptionlevel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 51
 			}
 		]
 	}

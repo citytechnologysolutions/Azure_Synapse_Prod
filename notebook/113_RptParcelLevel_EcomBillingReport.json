@@ -1,0 +1,230 @@
+{
+	"name": "113_RptParcelLevel_EcomBillingReport",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/LMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "ce656387-2785-4567-b319-cd789a96c3d2"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# ' + StorageAccount + '"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the rptparcellevel LMS Table\r\n",
+					"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
+					"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stparcel LMS Table\r\n",
+					"# stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', format='parquet')\r\n",
+					"# stparcel.createOrReplaceTempView(\"stparcel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stdeliverypickupcustomer LMS Table\r\n",
+					"# stdeliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', format='parquet')\r\n",
+					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stwaybill LMS Table\r\n",
+					"# stwaybill = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', format='parquet')\r\n",
+					"# stwaybill.createOrReplaceTempView(\"stwaybill\")\r\n",
+					"\r\n",
+					"# # #Create DataFrame for the stlocation LMS Table\r\n",
+					"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
+					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
+					"\r\n",
+					"# # #Create DataFrame for the stlocation LMS Table\r\n",
+					"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
+					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
+					"\r\n",
+					"# # #Create DataFrame for the dbobill_parceltype LMS Table\r\n",
+					"# dbobill_parceltype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS//dbobill_parceltype.parquet', format='parquet')\r\n",
+					"# dbobill_parceltype.createOrReplaceTempView(\"dbobill_parceltype\")\r\n",
+					"\r\n",
+					"# # #Create DataFrame for the storder LMS Table\r\n",
+					"# storder = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/storder.parquet', format='parquet')\r\n",
+					"# storder.createOrReplaceTempView(\"storder\")\r\n",
+					""
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"\r\n",
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"ecombillingreport\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"p.lms_parcel_orderbillcustid billingcustomerid,\r\n",
+					"p.lms_parcel_orderbillcustname billingcustomername,\r\n",
+					"p.lms_parcel_orderdelivercustid deliverycustomerid,\r\n",
+					"p.lms_parcel_orderdelivercustname deliverycustomername,\r\n",
+					"p.lms_parcel_orderpickupcustid pickupcustomerid,\r\n",
+					"p.lms_parcel_orderpickupcustname pickucustomername,\r\n",
+					"p.lms_parcel_barcode barcode,\r\n",
+					"p.lms_parcel_weight weight,\r\n",
+					"p.lms_parcel_volweight volweight,\r\n",
+					"p.lms_parcel_ordercorderno orderno,\r\n",
+					"p.lms_parcel_waybillid waybillid,\r\n",
+					"p.lms_parcel_consignmentcdate consigndate,\r\n",
+					"p.lms_parcel_pdate date,\r\n",
+					"p.lms_parcel_waybilldate deliverycreatedateldate,\r\n",
+					"p.lms_parcel_waybillpoddate deliverypoddate,\r\n",
+					"p.lms_parcel_description parceldescription,\r\n",
+					"p.lms_parcel_sroutedescriptiondelivercust deliverycustomersroutedescription,\r\n",
+					"p.lms_parcel_ptype ptype,\r\n",
+					"p.lms_parcel_disflag assembly,\r\n",
+					"dc.lms_customer_adres1 deladres1,\r\n",
+					"dc.lms_customer_adres2 deladres2,\r\n",
+					"dc.lms_customer_pcode delpcode,\r\n",
+					"w.lms_waybill_debriefdt podcaptured,\r\n",
+					"o.lms_order_courierid courier,\r\n",
+					"pl.lms_location_id parcellocationid,\r\n",
+					"pl.lms_location_description parcellocationdescription,\r\n",
+					"pt.Description parceltypedescription\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM\r\n",
+					"rptparcellevellimitload p\r\n",
+					"LEFT JOIN stdeliverypickupcustomer dc ON p.lms_parcel_orderdelivercustid = dc.lms_customer_id\r\n",
+					"LEFT JOIN stwaybill w ON p.lms_parcel_waybillid = w.lms_waybill_id\r\n",
+					"LEFT JOIN stlocation pl ON p.lms_parcel_locid = pl.lms_location_id\r\n",
+					"LEFT JOIN dbobill_parceltype pt ON p.lms_parcel_ptype = pt.PType\r\n",
+					"LEFT JOIN storder o ON p.lms_parcel_orderid = o.lms_order_id\r\n",
+					"\r\n",
+					"WHERE p.lms_parcel_orderbillcustid IN\r\n",
+					"(293944,\r\n",
+					"293941,\r\n",
+					"293942,\r\n",
+					"293945,\r\n",
+					"293943)"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ecombillingreport = spark.sql(\"SELECT * FROM ecombillingreport\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# ecombillingreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/ecombillingreport.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 8
+			}
+		]
+	}
+}

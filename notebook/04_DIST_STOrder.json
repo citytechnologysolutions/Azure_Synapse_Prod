@@ -11,16 +11,16 @@
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "e76bb4d0-f464-4fca-9630-f978bf0c06ab"
+				"spark.autotune.trackingId": "5df0ee0c-5ea2-42d3-9b27-9189ebae64fe"
 			}
 		},
 		"metadata": {
@@ -108,7 +108,7 @@
 					"# dboweekendholiday = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboweekendholiday.parquet', format='parquet')\r\n",
 					"# dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")"
 				],
-				"execution_count": 5
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -161,6 +161,7 @@
 					"    ,o.QuoteFuelLevy as lms_order_quotefuellevy\r\n",
 					"    ,o.QuoteOtherSurcharges as lms_order_quoteothersurcharges\r\n",
 					"    ,o.QuoteDocFees as lms_order_quotedocfees\r\n",
+					"    ,o.Bill_VehicleType as lms_order_billvehicletype\r\n",
 					"\r\n",
 					"    ,pbo.lms_parcelbyorder_aggrweight\r\n",
 					"    ,pbo.lms_parcelbyorder_aggrchargeweight\r\n",
@@ -179,7 +180,7 @@
 					"LEFT JOIN sstparcelbyorder pbo on pbo.lms_parcelbyorder_orderid =  o.id\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -216,7 +217,7 @@
 					"GROUP BY p.orderid\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -256,7 +257,7 @@
 					"FROM storder_tmp1 o\r\n",
 					"LEFT JOIN storder_tmp2 o2 ON o2.orderid = o.lms_order_id"
 				],
-				"execution_count": 8
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -287,7 +288,7 @@
 					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_order_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_order_actualleaddaysenddate))\r\n",
 					"GROUP BY o.lms_order_id"
 				],
-				"execution_count": 9
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -317,7 +318,7 @@
 					"FROM storder_tmp3 o\r\n",
 					"LEFT JOIN storder_tmp4 o1 on o1.lms_order_id = o.lms_order_id"
 				],
-				"execution_count": 10
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -361,7 +362,7 @@
 					"FROM storder_tmp5\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -379,7 +380,7 @@
 				"source": [
 					"storder = spark.sql(\"SELECT * FROM storder\")"
 				],
-				"execution_count": 12
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -397,7 +398,7 @@
 				"source": [
 					"# storder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/storder.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 13
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -415,7 +416,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 14
+				"execution_count": 11
 			}
 		]
 	}

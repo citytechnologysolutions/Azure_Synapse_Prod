@@ -1,0 +1,20 @@
+{
+	"name": "T_STRetroAnalysis",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STRetroAnalysis') )\n    DROP EXTERNAL TABLE dbo.T_STRetroAnalysis\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STRetroAnalysis (\n\n[orv_delivery_id] int,\n[orv_delivery_waybillid] int,\n[orv_delivery_deliveryid] int,\n[orv_delivery_manifest] int,\n[orv_delivery_dispatchid] int,\n[orv_delivery_depot] nvarchar(4000),\n[orv_delivery_fleetcode] nvarchar(4000),\n[orv_delivery_driver] nvarchar(4000),\n[orv_delivery_progress] nvarchar(4000),\n[orv_delivery_originaldeparturedate] datetime2(7),\n[orv_delivery_dispatchstartdate] datetime2(7),\n[orv_delivery_exitdepodate] datetime2(7),\n[orv_delivery_enterdepodate] datetime2(7),\n[orv_delivery_totalpausetime] int,\n[orv_delivery_etatodepot] datetime2(7),\n[orv_delivery_delcustomer] nvarchar(4000),\n[orv_delivery_deloriginalorder] int,\n[orv_delivery_deloptimisedorder] int,\n[orv_delivery_delactualorder] int,\n[orv_delivery_distancetravelled] int,\n[orv_delivery_delactualeta] datetime2(7),\n[orv_delivery_retroexpeta] datetime2(7),\n[orv_delivery_firstscandate] datetime2(7),\n[orv_delivery_deltaretroexpetatofisrtscan] int,\n[orv_delivery_delnoparcels] int,\n[orv_delivery_targetdeldate] datetime2(7),\n[orv_delivery_actualdeltime] int,\n[orv_delivery_deliverydate] datetime2(7),\n[orv_delivery_targetexittime] datetime2(7),\n[orv_delivery_exittime] datetime2(7),\n[orv_delivery_delstatus] nvarchar(4000),\n[orv_delivery_deltalastscantopod] int,\n[orv_delivery_poddate] datetime2(7),\n[orv_delivery_deltadispatchstartdate] int,\n[orv_delivery_deltadispatchexitandstart] int,\n[orv_delivery_deltaetatodepoandenterdepo] int,\n[orv_delivery_stoppedindepo] nvarchar(4000),\n[orv_delivery_targetdeltime] int,\n[orv_delivery_actualtime] int,\n[orv_delivery_deltaactualtimeandshouldtake] int,\n[orv_delivery_shouldtake] int,\n[orv_delivery_insdate] datetime2(7),\n[orv_delivery_originalorderkm] float,\n[orv_delivery_optimisedorderkm] float,\n[orv_delivery_totaldistancetravelledkm] float,\n[orv_delivery_lastdeliverytime] datetime2(7),\n[orv_delivery_lastexitgeofencedeliverytime] datetime2(7),\n[orv_delivery_totalactualdeliverytime] int,\n[orv_delivery_totalestimateddeliverytime] int,\n[orv_delivery_deltadeliverytime] int,\n[orv_delivery_distancefromlastdelivery] int,\n[orv_delivery_lastdeliverytimetodepo] int,\n[orv_delivery_stopdispatch] datetime2(7),\n[orv_delivery_totaldistanceactualkm] float,\n[orv_delivery_totalestimateddrivetime] int,\n[orv_delivery_lastdeliverycustomer] nvarchar(4000),\n[orv_delivery_actualdistancekm] float,\n[orv_delivery_estimateddrivetime] int,\n[orv_delivery_billingcustomer] nvarchar(4000)\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stretroanalysis.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STRetroAnalysis \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

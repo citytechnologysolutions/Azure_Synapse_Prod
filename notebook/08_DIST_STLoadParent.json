@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "0032ba84-8d87-4b50-ac05-0b3072edf7b6"
+				"spark.autotune.trackingId": "04f161c1-b1c6-4bf8-8226-49926d9dd4cb"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 2
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -87,6 +87,38 @@
 					"# #Create DataFrame for the stloadchild LMS Table\r\n",
 					"# stloadchild = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', format='parquet')\r\n",
 					"# stloadchild.createOrReplaceTempView(\"stloadchild\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stlmstrack LMS Table\r\n",
+					"# stlmstrack = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', format='parquet')\r\n",
+					"# stlmstrack.createOrReplaceTempView(\"stlmstrack\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stwaybill LMS Table\r\n",
+					"# stwaybill = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', format='parquet')\r\n",
+					"# stwaybill.createOrReplaceTempView(\"stwaybill\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stdeliverypickupcustomer LMS Table\r\n",
+					"# stdeliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', format='parquet')\r\n",
+					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stsroute LMS Table\r\n",
+					"# stsroute = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', format='parquet')\r\n",
+					"# stsroute.createOrReplaceTempView(\"stsroute\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stlmstrack LMS Table\r\n",
+					"# stlmstrack = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', format='parquet')\r\n",
+					"# stlmstrack.createOrReplaceTempView(\"stlmstrack\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stwaybill LMS Table\r\n",
+					"# stwaybill = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', format='parquet')\r\n",
+					"# stwaybill.createOrReplaceTempView(\"stwaybill\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stdeliverypickupcustomer LMS Table\r\n",
+					"# stdeliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', format='parquet')\r\n",
+					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stsroute LMS Table\r\n",
+					"# stsroute = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', format='parquet')\r\n",
+					"# stsroute.createOrReplaceTempView(\"stsroute\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the publicdispatch ORV Table\r\n",
 					"# publicdispatch = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
@@ -100,9 +132,13 @@
 					"# stmdvehicle = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/MD/stmdvehicle.parquet', format='parquet')\r\n",
 					"# stmdvehicle.createOrReplaceTempView(\"stmdvehicle\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the publiccourier ORV Table\r\n",
+					"# publiccourier = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publiccourier.parquet', format='parquet')\r\n",
+					"# publiccourier.createOrReplaceTempView(\"publiccourier\")\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -121,7 +157,7 @@
 					"# from pyspark.sql.functions import *\r\n",
 					"# from pyspark.sql.window import Window"
 				],
-				"execution_count": 4
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -141,7 +177,68 @@
 					"stloadchild = stloadchild.withColumn(\"rn\",row_number().over(partitionparent))\r\n",
 					"stloadchild.createOrReplaceTempView(\"stloadchild\")"
 				],
-				"execution_count": 5
+				"execution_count": 25
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stlmstrack_tmp\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT\r\n",
+					"     lms_track_loadparenetloadid\r\n",
+					"\r\n",
+					"    ,CASE \r\n",
+					"        WHEN sum(lms_sroute_localflag) is null THEN 'Linehaul'\r\n",
+					"        WHEN sum(lms_sroute_localflag) = 0 THEN 'Outlaying'\r\n",
+					"        WHEN sum(lms_sroute_localflag)/count(lms_sroute_localflag) = 1 THEN 'Local'\r\n",
+					"        WHEN sum(lms_sroute_localflag)/count(lms_sroute_localflag) = 2 THEN 'Cross Boarder'\r\n",
+					"        ELSE 'Mixed'   \r\n",
+					"    END as lms_loadchild_type\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM stlmstrack tr \r\n",
+					"LEFT JOIN stwaybill w on w.lms_waybill_id = tr.lms_track_waybillid\r\n",
+					"LEFT JOIN stdeliverypickupcustomer c on c.lms_customer_id = w.lms_waybill_delivercustid\r\n",
+					"LEFT JOIN stsroute s on s.lms_sroute_id = c.lms_customer_srouteid\r\n",
+					"\r\n",
+					"GROUP BY lms_track_loadparenetloadid"
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stlmstrack_tmp = spark.sql(\"SELECT * FROM stlmstrack_tmp\")"
+				],
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -171,6 +268,13 @@
 					"    ,lc2.lms_loadchild_ldate\r\n",
 					"    ,lc2.lms_loadchild_vehodo\r\n",
 					"    ,lc2.lms_loadchild_vehodo2\r\n",
+					"    ,lc2.lms_loadchild_fromlocid\r\n",
+					"    ,lc2.lms_loadchild_tolocid\r\n",
+					"    ,lc2.lms_loadchild_ttypeid\r\n",
+					"    ,CASE \r\n",
+					"        WHEN lc2.lms_loadchild_ttypeid = 17 THEN 'Collect'\r\n",
+					"        ELSE COALESCE(tr.lms_loadchild_type,'Unknown')\r\n",
+					"    END as lms_loadchild_type\r\n",
 					"    ,sum(lc.lms_loadchild_aggrweight) as lms_loadchild_aggrweight\r\n",
 					"    ,sum(lc.lms_loadchild_aggrchargeweight) as lms_loadchild_aggrchargeweight\r\n",
 					"    ,sum(lc.lms_loadchild_aggrvolweight) as lms_loadchild_aggrvolweight\r\n",
@@ -185,6 +289,7 @@
 					"    ,sum(lc.lms_loadchild_aggrnoparcelsexclspecdel) as lms_loadchild_aggrnoparcelsexclspecdel\r\n",
 					"FROM stloadchild lc \r\n",
 					"LEFT JOIN stloadchild lc2 on lc2.lms_loadchild_parentloadid = lc.lms_loadchild_parentloadid and lc2.rn = 1\r\n",
+					"LEFT JOIN stlmstrack_tmp tr on tr.lms_track_loadparenetloadid = lc.lms_loadchild_parentloadid\r\n",
 					"WHERE lc.lms_loadchild_parentloadid is not null\r\n",
 					"GROUP BY \r\n",
 					"    lc.lms_loadchild_parentloadid\r\n",
@@ -192,9 +297,13 @@
 					"    ,lc2.lms_loadchild_ldate\r\n",
 					"    ,lc2.lms_loadchild_vehodo\r\n",
 					"    ,lc2.lms_loadchild_vehodo2\r\n",
+					"    ,lc2.lms_loadchild_fromlocid\r\n",
+					"    ,lc2.lms_loadchild_tolocid\r\n",
+					"    ,tr.lms_loadchild_type\r\n",
+					"    ,lc2.lms_loadchild_ttypeid\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -212,7 +321,7 @@
 				"source": [
 					"stloadparent_tmp = spark.sql(\"SELECT * FROM stloadparent_tmp\")"
 				],
-				"execution_count": 7
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -242,6 +351,10 @@
 					"    ,t.lms_loadchild_ldate as lms_loadparent_ldate\r\n",
 					"    ,t.lms_loadchild_vehodo as  lms_loadparent_vehodo \r\n",
 					"    ,t.lms_loadchild_vehodo2 as  lms_loadparent_vehodo2 \r\n",
+					"    ,t.lms_loadchild_fromlocid as  lms_loadparent_fromlocid \r\n",
+					"    ,t.lms_loadchild_tolocid as  lms_loadparent_tolocid \r\n",
+					"    ,t.lms_loadchild_ttypeid as lms_loadparent_ttypeid\r\n",
+					"    ,t.lms_loadchild_type as  lms_loadparent_type \r\n",
 					"    ,t.lms_loadchild_aggrweight  as  lms_loadparent_aggrweight \r\n",
 					"    ,t.lms_loadchild_aggrchargeweight  as  lms_loadparent_aggrchargeweight\r\n",
 					"    ,t.lms_loadchild_aggrvolweight  as  lms_loadparent_aggrvolweight\r\n",
@@ -367,14 +480,33 @@
 					"        WHEN to_date(to_timestamp(d.startdate)) = to_date(to_timestamp(d.stopdate)) THEN 1\r\n",
 					"        ELSE 0\r\n",
 					"    END AS orv_dispatch_completesameday\r\n",
+					"    ,CASE\r\n",
+					"        WHEN (d.startdate + 1800) > coalesce(d.tsstartdepoexitapp,d.tsstartdepoexit) THEN 1\r\n",
+					"        ELSE 0\r\n",
+					"    END AS orv_dispatch_latedepotexitflag\r\n",
+					"    ,CASE\r\n",
+					"        WHEN (x.timeduebackatdepot + 1800) > coalesce(d.tsstopdepoenterapp,d.tsstopdepoenterapp) THEN 1\r\n",
+					"        ELSE 0\r\n",
+					"    END AS orv_dispatch_latedepotenterflag\r\n",
+					"    ,CASE\r\n",
+					"        WHEN coalesce(d.startdate,coalesce(d.tsstartdepoexitapp,d.tsstartdepoexit)) IS NULL THEN 1\r\n",
+					"        ELSE 0\r\n",
+					"    END AS orv_dispatch_latedepotexitflagnull\r\n",
+					"    ,CASE\r\n",
+					"        WHEN coalesce(x.timeduebackatdepot,coalesce(d.tsstopdepoenterapp,d.tsstopdepoenterapp)) IS NULL THEN 1\r\n",
+					"        ELSE 0\r\n",
+					"    END AS orv_dispatch_latedepotenterflagnull\r\n",
+					"    ,c.cexternal as orv_dispatch_cexternal\r\n",
 					"    \r\n",
 					"\r\n",
 					"FROM stloadparent_tmp t\r\n",
 					"LEFT JOIN publicdispatch d on d.lmsid = t.lms_loadchild_parentloadid and d.vehicletype = 6\r\n",
 					"LEFT JOIN publicreportdistotmgntdispatchdt x on x.dispatchid = d.id\r\n",
-					"LEFT JOIN stmdvehicle v on v.md_vehicle_lmsid = t.lms_loadchild_vehicleid"
+					"LEFT JOIN stmdvehicle v on v.md_vehicle_lmsid = t.lms_loadchild_vehicleid\r\n",
+					"LEFT JOIN publiccourier c on d.courierid = c.id\r\n",
+					""
 				],
-				"execution_count": 8
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -392,7 +524,7 @@
 				"source": [
 					"stloadparent = spark.sql(\"SELECT * FROM stloadparent\")"
 				],
-				"execution_count": 9
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -410,7 +542,7 @@
 				"source": [
 					"# stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -428,7 +560,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 11
+				"execution_count": 34
 			}
 		]
 	}

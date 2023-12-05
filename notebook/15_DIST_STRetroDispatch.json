@@ -1,0 +1,237 @@
+{
+	"name": "15_DIST_STRetroDispatch",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "80ddb218-2bb4-4347-8c2f-d088d3bb5067"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the publicretroanalysis LMS Table\r\n",
+					"# publicretroanalysis = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicreportdispatchretroanalysis.parquet', format='parquet')\r\n",
+					"# publicretroanalysis.createOrReplaceTempView(\"publicretroanalysis\")"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stretroanalysis\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"p.id as orv_delivery_id\r\n",
+					",p.waybillid as orv_delivery_waybillid\r\n",
+					",p.deliveryid as orv_delivery_deliveryid\r\n",
+					",p.manifest as orv_delivery_manifest\r\n",
+					",p.dispatchid as orv_delivery_dispatchid\r\n",
+					",p.depot as orv_delivery_depot\r\n",
+					",p.fleetcode as orv_delivery_fleetcode\r\n",
+					",p.driver as orv_delivery_driver\r\n",
+					",p.progress as orv_delivery_progress\r\n",
+					",to_timestamp(p.originaldeparturedate) as orv_delivery_originaldeparturedate\r\n",
+					",to_timestamp(p.dispatchstartdate) as orv_delivery_dispatchstartdate\r\n",
+					",to_timestamp(p.exitdepodate) as orv_delivery_exitdepodate\r\n",
+					",to_timestamp(p.enterdepodate) as orv_delivery_enterdepodate\r\n",
+					",p.totalpausetime as orv_delivery_totalpausetime\r\n",
+					",to_timestamp(p.etatodepot) as orv_delivery_etatodepot\r\n",
+					",p.delcustomer as orv_delivery_delcustomer\r\n",
+					",p.deloriginalorder as orv_delivery_deloriginalorder\r\n",
+					",p.deloptimisedorder as orv_delivery_deloptimisedorder\r\n",
+					",p.delactualorder as orv_delivery_delactualorder\r\n",
+					",p.distancetravelled as orv_delivery_distancetravelled\r\n",
+					",to_timestamp(p.delactualeta) as orv_delivery_delactualeta\r\n",
+					",to_timestamp(p.retroexpeta) as orv_delivery_retroexpeta\r\n",
+					",to_timestamp(p.firstscandate) as orv_delivery_firstscandate\r\n",
+					",p.deltaretroexpetatofisrtscan as orv_delivery_deltaretroexpetatofisrtscan\r\n",
+					",p.delnoparcels as orv_delivery_delnoparcels\r\n",
+					",to_timestamp(p.targetdeldate) as orv_delivery_targetdeldate\r\n",
+					",p.actualdeltime as orv_delivery_actualdeltime\r\n",
+					",to_timestamp(p.deliverydate) as orv_delivery_deliverydate\r\n",
+					",to_timestamp(p.targetexittime) as orv_delivery_targetexittime\r\n",
+					",to_timestamp(p.exittime) as orv_delivery_exittime\r\n",
+					",p.delstatus as orv_delivery_delstatus\r\n",
+					",p.deltalastscantopod as orv_delivery_deltalastscantopod\r\n",
+					",to_timestamp(p.poddate) as orv_delivery_poddate\r\n",
+					",p.deltadispatchstartdate as orv_delivery_deltadispatchstartdate\r\n",
+					",p.deltadispatchexitandstart as orv_delivery_deltadispatchexitandstart\r\n",
+					",p.deltaetatodepoandenterdepo as orv_delivery_deltaetatodepoandenterdepo\r\n",
+					",p.stoppedindepo as orv_delivery_stoppedindepo\r\n",
+					",p.targetdeltime as orv_delivery_targetdeltime\r\n",
+					",p.actualtime as orv_delivery_actualtime\r\n",
+					",p.deltaactualtimeandshouldtake as orv_delivery_deltaactualtimeandshouldtake\r\n",
+					",p.shouldtake as orv_delivery_shouldtake\r\n",
+					",to_timestamp(p.insdate) as orv_delivery_insdate\r\n",
+					",p.originalorderkm as orv_delivery_originalorderkm\r\n",
+					",p.optimisedorderkm as orv_delivery_optimisedorderkm\r\n",
+					",p.totaldistancetravelledkm as orv_delivery_totaldistancetravelledkm\r\n",
+					",to_timestamp(p.lastdeliverytime) as orv_delivery_lastdeliverytime\r\n",
+					",to_timestamp(p.lastexitgeofencedeliverytime) as orv_delivery_lastexitgeofencedeliverytime\r\n",
+					",p.totalactualdeliverytime as orv_delivery_totalactualdeliverytime\r\n",
+					",p.totalestimateddeliverytime as orv_delivery_totalestimateddeliverytime\r\n",
+					",p.deltadeliverytime as orv_delivery_deltadeliverytime\r\n",
+					",p.distancefromlastdelivery as orv_delivery_distancefromlastdelivery\r\n",
+					",p.lastdeliverytimetodepo as orv_delivery_lastdeliverytimetodepo\r\n",
+					",to_timestamp(p.stopdispatch) as orv_delivery_stopdispatch\r\n",
+					",p.totaldistanceactualkm as orv_delivery_totaldistanceactualkm\r\n",
+					",p.totalestimateddrivetime as orv_delivery_totalestimateddrivetime\r\n",
+					",p.lastdeliverycustomer as orv_delivery_lastdeliverycustomer\r\n",
+					",p.actualdistancekm as orv_delivery_actualdistancekm\r\n",
+					",p.estimateddrivetime as orv_delivery_estimateddrivetime\r\n",
+					",p.billingcustomer as orv_delivery_billingcustomer\r\n",
+					"\r\n",
+					"FROM publicretroanalysis p\r\n",
+					""
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stretroanalysis = spark.sql(\"SELECT * FROM stretroanalysis\")"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stretroanalysis.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stretroanalysis.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 13
+			}
+		]
+	}
+}

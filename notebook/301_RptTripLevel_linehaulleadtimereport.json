@@ -1,0 +1,186 @@
+{
+	"name": "301_RptTripLevel_linehaulleadtimereport",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/TMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
+			"numExecutors": 1,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "8c44be04-c9a9-42a9-9660-128f4d368dcc"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.1",
+				"nodeCount": 10,
+				"cores": 8,
+				"memory": 56,
+				"automaticScaleJobs": true
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 29
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the rpttriplevel LMS Table\r\n",
+					"# rpttriplevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rpttriplevel.parquet', format='parquet')\r\n",
+					"# rpttriplevel.createOrReplaceTempView(\"rpttriplevel\")\r\n",
+					""
+				],
+				"execution_count": 30
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"linehaulleadtimereport\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					"     tripid\r\n",
+					"    ,lastonscan \r\n",
+					"    ,lastoffscan\r\n",
+					"    ,dispatchstartdate\r\n",
+					"    ,exitdepotgeofence\r\n",
+					"    ,loadclosedate\r\n",
+					"    ,startdate date\r\n",
+					"    ,thirdpartyid\r\n",
+					"    ,thirdpartyname\r\n",
+					"    ,CAST(bookingids AS STRING) bookingids\r\n",
+					"    ,CAST(loadids  AS STRING) loadids\r\n",
+					"    ,noofparcels\r\n",
+					"    ,weight\r\n",
+					"    ,chargeweight\r\n",
+					"    ,volweight\r\n",
+					"    ,volumiserweight\r\n",
+					"    ,(to_unix_timestamp(dispatchstartdate) - to_unix_timestamp(lastonscan)) lastonscantostartdispatch\r\n",
+					"    ,(to_unix_timestamp(exitdepotgeofence) - to_unix_timestamp(lastonscan)) lastonscantoexitgeofence\r\n",
+					"    ,(to_unix_timestamp(dispatchstartdate) - to_unix_timestamp(loadclosedate)) closeloadtostartdispatch\r\n",
+					"    ,(to_unix_timestamp(exitdepotgeofence) - to_unix_timestamp(loadclosedate)) closeloadtoexitgeofence\r\n",
+					"    ,effectiveloaddurationminutes\r\n",
+					"    ,effectiveoffloaddurationminutes\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM rpttriplevel \r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 31
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"linehaulleadtimereport = spark.sql(\"SELECT * FROM linehaulleadtimereport\")"
+				],
+				"execution_count": 32
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# linehaulleadtimereport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/linehaulleadtimereport.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 33
+			}
+		]
+	}
+}

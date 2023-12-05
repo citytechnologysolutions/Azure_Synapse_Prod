@@ -21,7 +21,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "3cb46a39-66e9-4686-9712-141f9c4f9b38"
+				"spark.autotune.trackingId": "7e4e6d91-bbc2-48ab-89cf-9d443092d222"
 			}
 		},
 		"metadata": {
@@ -80,7 +80,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 33
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -124,9 +124,25 @@
 					"# #Create DataFrame for the dbocustacc LMS Table\r\n",
 					"# dbocustacc = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustacc.parquet', format='parquet')\r\n",
 					"# dbocustacc.createOrReplaceTempView(\"dbocustacc\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stdeliverypickupcustomer LMS Table\r\n",
+					"# stdeliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', format='parquet')\r\n",
+					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stsroute LMS Table\r\n",
+					"# stsroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', format='parquet')\r\n",
+					"# stsroute.createOrReplaceTempView(\"stsroute\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stzone LMS Table\r\n",
+					"# stzone = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/stzone.parquet', format='parquet')\r\n",
+					"# stzone.createOrReplaceTempView(\"stzone\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stlocation LMS Table\r\n",
+					"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
+					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
 					""
 				],
-				"execution_count": 34
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -168,7 +184,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 35
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -295,6 +311,8 @@
 					"        WHEN pd.id is null then (to_unix_timestamp(coalesce(w.PODDate,CURRENT_TIMESTAMP)) - to_unix_timestamp(to_timestamp((cast(to_date(c.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999')))) \r\n",
 					"        ELSE (to_unix_timestamp(coalesce(w.PODDate,CURRENT_TIMESTAMP)) - to_unix_timestamp(to_timestamp((cast(to_date(pd.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999')))) \r\n",
 					"    END as parcelagedifferenceinseconds\r\n",
+					"    ,l.lms_location_id as lms_location_consignmentlocid \r\n",
+					"    ,l.lms_location_description as lms_location_consignmentlocdescription\r\n",
 					"    \r\n",
 					"FROM sstparcelunion p\r\n",
 					"LEFT JOIN stparcel_tmp pt on pt.lmsid = p.id AND pt.waybillid = p.waybillid\r\n",
@@ -303,11 +321,16 @@
 					"LEFT JOIN dbowaybill w on p.waybillid = w.ID\r\n",
 					"LEFT JOIN dboparceldetail pd on p.id = pd.parcelid\r\n",
 					"LEFT JOIN dbocustacc ca on ca.id = o.custaccid\r\n",
+					"LEFT JOIN stdeliverypickupcustomer dc on dc.lms_customer_id = o.delivercustid\r\n",
+					"LEFT JOIN stsroute s on s.lms_sroute_id = dc.lms_customer_srouteid\r\n",
+					"LEFT JOIN stzone z on z.lms_zone_id = s.lms_sroute_zoneid\r\n",
+					"LEFT JOIN stlocation l on l.lms_location_id = z.lms_zone_locid \r\n",
+					"\r\n",
 					"WHERE  coalesce(p.acceptanceDate,p.handoverdate) IS NOT NULL\r\n",
 					"AND p.locid NOT IN (163,110,213,27)\r\n",
 					""
 				],
-				"execution_count": 36
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -340,7 +363,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 37
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -370,7 +393,7 @@
 					"FROM stparcel_tmp2 p\r\n",
 					"LEFT JOIN stparcel_tmp3 p1 on p1.lms_parcel_id = p.lms_parcel_id"
 				],
-				"execution_count": 38
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -414,7 +437,7 @@
 					"FROM stparcel_tmp4\r\n",
 					""
 				],
-				"execution_count": 39
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -453,7 +476,7 @@
 					"FROM stparcel_tmp5 p\r\n",
 					"LEFT JOIN stvsmparcel v ON v.lms_track_parcelid = p.lms_parcel_id"
 				],
-				"execution_count": 40
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -489,7 +512,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 41
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -525,7 +548,7 @@
 					"p.lms_parcel_orderid\r\n",
 					""
 				],
-				"execution_count": 42
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -559,7 +582,7 @@
 					"p.lms_parcel_orderid\r\n",
 					",p.lms_parcel_waybillid"
 				],
-				"execution_count": 43
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -593,7 +616,7 @@
 					"GROUP BY\r\n",
 					"p.lms_parcel_orderid"
 				],
-				"execution_count": 44
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -629,7 +652,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 45
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -647,7 +670,7 @@
 				"source": [
 					"stparcel = spark.sql(\"SELECT * FROM stparcel\")"
 				],
-				"execution_count": 46
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -665,7 +688,7 @@
 				"source": [
 					"# stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 47
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -683,7 +706,26 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 48
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stparcel.dtypes\r\n",
+					""
+				],
+				"execution_count": 22
 			}
 		]
 	}

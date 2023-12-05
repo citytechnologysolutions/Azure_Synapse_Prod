@@ -11,16 +11,16 @@
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "15c7b37e-f97b-41b5-a946-4d894e570388"
+				"spark.autotune.trackingId": "39d09e0e-aaa7-4b5b-aa95-d28bf896430e"
 			}
 		},
 		"metadata": {
@@ -34,12 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
-				}
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -72,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": null
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -93,7 +100,7 @@
 					"# stbooking = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', format='parquet')\r\n",
 					"# stbooking.createOrReplaceTempView(\"stbooking\")"
 				],
-				"execution_count": 1
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -136,13 +143,19 @@
 					"        WHEN i.instrtype = \"pickup\" THEN tms_booking_pickupdate\r\n",
 					"        WHEN i.instrtype = \"delivery\" THEN tms_booking_deliverydate\r\n",
 					"    END as tms_instruction_bookingpickupdeliverydate\r\n",
+					"    ,CASE \r\n",
+					"        WHEN i.duedate < 0 THEN NULL \r\n",
+					"        ELSE to_timestamp(i.duedate) \r\n",
+					"    END as tms_instruction_duedate\r\n",
+					"    ,to_timestamp(i.actualdate) as tms_instruction_actualdate\r\n",
+					"\r\n",
 					"\r\n",
 					"FROM publicinstruction i\r\n",
 					"LEFT JOIN stbooking b on b.tms_booking_id = i.bookingid\r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -160,7 +173,7 @@
 				"source": [
 					"stinstruction_tms = spark.sql(\"SELECT * FROM stinstruction_tms\")"
 				],
-				"execution_count": 3
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -211,7 +224,7 @@
 					"FROM dbolhinstruction i\r\n",
 					"LEFT JOIN stbooking b on b.tms_booking_id = CAST(CONCAT('-',CAST(i.bookingid as string)) as int)"
 				],
-				"execution_count": 4
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -229,7 +242,7 @@
 				"source": [
 					"stinstruction_lms = spark.sql(\"SELECT * FROM stinstruction_lms\")"
 				],
-				"execution_count": 5
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -248,7 +261,7 @@
 					"stinstruction_tmp = stinstruction_lms.unionByName(stinstruction_tms, allowMissingColumns = True)\r\n",
 					"stinstruction_tmp.createOrReplaceTempView(\"stinstruction_tmp\")"
 				],
-				"execution_count": 6
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -287,6 +300,8 @@
 					"    ,si.tms_instruction_insdate\r\n",
 					"    ,si.tms_instruction_moddate\r\n",
 					"    ,si.tms_instruction_insby\r\n",
+					"    ,si.tms_instruction_duedate\r\n",
+					"    ,si.tms_instruction_actualdate\r\n",
 					"    ,to_timestamp(si.tms_instruction_bookingpickupdeliverydate) as tms_instruction_bookingpickupdeliverydate\r\n",
 					"    ,i.id as orv_lhdelivery_id\r\n",
 					"    ,i.did as orv_lhdelivery_did\r\n",
@@ -366,7 +381,7 @@
 					"LEFT JOIN publiclhinstruction i on i.tmsid = si.tms_instruction_id\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",
@@ -384,7 +399,7 @@
 				"source": [
 					"stinstruction_tmp2 = spark.sql(\"SELECT * FROM stinstruction_tmp2\")"
 				],
-				"execution_count": 8
+				"execution_count": 36
 			},
 			{
 				"cell_type": "code",
@@ -400,7 +415,8 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
@@ -427,7 +443,7 @@
 					"FROM stinstruction_tmp2\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 37
 			},
 			{
 				"cell_type": "code",
@@ -445,7 +461,7 @@
 				"source": [
 					"stinstruction = spark.sql(\"SELECT * FROM stinstruction\")"
 				],
-				"execution_count": null
+				"execution_count": 38
 			},
 			{
 				"cell_type": "code",
@@ -463,7 +479,7 @@
 				"source": [
 					"# stinstruction.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stinstruction.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 9
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -481,7 +497,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": null
+				"execution_count": 40
 			}
 		]
 	}

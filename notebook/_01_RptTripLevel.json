@@ -1,0 +1,391 @@
+{
+	"name": "_01_RptTripLevel",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Reports/TMS"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "571f485f-b44f-4c8f-8ab5-cb0443b2afcb"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 53
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the sttrip LMS Table\r\n",
+					"# sttrip = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', format='parquet')\r\n",
+					"# sttrip.createOrReplaceTempView(\"sttrip\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stbooking LMS Table\r\n",
+					"# stbooking = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', format='parquet')\r\n",
+					"# stbooking.createOrReplaceTempView(\"stbooking\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stlmsbookingweights LMS Table\r\n",
+					"# stlmsbookingweights = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlmsbookingweights.parquet', format='parquet')\r\n",
+					"# stlmsbookingweights.createOrReplaceTempView(\"stlmsbookingweights\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stloadchild LMS Table\r\n",
+					"# stloadchild = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', format='parquet')\r\n",
+					"# stloadchild.createOrReplaceTempView(\"stloadchild\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stloadparent LMS Table\r\n",
+					"# stloadparent = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', format='parquet')\r\n",
+					"# stloadparent.createOrReplaceTempView(\"stloadparent\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stthirdparty LMS Table\r\n",
+					"# stthirdparty = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stthirdparty.parquet', format='parquet')\r\n",
+					"# stthirdparty.createOrReplaceTempView(\"stthirdparty\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stlmstrack LMS Table\r\n",
+					"# stlmstrack = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', format='parquet')\r\n",
+					"# stlmstrack.createOrReplaceTempView(\"stlmstrack\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the publiclmsdata LMS Table\r\n",
+					"# publiclmsdata = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publiclmsdata.parquet', format='parquet')\r\n",
+					"# publiclmsdata.createOrReplaceTempView(\"publiclmsdata\")\r\n",
+					""
+				],
+				"execution_count": 54
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"lmsdata_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     l.bookingid\r\n",
+					"    ,l.loadid\r\n",
+					"    ,b.tms_booking_tripid as tripid\r\n",
+					"FROM publiclmsdata l\r\n",
+					"LEFT JOIN stbooking b on b. tms_booking_id = l.bookingid"
+				],
+				"execution_count": 55
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"lmsdata_tmp = spark.sql(\"SELECT * FROM lmsdata_tmp\")"
+				],
+				"execution_count": 56
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stlmstrack_tmp\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     lms_track_loadid as loadid\r\n",
+					"    ,max(lms_track_opendt) as maxopendt\r\n",
+					"    ,max(lms_track_closedt) as maxclosedt\r\n",
+					"FROM stlmstrack\r\n",
+					"GROUP BY lms_track_loadid \r\n",
+					""
+				],
+				"execution_count": 57
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stlmstrack_tmp = spark.sql(\"SELECT * FROM stlmstrack_tmp\")"
+				],
+				"execution_count": 58
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"lmsdata_tmp2\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"     l.tripid\r\n",
+					"    ,max(maxopendt) as maxopendt\r\n",
+					"    ,max(maxclosedt) as maxclosedt\r\n",
+					"FROM lmsdata_tmp l\r\n",
+					"LEFT JOIN stlmstrack_tmp t on t.loadid = l.loadid\r\n",
+					"GROUP BY l.tripid"
+				],
+				"execution_count": 59
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"lmsdata_tmp2 = spark.sql(\"SELECT * FROM lmsdata_tmp2\")"
+				],
+				"execution_count": 60
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"import pyspark.sql.functions"
+				],
+				"execution_count": 61
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"rpttriplevel\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					" tms_trip_id tripid\r\n",
+					",tms_trip_startdate startdate\r\n",
+					",tms_trip_thirdpartyid thirdpartyid\r\n",
+					",coalesce(tms_thirdparty_name,'CITY LINEHAUL') thirdpartyname\r\n",
+					",collect_set(tms_lmsbookingweights_bookingid) bookingids\r\n",
+					",collect_set(tms_lmsbookingweights_loadid) loadids\r\n",
+					",maxopendt lastonscan \r\n",
+					",maxclosedt lastoffscan\r\n",
+					",sum(tms_lmsbookingweights_noofparcels) noofparcels\r\n",
+					",sum(tms_lmsbookingweights_weight) weight\r\n",
+					",sum(tms_lmsbookingweights_chargeweight) chargeweight\r\n",
+					",sum(tms_lmsbookingweights_volweight) volweight\r\n",
+					",sum(tms_lmsbookingweights_volumiserweight) volumiserweight\r\n",
+					",max(orv_dispatch_startdate) dispatchstartdate\r\n",
+					",max(lms_loadchild_ldate) loadclosedate\r\n",
+					",max(coalesce(orv_dispatch_tsstartdepoexitapp,orv_dispatch_tsstartdepoexit)) exitdepotgeofence\r\n",
+					",sum(lms_loadchild_effectiveloaddurationminutes) effectiveloaddurationminutes\r\n",
+					",sum(lms_loadchild_effectiveoffloaddurationminutes) effectiveoffloaddurationminutes\r\n",
+					"FROM sttrip t\r\n",
+					"LEFT JOIN stthirdparty on tms_trip_thirdpartyid = tms_thirdparty_id\r\n",
+					"LEFT JOIN stlmsbookingweights l on l.tms_lmsbookingweights_tripid = t.tms_trip_id\r\n",
+					"LEFT JOIN stloadchild lc on lc.lms_loadchild_id = l.tms_lmsbookingweights_loadid\r\n",
+					"LEFT JOIN lmsdata_tmp2 l2 on l2.tripid = t.tms_trip_id\r\n",
+					"\r\n",
+					"WHERE tms_trip_startdate >= to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01')\r\n",
+					"\r\n",
+					"GROUP BY\r\n",
+					"     tms_trip_id\r\n",
+					"    ,tms_trip_startdate \r\n",
+					"    ,tms_trip_thirdpartyid\r\n",
+					"    ,tms_thirdparty_name\r\n",
+					"    ,orv_dispatch_startdate\r\n",
+					"    ,coalesce(orv_dispatch_tsstartdepoexitapp,orv_dispatch_tsstartdepoexit)\r\n",
+					"    ,maxopendt\r\n",
+					"    ,maxclosedt\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 62
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"rpttriplevel = spark.sql(\"SELECT * FROM rpttriplevel\")"
+				],
+				"execution_count": 63
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# rpttriplevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rpttriplevel.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 64
+			}
+		]
+	}
+}

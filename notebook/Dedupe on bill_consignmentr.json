@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "e68897d8-baa7-4873-b8db-07cf2f20d293"
+				"spark.autotune.trackingId": "f82ae415-9219-489d-bfa9-e01422f4becc"
 			}
 		},
 		"metadata": {
@@ -57,7 +57,7 @@
 					"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
 					"df.createOrReplaceTempView(\"df\")"
 				],
-				"execution_count": 3
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -75,7 +75,7 @@
 				"source": [
 					"df.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 4
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -95,7 +95,7 @@
 					"#df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/bill_consignmentr_BU_2023_06_29.parquet', format='parquet')\r\n",
 					"df.createOrReplaceTempView(\"df\")"
 				],
-				"execution_count": 7
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -113,7 +113,7 @@
 				"source": [
 					"df.dtypes"
 				],
-				"execution_count": 8
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -142,7 +142,7 @@
 					"FROM df\r\n",
 					"GROUP BY consignid"
 				],
-				"execution_count": 9
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -160,7 +160,7 @@
 				"source": [
 					"df.count()"
 				],
-				"execution_count": 10
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -183,7 +183,7 @@
 					"%%sql\r\n",
 					"SELECT COUNT(*) FROM MAXVALUES"
 				],
-				"execution_count": 11
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -215,7 +215,7 @@
 					"GROUP BY df.consignid\r\n",
 					"HAVING COUNT(consignid) > 1"
 				],
-				"execution_count": 12
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -247,7 +247,7 @@
 					"--GROUP BY df.ID\r\n",
 					"--HAVING COUNT(ID) > 1"
 				],
-				"execution_count": 13
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -276,7 +276,7 @@
 					"FROM df\r\n",
 					"INNER JOIN MAXVALUES MV ON MV.Id = df.Id --AND (MV.CloseDt = df.CloseDt OR MV.CloseDt is NULL)"
 				],
-				"execution_count": 15
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -294,7 +294,7 @@
 				"source": [
 					"DEDUPE = spark.sql(\"SELECT * FROM DEDUPE\")"
 				],
-				"execution_count": 16
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -312,7 +312,7 @@
 				"source": [
 					"DEDUPE.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 19
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -330,7 +330,7 @@
 				"source": [
 					"from notebookutils import mssparkutils"
 				],
-				"execution_count": 17
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -348,7 +348,7 @@
 				"source": [
 					"mssparkutils.fs.rm('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', True)"
 				],
-				"execution_count": null
+				"execution_count": 14
 			}
 		]
 	}

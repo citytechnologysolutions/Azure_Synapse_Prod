@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Sap Source Incremental load",
+				"name": "LMSv1 Source - Incremental Load",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"userProperties": [],
@@ -26,7 +26,7 @@
 				}
 			},
 			{
-				"name": "Sap Source Full load",
+				"name": "LMS v2 Source -  Full load",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"userProperties": [],
@@ -53,13 +53,13 @@
 				"type": "SynapseNotebook",
 				"dependsOn": [
 					{
-						"activity": "Sap Source Incremental load",
+						"activity": "LMSv1 Source - Incremental Load",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					},
 					{
-						"activity": "Sap Source Full load",
+						"activity": "LMS v2 Source -  Full load",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -121,346 +121,166 @@
 			}
 		],
 		"parameters": {
-			"SAPSource1CW_Items": {
+			"LMSv1SourceCW_Items": {
 				"type": "array",
 				"defaultValue": [
 					{
 						"Source": {
-							"TableName": "IGE1"
+							"TableName": "Consignment",
+							"SchemaName": "dbo"
 						},
 						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
+							"IncField": "lastupdate",
+							"IdField": "id"
 						},
-						"destination": {
-							"FileName": "dboige1"
+						"Destination": {
+							"FileName": "dboconsignment"
+						},
+						"SparkConfig": {
+							"NodeSize": "Small",
+							"MinExecutors": "1",
+							"MaxExecutors": "3"
 						}
 					},
 					{
 						"Source": {
-							"TableName": "IGN1"
+							"TableName": "Loads",
+							"SchemaName": "dbo"
 						},
 						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
+							"IncField": "lastupdate",
+							"IdField": "id"
 						},
-						"destination": {
-							"FileName": "dboign1"
+						"Destination": {
+							"FileName": "dboloads"
+						},
+						"SparkConfig": {
+							"NodeSize": "Small",
+							"MinExecutors": "1",
+							"MaxExecutors": "3"
 						}
 					},
 					{
 						"Source": {
-							"TableName": "INV1"
+							"TableName": "order",
+							"SchemaName": "dbo"
 						},
 						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
+							"IncField": "lastupdate",
+							"IdField": "id"
 						},
-						"destination": {
-							"FileName": "dboinv1"
+						"Destination": {
+							"FileName": "dboorder"
+						},
+						"SparkConfig": {
+							"NodeSize": "Small",
+							"MinExecutors": "1",
+							"MaxExecutors": "3"
 						}
 					},
 					{
 						"Source": {
-							"TableName": "JDT1"
+							"TableName": "Waybill",
+							"SchemaName": "dbo"
 						},
 						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "TransId"
+							"IncField": "lastupdate",
+							"IdField": "id"
 						},
-						"destination": {
-							"FileName": "dbojdt1"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "MRV1"
+						"Destination": {
+							"FileName": "dbowaybill"
 						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dbomrv1"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "MRV2"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dbomrv2"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "OIGE"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dbooige"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "OIGN"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dbooign"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "OINM"
-						},
-						"Increment": {
-							"IncField": "transnum",
-							"IdField": "TransNum"
-						},
-						"destination": {
-							"FileName": "dbooinm"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "OINV"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dbooinv"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "OJDT"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "TransId"
-						},
-						"destination": {
-							"FileName": "dboojdt"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "OMRV"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dboomrv"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "OPCH"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dboopch"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "OPDN"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dboopdn"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "OPOR"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dboopor"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "ORIN"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dboorin"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "ORPC"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dboorpc"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "PCH1"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dbopch1"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "PDN1"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dbopdn1"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "POR1"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dbopor1"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "RIN1"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dborin1"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "RPC1"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dborpc1"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "RPD1"
-						},
-						"Increment": {
-							"IncField": "u_doctime",
-							"IdField": "DocEntry"
-						},
-						"destination": {
-							"FileName": "dborpd1"
-						}
-					},
-					{
-						"Source": {
-							"TableName": "OITM"
-						},
-						"Increment": {
-							"IncField": "itemcode",
-							"IdField": "ItemCode"
-						},
-						"destination": {
-							"FileName": "dbooitm"
+						"SparkConfig": {
+							"NodeSize": "Small",
+							"MinExecutors": "1",
+							"MaxExecutors": "3"
 						}
 					}
 				]
 			},
-			"SAPSource2CW_Items": {
+			"LMSv2SourceCW_Items": {
 				"type": "array",
 				"defaultValue": [
 					{
 						"Source": {
-							"TableName": "OACT"
+							"TableName": "manifest",
+							"SchemaName": "v2"
 						},
 						"Increment": {
-							"IncField": "0",
-							"IdField": "0"
+							"IncField": "lastupdate",
+							"IdField": "id"
 						},
-						"destination": {
-							"FileName": "dbooact"
+						"Destination": {
+							"FileName": "v2manifest"
+						},
+						"SparkConfig": {
+							"NodeSize": "Small",
+							"MinExecutors": "1",
+							"MaxExecutors": "3"
 						}
 					},
 					{
 						"Source": {
-							"TableName": "OCRD"
+							"TableName": "customerorder",
+							"SchemaName": "v2"
 						},
 						"Increment": {
-							"IncField": "0",
-							"IdField": "0"
+							"IncField": "lastupdate",
+							"IdField": "id"
 						},
-						"destination": {
-							"FileName": "dboocrd"
+						"Destination": {
+							"FileName": "v2customerorder"
+						},
+						"SparkConfig": {
+							"NodeSize": "Small",
+							"MinExecutors": "1",
+							"MaxExecutors": "3"
 						}
 					},
 					{
 						"Source": {
-							"TableName": "OITB"
+							"TableName": "consignment",
+							"SchemaName": "v2"
 						},
 						"Increment": {
-							"IncField": "0",
-							"IdField": "0"
+							"IncField": "lastupdate",
+							"IdField": "id"
 						},
-						"destination": {
-							"FileName": "dbooitb"
+						"Destination": {
+							"FileName": "v2consignment"
+						},
+						"SparkConfig": {
+							"NodeSize": "Small",
+							"MinExecutors": "1",
+							"MaxExecutors": "3"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "deliverynote",
+							"SchemaName": "v2"
+						},
+						"Increment": {
+							"IncField": "lastupdate",
+							"IdField": "id"
+						},
+						"Destination": {
+							"FileName": "v2deliverynote"
+						},
+						"SparkConfig": {
+							"NodeSize": "Small",
+							"MinExecutors": "1",
+							"MaxExecutors": "3"
 						}
 					}
 				]
 			},
-			"SAPPowerBIRefresh": {
+			"LMSv1v2PreconPowerBIRefresh": {
 				"type": "array",
 				"defaultValue": [
 					{
-						"GroupID": "2a5062fe-1c10-4c36-91df-40ffcbc2b229",
-						"dataflowID": "ecb69492-9c6f-4922-ab63-6d52b6d2209d"
+						"GroupID": "639fb4f4-960f-4f63-a713-5d578c6955ef",
+						"DataflowID": "8a06d1fa-609f-4cc3-b0af-72e7964dded0"
 					}
 				]
 			}

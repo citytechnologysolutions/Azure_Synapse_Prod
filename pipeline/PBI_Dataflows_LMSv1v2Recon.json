@@ -1,0 +1,60 @@
+{
+	"name": "PBI_Dataflows_LMSv1v2Recon",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@pipeline().parameters.URL_Data",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Execute Pipeline1",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "Refresh_GetStatus",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"GroupID": {
+										"value": "@item().GroupID",
+										"type": "Expression"
+									},
+									"DataflowID": {
+										"value": "@item().DataflowID",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"URL_Data": {
+				"type": "array",
+				"defaultValue": [
+					{
+						"GroupID": "639fb4f4-960f-4f63-a713-5d578c6955ef",
+						"DataflowID": "8a06d1fa-609f-4cc3-b0af-72e7964dded0"
+					}
+				]
+			}
+		},
+		"folder": {
+			"name": "PowerBIRefresh"
+		},
+		"annotations": []
+	}
+}

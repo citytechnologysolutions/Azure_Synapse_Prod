@@ -12,16 +12,16 @@
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "112g",
+			"driverCores": 16,
+			"executorMemory": "112g",
+			"executorCores": 16,
 			"numExecutors": 1,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "7e4e6d91-bbc2-48ab-89cf-9d443092d222"
+				"spark.autotune.trackingId": "2dd1f97b-d286-480a-9491-60731ceba505"
 			}
 		},
 		"metadata": {
@@ -35,18 +35,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
-				"name": "ApacheSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ASP33",
+				"name": "ASP33",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ASP33",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.1",
+				"sparkVersion": "3.3",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 16,
+				"memory": 112,
 				"automaticScaleJobs": true
 			},
 			"sessionKeepAliveTimeout": 30
@@ -80,7 +80,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 5
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -142,7 +142,7 @@
 					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -184,7 +184,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -290,7 +290,7 @@
 					"    END as lms_parcel_inserviceflag\r\n",
 					"   ,CASE \r\n",
 					"        WHEN pd.id is null then (date(coalesce(c.cdate,coalesce(p.acceptanceDate,p.handoverdate)) + interval '86399 seconds'))\r\n",
-					"        ELSE (pd.InServiceStart)\r\n",
+					"        ELSE date((pd.InServiceStart) + interval '86399 seconds')\r\n",
 					"    END AS lms_parcel_actualleaddaysstartdate\r\n",
 					"    ,coalesce(w.PODDate,CURRENT_TIMESTAMP) AS lms_parcel_actualleaddaysenddate\r\n",
 					"    ,CASE\r\n",
@@ -304,12 +304,12 @@
 					"\t,pt.orv_parcel_courierid\r\n",
 					"    ,pt.orv_parcel_moddate\r\n",
 					"    ,CASE\r\n",
-					"        WHEN pd.id is null then to_timestamp((cast(to_date(c.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999'))\r\n",
-					"        ELSE to_timestamp((cast(to_date(pd.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999'))\r\n",
+					"        WHEN pd.id is null then to_timestamp((cast(to_date(c.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.997'))\r\n",
+					"        ELSE to_timestamp((cast(to_date(pd.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.997'))\r\n",
 					"    END as lms_parcel_parceldetaildeliverbyroundup\r\n",
 					"    ,CASE\r\n",
-					"        WHEN pd.id is null then (to_unix_timestamp(coalesce(w.PODDate,CURRENT_TIMESTAMP)) - to_unix_timestamp(to_timestamp((cast(to_date(c.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999')))) \r\n",
-					"        ELSE (to_unix_timestamp(coalesce(w.PODDate,CURRENT_TIMESTAMP)) - to_unix_timestamp(to_timestamp((cast(to_date(pd.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.999')))) \r\n",
+					"        WHEN pd.id is null then (to_unix_timestamp(coalesce(w.PODDate,CURRENT_TIMESTAMP)) - to_unix_timestamp(to_timestamp((cast(to_date(c.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.997')))) \r\n",
+					"        ELSE (to_unix_timestamp(coalesce(w.PODDate,CURRENT_TIMESTAMP)) - to_unix_timestamp(to_timestamp((cast(to_date(pd.DeliverBy,'yyyy-MM-dd') as string)||' 23:59:59.997')))) \r\n",
 					"    END as parcelagedifferenceinseconds\r\n",
 					"    ,l.lms_location_id as lms_location_consignmentlocid \r\n",
 					"    ,l.lms_location_description as lms_location_consignmentlocdescription\r\n",
@@ -330,7 +330,7 @@
 					"AND p.locid NOT IN (163,110,213,27)\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -356,14 +356,14 @@
 					"AS\r\n",
 					"SELECT \r\n",
 					"    p.lms_parcel_id\r\n",
-					"    ,sum(holiday)*86400 as holidays\r\n",
+					"    ,count(holiday)*86400 as holidays\r\n",
 					"FROM stparcel_tmp2 p\r\n",
 					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_parcel_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_parcel_actualleaddaysenddate))\r\n",
 					"GROUP BY p.lms_parcel_id\r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -393,7 +393,7 @@
 					"FROM stparcel_tmp2 p\r\n",
 					"LEFT JOIN stparcel_tmp3 p1 on p1.lms_parcel_id = p.lms_parcel_id"
 				],
-				"execution_count": 10
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -437,7 +437,7 @@
 					"FROM stparcel_tmp4\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -476,7 +476,7 @@
 					"FROM stparcel_tmp5 p\r\n",
 					"LEFT JOIN stvsmparcel v ON v.lms_track_parcelid = p.lms_parcel_id"
 				],
-				"execution_count": 12
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -512,7 +512,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 13
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -548,7 +548,7 @@
 					"p.lms_parcel_orderid\r\n",
 					""
 				],
-				"execution_count": 14
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -582,7 +582,7 @@
 					"p.lms_parcel_orderid\r\n",
 					",p.lms_parcel_waybillid"
 				],
-				"execution_count": 15
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -616,7 +616,7 @@
 					"GROUP BY\r\n",
 					"p.lms_parcel_orderid"
 				],
-				"execution_count": 16
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -652,7 +652,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 17
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -670,7 +670,7 @@
 				"source": [
 					"stparcel = spark.sql(\"SELECT * FROM stparcel\")"
 				],
-				"execution_count": 18
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -688,7 +688,7 @@
 				"source": [
 					"# stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 21
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -706,26 +706,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 20
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"stparcel.dtypes\r\n",
-					""
-				],
-				"execution_count": 22
+				"execution_count": 16
 			}
 		]
 	}

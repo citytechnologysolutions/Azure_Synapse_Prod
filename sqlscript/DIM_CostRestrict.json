@@ -1,0 +1,20 @@
+{
+	"name": "DIM_CostRestrict",
+	"properties": {
+		"folder": {
+			"name": "Archive/Old Notebooks"
+		},
+		"content": {
+			"query": "DROP EXTERNAL TABLE DIM_CostRestrict;\n\nCREATE EXTERNAL TABLE DIM_CostRestrict (\n\t[RESTRICTCOST] nvarchar(4000),\n\t[RESTRICTTYPE] nvarchar(4000)\n\t)\n\tWITH (\n\tLOCATION = 'DataLake/Structured/Dimensions/DIM_COSTRESTRICT.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.DIM_CostRestrict\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

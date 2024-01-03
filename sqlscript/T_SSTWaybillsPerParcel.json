@@ -2,7 +2,7 @@
 	"name": "T_SSTWaybillsPerParcel",
 	"properties": {
 		"folder": {
-			"name": "Semi Structured Schema on Read/OPS"
+			"name": "Archive/Semi Structured Schema on Read/OPS"
 		},
 		"content": {
 			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTWaybillsPerParcel') )\n    DROP EXTERNAL TABLE dbo.F_SSTWaybillsPerParcel\nGO\n\nIF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_SSTWaybillsPerParcel') )\n    DROP EXTERNAL TABLE dbo.T_SSTWaybillsPerParcel\nGO\n\n\nCREATE EXTERNAL TABLE dbo.T_SSTWaybillsPerParcel (\n\t[lms_waybillsperparcel_parcelid] int,\n    [lms_waybillsperparcel_waybillid] int,\n    [lms_waybillsperparcel_loadid] int\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstwaybillsperparcel.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_SSTWaybillsPerParcel\nGO",

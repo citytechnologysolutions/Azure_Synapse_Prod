@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "7403f750-0c11-4c24-8106-abdd707d260a"
+				"spark.autotune.trackingId": "646c2fff-6626-4de3-aa16-368ea1ee36bb"
 			}
 		},
 		"metadata": {
@@ -184,9 +184,332 @@
 					"# dborouteratetype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dborouteratetype.parquet', format='parquet')\r\n",
 					"# dborouteratetype.createOrReplaceTempView(\"dborouteratetype\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the dbodriver LMS Table\r\n",
+					"# dbodriver = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodriver.parquet', format='parquet')\r\n",
+					"# dbodriver.createOrReplaceTempView(\"dbodriver\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the publicorvuser LMS Table\r\n",
+					"# publicorvuser = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicorvuser.parquet', format='parquet')\r\n",
+					"# publicorvuser.createOrReplaceTempView(\"publicorvuser\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodamagedparcelauditfluteprofiles LMS Table\r\n",
+					"# dbodamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelauditfluteprofiles.parquet', format='parquet')\r\n",
+					"# dbodamagedparcelauditfluteprofiles.createOrReplaceTempView(\"dbodamagedparcelauditfluteprofiles\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodamagedparcelaudittapetype LMS Table\r\n",
+					"# dbodamagedparcelaudittapetype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelaudittapetype.parquet', format='parquet')\r\n",
+					"# dbodamagedparcelaudittapetype.createOrReplaceTempView(\"dbodamagedparcelaudittapetype\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodamagedparcelaudittype LMS Table\r\n",
+					"# dbodamagedparcelaudittype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelaudittype.parquet', format='parquet')\r\n",
+					"# dbodamagedparcelaudittype.createOrReplaceTempView(\"dbodamagedparcelaudittype\")\r\n",
 					""
 				],
 				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stdamagedparcelauditfluteprofiles\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"d.id as lms_damagedparcelauditfluteprofiles_id\r\n",
+					",d.description as lms_damagedparcelauditfluteprofiles_description\r\n",
+					",d.startrange as lms_damagedparcelauditfluteprofiles_startrange\r\n",
+					",d.endrange as lms_damagedparcelauditfluteprofiles_endrange\r\n",
+					"FROM\r\n",
+					"dbodamagedparcelauditfluteprofiles d"
+				],
+				"execution_count": 3
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdamagedparcelauditfluteprofiles = spark.sql(\"SELECT * FROM stdamagedparcelauditfluteprofiles\")"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stdamagedparcelauditfluteprofiles.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelauditfluteprofiles.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stdamagedparcelaudittapetype\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"d.id as lms_damagedparcelaudittapetype_id\r\n",
+					",d.description as lms_damagedparcelaudittapetype_description\r\n",
+					"FROM\r\n",
+					"dbodamagedparcelaudittapetype d"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdamagedparcelaudittapetype = spark.sql(\"SELECT * FROM stdamagedparcelaudittapetype\")"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stdamagedparcelaudittapetype.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudittapetype.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stdamagedparcelaudittype\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"d.id as lms_damagedparcelaudittype_id\r\n",
+					",d.description as lms_damagedparcelaudittype_description\r\n",
+					",d.db_reasondetailid as lms_damagedparcelaudittype_dbreasondetailid\r\n",
+					",d.cdate as lms_damagedparcelaudittype_cdate\r\n",
+					"FROM\r\n",
+					"dbodamagedparcelaudittype d"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdamagedparcelaudittype = spark.sql(\"SELECT * FROM stdamagedparcelaudittype\")"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stdamagedparcelaudittype.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudittype.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stdriver\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"d.id as lms_driver_id\r\n",
+					",d.ianyflag as lms_driver_ianyflag\r\n",
+					",d.billcustid as lms_driver_billcustid\r\n",
+					",d.password as lms_driver_password\r\n",
+					",d.userid as lms_driver_userid\r\n",
+					",d.staffid as lms_driver_staffid\r\n",
+					",d.branch as lms_driver_branch\r\n",
+					",d.passportnum as lms_driver_passportnum\r\n",
+					",d.passportcountry as lms_driver_passportcountry\r\n",
+					",d.residence as lms_driver_residence\r\n",
+					",d.dob as lms_driver_dob\r\n",
+					",d.passportexpiry as lms_driver_passportexpiry\r\n",
+					",d.activeflag as lms_driver_activeflag\r\n",
+					",d.locid as lms_driver_locid\r\n",
+					",d.lastupdate as lms_driver_lastupdate\r\n",
+					",d.dateengaged as lms_driver_dateengaged\r\n",
+					",d.terminationdate as lms_driver_terminationdate\r\n",
+					",d.empid as lms_driver_empid\r\n",
+					",d.dname as lms_driver_dname\r\n",
+					",d.fname as lms_driver_fname\r\n",
+					",d.surname as lms_driver_surname\r\n",
+					",d.knownasname as lms_driver_knownasname\r\n",
+					",d.depotcode as lms_driver_depotcode\r\n",
+					",d.jobcategory as lms_driver_jobcategory\r\n",
+					",d.jobtitle as lms_driver_jobtitle\r\n",
+					",d.employeecode as lms_driver_employeecode\r\n",
+					",d.cellno as lms_driver_cellno\r\n",
+					",d.gender as lms_driver_gender\r\n",
+					",d.employeestatus as lms_driver_employeestatus\r\n",
+					",d.nationnality as lms_driver_nationnality\r\n",
+					",d.idno as lms_driver_idno\r\n",
+					",d.statusflag as lms_driver_statusflag\r\n",
+					",d.idpassportno as lms_driver_idpassportno\r\n",
+					",d.ownerid as lms_driver_ownerid\r\n",
+					",d.islinehauldriver as lms_driver_islinehauldriver\r\n",
+					",d.uid as lms_driver_uid\r\n",
+					",u.id as orv_publicorvuser_id\r\n",
+					"FROM\r\n",
+					"dbodriver d\r\n",
+					"LEFT JOIN publicorvuser u on d.id = u.lmsid"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stdriver = spark.sql(\"SELECT * FROM stdriver\")"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stdriver.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdriver.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -229,7 +552,7 @@
 					"\r\n",
 					"FROM dborouteratetype"
 				],
-				"execution_count": null
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -1954,24 +2277,6 @@
 					"stwaybilldeliverystatusreasons = spark.sql(\"SELECT * FROM stwaybilldeliverystatusreasons\")\r\n",
 					"stwaybillreasondetails = spark.sql(\"SELECT * FROM stwaybillreasondetails\")\r\n",
 					"stwaybillinservicereasons = spark.sql(\"SELECT * FROM stwaybillinservicereasons\")"
-				],
-				"execution_count": null
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					" spark.sql(\"SELECT * FROM stwaybilldelayreasons\")"
 				],
 				"execution_count": null
 			},

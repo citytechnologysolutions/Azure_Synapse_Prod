@@ -1,0 +1,20 @@
+{
+	"name": "reconmovement",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/v2Recon"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.reconmovement') )\n    DROP EXTERNAL TABLE dbo.reconmovement\nGO\n\nCREATE EXTERNAL TABLE dbo.reconmovement (\n[v2id] bigint,\n[v2tolocid] bigint,\n[v2tolocname] nvarchar(4000),\n[v2fromlocid] bigint,\n[v2fromlocname] nvarchar(4000),\n[v2tofloorareaid] bigint,\n[v2tofloorareaname] nvarchar(4000),\n[v2fromfloorareaid] bigint,\n[v2fromfloorareaname] nvarchar(4000),\n[v2status] nvarchar(4000),\n[v2typeid] bigint,\n[v2type] nvarchar(4000),\n[v2bayid] bigint,\n[v2bayname] nvarchar(4000),\n[v2insdate] bigint,\n[v2moddate] bigint,\n[v2closedate] bigint,\n[v2insby] bigint,\n[v2legacyid] bigint,\n[v2migrationstatus] nvarchar(4000),\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/LMSV2/reconmovement.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.reconmovement \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

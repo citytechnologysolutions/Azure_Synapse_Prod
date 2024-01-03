@@ -2,7 +2,7 @@
 	"name": "T_SSTParcelByWaybill",
 	"properties": {
 		"folder": {
-			"name": "Semi Structured Schema on Read/OPS"
+			"name": "Archive/Semi Structured Schema on Read/OPS"
 		},
 		"content": {
 			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTParcelByWaybill') )\n    DROP EXTERNAL TABLE dbo.F_SSTParcelByWaybill\nGO\n\nIF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_SSTParcelByWaybill') )\n    DROP EXTERNAL TABLE dbo.T_SSTParcelByWaybill\nGO\n\n\n\nCREATE EXTERNAL TABLE dbo.T_SSTParcelByWaybill (\n\t[lms_parcelbywaybill_waybillid] int,\n\t[lms_parcelbywaybill_aggrweight] numeric(28,2),\n\t[lms_parcelbywaybill_aggrchargeweight] numeric(28,2),\n\t[lms_parcelbywaybill_aggrvolweight] numeric(28,2),\n\t[lms_parcelbywaybill_aggrvolumiserweight] numeric(28,2),\n\t[lms_parcelbywaybill_aggrmaxweight] numeric(28,2),\n\t[lms_parcelbywaybill_aggrnoparcels] bigint,\n\t[lms_parcelbywaybill_aggrweightexclspecdel] numeric(28,2),\n\t[lms_parcelbywaybill_aggrchargeweightexclspecdel] numeric(28,2),\n\t[lms_parcelbywaybill_aggrvolweightexclspecdel] numeric(28,2),\n\t[lms_parcelbywaybill_aggrvolumiserweightexclspecdel] numeric(28,2),\n\t[lms_parcelbywaybill_aggrmaxweightexclspecdel] numeric(28,2),\n\t[lms_parcelbywaybill_aggrnoparcelsexclspecdel] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstparcelbywaybill.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_SSTParcelByWaybill\nGO",

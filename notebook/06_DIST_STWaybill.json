@@ -20,9 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-
-				"spark.autotune.trackingId": "70f93a23-5150-4104-a44c-c178ac4b2554"
-
+				"spark.autotune.trackingId": "0c14dad9-19d6-4df8-a2fb-73397f8bb6ec"
 			}
 		},
 		"metadata": {
@@ -67,49 +65,49 @@
 					}
 				},
 				"source": [
-					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"# if 'prod' in Environment:\r\n",
-					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"# else:\r\n",
-					"#     StorageAccount = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# # ' + StorageAccount + '"
+					"# ' + StorageAccount + '"
 				],
-				"execution_count": 10
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
 				"source": [
-					"# #Create DataFrame for the dbowaybill LMS Table\r\n",
-					"# dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
-					"# dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
+					"#Create DataFrame for the dbowaybill LMS Table\r\n",
+					"dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
+					"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the sstparcelbywaybill LMS Table\r\n",
-					"# sstparcelbywaybill = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbywaybill.parquet', format='parquet')\r\n",
-					"# sstparcelbywaybill.createOrReplaceTempView(\"sstparcelbywaybill\")\r\n",
+					"#Create DataFrame for the sstparcelbywaybill LMS Table\r\n",
+					"sstparcelbywaybill = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelbywaybill.parquet', format='parquet')\r\n",
+					"sstparcelbywaybill.createOrReplaceTempView(\"sstparcelbywaybill\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the publicdelivery ORV Table\r\n",
-					"# publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
-					"# publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
+					"#Create DataFrame for the publicdelivery ORV Table\r\n",
+					"publicdelivery = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdelivery.parquet', format='parquet')\r\n",
+					"publicdelivery.createOrReplaceTempView(\"publicdelivery\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the publicdispatch ORV Table\r\n",
-					"# publicdispatch = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
-					"# publicdispatch.createOrReplaceTempView(\"publicdispatch\")\r\n",
+					"#Create DataFrame for the publicdispatch ORV Table\r\n",
+					"publicdispatch = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicdispatch.parquet', format='parquet')\r\n",
+					"publicdispatch.createOrReplaceTempView(\"publicdispatch\")\r\n",
 					"\r\n",
-					"# #create dataframe for the publicpod orv table\r\n",
-					"# publicpod = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
-					"# publicpod.createOrReplaceTempView(\"publicpod\")\r\n",
+					"#create dataframe for the publicpod orv table\r\n",
+					"publicpod = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
+					"publicpod.createOrReplaceTempView(\"publicpod\")\r\n",
 					"\r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -125,11 +123,11 @@
 					}
 				},
 				"source": [
-					"# from pyspark.sql.functions import *\r\n",
-					"# from pyspark.sql.window import Window\r\n",
-					"# from pyspark.sql.types import IntegralType"
+					"from pyspark.sql.functions import *\r\n",
+					"from pyspark.sql.window import Window\r\n",
+					"from pyspark.sql.types import IntegralType"
 				],
-				"execution_count": 12
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -147,7 +145,7 @@
 				"source": [
 					"partitionfirst=Window.partitionBy(\"did\").orderBy(col(\"did\").asc())"
 				],
-				"execution_count": 13
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -165,7 +163,7 @@
 				"source": [
 					"pod_tmp = publicpod.withColumn(\"row_num\",row_number().over(partitionfirst))"
 				],
-				"execution_count": 14
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -183,7 +181,7 @@
 				"source": [
 					"pod_tmp.createOrReplaceTempView(\"pod_tmp\")"
 				],
-				"execution_count": 15
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -216,7 +214,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 16
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -234,7 +232,7 @@
 				"source": [
 					"dbowaybill_tmp = spark.sql(\"SELECT * FROM dbowaybill_tmp\")"
 				],
-				"execution_count": 17
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -423,7 +421,6 @@
 					"\t,p.customerfeedback as orv_pod_customerfeedback\r\n",
 					"    --,2.00 * 3961.00 * asin(sqrt((sin(radians((p.lat - d.lat) / 2.00))) ^ 2.00 + cos(radians(d.lat)) * cos(radians(p.lat)) * (sin(radians((p.lng - d.lng ) / 2.00))) ^ 2.00))*1.60934 as orv_delivery_poddistancefromdeliverypoint\r\n",
 					"    ,(to_unix_timestamp(w.DeBriefDt) - d.deliverydate)/86400 as orv_delivery_datediffpoddeldate\r\n",
-					"    ,(COALESCE(d.tsexitgeofenceapp,d.tspodsignature) - COALESCE(d.tsgeofenceenter,d.tsentergeofenceapp))/60 as orv_delivery_deliveryenterexitdiff\r\n",
 					"\r\n",
 					"FROM dbowaybill_tmp w\r\n",
 					"LEFT JOIN sstparcelbywaybill pbw on pbw.lms_parcelbywaybill_waybillid =  w.id\r\n",
@@ -431,7 +428,7 @@
 					"LEFT JOIN pod_tmp p on p.did = d.id and row_num = 1\r\n",
 					""
 				],
-				"execution_count": 28
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -449,7 +446,7 @@
 				"source": [
 					"stwaybill_tmp = spark.sql(\"SELECT * FROM stwaybill_tmp\")"
 				],
-				"execution_count": 29
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -467,7 +464,7 @@
 				"source": [
 					"stwaybill = stwaybill_tmp.withColumn(\"a\", pow(sin(radians (col(\"orv_pod_lat\") - col(\"orv_delivery_lat\")) / 2), 2) + cos(radians (\"orv_delivery_lat\")) * cos(radians (col(\"orv_pod_lat\"))) * pow(sin(radians (col(\"orv_pod_lng\") - col(\"orv_delivery_lng\")) / 2), 2)).withColumn(\"orv_delivery_poddistancefromdeliverypoint\", atan2(sqrt(col(\"a\")), sqrt(-col(\"a\") + 1)) * 2 * 6371)"
 				],
-				"execution_count": 30
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -485,7 +482,7 @@
 				"source": [
 					"stwaybill.createOrReplaceTempView(\"stwaybill\")"
 				],
-				"execution_count": 31
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -501,9 +498,9 @@
 					}
 				},
 				"source": [
-					"# stwaybill.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', mode = \"overwrite\")"
+					"stwaybill.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 33
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",

@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "771c31b7-3b4a-409f-8b0f-6a2cf703519f"
+				"spark.autotune.trackingId": "a3853342-6a97-489c-932e-8444bc0ef744"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -165,7 +165,7 @@
 					"# publiccustomer.createOrReplaceTempView(\"publiccustomer\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -786,7 +786,7 @@
 					"    ,o.lms_order_delivercustid\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 72
 			},
 			{
 				"cell_type": "code",
@@ -804,7 +804,7 @@
 				"source": [
 					"stparcelorder_tmp = spark.sql(\"SELECT * FROM stparcelorder_tmp\")"
 				],
-				"execution_count": 4
+				"execution_count": 73
 			},
 			{
 				"cell_type": "code",
@@ -866,7 +866,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": 74
 			},
 			{
 				"cell_type": "code",
@@ -884,7 +884,7 @@
 				"source": [
 					"stactivityconsignedto = spark.sql(\"SELECT * FROM stactivityconsignedto\")"
 				],
-				"execution_count": 6
+				"execution_count": 75
 			},
 			{
 				"cell_type": "code",
@@ -923,7 +923,6 @@
 				},
 				"source": [
 					"%%sql\r\n",
-					"--LOADED ACTIVITY\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
 					"stactivityhandled_tmp1\r\n",
 					"AS\r\n",
@@ -1002,7 +1001,7 @@
 					"    ,o.lms_order_specdel\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 77
 			},
 			{
 				"cell_type": "code",
@@ -1020,144 +1019,7 @@
 				"source": [
 					"stactivityhandled_tmp1 = spark.sql(\"SELECT * FROM stactivityhandled_tmp1\")"
 				],
-				"execution_count": 8
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"microsoft": {
-						"language": "sparksql"
-					},
-					"collapsed": false
-				},
-				"source": [
-					"%%sql\r\n",
-					"--OFFLOADED LINEHAUL ACTIVITY\r\n",
-					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"stactivityhandled_tmp2\r\n",
-					"AS\r\n",
-					"SELECT\r\n",
-					"     lc.lms_loadchild_id as lms_activity_transid\r\n",
-					"    ,'loadid' as lms_activity_transidtype\r\n",
-					"    ,to_date(lms_track_closedt,'yyyy-MM-dd') as lms_activity_date\r\n",
-					"    ,p.lms_parcel_orderbillcustid as lms_activity_billcustid\r\n",
-					"    ,bc.lms_customer_name as lms_activity_billcustname\r\n",
-					"    ,p.lms_parcel_orderdelivercustid as lms_activity_delivercustid\r\n",
-					"    ,dpc.lms_customer_name as lms_activity_delivercustname\r\n",
-					"    ,CASE \r\n",
-					"        WHEN lms_track_tracktypeid = 2 THEN 'linehaul offload' \r\n",
-					"        WHEN lms_track_tracktypeid = 6 THEN 'distribution offload'\r\n",
-					"        ELSE '' \r\n",
-					"    END as lms_activity_movementtype\r\n",
-					"    ,lc.lms_loadchild_masterloadid as lms_activity_linehualbookingid\r\n",
-					"    ,tl.lms_location_description as lms_activity_location\r\n",
-					"    ,sum(p.lms_parcel_weight) as lms_activity_aggrweight\r\n",
-					"    ,sum(p.lms_parcel_chargeweight) as lms_activity_aggrchargeweight\r\n",
-					"    ,sum(p.lms_parcel_volweight) as lms_activity_aggrvolweight\r\n",
-					"    ,sum(p.lms_parcel_volumiserweight) as lms_activity_aggrvolumiserweight\r\n",
-					"    ,sum(greatest(p.lms_parcel_weight,p.lms_parcel_chargeweight,p.lms_parcel_volweight,p.lms_parcel_volumiserweight)) as lms_activity_aggrmaxweight\r\n",
-					"    ,count(p.lms_parcel_id) as lms_activity_aggrnoparcels\r\n",
-					"    ,sum(CASE\r\n",
-					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_weight\r\n",
-					"            ELSE 0 \r\n",
-					"        END) as lms_activity_aggrweightexclspecdel\r\n",
-					"    ,sum(CASE\r\n",
-					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_chargeweight\r\n",
-					"            ELSE 0 \r\n",
-					"        END) as lms_activity_aggrchargeweightexclspecdel\r\n",
-					"    ,sum(CASE\r\n",
-					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_volweight\r\n",
-					"            ELSE 0 \r\n",
-					"        END) as lms_activity_aggrvolweightexclspecdel\r\n",
-					"    ,sum(CASE\r\n",
-					"            WHEN o.lms_order_specdel = 0 THEN lms_parcel_volumiserweight\r\n",
-					"            ELSE 0 \r\n",
-					"        END) as lms_activity_aggrvolumiserweightexclspecdel\r\n",
-					"\r\n",
-					"    ,sum(CASE\r\n",
-					"            WHEN o.lms_order_specdel = 0 THEN greatest(p.lms_parcel_weight,p.lms_parcel_chargeweight,p.lms_parcel_volweight,p.lms_parcel_volumiserweight)\r\n",
-					"            ELSE 0 \r\n",
-					"        END) as lms_activity_aggrmaxweightexclspecdel\r\n",
-					"\r\n",
-					"    ,sum(CASE\r\n",
-					"            WHEN o.lms_order_specdel = 0 THEN 1\r\n",
-					"            ELSE 0 \r\n",
-					"        END) as lms_activity_aggrnoparcelsexclspecdel\r\n",
-					"\r\n",
-					"\r\n",
-					"FROM stlmstrack t\r\n",
-					"LEFT JOIN stparcel p on p.lms_parcel_id = t.lms_track_parcelid\r\n",
-					"LEFT JOIN stloadchild lc on lc.lms_loadchild_id = t.lms_track_loadid\r\n",
-					"LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
-					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id = p.lms_parcel_orderbillcustid\r\n",
-					"LEFT JOIN stdeliverypickupcustomer dpc on dpc.lms_customer_id = p.lms_parcel_orderdelivercustid\r\n",
-					"LEFT JOIN stlocation fl on fl.lms_location_id = t.lms_track_fromlocid\r\n",
-					"LEFT JOIN stlocation tl on tl.lms_location_id = t.lms_track_tolocid\r\n",
-					"\r\n",
-					"WHERE t.lms_track_tracktypeid in (2)\r\n",
-					"AND to_date(t.lms_track_closedt,'yyyy-MM-dd') >= '2016-04-01'\r\n",
-					"\r\n",
-					"GROUP BY\r\n",
-					"     lc.lms_loadchild_id\r\n",
-					"    ,to_date(t.lms_track_closedt,'yyyy-MM-dd')\r\n",
-					"    ,p.lms_parcel_orderbillcustid\r\n",
-					"    ,bc.lms_customer_name\r\n",
-					"    ,p.lms_parcel_orderdelivercustid\r\n",
-					"    ,dpc.lms_customer_name\r\n",
-					"    ,lc.lms_loadchild_masterloadid\r\n",
-					"    ,fl.lms_location_description\r\n",
-					"    ,tl.lms_location_description\r\n",
-					"    ,t.lms_track_tracktypeid\r\n",
-					"    ,o.lms_order_specdel\r\n",
-					""
-				],
-				"execution_count": 9
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"stactivityhandled_tmp2 = spark.sql(\"SELECT * FROM stactivityhandled_tmp2\")"
-				],
-				"execution_count": 10
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"stactivityhandled_tmp3 = stactivityhandled_tmp1.unionByName(stactivityhandled_tmp2, allowMissingColumns = True)\r\n",
-					"stactivityhandled_tmp3.createOrReplaceTempView(\"stactivityhandled_tmp3\")"
-				],
-				"execution_count": 11
+				"execution_count": 78
 			},
 			{
 				"cell_type": "code",
@@ -1206,12 +1068,12 @@
 					"    ,t1.lms_activity_aggrnoparcelsexclspecdel\r\n",
 					"\r\n",
 					"\r\n",
-					"FROM stactivityhandled_tmp3 t1\r\n",
+					"FROM stactivityhandled_tmp1 t1\r\n",
 					"\r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 12
+				"execution_count": 79
 			},
 			{
 				"cell_type": "code",
@@ -1229,7 +1091,7 @@
 				"source": [
 					"stactivityhandled = spark.sql(\"SELECT * FROM stactivityhandled\")"
 				],
-				"execution_count": 13
+				"execution_count": 80
 			},
 			{
 				"cell_type": "code",
@@ -1266,7 +1128,7 @@
 					"stactivitydetail = stactivityhandled.unionByName(stactivityconsignedto, allowMissingColumns = True)\r\n",
 					"stactivitydetail.createOrReplaceTempView(\"stactivitydetail\")"
 				],
-				"execution_count": 14
+				"execution_count": 81
 			},
 			{
 				"cell_type": "code",
@@ -1284,7 +1146,7 @@
 				"source": [
 					"# stactivitydetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stactivitydetail.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 15
+				"execution_count": 83
 			},
 			{
 				"cell_type": "code",
@@ -1335,7 +1197,7 @@
 					",lms_activity_billcustname\r\n",
 					""
 				],
-				"execution_count": 17
+				"execution_count": 88
 			},
 			{
 				"cell_type": "code",
@@ -1353,7 +1215,7 @@
 				"source": [
 					"stactivitysummary = spark.sql(\"SELECT * FROM stactivitysummary\")"
 				],
-				"execution_count": 18
+				"execution_count": 85
 			},
 			{
 				"cell_type": "code",
@@ -1371,7 +1233,7 @@
 				"source": [
 					"# stactivitysummary.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stactivitysummary.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 19
+				"execution_count": 86
 			},
 			{
 				"cell_type": "code",
@@ -1389,7 +1251,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 20
+				"execution_count": 92
 			}
 		]
 	}

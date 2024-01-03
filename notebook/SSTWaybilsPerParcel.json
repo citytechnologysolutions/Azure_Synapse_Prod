@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "7e939866-290b-42f4-b851-98f5cd3296f7"
+				"spark.autotune.trackingId": "16d8614c-6ad5-4594-bbed-803f0a809615"
 			}
 		},
 		"metadata": {
@@ -80,7 +80,7 @@
 					"# # ' + StorageAccount + '\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -102,7 +102,7 @@
 					"# dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -136,7 +136,7 @@
 					"    w.waybillid\r\n",
 					"FROM dbowaybillsperparcel w"
 				],
-				"execution_count": 11
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -161,33 +161,14 @@
 					"sstwaybillsperparcel\r\n",
 					"AS\r\n",
 					"SELECT DISTINCT\r\n",
-					"    c.id as lms_waybillsperparcel_id,\r\n",
-					"    a.parcelid as lms_waybillsperparcel_parcelid,\r\n",
-					"    a.waybillid as lms_waybillsperparcel_waybillid,\r\n",
-					"    b.loadid as lms_waybillsperparcel_loadid,\r\n",
-					"    c.rdate as lms_waybillsperparcel_rdate,\r\n",
-					"    c.returnedflag as lms_waybillsperparcel_returnedflag,\r\n",
-					"    -- c.orv_deliverydatetime as lms_waybillsperparcel_orvdeliverydate,\r\n",
-					"    -- c.orv_db_reasondetailid as lms_waybillsperparcel_orvreasondetailid,\r\n",
-					"    c.door_userid as lms_waybillsperparcel_dooruserid,\r\n",
-					"    c.door_deliverydatetime as lms_waybillsperparcel_doordeliverydate,\r\n",
-					"    c.stationid as lms_waybillsperparcel_stationid,\r\n",
-					"    c.door_db_reasondetailid as lms_waybillsperparcel_doorreasondetailid,\r\n",
-					"    c.door_comment as lms_waybillsperparcel_doorcomment,\r\n",
-					"    c.debrief_userid as lms_waybillsperparcel_debriefuserid,\r\n",
-					"    c.debrief_deliverydatetime as lms_waybillsperparcel_debriefdeliverydate,\r\n",
-					"    c.debrief_comment as lms_waybillsperparcel_debriefcomment,\r\n",
-					"    c.debrief_db_reasondetailid as lms_waybillsperparcel_debriefreasondetailid,\r\n",
-					"    c.reasonupdates as lms_waybillsperparcel_reasonupdates,\r\n",
-					"    c.callprogid as lms_waybillsperparcel_callprogid\r\n",
-					"\r\n",
-					"\r\n",
+					"    parcelid as lms_waybillsperparcel_parcelid,\r\n",
+					"    waybillid as lms_waybillsperparcel_waybillid,\r\n",
+					"    b.loadid as lms_waybillsperparcel_loadid\r\n",
 					"FROM sstwaybillsperparcelunion_tmp1 a\r\n",
 					"LEFT JOIN dbowaybill b on b.id = a.waybillid\r\n",
-					"LEFT JOIN dbowaybillsperparcel c on c.waybillid = a.waybillid\r\n",
 					""
 				],
-				"execution_count": 12
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -205,7 +186,7 @@
 				"source": [
 					"sstwaybillsperparcel = spark.sql(\"SELECT * FROM sstwaybillsperparcel\")"
 				],
-				"execution_count": 13
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -223,7 +204,7 @@
 				"source": [
 					"# sstwaybillsperparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstwaybillsperparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 14
+				"execution_count": 5
 			}
 		]
 	}

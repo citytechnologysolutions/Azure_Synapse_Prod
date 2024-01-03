@@ -2,7 +2,7 @@
 	"name": "T_STParcel_CY3Month",
 	"properties": {
 		"folder": {
-			"name": "Archive/Structured Views/Ops/Distribution"
+			"name": "Structured Views/Ops/Distribution"
 		},
 		"content": {
 			"query": "IF EXISTS ( SELECT * FROM sys.views WHERE object_id = OBJECT_ID('dbo.T_STParcel_CY3Month') )\n    DROP VIEW dbo.T_STParcel_CY3Month\nGO\n\nCREATE VIEW [dbo].[T_STParcel_CY3Month]\nAS \n\nSELECT \n* \nFROM dbo.T_STParcel\nWHERE lms_parcel_pdate >= DATEADD(m,-3, DATEADD(mm, DATEDIFF(m,0,GETDATE()),0))\nAND lms_parcel_pdate <= DATEADD(nanosecond,-50,DATEADD(d,1,CAST(CAST(GETDATE() AS DATE) AS DATETIME2(7))))\n\n\n",

@@ -11,16 +11,16 @@
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "28g",
-			"driverCores": 4,
-			"executorMemory": "28g",
-			"executorCores": 4,
+			"driverMemory": "56g",
+			"driverCores": 8,
+			"executorMemory": "56g",
+			"executorCores": 8,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "0130ba52-e8b8-48c9-9353-90bc5417455c"
+				"spark.autotune.trackingId": "e7ef518e-66b6-47b7-aef3-3ed477e25733"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-				"name": "DevSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+				"name": "PRDSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.2",
+				"sparkVersion": "3.3",
 				"nodeCount": 10,
-				"cores": 4,
-				"memory": 28,
+				"cores": 8,
+				"memory": 56,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -138,7 +138,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -157,7 +157,7 @@
 					"# from pyspark.sql.functions import *\r\n",
 					"# from pyspark.sql.window import Window"
 				],
-				"execution_count": 3
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -226,9 +226,9 @@
 					"\r\n",
 					"    ,CASE \r\n",
 					"        WHEN sum(lms_sroute_localflag) is null THEN 'Linehaul'\r\n",
-					"        WHEN sum(lms_sroute_localflag) = 0 THEN 'Outlying'\r\n",
+					"        WHEN sum(lms_sroute_localflag) = 0 THEN 'Outlaying'\r\n",
 					"        WHEN sum(lms_sroute_localflag)/count(lms_sroute_localflag) = 1 THEN 'Local'\r\n",
-					"        WHEN sum(lms_sroute_localflag)/count(lms_sroute_localflag) = 2 THEN 'Cross Border'\r\n",
+					"        WHEN sum(lms_sroute_localflag)/count(lms_sroute_localflag) = 2 THEN 'Cross Boarder'\r\n",
 					"        ELSE 'Mixed'   \r\n",
 					"    END as lms_loadchild_type\r\n",
 					"\r\n",
@@ -240,7 +240,7 @@
 					"\r\n",
 					"GROUP BY lms_track_loadparenetloadid"
 				],
-				"execution_count": 5
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -258,7 +258,7 @@
 				"source": [
 					"stlmstrack_tmp = spark.sql(\"SELECT * FROM stlmstrack_tmp\")"
 				],
-				"execution_count": 6
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -323,7 +323,7 @@
 					"    ,lc2.lms_loadchild_ttypeid\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -341,7 +341,7 @@
 				"source": [
 					"stloadparent_tmp = spark.sql(\"SELECT * FROM stloadparent_tmp\")"
 				],
-				"execution_count": 8
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -505,7 +505,7 @@
 					"        ELSE 0\r\n",
 					"    END AS orv_dispatch_latedepotexitflag\r\n",
 					"    ,CASE\r\n",
-					"        WHEN (x.timeduebackatdepot + 1800) > coalesce(d.tsstopdepoenter,d.tsstopdepoenterapp) THEN 1\r\n",
+					"        WHEN (x.timeduebackatdepot + 1800) > coalesce(d.tsstopdepoenterapp,d.tsstopdepoenterapp) THEN 1\r\n",
 					"        ELSE 0\r\n",
 					"    END AS orv_dispatch_latedepotenterflag\r\n",
 					"    ,CASE\r\n",
@@ -513,14 +513,11 @@
 					"        ELSE 0\r\n",
 					"    END AS orv_dispatch_latedepotexitflagnull\r\n",
 					"    ,CASE\r\n",
-					"        WHEN coalesce(x.timeduebackatdepot,coalesce(d.tsstopdepoenter,d.tsstopdepoenterapp)) IS NULL THEN 1\r\n",
+					"        WHEN coalesce(x.timeduebackatdepot,coalesce(d.tsstopdepoenterapp,d.tsstopdepoenterapp)) IS NULL THEN 1\r\n",
 					"        ELSE 0\r\n",
 					"    END AS orv_dispatch_latedepotenterflagnull\r\n",
 					"    ,c.cexternal as orv_dispatch_cexternal\r\n",
-					"    ,CASE\r\n",
-					"        WHEN d.stopdate > (coalesce(d.tsstopdepoenter,d.tsstopdepoenterapp) + 900) THEN 1\r\n",
-					"        ELSE 0\r\n",
-					"    END AS orv_dispatch_latestopdateflag\r\n",
+					"    \r\n",
 					"\r\n",
 					"FROM stloadparent_tmp t\r\n",
 					"LEFT JOIN publicdispatch d on d.lmsid = t.lms_loadchild_parentloadid and d.vehicletype = 6 and d.rn = 1\r\n",
@@ -529,7 +526,7 @@
 					"LEFT JOIN publiccourier c on d.courierid = c.id\r\n",
 					""
 				],
-				"execution_count": 10
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -547,7 +544,7 @@
 				"source": [
 					"stloadparent = spark.sql(\"SELECT * FROM stloadparent\")"
 				],
-				"execution_count": 11
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -563,9 +560,9 @@
 					}
 				},
 				"source": [
-					"stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
+					"# stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 12
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",

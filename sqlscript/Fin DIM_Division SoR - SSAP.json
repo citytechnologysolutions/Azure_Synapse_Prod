@@ -1,0 +1,20 @@
+{
+	"name": "Fin DIM_Division SoR - SSAP",
+	"properties": {
+		"folder": {
+			"name": "Archive/Old Notebooks"
+		},
+		"content": {
+			"query": "DROP EXTERNAL TABLE DIM_Division;\n\nCREATE EXTERNAL TABLE DIM_Division (\n\t[RESTRICTDIVISION] nvarchar(4000),\n\t[DIVISION] nvarchar(4000)\n\t)\n\tWITH (\n\tLOCATION = 'DataLake/Structured/Dimensions/DIM_DIVISION.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\nSELECT TOP 100 * FROM dbo.DIM_Division\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "T_STParcelDamagedAudit_3MYoY",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STParcelDamagedAudit_3MYoY') )\n    DROP EXTERNAL TABLE dbo.T_STParcelDamagedAudit_3MYoY\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STParcelDamagedAudit_3MYoY (\n[lms_damagedparcelaudit_id] int,\n[lms_damagedparcelaudit_parcelid] int,\n[lms_damagedparcelaudit_userid] int,\n[lms_damagedparcelaudit_auditdatetime] datetime2(7),\n[lms_damagedparcelaudit_locid] int,\n[lms_damagedparcelaudit_loadid] int,\n[lms_damagedparcelaudit_quantity] int,\n[lms_damagedparcelaudit_flutemeasure] numeric(18,2),\n[lms_damagedparcelaudit_weight] numeric(18,2),\n[lms_damagedparcelaudit_length] numeric(18,2),\n[lms_damagedparcelaudit_width] numeric(18,2),\n[lms_damagedparcelaudit_height] numeric(18,2),\n[lms_damagedparcelaudit_shrinkwrap] int,\n[lms_damagedparcelaudit_tapeusedid] int,\n[lms_damagedparcelaudit_missing] int,\n[lms_damagedparcelaudit_damaged] int,\n[lms_damagedparcelaudit_parcelutilization] int,\n[lms_damagedparcelaudit_damagetypeid] int,\n[lms_damagedparcelaudit_typeid] int,\n[lms_parcel_orderdelivercustid] int,\n[lms_parcel_orderbillcustid] int,\n[lms_location_description] nvarchar(4000),\n[lms_damagedparcelaudittype_description] nvarchar(4000),\n[lms_damagedparcelaudittapetype_description] nvarchar(4000)\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stdamagedparcelaudit3myoy.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STParcelDamagedAudit_3MYoY\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

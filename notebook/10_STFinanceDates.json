@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4c8cff45-3e72-4847-8af8-7e7a3e8b7096"
+				"spark.autotune.trackingId": "9b611844-96c7-4605-982f-e93ff4a21abe"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 29
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
@@ -99,7 +99,7 @@
 					"# sttransactionssummary = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet', format='parquet')\r\n",
 					"# sttransactionssummary.createOrReplaceTempView(\"sttransactionssummary\")"
 				],
-				"execution_count": 30
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -117,7 +117,7 @@
 				"source": [
 					"endDateDF = spark.sql(\"SELECT max(sap_transactionsheader_postingdate) as enddate FROM sttransactionssummary\")"
 				],
-				"execution_count": 31
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -135,7 +135,7 @@
 				"source": [
 					"endDate = endDateDF.first()['enddate']"
 				],
-				"execution_count": 32
+				"execution_count": 52
 			},
 			{
 				"cell_type": "code",
@@ -159,7 +159,7 @@
 					"  spark.sql(f\"select explode(sequence(to_date('{beginDate}'), to_date('{endDate}'), interval 1 day)) as calendarDate\").createOrReplaceTempView('dates')\r\n",
 					")"
 				],
-				"execution_count": 33
+				"execution_count": 53
 			},
 			{
 				"cell_type": "code",
@@ -231,7 +231,9 @@
 					"    when month(calendarDate) = 3 then 12\r\n",
 					"    else 0\r\n",
 					"  end as fiscal_month_sort,\r\n",
-					"  month(calendarDate) as actual_month_sort\r\n",
+					"  month(calendarDate) as actual_month_sort,\r\n",
+					"  weekofyear(date_add(calendarDate, -1)) as actual_week_of_year_sun,\r\n",
+					"  dayofweek(date_add(calendarDate, -1)) as actual_day_of_week_sun\r\n",
 					"\r\n",
 					"from\r\n",
 					"  dates\r\n",
@@ -254,7 +256,7 @@
 					"  end,calendarDate  asc\r\n",
 					""
 				],
-				"execution_count": 34
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
@@ -272,7 +274,7 @@
 				"source": [
 					"stfinancedates = spark.sql(\"SELECT * FROM stfinancedates\")"
 				],
-				"execution_count": 35
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -290,7 +292,7 @@
 				"source": [
 					"# stfinancedates.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stfinancedates.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 36
+				"execution_count": 56
 			}
 		]
 	}

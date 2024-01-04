@@ -1,0 +1,20 @@
+{
+	"name": "F_CTS_O_DispatchMonthTotals - FSTOPS",
+	"properties": {
+		"folder": {
+			"name": "Archive/Old Notebooks"
+		},
+		"content": {
+			"query": "IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name = 'SynapseParquetFormat') \n\tCREATE EXTERNAL FILE FORMAT [SynapseParquetFormat] \n\tWITH ( FORMAT_TYPE = PARQUET)\nGO\n\nIF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'synapse_citylogisticsstorage_dfs_core_windows_net') \n\tCREATE EXTERNAL DATA SOURCE [synapse_citylogisticsstorage_dfs_core_windows_net] \n\tWITH (\n\t\tLOCATION = 'abfss://synapse@citylogisticsstorage.dfs.core.windows.net' \n\t)\nGO\n\nCREATE EXTERNAL TABLE F_CTS_O_DispatchMonthTotals (\n\t[dispatch.did] bigint,\n\t[dispatch.id] bigint,\n\t[dispatch.lmsid] bigint,\n\t[dispatch.distance] bigint,\n\t[dispatch.duration] bigint,\n\t[dispatch.expdistance] bigint,\n\t[dispatch.expduration] bigint,\n\t[dispatch.vehicletype] int,\n\t[Vehicle_Type] nvarchar(4000),\n\t[NUM_Delivery] bigint,\n\t[dispatch_id] bigint,\n\t[delivery_deliverydate] date,\n\t[NUM_Parcels] bigint,\n\t[delivery_status] nvarchar(4000)\n\t)\n\tWITH (\n\tLOCATION = 'DataLake/Structured/Facts/CTS/F_CTS_O_DispatchMonthTotals.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_CTS_O_DispatchMonthTotals\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "FSTOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

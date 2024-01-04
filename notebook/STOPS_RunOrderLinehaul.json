@@ -44,8 +44,8 @@
 				},
 				"sparkVersion": "3.3",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -126,7 +126,8 @@
 					"\r\n",
 					"#Create DataFrame for the dbolhbookingspertrip TMS Table\r\n",
 					"dbolhbookingspertrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolh_bookingspertrip.parquet', format='parquet')\r\n",
-					"dbolhbookingspertrip.createOrReplaceTempView(\"dbolhbookingspertrip\")"
+					"dbolhbookingspertrip.createOrReplaceTempView(\"dbolhbookingspertrip\")\r\n",
+					""
 				],
 				"execution_count": 3
 			},
@@ -502,7 +503,7 @@
 					"publicbooking.createOrReplaceTempView(\"publicbooking\")\r\n",
 					""
 				],
-				"execution_count": 18
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -521,7 +522,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/06_LH_STLinehaulDimensions"
 				],
-				"execution_count": 19
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -554,7 +555,7 @@
 					"stlmsparcelweights.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmsparcelweights.parquet', mode = \"overwrite\")\r\n",
 					"stlmsbookingweights.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmsbookingweights.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 20
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -574,7 +575,7 @@
 					"publictrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publictrack.parquet', format='parquet')\r\n",
 					"publictrack.createOrReplaceTempView(\"publictrack\")"
 				],
-				"execution_count": 21
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -593,7 +594,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/07_LH_STTMSTrack"
 				],
-				"execution_count": 22
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -611,7 +612,7 @@
 				"source": [
 					"sttmstrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttmstrack.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 23
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -674,9 +675,16 @@
 					"#Create DataFrame for the dbopeoplebasic MD Table\r\n",
 					"dbopeoplebasic = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbopeoplebasic.parquet', format='parquet')\r\n",
 					"dbopeoplebasic.createOrReplaceTempView(\"dbopeoplebasic\")\r\n",
-					""
+					"\r\n",
+					"#Create DataFrame for the stbooking TMS Table\r\n",
+					"stbooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', format='parquet')\r\n",
+					"stbooking.createOrReplaceTempView(\"stbooking\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the publictrack TMS Table\r\n",
+					"publictrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publictrack.parquet', format='parquet')\r\n",
+					"publictrack.createOrReplaceTempView(\"publictrack\")"
 				],
-				"execution_count": 24
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -695,7 +703,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/08_LH_STTrip"
 				],
-				"execution_count": 25
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -713,7 +721,7 @@
 				"source": [
 					"sttrip.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 26
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -733,7 +741,7 @@
 					"publictriptrackinghistory = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publictriptrackinghistory.parquet', format='parquet')\r\n",
 					"publictriptrackinghistory.createOrReplaceTempView(\"publictriptrackinghistory\")"
 				],
-				"execution_count": 27
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -752,7 +760,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Ops/Linehaul/09_LH_STTripTrackingHistory"
 				],
-				"execution_count": 28
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -770,7 +778,7 @@
 				"source": [
 					"sttriptrackinghistory.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttriptrackinghistory.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 29
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -788,7 +796,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 30
+				"execution_count": 31
 			}
 		]
 	}

@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "ApacheSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "9e893b2a-8f03-4187-a320-8942e9c122d1"
+				"spark.autotune.trackingId": "a753c177-7c6f-4855-b1ca-e2f130643347"
 			}
 		},
 		"metadata": {
@@ -34,19 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.1",
 				"nodeCount": 10,
 				"cores": 8,
 				"memory": 56,
-				"automaticScaleJobs": false
+				"automaticScaleJobs": true
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -172,20 +172,29 @@
 					"for i in range(len(columns7)):dboorder=dboorder.withColumnRenamed(columns7[i],'v1'+ columns7[i])\r\n",
 					"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the dboparcel LMS Table\r\n",
-					"dboparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
-					"columns11=dboparcel.columns\r\n",
-					"for i in range(len(columns11)):dboparcel=dboparcel.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
-					"dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"# #Create DataFrame for the dboparcel LMS Table\r\n",
+					"# dboparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
+					"# columns11=dboparcel.columns\r\n",
+					"# for i in range(len(columns11)):dboparcel=dboparcel.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
+					"# dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the dbotrack LMS Table\r\n",
-					"dbotrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
-					"columns12=dbotrack.columns\r\n",
-					"for i in range(len(columns12)):dbotrack=dbotrack.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
-					"dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"#Create DataFrame for the sstparcelunion LMS Table\r\n",
+					"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"columns11=sstparcelunion.columns\r\n",
+					"for i in range(len(columns11)):sstparcelunion=sstparcelunion.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
+					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the dbotrack LMS Table\r\n",
+					"# dbotrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
+					"# columns12=dbotrack.columns\r\n",
+					"# for i in range(len(columns12)):dbotrack=dbotrack.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
+					"# dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
 					"\r\n",
-					""
+					"#Create DataFrame for the ssttrackunion LMS Table\r\n",
+					"ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
+					"columns12=ssttrackunion.columns\r\n",
+					"for i in range(len(columns12)):ssttrackunion=ssttrackunion.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
+					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")"
 				],
 				"execution_count": 3
 			},
@@ -206,7 +215,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Ops/LMSv1v2Recon/01_LMSv1v2Recon_ETL"
 				],
-				"execution_count": 4
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -227,10 +236,10 @@
 					"reconorder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconorder.parquet', mode = \"overwrite\")\r\n",
 					"reconconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconconsignment.parquet', mode = \"overwrite\")\r\n",
 					"reconloads.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconloads.parquet', mode = \"overwrite\")\r\n",
-					"recontrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/recontrack.parquet', mode = \"overwrite\")\r\n",
-					"reconmovement.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconmovement.parquet', mode = \"overwrite\")"
+					"recontrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconparcel.parquet', mode = \"overwrite\")\r\n",
+					"reconmovement.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 8
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -247,24 +256,6 @@
 				},
 				"source": [
 					"print(\"SUCCESS\")"
-				],
-				"execution_count": 9
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					""
 				],
 				"execution_count": null
 			}

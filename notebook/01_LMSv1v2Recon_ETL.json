@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "747902b4-48e3-455f-9a70-e35538568e0c"
+				"spark.autotune.trackingId": "7e10099a-8da1-43c0-b279-b7d5b0451aa8"
 			}
 		},
 		"metadata": {
@@ -178,11 +178,23 @@
 					"# for i in range(len(columns11)):dboparcel=dboparcel.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
 					"# dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
 					"\r\n",
+					"#Create DataFrame for the sstparcelunion LMS Table\r\n",
+					"# sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"# columns11=sstparcelunion.columns\r\n",
+					"# for i in range(len(columns11)):sstparcelunion=sstparcelunion.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
+					"# sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+					"\r\n",
 					"# #Create DataFrame for the dbotrack LMS Table\r\n",
 					"# dbotrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
 					"# columns12=dbotrack.columns\r\n",
 					"# for i in range(len(columns12)):dbotrack=dbotrack.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
 					"# dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the ssttrackunion LMS Table\r\n",
+					"# ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
+					"# columns12=ssttrackunion.columns\r\n",
+					"# for i in range(len(columns12)):ssttrackunion=ssttrackunion.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
+					"# ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
 					"\r\n",
 					"\r\n",
 					""
@@ -229,7 +241,7 @@
 					"    ,v1consignid\r\n",
 					"    ,v1waybillid\r\n",
 					"    ,v1orderid\r\n",
-					"FROM dboparcel p\r\n",
+					"FROM sstparcelunion p\r\n",
 					"WHERE  COALESCE(p.v1acceptancedate,p.v1handoverdate)>='2023-01-01'"
 				],
 				"execution_count": 9
@@ -656,20 +668,20 @@
 					"AS\r\n",
 					"SELECT p.v1id\r\n",
 					"FROM reconwaybill w\r\n",
-					"LEFT JOIN dboparcel p on p.v1waybillid = w.v1id \r\n",
+					"LEFT JOIN sstparcelunion p on p.v1waybillid = w.v1id \r\n",
 					"\r\n",
 					"\r\n",
 					"UNION \r\n",
 					"\r\n",
 					"SELECT p.v1id\r\n",
 					"FROM reconconsignment c\r\n",
-					"LEFT JOIN dboparcel p on p.v1consignid = c.v1id \r\n",
+					"LEFT JOIN sstparcelunion p on p.v1consignid = c.v1id \r\n",
 					"\r\n",
 					"UNION \r\n",
 					"\r\n",
 					"SELECT p.v1id\r\n",
 					"FROM reconorder o\r\n",
-					"LEFT JOIN dboparcel p on p.v1orderid = o.v1id "
+					"LEFT JOIN sstparcelunion p on p.v1orderid = o.v1id "
 				],
 				"execution_count": 25
 			},
@@ -717,7 +729,7 @@
 					"    p.*\r\n",
 					"    ,p2.*\r\n",
 					"FROM reconparcel_tmp1 t\r\n",
-					"LEFT JOIN dboparcel p on p.v1id = t.v1id\r\n",
+					"LEFT JOIN sstparcelunion p on p.v1id = t.v1id\r\n",
 					"LEFT JOIN v2parcel p2 on p2.v2legacyid = p.v1id\r\n",
 					""
 				],
@@ -779,7 +791,7 @@
 					"SELECT \r\n",
 					"     t.v1id\r\n",
 					"    ,t.v1loadid\r\n",
-					"FROM dbotrack t\r\n",
+					"FROM ssttrackunion t\r\n",
 					"WHERE t.v1opendt >='2023-01-01'\r\n",
 					"\r\n",
 					"UNION \r\n",
@@ -788,7 +800,7 @@
 					"     t.v1id\r\n",
 					"    ,t.v1loadid\r\n",
 					"FROM reconparcel p\r\n",
-					"LEFT JOIN dbotrack t on t.v1parcelid = p.v1id"
+					"LEFT JOIN ssttrackunion t on t.v1parcelid = p.v1id"
 				],
 				"execution_count": 30
 			},
@@ -970,7 +982,7 @@
 					"    t.v1id\r\n",
 					"\r\n",
 					"FROM reconloads l\r\n",
-					"LEFT JOIN dbotrack t on t.v1loadid = l.v1id"
+					"LEFT JOIN ssttrackunion t on t.v1loadid = l.v1id"
 				],
 				"execution_count": 38
 			},
@@ -1023,7 +1035,7 @@
 					"    END as notinv2\r\n",
 					"\r\n",
 					"FROM recontrack_tmp2 t1\r\n",
-					"LEFT JOIN dbotrack t2 on t2.v1id = t1.v1id\r\n",
+					"LEFT JOIN ssttrackunion t2 on t2.v1id = t1.v1id\r\n",
 					"LEFT JOIN v2track t3 on t3.v2legacyid = t1.v1id"
 				],
 				"execution_count": 40

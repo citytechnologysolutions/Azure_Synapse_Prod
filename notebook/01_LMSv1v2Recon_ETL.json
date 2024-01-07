@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "ApacheSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -15,12 +15,12 @@
 			"driverCores": 8,
 			"executorMemory": "56g",
 			"executorCores": 8,
-			"numExecutors": 2,
+			"numExecutors": 1,
 			"conf": {
-				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "2",
-				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "4ba98016-4524-4c6f-98c8-effbaea80fe9"
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "031476e5-3898-4ddc-8397-3fa92bf69ef0"
 			}
 		},
 		"metadata": {
@@ -34,19 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.1",
 				"nodeCount": 10,
 				"cores": 8,
 				"memory": 56,
-				"automaticScaleJobs": false
+				"automaticScaleJobs": true
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 6
+				"execution_count": 48
 			},
 			{
 				"cell_type": "code",
@@ -87,7 +87,7 @@
 					"# from pyspark.sql import functions as F\r\n",
 					"# from pyspark.sql import DataFrame"
 				],
-				"execution_count": 7
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
@@ -178,7 +178,7 @@
 					"# for i in range(len(columns11)):dboparcel=dboparcel.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
 					"# dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the sstparcelunion LMS Table\r\n",
+					"# # Create DataFrame for the sstparcelunion LMS Table\r\n",
 					"# sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
 					"# columns11=sstparcelunion.columns\r\n",
 					"# for i in range(len(columns11)):sstparcelunion=sstparcelunion.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
@@ -190,7 +190,7 @@
 					"# for i in range(len(columns12)):dbotrack=dbotrack.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
 					"# dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the ssttrackunion LMS Table\r\n",
+					"# # Create DataFrame for the ssttrackunion LMS Table\r\n",
 					"# ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
 					"# columns12=ssttrackunion.columns\r\n",
 					"# for i in range(len(columns12)):ssttrackunion=ssttrackunion.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
@@ -199,7 +199,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": 50
 			},
 			{
 				"cell_type": "markdown",
@@ -244,7 +244,7 @@
 					"FROM sstparcelunion p\r\n",
 					"WHERE  COALESCE(p.v1acceptancedate,p.v1handoverdate)>='2023-01-01'"
 				],
-				"execution_count": 9
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -262,7 +262,7 @@
 				"source": [
 					"reconparcel_base = spark.sql(\"SELECT * FROM reconparcel_base\")"
 				],
-				"execution_count": 10
+				"execution_count": 52
 			},
 			{
 				"cell_type": "markdown",
@@ -309,7 +309,7 @@
 					"FROM reconparcel_base p\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 53
 			},
 			{
 				"cell_type": "code",
@@ -327,7 +327,7 @@
 				"source": [
 					"reconwaybill_tmp1 = spark.sql(\"SELECT DISTINCT * FROM reconwaybill_tmp1\")"
 				],
-				"execution_count": 12
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
@@ -366,7 +366,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 14
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -384,7 +384,7 @@
 				"source": [
 					"reconwaybill = spark.sql(\"SELECT * FROM reconwaybill\")"
 				],
-				"execution_count": 15
+				"execution_count": 56
 			},
 			{
 				"cell_type": "markdown",
@@ -431,7 +431,7 @@
 					"FROM reconparcel_base p\r\n",
 					""
 				],
-				"execution_count": 16
+				"execution_count": 57
 			},
 			{
 				"cell_type": "code",
@@ -449,7 +449,7 @@
 				"source": [
 					"reconorder_tmp1 = spark.sql(\"SELECT DISTINCT * FROM reconorder_tmp1\")"
 				],
-				"execution_count": 17
+				"execution_count": 58
 			},
 			{
 				"cell_type": "code",
@@ -488,7 +488,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 18
+				"execution_count": 59
 			},
 			{
 				"cell_type": "code",
@@ -506,7 +506,7 @@
 				"source": [
 					"reconorder = spark.sql(\"SELECT * FROM reconorder\")"
 				],
-				"execution_count": 19
+				"execution_count": 60
 			},
 			{
 				"cell_type": "markdown",
@@ -553,7 +553,7 @@
 					"FROM reconparcel_base p\r\n",
 					""
 				],
-				"execution_count": 21
+				"execution_count": 61
 			},
 			{
 				"cell_type": "code",
@@ -571,7 +571,7 @@
 				"source": [
 					"reconconsignment_tmp1 = spark.sql(\"SELECT DISTINCT * FROM reconconsignment_tmp1\")"
 				],
-				"execution_count": 22
+				"execution_count": 62
 			},
 			{
 				"cell_type": "code",
@@ -611,7 +611,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 23
+				"execution_count": 63
 			},
 			{
 				"cell_type": "code",
@@ -629,7 +629,7 @@
 				"source": [
 					"reconconsignment = spark.sql(\"SELECT * FROM reconconsignment\")"
 				],
-				"execution_count": 24
+				"execution_count": 64
 			},
 			{
 				"cell_type": "markdown",
@@ -683,7 +683,7 @@
 					"FROM reconorder o\r\n",
 					"LEFT JOIN sstparcelunion p on p.v1orderid = o.v1id "
 				],
-				"execution_count": 25
+				"execution_count": 65
 			},
 			{
 				"cell_type": "code",
@@ -699,9 +699,9 @@
 					}
 				},
 				"source": [
-					"reconparcel_tmp1 = spark.sql(\"SELECT DISTINCT * FROM reconparcel_tmp1\")"
+					"reconparcel_tmp1 = spark.sql(\"SELECT DISTINCT * FROM reconparcel_tmp1 WHERE v1id is not NULL\")"
 				],
-				"execution_count": 26
+				"execution_count": 66
 			},
 			{
 				"cell_type": "code",
@@ -737,7 +737,7 @@
 					"LEFT JOIN v2parcel p2 on p2.v2legacyid = p.v1id\r\n",
 					""
 				],
-				"execution_count": 27
+				"execution_count": 67
 			},
 			{
 				"cell_type": "code",
@@ -755,7 +755,7 @@
 				"source": [
 					"reconparcel = spark.sql(\"SELECT * FROM reconparcel\")"
 				],
-				"execution_count": 28
+				"execution_count": 68
 			},
 			{
 				"cell_type": "markdown",
@@ -806,7 +806,7 @@
 					"FROM reconparcel p\r\n",
 					"LEFT JOIN ssttrackunion t on t.v1parcelid = p.v1id"
 				],
-				"execution_count": 30
+				"execution_count": 69
 			},
 			{
 				"cell_type": "code",
@@ -824,7 +824,7 @@
 				"source": [
 					"recontrack_tmp1 = spark.sql(\"SELECT DISTINCT * FROM recontrack_tmp1\")"
 				],
-				"execution_count": 31
+				"execution_count": 70
 			},
 			{
 				"cell_type": "code",
@@ -842,7 +842,7 @@
 				"source": [
 					"## COME BACK TO TRACK TO ADD MISSING LOADS"
 				],
-				"execution_count": null
+				"execution_count": 71
 			},
 			{
 				"cell_type": "code",
@@ -878,7 +878,7 @@
 					"FROM recontrack_tmp1 t\r\n",
 					"LEFT JOIN dboloads l on l.v1id = t.v1loadid"
 				],
-				"execution_count": 34
+				"execution_count": 72
 			},
 			{
 				"cell_type": "code",
@@ -896,7 +896,7 @@
 				"source": [
 					"reconloads_tmp1 = spark.sql(\"SELECT DISTINCT * FROM reconloads_tmp1\")"
 				],
-				"execution_count": 35
+				"execution_count": 73
 			},
 			{
 				"cell_type": "code",
@@ -933,7 +933,7 @@
 					"LEFT JOIN dboloads l on l.v1id = t.v1id\r\n",
 					"LEFT JOIN v2manifest m on m.v2legacyid = l.v1id"
 				],
-				"execution_count": 36
+				"execution_count": 74
 			},
 			{
 				"cell_type": "code",
@@ -951,7 +951,7 @@
 				"source": [
 					"reconloads = spark.sql(\"SELECT * FROM reconloads\")"
 				],
-				"execution_count": 37
+				"execution_count": 75
 			},
 			{
 				"cell_type": "code",
@@ -988,7 +988,7 @@
 					"FROM reconloads l\r\n",
 					"LEFT JOIN ssttrackunion t on t.v1loadid = l.v1id"
 				],
-				"execution_count": 38
+				"execution_count": 76
 			},
 			{
 				"cell_type": "code",
@@ -1006,7 +1006,7 @@
 				"source": [
 					"recontrack_tmp2 = spark.sql(\"SELECT DISTINCT * FROM recontrack_tmp2\")"
 				],
-				"execution_count": 39
+				"execution_count": 77
 			},
 			{
 				"cell_type": "code",
@@ -1042,7 +1042,7 @@
 					"LEFT JOIN ssttrackunion t2 on t2.v1id = t1.v1id\r\n",
 					"LEFT JOIN v2track t3 on t3.v2legacyid = t1.v1id"
 				],
-				"execution_count": 40
+				"execution_count": 78
 			},
 			{
 				"cell_type": "code",
@@ -1060,7 +1060,7 @@
 				"source": [
 					"recontrack = spark.sql(\"SELECT  * FROM recontrack\")"
 				],
-				"execution_count": 41
+				"execution_count": 79
 			},
 			{
 				"cell_type": "markdown",
@@ -1101,7 +1101,7 @@
 					"    * \r\n",
 					"FROM v2movement"
 				],
-				"execution_count": 42
+				"execution_count": 80
 			},
 			{
 				"cell_type": "code",
@@ -1119,7 +1119,7 @@
 				"source": [
 					"reconmovement = spark.sql(\"SELECT  * FROM reconmovement\")"
 				],
-				"execution_count": 43
+				"execution_count": 81
 			},
 			{
 				"cell_type": "code",
@@ -1143,7 +1143,7 @@
 					"# recontrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconparcel.parquet', mode = \"overwrite\")\r\n",
 					"# reconmovement.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 45
+				"execution_count": 83
 			}
 		]
 	}

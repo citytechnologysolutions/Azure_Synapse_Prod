@@ -8,7 +8,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "ASP33",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -21,7 +21,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "2dd1f97b-d286-480a-9491-60731ceba505"
+				"spark.autotune.trackingId": "dd8c38fe-a857-44ab-86c3-465ed4b83258"
 			}
 		},
 		"metadata": {
@@ -80,7 +80,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 44
 			},
 			{
 				"cell_type": "code",
@@ -142,7 +142,7 @@
 					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -184,7 +184,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 46
 			},
 			{
 				"cell_type": "code",
@@ -289,8 +289,11 @@
 					"        ELSE 1 \r\n",
 					"    END as lms_parcel_inserviceflag\r\n",
 					"   ,CASE \r\n",
-					"        WHEN pd.id is null then (date(coalesce(c.cdate,coalesce(p.acceptanceDate,p.handoverdate)) + interval '86399 seconds'))\r\n",
-					"        ELSE date((pd.InServiceStart) + interval '86399 seconds')\r\n",
+					"        -- WHEN pd.id is null then (date(coalesce(c.cdate,coalesce(p.acceptanceDate,p.handoverdate)) + interval '86399 seconds'))\r\n",
+					"        -- ELSE date((pd.InServiceStart) + interval '86399 seconds')\r\n",
+					"        WHEN pd.id is null then to_timestamp((cast(to_date(coalesce(c.cdate,coalesce(p.acceptanceDate,p.handoverdate)),'yyyy-MM-dd') as string)||' 23:59:59.997'))\r\n",
+					"        ELSE to_timestamp((cast(to_date(pd.InServiceStart,'yyyy-MM-dd') as string)||' 23:59:59.997'))\r\n",
+					"\r\n",
 					"    END AS lms_parcel_actualleaddaysstartdate\r\n",
 					"    ,coalesce(w.PODDate,CURRENT_TIMESTAMP) AS lms_parcel_actualleaddaysenddate\r\n",
 					"    ,CASE\r\n",
@@ -328,9 +331,10 @@
 					"\r\n",
 					"WHERE  coalesce(p.acceptanceDate,p.handoverdate) IS NOT NULL\r\n",
 					"AND p.locid NOT IN (163,110,213,27)\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": 4
+				"execution_count": 47
 			},
 			{
 				"cell_type": "code",
@@ -363,7 +367,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 5
+				"execution_count": 48
 			},
 			{
 				"cell_type": "code",
@@ -393,7 +397,7 @@
 					"FROM stparcel_tmp2 p\r\n",
 					"LEFT JOIN stparcel_tmp3 p1 on p1.lms_parcel_id = p.lms_parcel_id"
 				],
-				"execution_count": 6
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
@@ -437,7 +441,7 @@
 					"FROM stparcel_tmp4\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -476,7 +480,7 @@
 					"FROM stparcel_tmp5 p\r\n",
 					"LEFT JOIN stvsmparcel v ON v.lms_track_parcelid = p.lms_parcel_id"
 				],
-				"execution_count": 8
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -512,7 +516,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 52
 			},
 			{
 				"cell_type": "code",
@@ -548,7 +552,7 @@
 					"p.lms_parcel_orderid\r\n",
 					""
 				],
-				"execution_count": 10
+				"execution_count": 53
 			},
 			{
 				"cell_type": "code",
@@ -582,7 +586,7 @@
 					"p.lms_parcel_orderid\r\n",
 					",p.lms_parcel_waybillid"
 				],
-				"execution_count": 11
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
@@ -616,7 +620,7 @@
 					"GROUP BY\r\n",
 					"p.lms_parcel_orderid"
 				],
-				"execution_count": 12
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -652,7 +656,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 13
+				"execution_count": 56
 			},
 			{
 				"cell_type": "code",
@@ -670,7 +674,7 @@
 				"source": [
 					"stparcel = spark.sql(\"SELECT * FROM stparcel\")"
 				],
-				"execution_count": 14
+				"execution_count": 57
 			},
 			{
 				"cell_type": "code",
@@ -688,7 +692,7 @@
 				"source": [
 					"# stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 15
+				"execution_count": 58
 			},
 			{
 				"cell_type": "code",
@@ -706,7 +710,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 16
+				"execution_count": 59
 			}
 		]
 	}

@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "ApacheSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,9 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-
-				"spark.autotune.trackingId": "86e0b50d-624b-4215-b08b-30aacce2759d"
-
+				"spark.autotune.trackingId": "7b2d073c-8c9c-400b-8477-9a182eee57c9"
 			}
 		},
 		"metadata": {
@@ -70,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -114,16 +112,15 @@
 					"# stloadchild = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', format='parquet')\r\n",
 					"# stloadchild.createOrReplaceTempView(\"stloadchild\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the stcollection LMS Table\r\n",
-					"stcollection = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stcollection.parquet', format='parquet')\r\n",
-					"stcollection.createOrReplaceTempView(\"stcollection\")\r\n",
+					"# # Create DataFrame for the stcollection LMS Table\r\n",
+					"# stcollection = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stcollection.parquet', format='parquet')\r\n",
+					"# stcollection.createOrReplaceTempView(\"stcollection\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the stdamagedparcelaudit LMS Table\r\n",
-					"stdamagedparcelaudit = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudit.parquet', format='parquet')\r\n",
-					"stdamagedparcelaudit.createOrReplaceTempView(\"stdamagedparcelaudit\")"
-
+					"# # Create DataFrame for the stdamagedparcelaudit LMS Table\r\n",
+					"# stdamagedparcelaudit = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudit.parquet', format='parquet')\r\n",
+					"# stdamagedparcelaudit.createOrReplaceTempView(\"stdamagedparcelaudit\")"
 				],
-				"execution_count": 2
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -143,7 +140,7 @@
 					"# from pyspark.sql import functions as F\r\n",
 					"# my_window = (Window.orderBy('daymonth').rowsBetween(Window.unboundedPreceding, 0))"
 				],
-				"execution_count": 3
+				"execution_count": 10
 			},
 			{
 				"cell_type": "markdown",
@@ -185,19 +182,19 @@
 					"FROM stparcel\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_parcel_pdate >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_parcel_pdate >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_parcel_pdate <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
 					"OR \r\n",
 					"(\r\n",
-					"    lms_parcel_pdate >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_parcel_pdate >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_parcel_pdate <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
 					""
 				],
-				"execution_count": 4
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -215,7 +212,7 @@
 				"source": [
 					"stparcel3myoy = spark.sql(\"SELECT * FROM stparcel3myoy\")"
 				],
-				"execution_count": 5
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -233,7 +230,7 @@
 				"source": [
 					"# stparcel3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 8
+				"execution_count": 32
 			},
 			{
 				"cell_type": "markdown",
@@ -275,18 +272,18 @@
 					"FROM stdamagedparcelaudit\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_damagedparcelaudit_auditdatetime >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_damagedparcelaudit_auditdatetime >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_damagedparcelaudit_auditdatetime <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
 					"OR \r\n",
 					"(\r\n",
-					"    lms_damagedparcelaudit_auditdatetime >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_damagedparcelaudit_auditdatetime >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_damagedparcelaudit_auditdatetime <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")"
 				],
-				"execution_count": 6
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -316,7 +313,7 @@
 					"WHERE lms_parcel_id IS NOT NULL\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -334,7 +331,7 @@
 				"source": [
 					"stdamagedparcelaudit3myoy_tmp3 = spark.sql(\"SELECT * FROM stdamagedparcelaudit3myoy_tmp1 UNION SELECT * FROM stdamagedparcelaudit3myoy_tmp2\")"
 				],
-				"execution_count": 8
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -352,7 +349,7 @@
 				"source": [
 					"stdamagedparcelaudit3myoy_tmp3.createOrReplaceTempView(\"stdamagedparcelaudit3myoy_tmp3\")"
 				],
-				"execution_count": 9
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -382,7 +379,7 @@
 					"LEFT JOIN stdamagedparcelaudit d on d.lms_damagedparcelaudit_parcelid = t.lms_damagedparcelaudit_parcelid\r\n",
 					"WHERE d.lms_damagedparcelaudit_parcelid IS NOT NULL"
 				],
-				"execution_count": 10
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -400,7 +397,7 @@
 				"source": [
 					"stdamagedparcelaudit3myoy = spark.sql(\"SELECT * FROM stdamagedparcelaudit3myoy\")"
 				],
-				"execution_count": 11
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -418,7 +415,7 @@
 				"source": [
 					"# stdamagedparcelaudit3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudit3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 12
+				"execution_count": 15
 			},
 			{
 				"cell_type": "markdown",
@@ -461,19 +458,19 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_consignment_cdate >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_consignment_cdate >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_consignment_cdate <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
 					"OR \r\n",
 					"(\r\n",
-					"    lms_consignment_cdate >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_consignment_cdate >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_consignment_cdate <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -503,7 +500,7 @@
 					"WHERE lms_parcel_consignid IS NOT NULL\r\n",
 					""
 				],
-				"execution_count": 10
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -521,7 +518,7 @@
 				"source": [
 					"stconsignment3myoy_tmp3 = spark.sql(\"SELECT * FROM stconsignment3myoy_tmp1 UNION SELECT * FROM stconsignment3myoy_tmp2\")"
 				],
-				"execution_count": 11
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -539,7 +536,7 @@
 				"source": [
 					"stconsignment3myoy_tmp3.createOrReplaceTempView(\"stconsignment3myoy_tmp3\")"
 				],
-				"execution_count": 12
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -569,7 +566,7 @@
 					"LEFT JOIN stconsignment c on c.lms_consignment_id = t.lms_consignment_id\r\n",
 					"WHERE c.lms_consignment_id IS NOT NULL"
 				],
-				"execution_count": 13
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -587,7 +584,7 @@
 				"source": [
 					"stconsignment3myoy = spark.sql(\"SELECT * FROM stconsignment3myoy\")"
 				],
-				"execution_count": 14
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -605,7 +602,7 @@
 				"source": [
 					"# stconsignment3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stconsignment3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 15
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -647,18 +644,18 @@
 					"FROM stwaybill\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_waybill_date >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_waybill_date >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_waybill_date <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
 					"OR \r\n",
 					"(\r\n",
-					"    lms_waybill_date >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_waybill_date >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_waybill_date <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")"
 				],
-				"execution_count": 16
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -687,7 +684,7 @@
 					"FROM stparcel3myoy\r\n",
 					""
 				],
-				"execution_count": 17
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -705,7 +702,7 @@
 				"source": [
 					"stwaybill3myoy_tmp3 = spark.sql(\"SELECT * FROM stwaybill3myoy_tmp1 UNION SELECT * FROM stwaybill3myoy_tmp2\")"
 				],
-				"execution_count": 18
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -723,7 +720,7 @@
 				"source": [
 					"stwaybill3myoy_tmp3.createOrReplaceTempView(\"stwaybill3myoy_tmp3\")"
 				],
-				"execution_count": 19
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -753,7 +750,7 @@
 					"LEFT JOIN stwaybill w on w.lms_waybill_id = t.lms_waybill_id\r\n",
 					"WHERE w.lms_waybill_id IS NOT NULL"
 				],
-				"execution_count": 20
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -771,7 +768,7 @@
 				"source": [
 					"stwaybill3myoy = spark.sql(\"SELECT * FROM stwaybill3myoy\")"
 				],
-				"execution_count": 21
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -789,7 +786,7 @@
 				"source": [
 					"# stwaybill3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybill3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 22
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -831,18 +828,18 @@
 					"FROM storder\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_order_hodate >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_order_hodate >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_order_hodate <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
 					"OR \r\n",
 					"(\r\n",
-					"    lms_order_hodate >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_order_hodate >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_order_hodate <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")"
 				],
-				"execution_count": 23
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -870,7 +867,7 @@
 					"    lms_parcel_waybillid as lms_waybill_id\r\n",
 					"FROM stparcel3myoy"
 				],
-				"execution_count": 24
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -888,7 +885,7 @@
 				"source": [
 					"storder3myoy_tmp3 = spark.sql(\"SELECT * FROM storder3myoy_tmp1 UNION SELECT * FROM storder3myoy_tmp2\")"
 				],
-				"execution_count": 25
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -906,7 +903,7 @@
 				"source": [
 					"storder3myoy_tmp3.createOrReplaceTempView(\"storder3myoy_tmp3\")"
 				],
-				"execution_count": 26
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -936,7 +933,7 @@
 					"LEFT JOIN storder o on o.lms_order_id = t.lms_order_id\r\n",
 					"WHERE o.lms_order_id IS NOT NULL"
 				],
-				"execution_count": 27
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -954,7 +951,7 @@
 				"source": [
 					"storder3myoy = spark.sql(\"SELECT * FROM storder3myoy\")"
 				],
-				"execution_count": 28
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -972,7 +969,7 @@
 				"source": [
 					"# storder3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/storder3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 29
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -1015,18 +1012,18 @@
 					"FROM stlmstrack\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_track_opendt >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_track_opendt >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_track_opendt <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
 					"OR \r\n",
 					"(\r\n",
-					"    lms_track_opendt >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_track_opendt >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_track_opendt <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")"
 				],
-				"execution_count": 30
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1044,7 +1041,7 @@
 				"source": [
 					"stlmstrack3myoy_tmp = spark.sql(\"SELECT * FROM stlmstrack3myoy_tmp1\")"
 				],
-				"execution_count": 31
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1062,7 +1059,7 @@
 				"source": [
 					"stlmstrack3myoy_tmp.createOrReplaceTempView(\"stlmstrack3myoy_tmp\")"
 				],
-				"execution_count": 32
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1090,7 +1087,7 @@
 					"    lms_parcel_id as lms_track_parcelid\r\n",
 					"FROM stparcel3myoy "
 				],
-				"execution_count": 33
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1108,7 +1105,7 @@
 				"source": [
 					"stlmstrack3myoy_tmp3 = spark.sql(\"SELECT lms_track_parcelid FROM stlmstrack3myoy_tmp1 UNION SELECT * FROM stlmstrack3myoy_tmp2\")"
 				],
-				"execution_count": 34
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1126,7 +1123,7 @@
 				"source": [
 					"stlmstrack3myoy_tmp3.createOrReplaceTempView(\"stlmstrack3myoy_tmp3\")"
 				],
-				"execution_count": 35
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1156,7 +1153,7 @@
 					"LEFT JOIN stlmstrack t on t.lms_track_parcelid = t1.lms_track_parcelid\r\n",
 					""
 				],
-				"execution_count": 36
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1174,7 +1171,7 @@
 				"source": [
 					"stlmstrack3myoy = spark.sql(\"SELECT * FROM stlmstrack3myoy\")"
 				],
-				"execution_count": 37
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1192,7 +1189,7 @@
 				"source": [
 					"# stlmstrack3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 38
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -1235,19 +1232,19 @@
 					"FROM stloadchild\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_loadchild_ldate >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_loadchild_ldate >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_loadchild_ldate <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
 					"OR \r\n",
 					"(\r\n",
-					"    lms_loadchild_ldate >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_loadchild_ldate >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_loadchild_ldate <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
 					""
 				],
-				"execution_count": 39
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1265,7 +1262,7 @@
 				"source": [
 					"stloadchild3myoy_tmp = spark.sql(\"SELECT * FROM stloadchild3myoy_tmp1\")"
 				],
-				"execution_count": 40
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1283,7 +1280,7 @@
 				"source": [
 					"stloadchild3myoy_tmp.createOrReplaceTempView(\"stloadchild3myoy_tmp\")"
 				],
-				"execution_count": 41
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1311,7 +1308,7 @@
 					"    lms_track_loadid as lms_loadchild_id\r\n",
 					"FROM stlmstrack3myoy_tmp"
 				],
-				"execution_count": 42
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1329,7 +1326,7 @@
 				"source": [
 					"stloadchild3myoy_tmp3 = spark.sql(\"SELECT lms_loadchild_id FROM stloadchild3myoy_tmp1 UNION SELECT * FROM stloadchild3myoy_tmp2\")"
 				],
-				"execution_count": 43
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1347,7 +1344,7 @@
 				"source": [
 					"stloadchild3myoy_tmp3.createOrReplaceTempView(\"stloadchild3myoy_tmp3\")"
 				],
-				"execution_count": 44
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1378,7 +1375,7 @@
 					"WHERE lc.lms_loadchild_id IS NOT NULL\r\n",
 					"AND lc.lms_loadchild_ldate IS NOT NULL"
 				],
-				"execution_count": 45
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1396,7 +1393,7 @@
 				"source": [
 					"stloadchild3myoy = spark.sql(\"SELECT * FROM stloadchild3myoy\")"
 				],
-				"execution_count": 46
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1414,7 +1411,7 @@
 				"source": [
 					"# stloadchild3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadchild3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 47
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -1456,7 +1453,7 @@
 					"FROM stloadchild3myoy_tmp \r\n",
 					"WHERE lms_loadchild_parentloadid IS NOT NULL"
 				],
-				"execution_count": 48
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1485,7 +1482,7 @@
 					"FROM stlmstrack3myoy_tmp\r\n",
 					""
 				],
-				"execution_count": 49
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1503,7 +1500,7 @@
 				"source": [
 					"stloadparent3myoy_tmp3 = spark.sql(\"SELECT * FROM stloadparent3myoy_tmp1 UNION SELECT * FROM stloadparent3myoy_tmp2\")"
 				],
-				"execution_count": 50
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1521,7 +1518,7 @@
 				"source": [
 					"stloadparent3myoy_tmp3.createOrReplaceTempView(\"stloadparent3myoy_tmp3\")"
 				],
-				"execution_count": 51
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1551,7 +1548,7 @@
 					"LEFT JOIN stloadparent lp on lp.lms_loadparent_parentloadid = t.lms_loadparent_parentloadid\r\n",
 					"WHERE lp.lms_loadparent_parentloadid IS NOT NULL"
 				],
-				"execution_count": 52
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1569,7 +1566,7 @@
 				"source": [
 					"stloadparent3myoy = spark.sql(\"SELECT * FROM stloadparent3myoy\")"
 				],
-				"execution_count": 53
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1587,7 +1584,7 @@
 				"source": [
 					"# stloadparent3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 54
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1616,18 +1613,18 @@
 					"FROM stcollection\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_collect_date >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_collect_date >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_collect_date <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
 					"OR \r\n",
 					"(\r\n",
-					"    lms_collect_date >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_collect_date >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_collect_date <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")"
 				],
-				"execution_count": 55
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1645,7 +1642,7 @@
 				"source": [
 					"stcollection3myoy = spark.sql(\"SELECT * FROM stcollection3myoy\")"
 				],
-				"execution_count": 56
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1663,7 +1660,7 @@
 				"source": [
 					"# stcollection3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stcollection3myoy.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 57
+				"execution_count": null
 			},
 			{
 				"cell_type": "markdown",
@@ -1715,7 +1712,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_parcel_orderhodate >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_parcel_orderhodate >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_parcel_orderhodate <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
@@ -1823,7 +1820,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_parcel_orderhodate >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_parcel_orderhodate >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_parcel_orderhodate <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
@@ -1929,7 +1926,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_parcel_pdate >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_parcel_pdate >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_parcel_pdate <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
@@ -2036,7 +2033,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_parcel_pdate >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_parcel_pdate >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_parcel_pdate <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
@@ -2141,7 +2138,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_parcel_consignmentcdate >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_parcel_consignmentcdate >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_parcel_consignmentcdate <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
@@ -2247,7 +2244,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_parcel_consignmentcdate >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_parcel_consignmentcdate >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_parcel_consignmentcdate <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
@@ -2350,7 +2347,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_parcel_waybilldate >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_parcel_waybilldate >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_parcel_waybilldate <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
@@ -2450,7 +2447,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_parcel_waybilldate >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_parcel_waybilldate >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_parcel_waybilldate <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
@@ -2550,7 +2547,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_track_opendt >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_track_opendt >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_track_opendt <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
@@ -2651,7 +2648,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_track_opendt >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_track_opendt >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_track_opendt <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
@@ -2752,7 +2749,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_track_opendt >= (to_timestamp(year(current_date())||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_track_opendt >= (to_timestamp(year(add_months(current_date(),-3))||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_track_opendt <= (to_timestamp(year(current_date())||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",
@@ -2853,7 +2850,7 @@
 					"\r\n",
 					"WHERE \r\n",
 					"(\r\n",
-					"    lms_track_opendt >= (to_timestamp((year(current_date())-1)||'-'||(month(current_date())-3)||'-'||'01'))\r\n",
+					"    lms_track_opendt >= (to_timestamp(year(add_months(current_date(),-3))-1||'-'||month(add_months(current_date(),-3))||'-'||'01'))\r\n",
 					"AND \r\n",
 					"    lms_track_opendt <= (to_timestamp(year(current_date())-1||'-'||month(current_date())||'-'||day(current_date())||'T23:59:59'))\r\n",
 					")\r\n",

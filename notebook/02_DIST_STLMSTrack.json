@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "402895da-631e-48de-b7ac-93c13e2dfc5a"
+				"spark.autotune.trackingId": "94e641e6-a5ae-49b5-b7dc-4eb3e445f9d6"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 17
+				"execution_count": 41
 			},
 			{
 				"cell_type": "code",
@@ -106,7 +106,7 @@
 					"# sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
 					""
 				],
-				"execution_count": 18
+				"execution_count": 42
 			},
 			{
 				"cell_type": "code",
@@ -125,7 +125,7 @@
 					"# from pyspark.sql import Window\r\n",
 					"# from pyspark.sql.functions import lag    "
 				],
-				"execution_count": 19
+				"execution_count": 43
 			},
 			{
 				"cell_type": "code",
@@ -144,7 +144,7 @@
 					"windowSpec  = Window.partitionBy(\"parcelid\").orderBy(\"parcelid\",\"id\")\r\n",
 					"ssttrackunion = ssttrackunion.withColumn(\"lag\",lag(\"parcelid\",1).over(windowSpec))"
 				],
-				"execution_count": 20
+				"execution_count": 44
 			},
 			{
 				"cell_type": "code",
@@ -162,7 +162,7 @@
 				"source": [
 					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")"
 				],
-				"execution_count": null
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -191,6 +191,7 @@
 					"t.ID as lms_track_id,\r\n",
 					"t.LoadID as lms_track_loadid,\r\n",
 					"t.ParcelID as lms_track_parcelid,\r\n",
+					"t.LoadID||'_'||t.ParcelID as lms_track_waybillsperparcelkey,\r\n",
 					"t.fromlocid as lms_track_fromlocid,\r\n",
 					"t.tolocid as lms_track_tolocid,\r\n",
 					"t.TrackTypeID as lms_track_tracktypeid,\r\n",
@@ -215,8 +216,6 @@
 					"w.lms_waybillsperparcel_waybillid as lms_track_waybillid,\r\n",
 					"w.lms_waybillsperparcel_rdate as lms_track_rdate,\r\n",
 					"w.lms_waybillsperparcel_returnedflag as lms_track_returnedflag,\r\n",
-					"-- w.lms_waybillsperparcel_orvdeliverydate as lms_track_orvdeliverydate,\r\n",
-					"-- w.lms_waybillsperparcel_orvreasondetailid as lms_track_orvreasondetailid,\r\n",
 					"w.lms_waybillsperparcel_dooruserid as lms_track_dooruserid,\r\n",
 					"w.lms_waybillsperparcel_doordeliverydate as lms_track_doordeliverydate,\r\n",
 					"w.lms_waybillsperparcel_stationid as lms_track_stationid,\r\n",
@@ -229,12 +228,14 @@
 					"w.lms_waybillsperparcel_reasonupdates as lms_track_reasonupdates,\r\n",
 					"w.lms_waybillsperparcel_callprogid as lms_track_callprogid\r\n",
 					"\r\n",
+					"\r\n",
+					"\r\n",
 					"FROM ssttrackunion t\r\n",
-					"LEFT JOIN sstwaybillsperparcel w on w.lms_waybillsperparcel_loadid = t.loadid and w.lms_waybillsperparcel_parcelid = t.parcelid\r\n",
+					"LEFT JOIN sstwaybillsperparcel w on w.lms_waybillsperparcel_trackkey = t.LoadID||'_'||t.ParcelID\r\n",
 					"LEFT JOIN sstparcelunion p on p.id = t.parcelid\r\n",
 					"LEFT JOIN dboloads l on l.id = t.loadid"
 				],
-				"execution_count": null
+				"execution_count": 46
 			},
 			{
 				"cell_type": "code",
@@ -252,7 +253,7 @@
 				"source": [
 					"stlmstrack = spark.sql(\"SELECT * FROM stlmstrack\")"
 				],
-				"execution_count": null
+				"execution_count": 47
 			},
 			{
 				"cell_type": "code",
@@ -270,7 +271,7 @@
 				"source": [
 					"# stlmstrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 63
 			},
 			{
 				"cell_type": "code",
@@ -298,7 +299,7 @@
 					"     t.lms_track_parcelid\r\n",
 					"FROM stlmstrack t"
 				],
-				"execution_count": null
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
@@ -316,7 +317,7 @@
 				"source": [
 					"stvsmparcel_tmp1 = spark.sql(\"SELECT * FROM stvsmparcel_tmp1\")"
 				],
-				"execution_count": null
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -348,7 +349,7 @@
 					"WHERE t.lms_track_tracktypeid = 2\r\n",
 					"GROUP BY t.lms_track_parcelid"
 				],
-				"execution_count": null
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -366,7 +367,7 @@
 				"source": [
 					"stvsmparcel_tmp2 = spark.sql(\"SELECT * FROM stvsmparcel_tmp2\")"
 				],
-				"execution_count": null
+				"execution_count": 52
 			},
 			{
 				"cell_type": "code",
@@ -399,7 +400,7 @@
 					"GROUP BY t.lms_track_parcelid\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 53
 			},
 			{
 				"cell_type": "code",
@@ -417,7 +418,7 @@
 				"source": [
 					"stvsmparcel_tmp3 = spark.sql(\"SELECT * FROM stvsmparcel_tmp3\")"
 				],
-				"execution_count": null
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
@@ -450,7 +451,7 @@
 					"GROUP BY t.lms_track_parcelid\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -468,7 +469,7 @@
 				"source": [
 					"stvsmparcel_tmp4 = spark.sql(\"SELECT * FROM stvsmparcel_tmp4\")"
 				],
-				"execution_count": null
+				"execution_count": 56
 			},
 			{
 				"cell_type": "code",
@@ -503,7 +504,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 57
 			},
 			{
 				"cell_type": "code",
@@ -521,7 +522,7 @@
 				"source": [
 					"stvsmparcel_tmp5 = spark.sql(\"SELECT * FROM stvsmparcel_tmp5\")"
 				],
-				"execution_count": null
+				"execution_count": 58
 			},
 			{
 				"cell_type": "code",
@@ -556,7 +557,7 @@
 					"LEFT JOIN stvsmparcel_tmp5 t5 ON t5.lms_track_parcelid =t1.lms_track_parcelid \r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 59
 			},
 			{
 				"cell_type": "code",
@@ -574,7 +575,7 @@
 				"source": [
 					"stvsmparcel = spark.sql(\"SELECT * FROM stvsmparcel\")"
 				],
-				"execution_count": null
+				"execution_count": 60
 			},
 			{
 				"cell_type": "code",
@@ -592,7 +593,7 @@
 				"source": [
 					"# stvsmparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stvsmparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 64
 			},
 			{
 				"cell_type": "code",
@@ -610,7 +611,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": null
+				"execution_count": 62
 			}
 		]
 	}

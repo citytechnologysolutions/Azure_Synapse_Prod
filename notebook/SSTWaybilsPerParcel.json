@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "7e939866-290b-42f4-b851-98f5cd3296f7"
+				"spark.autotune.trackingId": "6ee9b647-7167-485c-a9b9-853d83d84460"
 			}
 		},
 		"metadata": {
@@ -80,7 +80,7 @@
 					"# # ' + StorageAccount + '\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": 60
 			},
 			{
 				"cell_type": "code",
@@ -102,7 +102,7 @@
 					"# dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 61
 			},
 			{
 				"cell_type": "code",
@@ -127,16 +127,106 @@
 					"sstwaybillsperparcelunion_tmp1\r\n",
 					"AS\r\n",
 					"SELECT \r\n",
+					"    null as id,\r\n",
 					"    p.id as parcelid,\r\n",
 					"    p.waybillid\r\n",
 					"FROM SSTParcelUnion p\r\n",
 					"UNION ALL\r\n",
 					"SELECT \r\n",
+					"    w.id,\r\n",
 					"    w.parcelid,\r\n",
 					"    w.waybillid\r\n",
 					"FROM dbowaybillsperparcel w"
 				],
-				"execution_count": 11
+				"execution_count": 62
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"sstwaybillsperparcelunion_tmp2\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"    w.loadid ||'_'||t.parcelid as trackkey,\r\n",
+					"    t.*,\r\n",
+					"    w.loadid \r\n",
+					"FROM sstwaybillsperparcelunion_tmp1 t\r\n",
+					"LEFT JOIN dbowaybill w on w.id = t.waybillid "
+				],
+				"execution_count": 63
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sstwaybillsperparcelunion_tmp2 = spark.sql(\"SELECT * FROM sstwaybillsperparcelunion_tmp2\")"
+				],
+				"execution_count": 64
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import *\r\n",
+					"from pyspark.sql.window import Window"
+				],
+				"execution_count": 65
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"partitionload=Window.partitionBy(\"trackkey\").orderBy(col(\"parcelid\"),col(\"id\").desc())\r\n",
+					"sstwaybillsperparcelunion_tmp2 = sstwaybillsperparcelunion_tmp2.withColumn(\"rn\",row_number().over(partitionload))\r\n",
+					"sstwaybillsperparcelunion_tmp2.createOrReplaceTempView(\"sstwaybillsperparcelunion_tmp2\")"
+				],
+				"execution_count": 66
 			},
 			{
 				"cell_type": "code",
@@ -162,13 +252,12 @@
 					"AS\r\n",
 					"SELECT DISTINCT\r\n",
 					"    c.id as lms_waybillsperparcel_id,\r\n",
+					"    a.trackkey as lms_waybillsperparcel_trackkey,\r\n",
 					"    a.parcelid as lms_waybillsperparcel_parcelid,\r\n",
 					"    a.waybillid as lms_waybillsperparcel_waybillid,\r\n",
-					"    b.loadid as lms_waybillsperparcel_loadid,\r\n",
+					"    a.loadid as lms_waybillsperparcel_loadid,    \r\n",
 					"    c.rdate as lms_waybillsperparcel_rdate,\r\n",
 					"    c.returnedflag as lms_waybillsperparcel_returnedflag,\r\n",
-					"    -- c.orv_deliverydatetime as lms_waybillsperparcel_orvdeliverydate,\r\n",
-					"    -- c.orv_db_reasondetailid as lms_waybillsperparcel_orvreasondetailid,\r\n",
 					"    c.door_userid as lms_waybillsperparcel_dooruserid,\r\n",
 					"    c.door_deliverydatetime as lms_waybillsperparcel_doordeliverydate,\r\n",
 					"    c.stationid as lms_waybillsperparcel_stationid,\r\n",
@@ -181,13 +270,17 @@
 					"    c.reasonupdates as lms_waybillsperparcel_reasonupdates,\r\n",
 					"    c.callprogid as lms_waybillsperparcel_callprogid\r\n",
 					"\r\n",
+					"    -- c.orv_deliverydatetime as lms_waybillsperparcel_orvdeliverydate,\r\n",
+					"    -- c.orv_db_reasondetailid as lms_waybillsperparcel_orvreasondetailid,\r\n",
 					"\r\n",
-					"FROM sstwaybillsperparcelunion_tmp1 a\r\n",
-					"LEFT JOIN dbowaybill b on b.id = a.waybillid\r\n",
-					"LEFT JOIN dbowaybillsperparcel c on c.waybillid = a.waybillid\r\n",
+					"\r\n",
+					"FROM sstwaybillsperparcelunion_tmp2 a\r\n",
+					"-- LEFT JOIN dbowaybillsperparcel c on c.waybillid = a.waybillid and c.parcelid = a.parcelid\r\n",
+					"LEFT JOIN dbowaybillsperparcel c on c.id = a.id and a.id is not null\r\n",
+					"WHERE  a.rn=1\r\n",
 					""
 				],
-				"execution_count": 12
+				"execution_count": 67
 			},
 			{
 				"cell_type": "code",
@@ -205,7 +298,7 @@
 				"source": [
 					"sstwaybillsperparcel = spark.sql(\"SELECT * FROM sstwaybillsperparcel\")"
 				],
-				"execution_count": 13
+				"execution_count": 68
 			},
 			{
 				"cell_type": "code",
@@ -223,7 +316,7 @@
 				"source": [
 					"# sstwaybillsperparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstwaybillsperparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 14
+				"execution_count": 69
 			}
 		]
 	}

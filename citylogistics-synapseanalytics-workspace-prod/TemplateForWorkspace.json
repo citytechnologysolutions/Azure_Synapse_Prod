@@ -5473,7 +5473,7 @@
 															"source": {
 																"type": "SqlServerSource",
 																"sqlReaderQuery": {
-																	"value": "@if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1)),\n    activity('SelectStatementBuilder').output.firstRow.Query,\n    concat('SELECT * FROM [', item().Source.TableName,']')\n    )",
+																	"value": "@if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1)),\n    activity('SelectStatementBuilder').output.firstRow.Query,\n    concat('SELECT * FROM [', item().Source.SchemaName,'].[', item().Source.TableName,']')\n    )",
 																	"type": "Expression"
 																},
 																"partitionOption": "None"
@@ -13494,351 +13494,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTCollect SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTCollect') )\n    DROP EXTERNAL TABLE dbo.F_SSTCollect\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTCollect (\n\t[lms_collect_id] int,\n\t[lms_collect_date] datetime2(7),\n\t[lms_collect_cservice] nvarchar(4000),\n\t[lms_collect_billcust] int,\n\t[lms_collect_pickupcustid] int,\n\t[lms_collect_delivercustid] int,\n\t[lms_collect_locationid] int,\n\t[lms_collect_noofparcels] nvarchar(4000),\n\t[lms_collect_weight] nvarchar(4000),\n\t[lms_collect_timeready] nvarchar(4000),\n\t[lms_collect_vehiclecapacity] int,\n\t[lms_collect_collectrefno] nvarchar(4000),\n\t[lms_collect_timeclosed] nvarchar(4000),\n\t[lms_collect_securitycollect] int,\n\t[lms_collect_confirmedby] nvarchar(4000),\n\t[lms_collect_courierid] nvarchar(4000),\n\t[lms_collect_confirmeddate] datetime2(7),\n\t[lms_collect_transferreddate] datetime2(7),\n\t[lms_collect_senddate] datetime2(7),\n\t[lms_collect_orderid] int,\n\t[lms_collect_orderdate] datetime2(7),\n\t[lms_collect_userid] int,\n\t[lms_collect_reason] nvarchar(4000),\n\t[lms_collect_cubes] numeric(18,2),\n\t[lms_collect_custref] nvarchar(4000),\n\t[lms_collect_custref3] nvarchar(4000),\n\t[lms_collect_custaccid] int,\n\t[lms_collect_collectparentid] int,\n\t[lms_collect_duedate] datetime2(7),\n\t[lms_collect_specdel] int,\n\t[lms_collect_flunits] int,\n\t[lms_collect_flkgs] int,\n\t[lms_collect_quote] numeric(18,2),\n\t[lms_collect_bill_vehicletype] int,\n\t[lms_collect_collectstatusid] int,\n\t[lms_collect_bill_collectstatusid] int,\n\t[lms_collect_cancelreason] int,\n\t[lms_collect_cancelcomments] nvarchar(4000),\n\t[lms_collect_loadid] int,\n\t[lms_collect_custref2] nvarchar(4000),\n\t[lms_collect_created] datetime2(7),\n\t[lms_collect_oncollection] datetime2(7),\n\t[lms_collect_collected] datetime2(7),\n\t[lms_collect_complete] datetime2(7),\n\t[lms_collect_cancelled] datetime2(7),\n\t[lms_collect_failed] datetime2(7),\n\t[lms_collect_ctype] int,\n\t[lms_collect_quoteid] int,\n\t[lms_collect_lastupdate] datetime2(7),\n\t[lms_collect_notes] nvarchar(4000),\n\t[lms_collect_docurl] nvarchar(4000),\n\t[lms_collect_docdate] datetime2(7),\n\t[lms_collect_orvstatus] nvarchar(4000),\n\t[lms_collect_orvcode] int,\n\t[lms_collect_oldloadid] int,\n\t[lms_bcustomer_id] int,\n\t[lms_bcustomer_name] nvarchar(4000),\n\t[lms_pcustomer_id] int,\n\t[lms_pcustomer_name] nvarchar(4000),\n\t[lms_dcustomer_id] int,\n\t[lms_dcustomer_name] nvarchar(4000),\n\t[lms_users_id] int,\n\t[lms_users_fullname] nvarchar(4000),\n\t[lms_clocation_id] int,\n\t[lms_clocation_description] nvarchar(4000),\n\t[lms_collectstatus_id] int,\n\t[lms_collectstatus_description] nvarchar(4000),\n\t[orv_draftcollection_id] bigint,\n\t[orv_draftcollection_fromlocid] int,\n\t[orv_draftcollection_loadid] int,\n\t[orv_draftcollection_status] nvarchar(4000),\n\t[orv_draftcollection_importedate] datetime2(7),\n\t[orv_draftcollection_fromstr] nvarchar(4000),\n\t[orv_draftcollection_did] bigint,\n\t[orv_draftcollection_mergedlmsid] int,\n\t[orv_draftcollection_rejectdate] datetime2(7),\n\t[orv_draftcollection_confirmdate] datetime2(7),\n\t[orv_draftcollection_customerref] nvarchar(4000),\n\t[orv_draftcollection_collectionwaybillid] bigint,\n\t[orv_draftcollection_collectbydate] datetime2(7),\n\t[orv_draftcollection_rejectreason] nvarchar(4000),\n\t[orv_draftcollection_cancelctr] int,\n\t[orv_delivery_id] bigint,\n\t[orv_delivery_dispatchid] bigint,\n\t[orv_delivery_waybillid] bigint,\n\t[orv_delivery_address] nvarchar(4000),\n\t[orv_delivery_town] nvarchar(4000),\n\t[orv_delivery_province] nvarchar(4000),\n\t[orv_delivery_country] nvarchar(4000),\n\t[orv_delivery_lat] float,\n\t[orv_delivery_lng] float,\n\t[orv_delivery_placeid] nvarchar(4000),\n\t[orv_delivery_what3words] nvarchar(4000),\n\t[orv_delivery_zipcode] nvarchar(4000),\n\t[orv_delivery_eta] datetime2(7),\n\t[orv_delivery_actualeta] datetime2(7),\n\t[orv_delivery_deliverydate] datetime2(7),\n\t[orv_delivery_deliverby] datetime2(7),\n\t[orv_delivery_deliveryorder] int,\n\t[orv_delivery_tsgeofenceenter] datetime2(7),\n\t[orv_delivery_tsscanningstart] datetime2(7),\n\t[orv_delivery_tsscanningstop] datetime2(7),\n\t[orv_delivery_tspodsignature] datetime2(7),\n\t[orv_delivery_aid] bigint,\n\t[orv_delivery_numprcls] int,\n\t[orv_delivery_geocodingstatus] nvarchar(4000),\n\t[orv_delivery_skipdate] datetime2(7),\n\t[orv_delivery_skipreason] nvarchar(4000),\n\t[orv_delivery_status] nvarchar(4000),\n\t[orv_delivery_partialmatch] int,\n\t[orv_delivery_approximated] int,\n\t[orv_delivery_lmsorder] int,\n\t[orv_delivery_optimizedorder] int,\n\t[orv_delivery_seal] nvarchar(4000),\n\t[orv_delivery_customerinvoice] int,\n\t[orv_delivery_customerdn] int,\n\t[orv_delivery_grv] nvarchar(4000),\n\t[orv_delivery_chepslip] int,\n\t[orv_delivery_cleandelivery] int,\n\t[orv_delivery_trackingcode] nvarchar(4000),\n\t[orv_delivery_mode] nvarchar(4000),\n\t[orv_delivery_customorder] int,\n\t[orv_delivery_verified] int,\n\t[orv_delivery_altered] int,\n\t[orv_delivery_orderid] int,\n\t[orv_delivery_mergeid] bigint,\n\t[orv_delivery_orderref] nvarchar(4000),\n\t[orv_delivery_drivernote] nvarchar(4000),\n\t[orv_delivery_guid] bigint,\n\t[orv_delivery_timedefinite] int,\n\t[orv_delivery_orvcode] int,\n\t[orv_delivery_vaid] bigint,\n\t[orv_delivery_delegatedate] datetime2(7),\n\t[orv_delivery_delegatemode] nvarchar(4000),\n\t[orv_delivery_debriefmode] nvarchar(4000),\n\t[orv_delivery_debriefed] int,\n\t[orv_delivery_insdate] datetime2(7),\n\t[orv_delivery_reviseddebrief] int,\n\t[orv_delivery_lmsdebriefed] int,\n\t[orv_delivery_uncanceldate] datetime2(7),\n\t[orv_delivery_podlaterdate] datetime2(7),\n\t[orv_delivery_podmanualdate] datetime2(7),\n\t[orv_delivery_manualdebriefreason] nvarchar(4000),\n\t[orv_delivery_submanualdebriefreason] nvarchar(4000),\n\t[orv_delivery_outofgeofencereason] nvarchar(4000),\n\t[orv_delivery_tsentergeofenceapp] datetime2(7),\n\t[orv_delivery_tsexitgeofenceapp] datetime2(7),\n\t[orv_delivery_comebacklater] bigint,\n\t[orv_delivery_uncancelusername] nvarchar(4000),\n\t[orv_delivery_cref] int,\n\t[orv_delivery_division] int,\n\t[orv_delivery_descriptionofgoods] nvarchar(4000),\n\t[orv_delivery_skiplng] float,\n\t[orv_delivery_skiplat] float,\n\t[orv_delivery_courierid] bigint,\n\t[orv_delivery_posreason] nvarchar(4000),\n\t[orv_delivery_moddate] datetime2(7),\n\t[orv_delivery_mallid] int,\n\t[orv_delivery_mallgid] bigint,\n\t[orv_delivery_lmsidskipreason] bigint,\n\t[orv_delivery_deleteforimport] int,\n\t[orv_delivery_podoutofgeofence] int,\n\t[orv_delivery_originalcustomerid] bigint,\n\t[orv_originalcustomer_id] bigint,\n\t[orv_originalcustomer_name] nvarchar(4000),\n\t[orv_mall_id] bigint,\n\t[orv_mall_mallname] nvarchar(4000),\n\t[orv_mall_branchname] nvarchar(4000),\n\t[orv_mall_gpretailer] nvarchar(4000),\n\t[orv_mall_highvoldelivery] nvarchar(4000),\n\t[orv_mall_stripmall] nvarchar(4000),\n\t[orv_mall_standalonestore] nvarchar(4000),\n\t[orv_mall_streetsidestore] nvarchar(4000),\n\t[orv_mall_dedicatedrouted] nvarchar(4000),\n\t[orv_mall_insdate] datetime2(7),\n\t[orv_mall_address] nvarchar(4000),\n\t[orv_mall_deleted] int,\n\t[orv_mall_lat] float,\n\t[orv_mall_lng] float\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstcollect.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTCollect\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTConsignment_SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTConsignment') )\n    DROP EXTERNAL TABLE dbo.F_SSTConsignment\nGO\n\n\nCREATE EXTERNAL TABLE dbo.F_SSTConsignment (\n\t[lms_consignment_id] int,\n\t[lms_consignment_cref] nvarchar(4000),\n\t[lms_consignment_cdate] datetime2(7),\n\t[lms_consignment_userid] int,\n\t[lms_consignment_appointment] datetime2(7),\n\t[lms_consignment_deliverby] datetime2(7),\n\t[lms_consignment_dconfirmed] nvarchar(4000),\n\t[lms_consignment_dcomment] nvarchar(4000),\n\t[lms_consignment_drefno] nvarchar(4000),\n\t[lms_consignment_loadid] int,\n\t[lms_consignment_delivercustid] int,\n\t[lms_consignment_mrpcflag] int,\n\t[lms_consignment_mrpflag] int,\n\t[lms_consignment_billcust] int,\n\t[lms_consignment_cserviceid] nvarchar(4000),\n\t[lms_consignment_lastupdate] datetime2(7),\n\t[lms_consignment_billflag] int,\n\t[lms_consignment_missingflag] int,\n\t[lms_consignment_routerateid] int,\n\t[lms_consignment_delivertypeid] int,\n\t[lms_consignment_billtypeid] int,\n\t[lms_consignment_totothersurcharges] numeric(28,2),\n\t[lms_consignment_lhaddrate] numeric(28,2),\n\t[lms_consignment_lhcharge] numeric(28,2),\n\t[lms_consignment_sapbillperiodid] int,\n\t[lms_consignment_lhrouterateid] int,\n\t[lms_parcelbyconsignment_consignid] int,\n\t[lms_parcelbyconsignment_aggweight] float,\n\t[lms_parcelbyconsignment_aggchargeweight] numeric(28,2),\n\t[lms_parcelbyconsignment_aggvolweight] float,\n\t[lms_parcelbyconsignment_aggvolumiserweight] numeric(28,2),\n\t[lms_parcelbyconsignment_noparcels] bigint,\n\t[lms_bill_consignmentr_id] int,\n\t[lms_bill_consignmentr_consignid] int,\n\t[lms_bill_consignmentr_updatedate] datetime2(7),\n\t[lms_bill_consignmentr_pickuprouteid] int,\n\t[lms_bill_consignmentr_deliverrouteid] int,\n\t[lms_bill_consignmentr_chargeweight] numeric(28,2),\n\t[lms_bill_consignmentr_noofparcels] int,\n\t[lms_bill_consignmentr_tripdistance] numeric(28,2),\n\t[lms_bill_consignmentr_consignmentvalue] numeric(28,2),\n\t[lms_bill_consignmentr_billcust] int,\n\t[lms_bill_consignmentr_redflag] int,\n\t[lms_bill_consignmentr_updind] int,\n\t[lms_bill_consignmentr_servicetypeid] int,\n\t[lms_bill_consignmentr_routemissingind] int,\n\t[lms_bill_consignmentr_chargescalcind] int,\n\t[lms_bill_consignmentr_cdate1] datetime2(7),\n\t[lms_bill_consignmentr_invalidpcode] int,\n\t[lms_bill_consignmentr_programno] int,\n\t[lms_bill_consignmentr_totrate] numeric(28,2),\n\t[lms_bill_consignmentr_routecharge] numeric(28,2),\n\t[lms_bill_consignmentr_minweight] numeric(28,2),\n\t[lms_bill_consignmentr_minrate] numeric(28,2),\n\t[lms_bill_consignmentr_corderno] nvarchar(4000),\n\t[lms_bill_consignmentr_custref] nvarchar(4000),\n\t[lms_bill_consignmentr_manualupdateflag] int,\n\t[lms_bill_consignmentr_prevbillcustid] int,\n\t[lms_bill_consignmentr_specdelvehicleid] int,\n\t[lms_bill_consignmentr_specdelmissingrouteflag] int,\n\t[lms_bill_consignmentr_overborderflag] int,\n\t[lms_bill_consignmentr_samedeliverid] int,\n\t[lms_bill_consignmentr_combineroutecharge] numeric(28,2),\n\t[lms_bill_consignmentr_waybillid] int,\n\t[lms_bill_consignmentr_routelinecount] int,\n\t[lms_bill_consignmentr_samedelcount] int,\n\t[lms_bill_consignmentr_aweight] numeric(28,2),\n\t[lms_bill_consignmentr_vweight] numeric(28,2),\n\t[lms_bill_consignmentr_custref3] nvarchar(4000),\n\t[lms_bill_consignmentr_units] int,\n\t[lms_bill_consignmentr_totsurcharges] numeric(28,2),\n\t[lms_bill_consignmentr_noofpallets] int,\n\t[lms_bill_consignmentr_invalidpudel] int,\n\t[lms_bill_consignmentr_sharikaflag] int,\n\t[lms_bill_consignmentr_sapid] int,\n\t[lms_bill_consignmentr_totfuelsurcharge] numeric(28,2),\n\t[lms_bill_consignmentr_totdocsurcharge] numeric(28,2),\n\t[lms_bill_consignmentr_totothersurcharge] numeric(28,2),\n\t[lms_bill_consignmentr_specdel] int,\n\t[lms_bill_consignmentr_quoteflag] int,\n\t[lms_bill_consignmentr_billperiod] nvarchar(4000),\n\t[lms_bill_consignmentr_billweekr] int,\n\t[lms_bill_consignmentr_billperiodflag] int,\n\t[lms_bill_consignmentr_surhargeflag] int,\n\t[lms_bill_consignmentr_recalcflag] int,\n\t[lms_bill_consignmentr_quotemissingflag] int,\n\t[lms_bill_consignmentr_delivertypeid] int,\n\t[lms_bill_consignmentr_totcovidsurcharge] numeric(28,2),\n\t[lms_users_id] int,\n\t[lms_users_fullname] nvarchar(4000),\n\t[lms_users_site] nvarchar(4000),\n\t[lms_bcustomer_id] int,\n\t[lms_bcustomer_name] nvarchar(4000),\n\t[lms_dcustomer_id] int,\n\t[lms_dcustomer_name] nvarchar(4000),\n\t[lms_bill_routerate_id] int,\n\t[lms_bill_routerate_billcustid] int,\n\t[lms_bill_routerate_effectivedate] datetime2(7),\n\t[lms_bill_routerate_uomid] int,\n\t[lms_bill_routerate_routetypeid] int,\n\t[lms_bill_routerate_servicetypeid] int,\n\t[lms_bill_routerate_minkg] numeric(28,2),\n\t[lms_bill_routerate_minrate] numeric(28,2),\n\t[lms_bill_routerate_addrate] numeric(28,2),\n\t[lms_bill_routerate_servicedays] int,\n\t[lms_bill_routerate_servicehours] numeric(28,2),\n\t[lms_bill_routerate_ratecardind] int,\n\t[lms_bill_routerate_pickupid] int,\n\t[lms_bill_routerate_deliverid] int,\n\t[lms_bill_routerate_description] nvarchar(4000),\n\t[lms_bill_routerate_activeflag] int,\n\t[lms_bill_routerate_billroutetypeflag] int,\n\t[lms_bill_routerate_samedayflag] int,\n\t[lms_bill_routerate_specialrateflag] int,\n\t[lms_bill_routerate_tocustid] int,\n\t[lms_bill_routerate_maxparcel] int,\n\t[lms_bill_routerate_returnflag] int,\n\t[lms_bill_routerate_cutoff] numeric(28,2),\n\t[lms_bill_routerate_rateperkg] numeric(28,2),\n\t[lms_bill_routerate_userid] int,\n\t[lms_bill_routerate_authorizeperson] nvarchar(4000),\n\t[lms_bill_routerate_updatedate] datetime2(7),\n\t[lms_bill_routerate_delivertypeid] int,\n\t[lms_bill_routerate_billyear] int,\n\t[lms_bill_routerate_ecommzoneid] int,\n\t[lms_bill_routerate_billareaid] int,\n\t[lms_bill_routerate_routerateoverideflag] int,\n\t[lms_bill_billtypesr_id] int,\n\t[lms_bill_billtypesr_description] nvarchar(4000),\n\t[lms_bill_billtypesr_surchargeflag] int,\n\t[lms_bill_zoneroute_pickupid] int,\n\t[lms_bill_zoneroute_pickupdescription] nvarchar(4000),\n\t[lms_bill_zoneroute_pickupzoneid] int,\n\t[lms_bill_zoneroute_pickupzrscode] nvarchar(4000),\n\t[lms_bill_zoneroute_pickupzonerouteorder] int,\n\t[lms_bill_zoneroute_pickupzonetype] nvarchar(4000),\n\t[lms_bill_zoneroute_pickupbroutemasterid] int,\n\t[lms_bill_zoneroute_pickupbroutecode] nvarchar(4000),\n\t[lms_bill_zoneroute_deliverid] int,\n\t[lms_bill_zoneroute_deliverdescription] nvarchar(4000),\n\t[lms_bill_zoneroute_deliverzoneid] int,\n\t[lms_bill_zoneroute_deliverzrscode] nvarchar(4000),\n\t[lms_bill_zoneroute_deliverzonerouteorder] int,\n\t[lms_bill_zoneroute_deliverzonetype] nvarchar(4000),\n\t[lms_bill_zoneroute_deliverbroutemasterid] int,\n\t[lms_bill_zoneroute_deliverbroutecode] nvarchar(4000),\n\t[lms_bill_servicetype_id] int,\n\t[lms_bill_servicetype_description] nvarchar(4000),\n\t[lms_bill_servicetype_code] nvarchar(4000),\n\t[lms_bill_servicetype_ccode] nvarchar(4000),\n\t[lms_bill_zone_pickupid] int,\n\t[lms_bill_zone_pickupdescription] nvarchar(4000),\n\t[lms_bill_zone_pickupzonemasterid] int,\n\t[lms_bill_zone_pickupcountryid] int,\n\t[lms_bill_zone_deliverid] int,\n\t[lms_bill_zone_deliverdescription] nvarchar(4000),\n\t[lms_bill_zone_deliverzonemasterid] int,\n\t[lms_bill_zone_delivercountryid] int,\n\t[lms_bill_delivertype_id] int,\n\t[lms_bill_delivertype_description] nvarchar(4000),\n\t[lms_broutemaster_pickupid] int,\n\t[lms_broutemaster_pickupdescription] nvarchar(4000),\n\t[lms_broutemaster_pickupcode] nvarchar(4000),\n\t[lms_broutemaster_pickupbrouteparentid] int,\n\t[lms_broutemaster_deliverid] int,\n\t[lms_broutemaster_deliverdescription] nvarchar(4000),\n\t[lms_broutemaster_delivercode] nvarchar(4000),\n\t[lms_broutemaster_deliverbrouteparentid] int\n\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstconsignment.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTConsignment\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTInstruction SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTInstruction') )\n    DROP EXTERNAL TABLE dbo.F_SSTInstruction\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTInstruction (\n\t[tms_instruction_id] bigint,\n\t[tms_instruction_bookingid] bigint,\n\t[tms_instruction_addressid] bigint,\n\t[tms_instruction_insdate] datetime2(7),\n\t[tms_instruction_moddate] datetime2(7),\n\t[tms_instruction_insby] bigint,\n\t[tms_instruction_onroute] int,\n\t[tms_instruction_instrtype] nvarchar(4000),\n\t[tms_instruction_onrouteid] bigint,\n\t[tms_instruction_sort] int,\n\t[tms_instruction_note] nvarchar(4000),\n\t[tms_instruction_onroutestatus] nvarchar(4000),\n\t[tms_instruction_legacyid] bigint,\n\t[tms_instruction_legacyaddress] nvarchar(4000),\n\t[tms_instruction_citybranchid] bigint,\n\t[tms_instruction_citybranchname] nvarchar(4000),\n\t[tms_address_id] bigint,\n\t[tms_address_customerid] bigint,\n\t[tms_address_address] nvarchar(4000),\n\t[tms_address_streetno] nvarchar(4000),\n\t[tms_address_city] nvarchar(4000),\n\t[tms_address_province] nvarchar(4000),\n\t[tms_address_country] nvarchar(4000),\n\t[tms_address_addresstype] nvarchar(4000),\n\t[tms_address_lat] float,\n\t[tms_address_lng] float,\n\t[tms_address_insdate] datetime2(7),\n\t[tms_address_moddate] datetime2(7),\n\t[tms_address_lastuseddate] datetime2(7),\n\t[tms_address_searchfield] nvarchar(4000),\n\t[tms_address_zipcode] nvarchar(4000),\n\t[tms_address_slug] nvarchar(4000),\n\t[tms_customer_status] nvarchar(4000),\n\t[tms_customer_name] nvarchar(4000),\n\t[tms_customer_parentid] bigint,\n\t[tms_customer_accountnumber] nvarchar(4000),\n\t[tms_customer_revenuecode] nvarchar(4000),\n\t[tms_customer_insdate] datetime2(7),\n\t[tms_customer_moddate] datetime2(7),\n\t[tms_customer_insby] bigint,\n\t[tms_customer_opaqueid] nvarchar(4000),\n\t[tms_customer_email] nvarchar(4000),\n\t[tms_customer_areacode] nvarchar(4000),\n\t[tms_customer_mobilenum] nvarchar(4000),\n\t[tms_customer_legacyid] int,\n\t[tms_customer_billingmethod] nvarchar(4000),\n\t[tms_customer_adjustmetric] nvarchar(4000),\n\t[tms_customer_adjustvalue] int,\n\t[tms_customer_adjustnegativeallowed] int,\n\t[tms_customer_adjustvalueusingprevmonth] int,\n\t[tms_customer_excludefromnotinvoicedreport] int,\n\t[tms_customer_logictype] nvarchar(4000),\n\t[tms_customer_minliability] bigint,\n\t[orv_lhdelivery_id] bigint,\n\t[orv_lhdelivery_did] bigint,\n\t[orv_lhdelivery_address] nvarchar(4000),\n\t[orv_lhdelivery_lat] float,\n\t[orv_lhdelivery_lng] float,\n\t[orv_lhdelivery_actualeta] datetime2(7),\n\t[orv_lhdelivery_eta] datetime2(7),\n\t[orv_lhdelivery_tsgeofenceenter] datetime2(7),\n\t[orv_lhdelivery_tsdocuments] datetime2(7),\n\t[orv_lhdelivery_customerref1] nvarchar(4000),\n\t[orv_lhdelivery_customerref2] nvarchar(4000),\n\t[orv_lhdelivery_trailersize] nvarchar(4000),\n\t[orv_lhdelivery_cargoweight] float,\n\t[orv_lhdelivery_cubicvolume] float,\n\t[orv_lhdelivery_geocodingstatus] nvarchar(4000),\n\t[orv_lhdelivery_status] nvarchar(4000),\n\t[orv_lhdelivery_optimizedorder] int,\n\t[orv_lhdelivery_triporder] int,\n\t[orv_lhdelivery_sequence] int,\n\t[orv_lhdelivery_bookingid] bigint,\n\t[orv_lhdelivery_grv] int,\n\t[orv_lhdelivery_chepslip] int,\n\t[orv_lhdelivery_type] nvarchar(4000),\n\t[orv_lhdelivery_insdate] datetime2(7),\n\t[orv_lhdelivery_isdirect] int,\n\t[orv_lhdelivery_notes] nvarchar(4000),\n\t[orv_lhdelivery_contactperson] nvarchar(4000),\n\t[orv_lhdelivery_contactnumber] nvarchar(4000),\n\t[orv_lhdelivery_trailerfleetcode] nvarchar(4000),\n\t[orv_lhdelivery_primarycustomerid] bigint,\n\t[orv_lhdelivery_pcustomername] nvarchar(4000),\n\t[orv_lhdelivery_pcustomeraccountnumber] nvarchar(4000),\n\t[orv_lhdelivery_pcustomerrevenuecode] nvarchar(4000),\n\t[orv_lhdelivery_secondarycustomerid] bigint,\n\t[orv_lhdelivery_scustomername] nvarchar(4000),\n\t[orv_lhdelivery_scustomeraccountnumber] nvarchar(4000),\n\t[orv_lhdelivery_scustomerrevenuecode] nvarchar(4000),\n\t[orv_lhdelivery_actiondate] datetime2(7),\n\t[orv_lhdelivery_tsgeofenceexit] datetime2(7),\n\t[orv_lhdelivery_pctmsid] bigint,\n\t[orv_lhdelivery_sctmsid] bigint,\n\t[orv_lhdelivery_customorder] int,\n\t[orv_lhdelivery_skipdate] datetime2(7),\n\t[orv_lhdelivery_skipreason] nvarchar(4000),\n\t[orv_lhdelivery_outofgeofencereason] nvarchar(4000),\n\t[orv_lhdelivery_tsarrivedcustomer] datetime2(7),\n\t[orv_lhdelivery_tsdroppedoff] datetime2(7),\n\t[orv_lhdelivery_tsstartoffloading] datetime2(7),\n\t[orv_lhdelivery_tsstartloading] datetime2(7),\n\t[orv_lhdelivery_tsloaded] datetime2(7),\n\t[orv_lhdelivery_tsfinishedoffloading] datetime2(7),\n\t[orv_lhdelivery_tsdocumnetshanddovedriver] datetime2(7),\n\t[orv_lhdelivery_tsleavingcustomer] datetime2(7),\n\t[orv_lhdelivery_actionsubtype] nvarchar(4000),\n\t[orv_lhdelivery_tsstart] datetime2(7),\n\t[orv_lhdelivery_signame] nvarchar(4000),\n\t[orv_lhdelivery_signcomment] nvarchar(4000),\n\t[orv_lhdelivery_signdate] datetime2(7),\n\t[orv_lhdelivery_tsendtate] datetime2(7),\n\t[orv_lhdelivery_tsentergeofenceapp] datetime2(7),\n\t[orv_lhdelivery_tsexitgeofenceapp] datetime2(7),\n\t[orv_lhdelivery_tmsid] bigint,\n\t[orv_lhdelivery_subtype] nvarchar(4000),\n\t[orv_lhdelivery_needbotrailerver] int,\n\t[orv_lhdelivery_secondtrailerfleetcode] nvarchar(4000),\n\t[orv_lhdelivery_trailerverlat] float,\n\t[orv_lhdelivery_trailerverlng] float,\n\t[orv_lhdelivery_tstrailerver] datetime2(7),\n\t[orv_lhdelivery_podlat] float,\n\t[orv_lhdelivery_podlng] float,\n\t[orv_lhdelivery_skiplat] float,\n\t[orv_lhdelivery_skiplng] float,\n\t[orv_lhdelivery_uncanceldate] datetime2(7)\n\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstinstruction.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTInstruction \nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTLoadChild SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTLoadChild') )\n    DROP EXTERNAL TABLE dbo.F_SSTLoadChild\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTLoadChild (\n\t[lms_loads_id] int,\n\t[lms_loads_routeid] int,\n\t[lms_loads_driverid] int,\n\t[lms_loads_sealno] nvarchar(4000),\n\t[lms_loads_vehicleid] int,\n\t[lms_loads_ttypeid] int,\n\t[lms_loads_userid] int,\n\t[lms_loads_ldate] datetime2(7),\n\t[lms_loads_courierid] nvarchar(4000),\n\t[lms_loads_site] nvarchar(4000),\n\t[lms_loads_fromlocid] int,\n\t[lms_loads_tolocid] int,\n\t[lms_loads_cdate] datetime2(7),\n\t[lms_loads_trailer1] int,\n\t[lms_loads_trailer2] int,\n\t[lms_loads_cref] nvarchar(4000),\n\t[lms_loads_debriefed] int,\n\t[lms_loads_mrpflag] int,\n\t[lms_loads_mrpcflag] int,\n\t[lms_loads_finalflag] int,\n\t[lms_loads_alidaflag] int,\n\t[lms_loads_puibts] int,\n\t[lms_loads_pucols] int,\n\t[lms_loads_planningref] nvarchar(4000),\n\t[lms_loads_interfacedate] datetime2(7),\n\t[lms_loads_nosealsret] int,\n\t[lms_loads_excludeopsi] int,\n\t[lms_loads_dccref] nvarchar(4000),\n\t[lms_loads_srouteid] int,\n\t[lms_loads_fuellitres] numeric(18,2),\n\t[lms_loads_outsourcedcrew] int,\n\t[lms_loads_masterloadid] int,\n\t[lms_loads_securitygatedespatched] datetime2(7),\n\t[lms_loads_securitygateuserid] int,\n\t[lms_loads_securitygatearrived] datetime2(7),\n\t[lms_loads_securitygatearriveduserid] int,\n\t[lms_loads_lastupdate] datetime2(7),\n\t[lms_loads_bayno] nvarchar(4000),\n\t[lms_loads_costs] numeric(18,2),\n\t[lms_loads_estdeparturedatetime] datetime2(7),\n\t[lms_loads_totalweight] numeric(18,0),\n\t[lms_loads_ovrignore] int,\n\t[lms_loads_childloadid] int,\n\t[lms_loads_orvcode] int,\n\t[lms_loads_companyid] int,\n\t[lms_loads_editloaddate] datetime2(7),\n\t[lms_loads_reopeneddate] datetime2(7),\n\t[lms_loads_reopeneduserid] int,\n\t[lms_loads_novehicle] int,\n\t[lms_loads_mobilefeedbackreasonid] int,\n\t[lms_loads_direct] int,\n\t[lms_loads_noofpcls] int,\n\t[lms_loads_debriefdt] datetime2(7),\n\t[lms_loads_httpcode] int,\n\t[lms_loads_parentloadid] int,\n\t[lms_loads_mrpobversion] int,\n\t[lms_parcelbyload_loadid] int,\n\t[lms_parcelbyload_aggweight] float,\n\t[lms_parcelbyload_aggchargeweight] numeric(28,2),\n\t[lms_parcelbyload_aggvolweight] float,\n\t[lms_parcelbyload_aggvolumiserweight] numeric(28,2),\n\t[lms_parcelbyload_noparcels] bigint,\n\t[lms_sroute_id] int,\n\t[lms_sroute_description] nvarchar(4000),\n\t[lms_driver_id] int,\n\t[lms_driver_dname] nvarchar(4000),\n\t[lms_users_id] int,\n\t[lms_users_fullname] nvarchar(4000),\n\t[lms_users_site] nvarchar(4000),\n\t[lms_users_reopenuserid] int,\n\t[lms_users_reopenuserfullname] nvarchar(4000),\n\t[lms_users_reopenusersite] nvarchar(4000),\n\t[lms_vehicle_id] int,\n\t[lms_vehicle_fleetno] nvarchar(4000),\n\t[lms_vehicle_uid] nvarchar(4000),\n\t[lms_vehicle_trailer1id] int,\n\t[lms_vehicle_trailer1fleetno] nvarchar(4000),\n\t[lms_vehicle_trailer1uid] nvarchar(4000),\n\t[lms_vehicle_trailer2id] int,\n\t[lms_vehicle_trailer2fleetno] nvarchar(4000),\n\t[lms_vehicle_trailer2uid] nvarchar(4000),\n\t[md_vehiclebasic_id] bigint,\n\t[md_vehiclebasic_uid] nvarchar(4000),\n\t[md_vehiclebasic_vehicletype] nvarchar(4000),\n\t[md_vehiclebasic_internalexternal] nvarchar(4000),\n\t[md_vehiclebasic_activeflag] bigint,\n\t[md_vehiclebasic_vehiclestatus] nvarchar(4000),\n\t[md_vehiclebasic_chassisnumber] nvarchar(4000),\n\t[md_vehiclebasic_depot] nvarchar(4000),\n\t[md_vehiclebasic_enginenumber] nvarchar(4000),\n\t[md_vehiclebasic_fleetcode] nvarchar(4000),\n\t[md_vehiclebasic_fueltype] nvarchar(4000),\n\t[md_vehiclebasic_registrationnumber] nvarchar(4000),\n\t[md_vehiclebasic_vehicleapplication] nvarchar(4000),\n\t[md_vehiclebasic_vehiclebodymake] nvarchar(4000),\n\t[md_vehiclebasic_vehiclecolour] nvarchar(4000),\n\t[md_vehiclebasic_vehiclemake] nvarchar(4000),\n\t[md_vehiclebasic_vehiclemodel] nvarchar(4000),\n\t[md_vehiclebasic_vehicleseries] nvarchar(4000),\n\t[md_vehiclebasic_year] int,\n\t[md_vehiclebasic_vehicleownerid] bigint,\n\t[md_vehiclebasic_vehicleowner] nvarchar(4000),\n\t[md_vehiclebasic_staffvehicleflag] int,\n\t[md_vehiclebasic_vehicletrailersize] nvarchar(4000),\n\t[md_vehiclebasic_vehicletrailertype] nvarchar(4000),\n\t[md_vehiclebasic_vehicleetollclass] nvarchar(4000),\n\t[md_vehiclebasic_brn] nvarchar(4000),\n\t[md_vehiclebasic_brnnumber] nvarchar(4000),\n\t[md_vehiclebasic_vehicleregisterno] nvarchar(4000),\n\t[md_vehiclebasic_insdate] bigint,\n\t[md_vehiclebasic_insby] nvarchar(4000),\n\t[md_vehiclebasic_islinehaulvehicle] int,\n\t[md_vehiclebasic_internalheight] numeric(18,2),\n\t[md_vehiclebasic_internallength] numeric(18,2),\n\t[md_vehiclebasic_internalvolume] numeric(18,2),\n\t[md_vehiclebasic_internalwidth] numeric(18,2),\n\t[md_vehiclebasic_moddate] bigint,\n\t[md_vehiclebasic_trailerflag] int,\n\t[md_vehiclebasic_workflowstatus] nvarchar(4000),\n\t[md_vehiclebasic_approveddate] bigint,\n\t[md_vehiclebasic_trailer1id] bigint,\n\t[md_vehiclebasic_trailer1uid] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicletype] nvarchar(4000),\n\t[md_vehiclebasic_trailer1internalexternal] nvarchar(4000),\n\t[md_vehiclebasic_trailer1activeflag] bigint,\n\t[md_vehiclebasic_trailer1vehiclestatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer1chassisnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1depot] nvarchar(4000),\n\t[md_vehiclebasic_trailer1enginenumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1fleetcode] nvarchar(4000),\n\t[md_vehiclebasic_trailer1fueltype] nvarchar(4000),\n\t[md_vehiclebasic_trailer1registrationnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleapplication] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclebodymake] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclecolour] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclemake] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclemodel] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleseries] nvarchar(4000),\n\t[md_vehiclebasic_trailer1year] int,\n\t[md_vehiclebasic_trailer1vehicleownerid] bigint,\n\t[md_vehiclebasic_trailer1vehicleowner] nvarchar(4000),\n\t[md_vehiclebasic_trailer1staffvehicleflag] int,\n\t[md_vehiclebasic_trailer1vehicletrailersize] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicletrailertype] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleetollclass] nvarchar(4000),\n\t[md_vehiclebasic_trailer1brn] nvarchar(4000),\n\t[md_vehiclebasic_trailer1brnnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleregisterno] nvarchar(4000),\n\t[md_vehiclebasic_trailer1insdate] bigint,\n\t[md_vehiclebasic_trailer1insby] nvarchar(4000),\n\t[md_vehiclebasic_trailer1islinehaulvehicle] int,\n\t[md_vehiclebasic_trailer1internalheight] numeric(18,2),\n\t[md_vehiclebasic_trailer1internallength] numeric(18,2),\n\t[md_vehiclebasic_trailer1internalvolume] numeric(18,2),\n\t[md_vehiclebasic_trailer1internalwidth] numeric(18,2),\n\t[md_vehiclebasic_trailer1moddate] bigint,\n\t[md_vehiclebasic_trailer1trailerflag] int,\n\t[md_vehiclebasic_trailer1workflowstatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer1approveddate] bigint,\n\t[md_vehiclebasic_trailer2id] bigint,\n\t[md_vehiclebasic_trailer2uid] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicletype] nvarchar(4000),\n\t[md_vehiclebasic_trailer2internalexternal] nvarchar(4000),\n\t[md_vehiclebasic_trailer2activeflag] bigint,\n\t[md_vehiclebasic_trailer2vehiclestatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer2chassisnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2depot] nvarchar(4000),\n\t[md_vehiclebasic_trailer2enginenumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2fleetcode] nvarchar(4000),\n\t[md_vehiclebasic_trailer2fueltype] nvarchar(4000),\n\t[md_vehiclebasic_trailer2registrationnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleapplication] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclebodymake] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclecolour] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclemake] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclemodel] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleseries] nvarchar(4000),\n\t[md_vehiclebasic_trailer2year] int,\n\t[md_vehiclebasic_trailer2vehicleownerid] bigint,\n\t[md_vehiclebasic_trailer2vehicleowner] nvarchar(4000),\n\t[md_vehiclebasic_trailer2staffvehicleflag] int,\n\t[md_vehiclebasic_trailer2vehicletrailersize] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicletrailertype] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleetollclass] nvarchar(4000),\n\t[md_vehiclebasic_trailer2brn] nvarchar(4000),\n\t[md_vehiclebasic_trailer2brnnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleregisterno] nvarchar(4000),\n\t[md_vehiclebasic_trailer2insdate] bigint,\n\t[md_vehiclebasic_trailer2insby] nvarchar(4000),\n\t[md_vehiclebasic_trailer2islinehaulvehicle] int,\n\t[md_vehiclebasic_trailer2internalheight] numeric(18,2),\n\t[md_vehiclebasic_trailer2internallength] numeric(18,2),\n\t[md_vehiclebasic_trailer2internalvolume] numeric(18,2),\n\t[md_vehiclebasic_trailer2internalwidth] numeric(18,2),\n\t[md_vehiclebasic_trailer2moddate] bigint,\n\t[md_vehiclebasic_trailer2trailerflag] int,\n\t[md_vehiclebasic_trailer2workflowstatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer2approveddate] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstloadchild.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTLoadChild\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTLoadParent SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTLoadParent') )\n    DROP EXTERNAL TABLE dbo.F_SSTLoadParent\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTLoadParent (\n\t[lms_loadparent_parentloadid] int,\n\t[lms_loadparent_aggweight] float,\n\t[lms_loadparent_aggchargeweight] numeric(18,2),\n\t[lms_loadparent_aggvolweight] float,\n\t[lms_loadparent_aggvolumiserweight] numeric(18,2),\n\t[lms_loadparent_noparcels] bigint,\n\t[orv_dispatch_id] bigint,\n\t[orv_dispatch_lmsid] bigint,\n\t[orv_dispatch_vid] bigint,\n\t[orv_dispatch_did] bigint,\n\t[orv_dispatch_status] nvarchar(4000),\n\t[orv_dispatch_startdate] datetime2(7),\n\t[orv_dispatch_stopdate] datetime2(7),\n\t[orv_dispatch_vehicletype] int,\n\t[orv_dispatch_uid] bigint,\n\t[orv_dispatch_estdepdate] datetime2(7),\n\t[orv_dispatch_trailer] bigint,\n\t[orv_dispatch_trailer2] bigint,\n\t[orv_dispatch_fromlocid] bigint,\n\t[orv_dispatch_tolocid] bigint,\n\t[orv_dispatch_site] nvarchar(4000),\n\t[orv_dispatch_lastupdate] datetime2(7),\n\t[orv_dispatch_etastatus] nvarchar(4000),\n\t[orv_dispatch_startinglat] float,\n\t[orv_dispatch_startinglng] float,\n\t[orv_dispatch_endinglat] float,\n\t[orv_dispatch_endinglng] float,\n\t[orv_dispatch_startingfrom] nvarchar(4000),\n\t[orv_dispatch_goingto] nvarchar(4000),\n\t[orv_dispatch_importissue] nvarchar(4000),\n\t[orv_dispatch_insdate] datetime2(7),\n\t[orv_dispatch_estarrdate] datetime2(7),\n\t[orv_dispatch_duration] bigint,\n\t[orv_dispatch_distance] bigint,\n\t[orv_dispatch_cost] bigint,\n\t[orv_dispatch_stoplat] float,\n\t[orv_dispatch_stoplng] float,\n\t[orv_dispatch_stopreason] nvarchar(4000),\n\t[orv_dispatch_startodo] bigint,\n\t[orv_dispatch_stopodo] bigint,\n\t[orv_dispatch_expduration] bigint,\n\t[orv_dispatch_expdistance] bigint,\n\t[orv_dispatch_expcost] bigint,\n\t[orv_dispatch_collectionid] bigint,\n\t[orv_dispatch_crew] int,\n\t[orv_dispatch_crewnames] nvarchar(4000),\n\t[orv_dispatch_bocloseuid] bigint,\n\t[orv_dispatch_routing] nvarchar(4000),\n\t[orv_dispatch_swapct] int,\n\t[orv_dispatch_debriefed] int,\n\t[orv_dispatch_debriefnotes] nvarchar(4000),\n\t[orv_dispatch_bopin] nvarchar(4000),\n\t[orv_dispatch_cpicost] bigint,\n\t[orv_dispatch_labourcost] bigint,\n\t[orv_dispatch_maintcost] bigint,\n\t[orv_dispatch_inscost] bigint,\n\t[orv_dispatch_tollcost] bigint,\n\t[orv_dispatch_fuelcost] bigint,\n\t[orv_dispatch_internal] int,\n\t[orv_dispatch_childids] nvarchar(4000),\n\t[orv_dispatch_guid] bigint,\n\t[orv_dispatch_timedefinite] int,\n\t[orv_dispatch_orvcode] int,\n\t[orv_dispatch_tsstopdepoenter] datetime2(7),\n\t[orv_dispatch_tsstartdepoexit] datetime2(7),\n\t[orv_dispatch_reroutect] int,\n\t[orv_dispatch_actualarrdate] datetime2(7),\n\t[orv_dispatch_physicalstartlat] float,\n\t[orv_dispatch_physicalstartlng] float,\n\t[orv_dispatch_tsstartdepoexitapp] datetime2(7),\n\t[orv_dispatch_tsstopdepoenterapp] datetime2(7),\n\t[orv_dispatch_uncanceldate] datetime2(7),\n\t[orv_dispatch_uncancelusername] nvarchar(4000),\n\t[orv_dispatch_lmsdebrifed] int,\n\t[orv_dispatch_reviseddebrief] int,\n\t[orv_dispatch_lhtransporter] nvarchar(4000),\n\t[orv_dispatch_triptype] nvarchar(4000),\n\t[orv_dispatch_startreason] nvarchar(4000),\n\t[orv_dispatch_route] nvarchar(4000),\n\t[orv_dispatch_tmstraileridentify] nvarchar(4000),\n\t[orv_dispatch_tmstrailer2identify] nvarchar(4000),\n\t[orv_dispatch_tmscontroller] nvarchar(4000),\n\t[orv_dispatch_routekey] nvarchar(4000),\n\t[orv_dispatch_courierid] bigint,\n\t[orv_dispatch_originalstartdate] datetime2(7),\n\t[orv_dispatch_originalextarrival] datetime2(7),\n\t[orv_dispatch_recomputeoriginals] int,\n\t[orv_dispatch_originalextdistance] bigint,\n\t[orv_dispatch_originalextduration] bigint,\n\t[orv_dispatch_moddate] datetime2(7),\n\t[orv_dispatch_tmsmode] int,\n\t[orv_dispatch_driversignature] bigint,\n\t[orv_vehicle_id] bigint,\n\t[orv_vehicle_fleetcode] nvarchar(4000),\n\t[orv_vehicle_lmsid] bigint,\n\t[orv_vehicle_trailer1id] bigint,\n\t[orv_vehicle_trailer1fleetcode] nvarchar(4000),\n\t[orv_vehicle_trailer1lmsid] bigint,\n\t[orv_vehicle_trailer2id] bigint,\n\t[orv_vehicle_trailer2fleetcode] nvarchar(4000),\n\t[orv_vehicle_trailer2lmsid] bigint,\n\t[lms_vehicle_id] int,\n\t[lms_vehicle_uid] nvarchar(4000),\n\t[lms_vehicle_trailer1id] int,\n\t[lms_vehicle_trailer1uid] nvarchar(4000),\n\t[lms_vehicle_trailer2id] int,\n\t[lms_vehicle_trailer2uid] nvarchar(4000),\n\t[orv_orvuser_id] bigint,\n\t[orv_orvuser_username] nvarchar(4000),\n\t[orv_orvuser_fname] nvarchar(4000),\n\t[orv_orvuser_lname] nvarchar(4000),\n\t[orv_orvuser_empcode] nvarchar(4000),\n\t[orv_orvuser_aka] nvarchar(4000),\n\t[orv_orvuser_gender] nvarchar(4000),\n\t[orv_orvuser_cellno] nvarchar(4000),\n\t[orv_orvuser_rsaid] nvarchar(4000),\n\t[orv_orvuser_passportno] nvarchar(4000),\n\t[orv_orvuser_idpassportno] nvarchar(4000),\n\t[orv_orvuser_nationality] nvarchar(4000),\n\t[orv_orvuser_birthcountry] nvarchar(4000),\n\t[orv_orvuser_engageddate] datetime2(7),\n\t[orv_orvuser_joineddate] datetime2(7),\n\t[orv_orvuser_termindate] datetime2(7),\n\t[orv_orvuser_status] nvarchar(4000),\n\t[orv_orvuser_depot] nvarchar(4000),\n\t[orv_orvuser_jobcategory] nvarchar(4000),\n\t[orv_orvuser_jobtitle] nvarchar(4000),\n\t[orv_orvuser_payroll] nvarchar(4000),\n\t[orv_orvuser_annualsalary] float,\n\t[orv_orvuser_insdate] datetime2(7),\n\t[orv_orvuser_lmsid] bigint,\n\t[orv_orvuser_vipid] bigint,\n\t[orv_orvuser_dadriver] int,\n\t[orv_orvuser_dasupervisor] int,\n\t[orv_orvuser_davanassistant] int,\n\t[orv_orvuser_crewlmsid] bigint,\n\t[orv_orvuser_courierid] bigint,\n\t[md_vehiclebasic_id] bigint,\n\t[md_vehiclebasic_uid] nvarchar(4000),\n\t[md_vehiclebasic_vehicletype] nvarchar(4000),\n\t[md_vehiclebasic_internalexternal] nvarchar(4000),\n\t[md_vehiclebasic_activeflag] bigint,\n\t[md_vehiclebasic_vehiclestatus] nvarchar(4000),\n\t[md_vehiclebasic_chassisnumber] nvarchar(4000),\n\t[md_vehiclebasic_depot] nvarchar(4000),\n\t[md_vehiclebasic_enginenumber] nvarchar(4000),\n\t[md_vehiclebasic_fleetcode] nvarchar(4000),\n\t[md_vehiclebasic_fueltype] nvarchar(4000),\n\t[md_vehiclebasic_registrationnumber] nvarchar(4000),\n\t[md_vehiclebasic_vehicleapplication] nvarchar(4000),\n\t[md_vehiclebasic_vehiclebodymake] nvarchar(4000),\n\t[md_vehiclebasic_vehiclecolour] nvarchar(4000),\n\t[md_vehiclebasic_vehiclemake] nvarchar(4000),\n\t[md_vehiclebasic_vehiclemodel] nvarchar(4000),\n\t[md_vehiclebasic_vehicleseries] nvarchar(4000),\n\t[md_vehiclebasic_year] int,\n\t[md_vehiclebasic_vehicleownerid] bigint,\n\t[md_vehiclebasic_vehicleowner] nvarchar(4000),\n\t[md_vehiclebasic_staffvehicleflag] int,\n\t[md_vehiclebasic_vehicletrailersize] nvarchar(4000),\n\t[md_vehiclebasic_vehicletrailertype] nvarchar(4000),\n\t[md_vehiclebasic_vehicleetollclass] nvarchar(4000),\n\t[md_vehiclebasic_brn] nvarchar(4000),\n\t[md_vehiclebasic_brnnumber] nvarchar(4000),\n\t[md_vehiclebasic_vehicleregisterno] nvarchar(4000),\n\t[md_vehiclebasic_insdate] datetime2(7),\n\t[md_vehiclebasic_insby] nvarchar(4000),\n\t[md_vehiclebasic_islinehaulvehicle] int,\n\t[md_vehiclebasic_internalheight] numeric(18,2),\n\t[md_vehiclebasic_internallength] numeric(18,2),\n\t[md_vehiclebasic_internalvolume] numeric(18,2),\n\t[md_vehiclebasic_internalwidth] numeric(18,2),\n\t[md_vehiclebasic_moddate] datetime2(7),\n\t[md_vehiclebasic_trailerflag] int,\n\t[md_vehiclebasic_workflowstatus] nvarchar(4000),\n\t[md_vehiclebasic_approveddate] datetime2(7),\n\t[md_vehiclebasic_trailer1id] bigint,\n\t[md_vehiclebasic_trailer1uid] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicletype] nvarchar(4000),\n\t[md_vehiclebasic_trailer1internalexternal] nvarchar(4000),\n\t[md_vehiclebasic_trailer1activeflag] bigint,\n\t[md_vehiclebasic_trailer1vehiclestatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer1chassisnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1depot] nvarchar(4000),\n\t[md_vehiclebasic_trailer1enginenumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1fleetcode] nvarchar(4000),\n\t[md_vehiclebasic_trailer1fueltype] nvarchar(4000),\n\t[md_vehiclebasic_trailer1registrationnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleapplication] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclebodymake] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclecolour] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclemake] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclemodel] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleseries] nvarchar(4000),\n\t[md_vehiclebasic_trailer1year] int,\n\t[md_vehiclebasic_trailer1vehicleownerid] bigint,\n\t[md_vehiclebasic_trailer1vehicleowner] nvarchar(4000),\n\t[md_vehiclebasic_trailer1staffvehicleflag] int,\n\t[md_vehiclebasic_trailer1vehicletrailersize] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicletrailertype] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleetollclass] nvarchar(4000),\n\t[md_vehiclebasic_trailer1brn] nvarchar(4000),\n\t[md_vehiclebasic_trailer1brnnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleregisterno] nvarchar(4000),\n\t[md_vehiclebasic_trailer1insdate] datetime2(7),\n\t[md_vehiclebasic_trailer1insby] nvarchar(4000),\n\t[md_vehiclebasic_trailer1islinehaulvehicle] int,\n\t[md_vehiclebasic_trailer1internalheight] numeric(18,2),\n\t[md_vehiclebasic_trailer1internallength] numeric(18,2),\n\t[md_vehiclebasic_trailer1internalvolume] numeric(18,2),\n\t[md_vehiclebasic_trailer1internalwidth] numeric(18,2),\n\t[md_vehiclebasic_trailer1moddate] datetime2(7),\n\t[md_vehiclebasic_trailer1trailerflag] int,\n\t[md_vehiclebasic_trailer1workflowstatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer1approveddate] datetime2(7),\n\t[md_vehiclebasic_trailer2id] bigint,\n\t[md_vehiclebasic_trailer2uid] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicletype] nvarchar(4000),\n\t[md_vehiclebasic_trailer2internalexternal] nvarchar(4000),\n\t[md_vehiclebasic_trailer2activeflag] bigint,\n\t[md_vehiclebasic_trailer2vehiclestatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer2chassisnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2depot] nvarchar(4000),\n\t[md_vehiclebasic_trailer2enginenumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2fleetcode] nvarchar(4000),\n\t[md_vehiclebasic_trailer2fueltype] nvarchar(4000),\n\t[md_vehiclebasic_trailer2registrationnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleapplication] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclebodymake] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclecolour] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclemake] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclemodel] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleseries] nvarchar(4000),\n\t[md_vehiclebasic_trailer2year] int,\n\t[md_vehiclebasic_trailer2vehicleownerid] bigint,\n\t[md_vehiclebasic_trailer2vehicleowner] nvarchar(4000),\n\t[md_vehiclebasic_trailer2staffvehicleflag] int,\n\t[md_vehiclebasic_trailer2vehicletrailersize] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicletrailertype] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleetollclass] nvarchar(4000),\n\t[md_vehiclebasic_trailer2brn] nvarchar(4000),\n\t[md_vehiclebasic_trailer2brnnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleregisterno] nvarchar(4000),\n\t[md_vehiclebasic_trailer2insdate] datetime2(7),\n\t[md_vehiclebasic_trailer2insby] nvarchar(4000),\n\t[md_vehiclebasic_trailer2islinehaulvehicle] int,\n\t[md_vehiclebasic_trailer2internalheight] numeric(18,2),\n\t[md_vehiclebasic_trailer2internallength] numeric(18,2),\n\t[md_vehiclebasic_trailer2internalvolume] numeric(18,2),\n\t[md_vehiclebasic_trailer2internalwidth] numeric(18,2),\n\t[md_vehiclebasic_trailer2moddate] datetime2(7),\n\t[md_vehiclebasic_trailer2trailerflag] int,\n\t[md_vehiclebasic_trailer2workflowstatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer2approveddate] datetime2(7)\n\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstloadparent.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTLoadParent \nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTOrder SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTOrder') )\n    DROP EXTERNAL TABLE dbo.F_SSTOrder\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTOrder (\n\t[lms_order_id] int,\n\t[lms_order_idold] nvarchar(4000),\n\t[lms_order_corderno] nvarchar(4000),\n\t[lms_order_custref] nvarchar(4000),\n\t[lms_order_waybillid] int,\n\t[lms_order_pickupcustid] int,\n\t[lms_order_delivercustid] int,\n\t[lms_order_billcustid] int,\n\t[lms_order_ovalue] numeric(18,2),\n\t[lms_order_hodate] datetime2(7),\n\t[lms_order_cservice] nvarchar(4000),\n\t[lms_order_courierid] nvarchar(4000),\n\t[lms_order_custservice] nvarchar(4000),\n\t[lms_order_userid] int,\n\t[lms_order_pcode] nvarchar(4000),\n\t[lms_order_appointment] datetime2(7),\n\t[lms_order_deliverby] datetime2(7),\n\t[lms_order_dconfirmed] nvarchar(4000),\n\t[lms_order_dcomment] nvarchar(4000),\n\t[lms_order_drefno] nvarchar(4000),\n\t[lms_order_duserid] int,\n\t[lms_order_nopods] int,\n\t[lms_order_duedate] datetime2(7),\n\t[lms_order_batchno] int,\n\t[lms_order_units] int,\n\t[lms_order_airfreightflag] int,\n\t[lms_order_custref3] nvarchar(4000),\n\t[lms_order_specdel] int,\n\t[lms_order_flunits] int,\n\t[lms_order_flkgs] int,\n\t[lms_order_inservice] datetime2(7),\n\t[lms_order_custdocs] int,\n\t[lms_order_scanned] datetime2(7),\n\t[lms_order_scanimagename1] nvarchar(4000),\n\t[lms_order_scanimagename] nvarchar(4000),\n\t[lms_order_changereasonid] int,\n\t[lms_order_bill_servicetype] int,\n\t[lms_order_bill_vehicletype] int,\n\t[lms_order_quote] numeric(18,2),\n\t[lms_order_consignlabel] int,\n\t[lms_order_custref2] nvarchar(4000),\n\t[lms_order_callprogid] int,\n\t[lms_order_callprogupddate] datetime2(7),\n\t[lms_order_submitedi] int,\n\t[lms_order_lastupdate] datetime2(7),\n\t[lms_order_quoteflag] int,\n\t[lms_order_bill_minrate] numeric(18,2),\n\t[lms_order_bill_addrate] numeric(18,2),\n\t[lms_order_bill_minkg] numeric(18,2),\n\t[lms_order_notes] nvarchar(4000),\n\t[lms_order_quoteweight] numeric(18,2),\n\t[lms_order_orderconsolidationid] int,\n\t[lms_order_quotefuellevy] numeric(18,2),\n\t[lms_order_quoteothersurcharges] numeric(18,2),\n\t[lms_order_quotedocfees] numeric(18,2),\n\t[lms_bcustomer_id] int,\n\t[lms_bcustomer_name] nvarchar(4000),\n\t[lms_pcustomer_id] int,\n\t[lms_pcustomer_name] nvarchar(4000),\n\t[lms_dcustomer_id] int,\n\t[lms_dcustomer_name] nvarchar(4000),\n\t[lms_users_id] int,\n\t[lms_users_fullname] nvarchar(4000),\n\t[lms_users_site] nvarchar(4000),\n\t[lms_parcelbyorder_orderid] int,\n\t[lms_parcelbyorder_aggweight] float,\n\t[lms_parcelbyorder_aggchargeweight] numeric(28,2),\n\t[lms_parcelbyorder_aggvolweight] float,\n\t[lms_parcelbyorder_aggvolumiserweight] numeric(28,2),\n\t[lms_parcelbyorder_noparcels] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstorder.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTOrder\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTParcel SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTParcel') )\n    DROP EXTERNAL TABLE dbo.F_SSTParcel\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTParcel (\n\t[lms_parcel_id] int,\n\t[lms_parcel_weight] float,\n\t[lms_parcel_waybillid] int,\n\t[lms_parcel_orderid] int,\n\t[lms_parcel_acceptancedate] datetime2(7),\n\t[lms_parcel_userid] int,\n\t[lms_parcel_barcode] nvarchar(4000),\n\t[lms_parcel_endorsement] nvarchar(4000),\n\t[lms_parcel_volweight] float,\n\t[lms_parcel_chargeweight] numeric(18,2),\n\t[lms_parcel_ptype] int,\n\t[lms_parcel_description] nvarchar(4000),\n\t[lms_parcel_locid] int,\n\t[lms_parcel_handoverdate] datetime2(7),\n\t[lms_parcel_seqno] int,\n\t[lms_parcel_floorstatus] nvarchar(4000),\n\t[lms_parcel_consignid] int,\n\t[lms_parcel_cref] nvarchar(4000),\n\t[lms_parcel_claimid] int,\n\t[lms_parcel_duedate] datetime2(7),\n\t[lms_parcel_coddate] datetime2(7),\n\t[lms_parcel_disflag] int,\n\t[lms_parcel_astoreid] int,\n\t[lms_parcel_mrpflag] int,\n\t[lms_parcel_nmrflag] int,\n\t[lms_parcel_consignflag] int,\n\t[lms_parcel_cmanifest] int,\n\t[lms_parcel_cbranchid] int,\n\t[lms_parcel_claimref] nvarchar(4000),\n\t[lms_parcel_cost] numeric(18,2),\n\t[lms_parcel_creason] nvarchar(4000),\n\t[lms_parcel_customerbarcode] nvarchar(4000),\n\t[lms_parcel_dbshorts] int,\n\t[lms_parcel_holddate] datetime2(7),\n\t[lms_parcel_aflag] int,\n\t[lms_parcel_stationid] int,\n\t[lms_parcel_dbshortsdesc] nvarchar(4000),\n\t[lms_parcel_dstatusid] int,\n\t[lms_parcel_dflag] int,\n\t[lms_parcel_callprogid] int,\n\t[lms_parcel_callprogupddate] datetime2(7),\n\t[lms_parcel_duplflag] int,\n\t[lms_parcel_lastupdate] datetime2(7),\n\t[lms_parcel_datevolumised] datetime2(7),\n\t[lms_parcel_volumiserweight] numeric(18,2),\n\t[lms_parcel_volumiserlength] numeric(18,2),\n\t[lms_parcel_volumiserheight] numeric(18,2),\n\t[lms_parcel_volumiserwidth] numeric(18,2),\n\t[lms_parcel_volumiserid] int,\n\t[lms_parcel_pl] numeric(18,2),\n\t[lms_parcel_ph] numeric(18,2),\n\t[lms_parcel_pw] numeric(18,2),\n\t[lms_parcel_totcharge] numeric(18,2),\n\t[lms_parcel_dontrecalc] int,\n\t[lms_parcel_containerid] int,\n\t[lms_parcel_avgvolweight] numeric(18,2),\n\t[lms_waybill_id] int,\n\t[lms_waybill_poddate] datetime2(7),\n\t[lms_waybill_date] datetime2(7),\n\t[lms_order_id] int,\n\t[lms_order_hodate] datetime2(7),\n\t[lms_order_corderno] nvarchar(4000),\n\t[lms_order_billcustid] int,\n\t[lms_order_pickupcustid] int,\n\t[lms_order_delivercustid] int,\n\t[lms_order_specdel] int,\n\t[lms_consignment_id] int,\n\t[lms_consignment_cdate] datetime2(7),\n\t[lms_consignment_deliverby] datetime2(7),\n\t[lms_parceldetail_parcelid] int,\n\t[lms_parceldetail_inservicestart] datetime2(7),\n\t[lms_parceldetail_deliverby] datetime2(7),\n\t[lms_parceldetail_servicedays] int,\n\t[lms_parceldetail_servicetime] numeric(13,4),\n\t[lms_parceldetail_cutofftime] numeric(13,4),\n\t[lms_parceldetail_appointment] datetime2(7),\n\t[lms_parceldetail_nddid] int,\n\t[lms_parceldetail_custonholdstart] datetime2(7),\n\t[lms_parceldetail_custonholdend] datetime2(7),\n\t[lms_parceldetail_splitinitial] int,\n\t[lms_parceldetail_weekendholidays] int,\n\t[lms_parceldetail_inbound] int,\n\t[lms_parceldetail_courierid] nvarchar(4000),\n\t[lms_parceldetail_serviceid] nvarchar(4000),\n\t[lms_parceldetail_custaccid] int,\n\t[lms_parceldetail_broutemasterid] int,\n\t[lms_parceldetail_broutemasterfromid] int,\n\t[lms_parceldetail_broutemastertoid] int,\n\t[lms_parceldetail_leadtimeid] int,\n\t[lms_bcustomer_id] int,\n\t[lms_bcustomer_name] nvarchar(4000),\n\t[lms_pcustomer_id] int,\n\t[lms_pcustomer_name] nvarchar(4000),\n\t[lms_dcustomer_id] int,\n\t[lms_dcustomer_name] nvarchar(4000),\n\t[lms_users_id] int,\n\t[lms_users_fullname] nvarchar(4000),\n\t[lms_users_site] nvarchar(4000),\n\t[lms_bill_parceltype_id] int,\n\t[lms_bill_parceltype_description] nvarchar(4000),\n\t[lms_bill_parceltype_ptype] int,\n\t[lms_clocation_id] int,\n\t[lms_clocation_description] nvarchar(4000),\n\t[lms_dstatus_id] int,\n\t[lms_dstatus_description] nvarchar(4000),\n\t[lms_volumiser_id] int,\n\t[lms_volumiser_locid] int,\n\t[lms_volumiser_volumisercode] nvarchar(4000),\n\t[lms_volumiser_volumiserdescription] nvarchar(4000),\n\t[lms_volumiser_userid] int,\n\t[lms_volumiser_inlinescale] int,\n\t[orv_parcel_id] bigint,\n\t[orv_parcel_lmsid] bigint,\n\t[orv_parcel_did] bigint,\n\t[orv_parcel_scandate] datetime2(7),\n\t[orv_parcel_scanstatus] nvarchar(4000),\n\t[orv_parcel_scanmode] nvarchar(4000),\n\t[orv_parcel_claimid] bigint,\n\t[orv_parcel_courierid] bigint,\n\t[orv_parcel_moddate] datetime2(7)\n\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstparcel.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTParcel\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTParcelByConsignment SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTParcelByConsignment') )\n    DROP EXTERNAL TABLE dbo.F_SSTParcelByConsignment\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTParcelByConsignment (\n\t[lms_parcelbyconsignment_consignid] int,\n\t[lms_parcelbyconsignment_aggweight] float,\n\t[lms_parcelbyconsignment_aggchargeweight] numeric(28,2),\n\t[lms_parcelbyconsignment_aggvolweight] float,\n\t[lms_parcelbyconsignment_aggvolumiserweight] numeric(28,2),\n\t[lms_parcelbyconsignment_noparcels] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstparcelbyconsignment.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTParcelByConsignment\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTParcelByLoad SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTParcelByLoad') )\n    DROP EXTERNAL TABLE dbo.F_SSTParcelByLoad\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTParcelByLoad (\n\t[lms_parcelbyload_loadid] int,\n\t[lms_parcelbyload_aggweight] float,\n\t[lms_parcelbyload_aggchargeweight] numeric(28,2),\n\t[lms_parcelbyload_aggvolweight] float,\n\t[lms_parcelbyload_aggvolumiserweight] numeric(28,2),\n\t[lms_parcelbyload_noparcels] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstparcelbyload.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTParcelByLoad\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTParcelByOrder SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTParcelByOrder') )\n    DROP EXTERNAL TABLE dbo.F_SSTParcelByOrder\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTParcelByOrder (\n\t[lms_parcelbyorder_orderid] int,\n\t[lms_parcelbyorder_aggweight] float,\n\t[lms_parcelbyorder_aggchargeweight] numeric(28,2),\n\t[lms_parcelbyorder_aggvolweight] float,\n\t[lms_parcelbyorder_aggvolumiserweight] numeric(28,2),\n\t[lms_parcelbyorder_noparcels] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstparcelbyorder.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTParcelByOrder\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTParcelByWaybill_SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "DROP EXTERNAL TABLE dbo.F_SSTParcelByWaybill;\n\nCREATE EXTERNAL TABLE dbo.F_SSTParcelByWaybill (\n\t[lms_parcelbywaybill_waybillid] int,\n\t[lms_parcelbywaybill_aggweight] float,\n\t[lms_parcelbywaybill_aggchargeweight] numeric(28,2),\n\t[lms_parcelbywaybill_aggvolweight] float,\n\t[lms_parcelbywaybill_aggvolumiserweight] numeric(28,2),\n\t[lms_parcelbywaybill_noparcels] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstparcelbywaybill.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTParcelByWaybill\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTTrack_SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "DROP EXTERNAL TABLE dbo.F_SSTTrack;\n\nCREATE EXTERNAL TABLE dbo.F_SSTTrack (\n\t[lms_track_id] int,\n\t[lms_track_opendt] datetime2(7),\n\t[lms_track_closedt] datetime2(7),\n\t[lms_track_loadid] int,\n\t[lms_track_userid] int,\n\t[lms_track_parcelid] int,\n\t[lms_track_tolocid] int,\n\t[lms_track_touserid] int,\n\t[lms_track_fromlocid] int,\n\t[lms_track_tracktypeid2] int,\n\t[lms_track_tracktypeid] int,\n\t[lms_track_lastupdate] datetime2(7),\n\t[lms_track_toloadid] int,\n\t[lms_track_openstationid] int,\n\t[lms_track_closestationid] int,\n\t[lms_parcel_weight] float,\n\t[lms_parcel_chargeweight] numeric(18,2),\n\t[lms_parcel_volweight] float,\n\t[lms_parcel_volumiserweight] numeric(18,2),\n\t[lms_flocation_id] int,\n\t[lms_flocation_description] nvarchar(4000),\n\t[lms_tlocation_id] int,\n\t[lms_tlocation_description] nvarchar(4000)\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/ssttrack.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTTrack\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTTrip SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTTrip') )\n    DROP EXTERNAL TABLE dbo.F_SSTTrip\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTTrip (\n\t[tms_trip_id] bigint,\n\t[tms_trip_driverid] nvarchar(4000),\n\t[tms_trip_vehicleid] nvarchar(4000),\n\t[tms_trip_trailerid] nvarchar(4000),\n\t[tms_trip_sectrailerid] nvarchar(4000),\n\t[tms_trip_status] nvarchar(4000),\n\t[tms_trip_routeid] bigint,\n\t[tms_trip_opsrouteid] bigint,\n\t[tms_trip_startfromaddress] nvarchar(4000),\n\t[tms_trip_startfromlat] float,\n\t[tms_trip_startfromlng] float,\n\t[tms_trip_dispatchdate] datetime2(7),\n\t[tms_trip_stopaddress] nvarchar(4000),\n\t[tms_trip_stoplat] float,\n\t[tms_trip_stoplng] float,\n\t[tms_trip_insdate] datetime2(7),\n\t[tms_trip_moddate] datetime2(7),\n\t[tms_trip_insby] bigint,\n\t[tms_trip_onrouteid] bigint,\n\t[tms_trip_uuid] nvarchar(4000),\n\t[tms_trip_insbyuser] nvarchar(4000),\n\t[tms_trip_thirdpartyid] bigint,\n\t[tms_trip_timehash] int,\n\t[tms_trip_onroutestatus] nvarchar(4000),\n\t[tms_trip_lastupdate] datetime2(7),\n\t[tms_trip_lastlng] float,\n\t[tms_trip_lastlat] float,\n\t[tms_trip_controllerid] bigint,\n\t[tms_trip_trackstatus] nvarchar(4000),\n\t[tms_trip_lastrackid] bigint,\n\t[tms_trip_customer] nvarchar(4000),\n\t[tms_trip_bookings] nvarchar(4000),\n\t[tms_trip_controller] nvarchar(4000),\n\t[tms_trip_transporter] nvarchar(4000),\n\t[tms_trip_legacyid] bigint,\n\t[tms_trip_originatedfrom] nvarchar(4000),\n\t[tms_trip_local] int,\n\t[tms_trip_startdate] datetime2(7),\n\t[tms_trip_enddate] datetime2(7),\n\t[tms_trip_actualdeliverydate] datetime2(7),\n\t[tms_trip_note] nvarchar(4000),\n\t[tms_trip_deliverydate] datetime2(7),\n\t[tms_trip_internalexternal] nvarchar(4000),\n\t[tms_trip_pickupstartaddress] nvarchar(4000),\n\t[orv_dispatch_id] bigint,\n\t[orv_dispatch_lmsid] bigint,\n\t[orv_dispatch_vid] bigint,\n\t[orv_dispatch_did] bigint,\n\t[orv_dispatch_status] nvarchar(4000),\n\t[orv_dispatch_startdate] datetime2(7),\n\t[orv_dispatch_stopdate] datetime2(7),\n\t[orv_dispatch_vehicletype] int,\n\t[orv_dispatch_uid] bigint,\n\t[orv_dispatch_estdepdate] datetime2(7),\n\t[orv_dispatch_trailer] bigint,\n\t[orv_dispatch_trailer2] bigint,\n\t[orv_dispatch_fromlocid] bigint,\n\t[orv_dispatch_tolocid] bigint,\n\t[orv_dispatch_site] nvarchar(4000),\n\t[orv_dispatch_lastupdate] datetime2(7),\n\t[orv_dispatch_etastatus] nvarchar(4000),\n\t[orv_dispatch_startinglat] float,\n\t[orv_dispatch_startinglng] float,\n\t[orv_dispatch_endinglat] float,\n\t[orv_dispatch_endinglng] float,\n\t[orv_dispatch_startingfrom] nvarchar(4000),\n\t[orv_dispatch_goingto] nvarchar(4000),\n\t[orv_dispatch_importissue] nvarchar(4000),\n\t[orv_dispatch_insdate] datetime2(7),\n\t[orv_dispatch_estarrdate] datetime2(7),\n\t[orv_dispatch_duration] bigint,\n\t[orv_dispatch_distance] bigint,\n\t[orv_dispatch_cost] bigint,\n\t[orv_dispatch_stoplat] float,\n\t[orv_dispatch_stoplng] float,\n\t[orv_dispatch_stopreason] nvarchar(4000),\n\t[orv_dispatch_startodo] bigint,\n\t[orv_dispatch_stopodo] bigint,\n\t[orv_dispatch_expduration] bigint,\n\t[orv_dispatch_expdistance] bigint,\n\t[orv_dispatch_expcost] bigint,\n\t[orv_dispatch_collectionid] bigint,\n\t[orv_dispatch_crew] int,\n\t[orv_dispatch_crewnames] nvarchar(4000),\n\t[orv_dispatch_bocloseuid] bigint,\n\t[orv_dispatch_routing] nvarchar(4000),\n\t[orv_dispatch_swapct] int,\n\t[orv_dispatch_debriefed] int,\n\t[orv_dispatch_debriefnotes] nvarchar(4000),\n\t[orv_dispatch_bopin] nvarchar(4000),\n\t[orv_dispatch_cpicost] bigint,\n\t[orv_dispatch_labourcost] bigint,\n\t[orv_dispatch_maintcost] bigint,\n\t[orv_dispatch_inscost] bigint,\n\t[orv_dispatch_tollcost] bigint,\n\t[orv_dispatch_fuelcost] bigint,\n\t[orv_dispatch_internal] int,\n\t[orv_dispatch_childids] nvarchar(4000),\n\t[orv_dispatch_guid] bigint,\n\t[orv_dispatch_timedefinite] int,\n\t[orv_dispatch_orvcode] int,\n\t[orv_dispatch_tsstopdepoenter] datetime2(7),\n\t[orv_dispatch_tsstartdepoexit] datetime2(7),\n\t[orv_dispatch_reroutect] int,\n\t[orv_dispatch_actualarrdate] datetime2(7),\n\t[orv_dispatch_physicalstartlat] float,\n\t[orv_dispatch_physicalstartlng] float,\n\t[orv_dispatch_tsstartdepoexitapp] datetime2(7),\n\t[orv_dispatch_tsstopdepoenterapp] datetime2(7),\n\t[orv_dispatch_uncanceldate] datetime2(7),\n\t[orv_dispatch_uncancelusername] nvarchar(4000),\n\t[orv_dispatch_lmsdebrifed] int,\n\t[orv_dispatch_reviseddebrief] int,\n\t[orv_dispatch_lhtransporter] nvarchar(4000),\n\t[orv_dispatch_triptype] nvarchar(4000),\n\t[orv_dispatch_startreason] nvarchar(4000),\n\t[orv_dispatch_route] nvarchar(4000),\n\t[orv_dispatch_tmstraileridentify] nvarchar(4000),\n\t[orv_dispatch_tmstrailer2identify] nvarchar(4000),\n\t[orv_dispatch_tmscontroller] nvarchar(4000),\n\t[orv_dispatch_routekey] nvarchar(4000),\n\t[orv_dispatch_courierid] bigint,\n\t[orv_dispatch_originalstartdate] datetime2(7),\n\t[orv_dispatch_originalextarrival] datetime2(7),\n\t[orv_dispatch_recomputeoriginals] int,\n\t[orv_dispatch_originalextdistance] bigint,\n\t[orv_dispatch_originalextduration] bigint,\n\t[orv_dispatch_moddate] datetime2(7),\n\t[orv_dispatch_tmsmode] int,\n\t[orv_dispatch_driversignature] bigint,\n\t[orv_vehicle_id] bigint,\n\t[orv_vehicle_fleetcode] nvarchar(4000),\n\t[orv_vehicle_lmsid] bigint,\n\t[orv_vehicle_trailer1id] bigint,\n\t[orv_vehicle_trailer1fleetcode] nvarchar(4000),\n\t[orv_vehicle_trailer1lmsid] bigint,\n\t[orv_vehicle_trailer2id] bigint,\n\t[orv_vehicle_trailer2fleetcode] nvarchar(4000),\n\t[orv_vehicle_trailer2lmsid] bigint,\n\t[lms_vehicle_id] int,\n\t[lms_vehicle_uid] nvarchar(4000),\n\t[lms_vehicle_trailer1id] int,\n\t[lms_vehicle_trailer1uid] nvarchar(4000),\n\t[lms_vehicle_trailer2id] int,\n\t[lms_vehicle_trailer2uid] nvarchar(4000),\n\t[orv_orvuser_id] bigint,\n\t[orv_orvuser_username] nvarchar(4000),\n\t[orv_orvuser_fname] nvarchar(4000),\n\t[orv_orvuser_lname] nvarchar(4000),\n\t[orv_orvuser_empcode] nvarchar(4000),\n\t[orv_orvuser_aka] nvarchar(4000),\n\t[orv_orvuser_gender] nvarchar(4000),\n\t[orv_orvuser_cellno] nvarchar(4000),\n\t[orv_orvuser_rsaid] nvarchar(4000),\n\t[orv_orvuser_passportno] nvarchar(4000),\n\t[orv_orvuser_idpassportno] nvarchar(4000),\n\t[orv_orvuser_nationality] nvarchar(4000),\n\t[orv_orvuser_birthcountry] nvarchar(4000),\n\t[orv_orvuser_engageddate] datetime2(7),\n\t[orv_orvuser_joineddate] datetime2(7),\n\t[orv_orvuser_termindate] datetime2(7),\n\t[orv_orvuser_status] nvarchar(4000),\n\t[orv_orvuser_depot] nvarchar(4000),\n\t[orv_orvuser_jobcategory] nvarchar(4000),\n\t[orv_orvuser_jobtitle] nvarchar(4000),\n\t[orv_orvuser_payroll] nvarchar(4000),\n\t[orv_orvuser_annualsalary] float,\n\t[orv_orvuser_insdate] datetime2(7),\n\t[md_vehiclebasic_id] bigint,\n\t[md_vehiclebasic_uid] nvarchar(4000),\n\t[md_vehiclebasic_vehicletype] nvarchar(4000),\n\t[md_vehiclebasic_internalexternal] nvarchar(4000),\n\t[md_vehiclebasic_activeflag] bigint,\n\t[md_vehiclebasic_vehiclestatus] nvarchar(4000),\n\t[md_vehiclebasic_chassisnumber] nvarchar(4000),\n\t[md_vehiclebasic_depot] nvarchar(4000),\n\t[md_vehiclebasic_enginenumber] nvarchar(4000),\n\t[md_vehiclebasic_fleetcode] nvarchar(4000),\n\t[md_vehiclebasic_fueltype] nvarchar(4000),\n\t[md_vehiclebasic_registrationnumber] nvarchar(4000),\n\t[md_vehiclebasic_vehicleapplication] nvarchar(4000),\n\t[md_vehiclebasic_vehiclebodymake] nvarchar(4000),\n\t[md_vehiclebasic_vehiclecolour] nvarchar(4000),\n\t[md_vehiclebasic_vehiclemake] nvarchar(4000),\n\t[md_vehiclebasic_vehiclemodel] nvarchar(4000),\n\t[md_vehiclebasic_vehicleseries] nvarchar(4000),\n\t[md_vehiclebasic_year] int,\n\t[md_vehiclebasic_vehicleownerid] bigint,\n\t[md_vehiclebasic_vehicleowner] nvarchar(4000),\n\t[md_vehiclebasic_staffvehicleflag] int,\n\t[md_vehiclebasic_vehicletrailersize] nvarchar(4000),\n\t[md_vehiclebasic_vehicletrailertype] nvarchar(4000),\n\t[md_vehiclebasic_vehicleetollclass] nvarchar(4000),\n\t[md_vehiclebasic_brn] nvarchar(4000),\n\t[md_vehiclebasic_brnnumber] nvarchar(4000),\n\t[md_vehiclebasic_vehicleregisterno] nvarchar(4000),\n\t[md_vehiclebasic_insdate] datetime2(7),\n\t[md_vehiclebasic_insby] nvarchar(4000),\n\t[md_vehiclebasic_islinehaulvehicle] int,\n\t[md_vehiclebasic_internalheight] numeric(18,2),\n\t[md_vehiclebasic_internallength] numeric(18,2),\n\t[md_vehiclebasic_internalvolume] numeric(18,2),\n\t[md_vehiclebasic_internalwidth] numeric(18,2),\n\t[md_vehiclebasic_moddate] datetime2(7),\n\t[md_vehiclebasic_trailerflag] int,\n\t[md_vehiclebasic_workflowstatus] nvarchar(4000),\n\t[md_vehiclebasic_approveddate] datetime2(7),\n\t[md_vehiclebasic_trailer1id] bigint,\n\t[md_vehiclebasic_trailer1uid] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicletype] nvarchar(4000),\n\t[md_vehiclebasic_trailer1internalexternal] nvarchar(4000),\n\t[md_vehiclebasic_trailer1activeflag] bigint,\n\t[md_vehiclebasic_trailer1vehiclestatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer1chassisnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1depot] nvarchar(4000),\n\t[md_vehiclebasic_trailer1enginenumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1fleetcode] nvarchar(4000),\n\t[md_vehiclebasic_trailer1fueltype] nvarchar(4000),\n\t[md_vehiclebasic_trailer1registrationnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleapplication] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclebodymake] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclecolour] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclemake] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehiclemodel] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleseries] nvarchar(4000),\n\t[md_vehiclebasic_trailer1year] int,\n\t[md_vehiclebasic_trailer1vehicleownerid] bigint,\n\t[md_vehiclebasic_trailer1vehicleowner] nvarchar(4000),\n\t[md_vehiclebasic_trailer1staffvehicleflag] int,\n\t[md_vehiclebasic_trailer1vehicletrailersize] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicletrailertype] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleetollclass] nvarchar(4000),\n\t[md_vehiclebasic_trailer1brn] nvarchar(4000),\n\t[md_vehiclebasic_trailer1brnnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer1vehicleregisterno] nvarchar(4000),\n\t[md_vehiclebasic_trailer1insdate] datetime2(7),\n\t[md_vehiclebasic_trailer1insby] nvarchar(4000),\n\t[md_vehiclebasic_trailer1islinehaulvehicle] int,\n\t[md_vehiclebasic_trailer1internalheight] numeric(18,2),\n\t[md_vehiclebasic_trailer1internallength] numeric(18,2),\n\t[md_vehiclebasic_trailer1internalvolume] numeric(18,2),\n\t[md_vehiclebasic_trailer1internalwidth] numeric(18,2),\n\t[md_vehiclebasic_trailer1moddate] datetime2(7),\n\t[md_vehiclebasic_trailer1trailerflag] int,\n\t[md_vehiclebasic_trailer1workflowstatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer1approveddate] datetime2(7),\n\t[md_vehiclebasic_trailer2id] bigint,\n\t[md_vehiclebasic_trailer2uid] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicletype] nvarchar(4000),\n\t[md_vehiclebasic_trailer2internalexternal] nvarchar(4000),\n\t[md_vehiclebasic_trailer2activeflag] bigint,\n\t[md_vehiclebasic_trailer2vehiclestatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer2chassisnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2depot] nvarchar(4000),\n\t[md_vehiclebasic_trailer2enginenumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2fleetcode] nvarchar(4000),\n\t[md_vehiclebasic_trailer2fueltype] nvarchar(4000),\n\t[md_vehiclebasic_trailer2registrationnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleapplication] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclebodymake] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclecolour] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclemake] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehiclemodel] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleseries] nvarchar(4000),\n\t[md_vehiclebasic_trailer2year] int,\n\t[md_vehiclebasic_trailer2vehicleownerid] bigint,\n\t[md_vehiclebasic_trailer2vehicleowner] nvarchar(4000),\n\t[md_vehiclebasic_trailer2staffvehicleflag] int,\n\t[md_vehiclebasic_trailer2vehicletrailersize] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicletrailertype] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleetollclass] nvarchar(4000),\n\t[md_vehiclebasic_trailer2brn] nvarchar(4000),\n\t[md_vehiclebasic_trailer2brnnumber] nvarchar(4000),\n\t[md_vehiclebasic_trailer2vehicleregisterno] nvarchar(4000),\n\t[md_vehiclebasic_trailer2insdate] datetime2(7),\n\t[md_vehiclebasic_trailer2insby] nvarchar(4000),\n\t[md_vehiclebasic_trailer2islinehaulvehicle] int,\n\t[md_vehiclebasic_trailer2internalheight] numeric(18,2),\n\t[md_vehiclebasic_trailer2internallength] numeric(18,2),\n\t[md_vehiclebasic_trailer2internalvolume] numeric(18,2),\n\t[md_vehiclebasic_trailer2internalwidth] numeric(18,2),\n\t[md_vehiclebasic_trailer2moddate] datetime2(7),\n\t[md_vehiclebasic_trailer2trailerflag] int,\n\t[md_vehiclebasic_trailer2workflowstatus] nvarchar(4000),\n\t[md_vehiclebasic_trailer2approveddate] datetime2(7),\n\t[tms_driverpayitem_id] bigint,\n\t[tms_driverpayitem_driverid] nvarchar(4000),\n\t[tms_driverpayitem_tripid] bigint,\n\t[tms_driverpayitem_triprate] int,\n\t[tms_driverpayitem_mealrate] int,\n\t[tms_driverpayitem_sleepoverrate] int,\n\t[tms_driverpayitem_airtimerate] int,\n\t[tms_driverpayitem_linkrate] int,\n\t[tms_driverpayitem_totalrate] int,\n\t[tms_driverpayitem_routeid] bigint,\n\t[tms_driverpayitem_routename] nvarchar(4000),\n\t[tms_driverpayitem_insdate] datetime2(7),\n\t[tms_driverpayitem_moddate] datetime2(7),\n\t[tms_driverpayitem_horse] nvarchar(4000),\n\t[tms_driverpayitem_trailers] nvarchar(4000),\n\t[tms_driverpayitem_linkused] int,\n\t[tms_driverpayitem_manualadjustment] int,\n\t[tms_driverpayitem_editby] bigint,\n\t[tms_driverpayitem_drivername] nvarchar(4000),\n\t[tms_driverpayitem_dispatchdate] datetime2(7),\n\t[tms_driverpayitem_bookings] nvarchar(4000),\n\t[tms_driverpayitem_employeecode] nvarchar(4000),\n\t[tms_driverpayitem_originatedfrom] nvarchar(4000),\n\t[tms_driverpayitem_reportid] bigint,\n\t[tms_financedata_aggrpeaksurchagrebuy] bigint,\n\t[tms_financedata_aggrpeaksurchagresell] bigint,\n\t[tms_financedata_aggrmanualentryroadhaulsell] bigint,\n\t[tms_financedata_aggrmanualentryahocsell] bigint,\n\t[tms_financedata_aggrsystemfuellevy] bigint,\n\t[tms_financedata_aggrsystemratefuellevy] bigint,\n\t[tms_financedata_aggrsystemratefuelexlevy] bigint,\n\t[tms_financedata_aggrsystemratefuelinclevy] bigint,\n\t[tms_financedata_aggrsystemsellrate] bigint,\n\t[tms_financedata_aggrtotalsellrate] bigint,\n\t[tms_financedata_aggrtotalbuyrate] bigint\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/ssttrip.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTTrip \nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTWaybill_SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTWaybill') )\n    DROP EXTERNAL TABLE dbo.F_SSTWaybill\nGO\n\nCREATE EXTERNAL TABLE dbo.F_SSTWaybill (\n\t[lms_waybill_id] int,\n\t[lms_waybill_date] datetime2(7),\n\t[lms_waybill_bservice] nvarchar(4000),\n\t[lms_waybill_cservice] nvarchar(4000),\n\t[lms_waybill_originid] nvarchar(4000),\n\t[lms_waybill_defuser] nvarchar(4000),\n\t[lms_waybill_distance] float,\n\t[lms_waybill_courierid] nvarchar(4000),\n\t[lms_waybill_courierwbno] nvarchar(4000),\n\t[lms_waybill_billtype] int,\n\t[lms_waybill_capdate] datetime2(7),\n\t[lms_waybill_surcharge] numeric(18,2),\n\t[lms_waybill_insurance] numeric(18,2),\n\t[lms_waybill_tax] numeric(18,2),\n\t[lms_waybill_totalcharge] numeric(18,2),\n\t[lms_waybill_destinationname] nvarchar(4000),\n\t[lms_waybill_ordertype] int,\n\t[lms_waybill_pickupcustid] int,\n\t[lms_waybill_delivercustid] int,\n\t[lms_waybill_billto] nvarchar(4000),\n\t[lms_waybill_claimable] int,\n\t[lms_waybill_override] int,\n\t[lms_waybill_vehiclecapacity] int,\n\t[lms_waybill_custpoddate] datetime2(7),\n\t[lms_waybill_poddate] datetime2(7),\n\t[lms_waybill_signee] nvarchar(4000),\n\t[lms_waybill_grvno] nvarchar(4000),\n\t[lms_waybill_endorsements] nvarchar(4000),\n\t[lms_waybill_billcust] int,\n\t[lms_waybill_courier_from] nvarchar(4000),\n\t[lms_waybill_courier_to] nvarchar(4000),\n\t[lms_waybill_charge] numeric(18,2),\n\t[lms_waybill_tvalue] numeric(18,2),\n\t[lms_waybill_inservice] datetime2(7),\n\t[lms_waybill_dbtotalcharge] numeric(18,2),\n\t[lms_waybill_loadid] int,\n\t[lms_waybill_mrpflag] int,\n\t[lms_waybill_printed] int,\n\t[lms_waybill_sreasonid] int,\n\t[lms_waybill_minkg] numeric(18,2),\n\t[lms_waybill_minrate] numeric(18,2),\n\t[lms_waybill_addrate] numeric(18,2),\n\t[lms_waybill_docfees] numeric(18,2),\n\t[lms_waybill_volumetric] numeric(18,2),\n\t[lms_waybill_hasprinted] nvarchar(4000),\n\t[lms_waybill_site] nvarchar(4000),\n\t[lms_waybill_deliveryno] int,\n\t[lms_waybill_fuellevy] numeric(18,2),\n\t[lms_waybill_totfuellevy] numeric(18,2),\n\t[lms_waybill_custaccid] int,\n\t[lms_waybill_podadded] datetime2(7),\n\t[lms_waybill_scanned] int,\n\t[lms_waybill_userid] int,\n\t[lms_waybill_autoprinted] int,\n\t[lms_waybill_poduserid] int,\n\t[lms_waybill_scanuserid] int,\n\t[lms_waybill_cref] nvarchar(4000),\n\t[lms_waybill_ushort] int,\n\t[lms_waybill_delays] nvarchar(4000),\n\t[lms_waybill_debriefed] int,\n\t[lms_waybill_debriefdt] datetime2(7),\n\t[lms_waybill_dbctnsret] int,\n\t[lms_waybill_uploaded] int,\n\t[lms_waybill_serviceexclude] int,\n\t[lms_waybill_failed] int,\n\t[lms_waybill_delayreasonid] int,\n\t[lms_waybill_notdebrievreasonid] int,\n\t[lms_waybill_deliverystatid] int,\n\t[lms_waybill_reasongroupid] int,\n\t[lms_waybill_emailcust] int,\n\t[lms_waybill_mobileissuereportedid] int,\n\t[lms_waybill_ismobile] int,\n\t[lms_bcustomer_id] int,\n\t[lms_bcustomer_name] nvarchar(4000),\n\t[lms_pcustomer_id] int,\n\t[lms_pcustomer_name] nvarchar(4000),\n\t[lms_dcustomer_id] int,\n\t[lms_dcustomer_name] nvarchar(4000),\n\t[lms_users_id] int,\n\t[lms_users_fullname] nvarchar(4000),\n\t[lms_users_site] nvarchar(4000),\n\t[lms_podusers_id] int,\n\t[lms_podusers_fullname] nvarchar(4000),\n\t[lms_podusers_site] nvarchar(4000),\n\t[lms_scanusers_id] int,\n\t[lms_scanusers_fullname] nvarchar(4000),\n\t[lms_scanusers_site] nvarchar(4000),\n\t[lms_delayreason_id] int,\n\t[lms_delayreason_description] nvarchar(4000),\n\t[lms_mobilefeedbackreason_id] int,\n\t[lms_mobilefeedbackreason_description] nvarchar(4000),\n\t[lms_reasondetail_id] int,\n\t[lms_reasondetail_description] nvarchar(4000),\n\t[lms_reasondetail_reasongroupid] int,\n\t[lms_reasongroup_id] int,\n\t[lms_reasongroup_description] nvarchar(4000),\n\t[lms_deliverystatus_id] int,\n\t[lms_deliverystatus_description] nvarchar(4000),\n\t[lms_parcelbywaybill_waybillid] int,\n\t[lms_parcelbywaybill_aggweight] float,\n\t[lms_parcelbywaybill_aggchargeweight] numeric(18,2),\n\t[lms_parcelbywaybill_aggvolweight] float,\n\t[lms_parcelbywaybill_aggvolumiserweight] numeric(18,2),\n\t[lms_parcelbywaybill_noparcels] bigint,\n\t[orv_delivery_id] bigint,\n\t[orv_delivery_dispatchid] bigint,\n\t[orv_delivery_waybillid] bigint,\n\t[orv_delivery_address] nvarchar(4000),\n\t[orv_delivery_town] nvarchar(4000),\n\t[orv_delivery_province] nvarchar(4000),\n\t[orv_delivery_country] nvarchar(4000),\n\t[orv_delivery_lat] float,\n\t[orv_delivery_lng] float,\n\t[orv_delivery_placeid] nvarchar(4000),\n\t[orv_delivery_what3words] nvarchar(4000),\n\t[orv_delivery_zipcode] nvarchar(4000),\n\t[orv_delivery_eta] datetime2(7),\n\t[orv_delivery_actualeta] datetime2(7),\n\t[orv_delivery_deliverydate] datetime2(7),\n\t[orv_delivery_deliverby] datetime2(7),\n\t[orv_delivery_deliveryorder] int,\n\t[orv_delivery_tsgeofenceenter] datetime2(7),\n\t[orv_delivery_tsscanningstart] datetime2(7),\n\t[orv_delivery_tsscanningstop] datetime2(7),\n\t[orv_delivery_tspodsignature] datetime2(7),\n\t[orv_delivery_aid] bigint,\n\t[orv_delivery_numprcls] int,\n\t[orv_delivery_geocodingstatus] nvarchar(4000),\n\t[orv_delivery_skipdate] datetime2(7),\n\t[orv_delivery_skipreason] nvarchar(4000),\n\t[orv_delivery_status] nvarchar(4000),\n\t[orv_delivery_partialmatch] int,\n\t[orv_delivery_approximated] int,\n\t[orv_delivery_lmsorder] int,\n\t[orv_delivery_optimizedorder] int,\n\t[orv_delivery_seal] nvarchar(4000),\n\t[orv_delivery_customerinvoice] int,\n\t[orv_delivery_customerdn] int,\n\t[orv_delivery_grv] nvarchar(4000),\n\t[orv_delivery_chepslip] int,\n\t[orv_delivery_cleandelivery] int,\n\t[orv_delivery_trackingcode] nvarchar(4000),\n\t[orv_delivery_mode] nvarchar(4000),\n\t[orv_delivery_customorder] int,\n\t[orv_delivery_verified] int,\n\t[orv_delivery_altered] int,\n\t[orv_delivery_orderid] int,\n\t[orv_delivery_mergeid] bigint,\n\t[orv_delivery_orderref] nvarchar(4000),\n\t[orv_delivery_drivernote] nvarchar(4000),\n\t[orv_delivery_timedefinite] int,\n\t[orv_delivery_orvcode] int,\n\t[orv_delivery_vaid] bigint,\n\t[orv_delivery_delegatedate] datetime2(7),\n\t[orv_delivery_delegatemode] nvarchar(4000),\n\t[orv_delivery_debriefmode] nvarchar(4000),\n\t[orv_delivery_debriefed] int,\n\t[orv_delivery_insdate] datetime2(7),\n\t[orv_delivery_reviseddebrief] int,\n\t[orv_delivery_lmsdebriefed] int,\n\t[orv_delivery_uncanceldate] datetime2(7),\n\t[orv_delivery_podlaterdate] datetime2(7),\n\t[orv_delivery_podmanualdate] datetime2(7),\n\t[orv_delivery_manualdebriefreason] nvarchar(4000),\n\t[orv_delivery_submanualdebriefreason] nvarchar(4000),\n\t[orv_delivery_outofgeofencereason] nvarchar(4000),\n\t[orv_delivery_tsentergeofenceapp] datetime2(7),\n\t[orv_delivery_tsexitgeofenceapp] datetime2(7),\n\t[orv_delivery_comebacklater] bigint,\n\t[orv_delivery_uncancelusername] nvarchar(4000),\n\t[orv_delivery_cref] int,\n\t[orv_delivery_division] int,\n\t[orv_delivery_descriptionofgoods] nvarchar(4000),\n\t[orv_delivery_skiplng] float,\n\t[orv_delivery_skiplat] float,\n\t[orv_delivery_courierid] bigint,\n\t[orv_delivery_posreason] nvarchar(4000),\n\t[orv_delivery_moddate] datetime2(7),\n\t[orv_delivery_mallid] int,\n\t[orv_delivery_mallgid] bigint,\n\t[orv_delivery_lmsidskipreason] bigint,\n\t[orv_delivery_deleteforimport] int,\n\t[orv_delivery_podoutofgeofence] int,\n\t[orv_delivery_originalcustomerid] bigint,\n\t[orv_originalcustomer_id] bigint,\n\t[orv_originalcustomer_name] nvarchar(4000),\n\t[orv_mall_id] bigint,\n\t[orv_mall_mallname] nvarchar(4000),\n\t[orv_mall_branchname] nvarchar(4000),\n\t[orv_mall_gpretailer] nvarchar(4000),\n\t[orv_mall_highvoldelivery] nvarchar(4000),\n\t[orv_mall_stripmall] nvarchar(4000),\n\t[orv_mall_standalonestore] nvarchar(4000),\n\t[orv_mall_streetsidestore] nvarchar(4000),\n\t[orv_mall_dedicatedrouted] nvarchar(4000),\n\t[orv_mall_insdate] datetime2(7),\n\t[orv_mall_address] nvarchar(4000),\n\t[orv_mall_deleted] int,\n\t[orv_mall_lat] float,\n\t[orv_mall_lng] float\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstwaybill.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTWaybill\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('workspaceName'), '/F_SSTWaybillsPerParcel_SoR')]",
-			"type": "Microsoft.Synapse/workspaces/sqlscripts",
-			"apiVersion": "2019-06-01-preview",
-			"properties": {
-				"folder": {
-					"name": "Semi Structured Schema on Read/OPS"
-				},
-				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.F_SSTWaybillsPerParcel') )\n    DROP EXTERNAL TABLE dbo.F_SSTWaybillsPerParcel\nGO\n\n\nCREATE EXTERNAL TABLE dbo.F_SSTWaybillsPerParcel (\n\t[lms_waybillsperparcel_parcelid] int,\n    [lms_waybillsperparcel_waybillid] int,\n    [lms_waybillsperparcel_loadid] int\n\t)\n\tWITH (\n\tLOCATION = 'Semi Structured Data/OPS/sstwaybillsperparcel.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.F_SSTWaybillsPerParcel\nGO",
-					"metadata": {
-						"language": "sql"
-					},
-					"currentConnection": {
-						"databaseName": "SemiSTOPS",
-						"poolName": "Built-in"
-					},
-					"resultLimit": 5000
-				},
-				"type": "SqlQuery"
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('workspaceName'), '/Initialise DB')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -15187,7 +14842,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "b8a5b6c8-8499-4384-88bc-0e28cd9fd971"
+						"spark.autotune.trackingId": "f8ddc606-c305-4de0-a749-c4e53b6f3049"
 					}
 				},
 				"metadata": {
@@ -15272,43 +14927,43 @@
 						},
 						"source": [
 							"#Create DataFrame for the v2customerorder LMSV2 Table\r\n",
-							"v2customerorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2customerorder.parquet', format='parquet')\r\n",
+							"v2customerorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2customerorder.parquet', format='parquet')\r\n",
 							"columns=v2customerorder.columns\r\n",
 							"for i in range(len(columns)):v2customerorder=v2customerorder.withColumnRenamed(columns[i],'v2'+ columns[i])\r\n",
 							"v2customerorder.createOrReplaceTempView(\"v2customerorder\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the v2deliverynote LMSV2 Table\r\n",
-							"v2deliverynote = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2deliverynote.parquet', format='parquet')\r\n",
+							"v2deliverynote = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2deliverynote.parquet', format='parquet')\r\n",
 							"columns1=v2deliverynote.columns\r\n",
 							"for i in range(len(columns1)):v2deliverynote=v2deliverynote.withColumnRenamed(columns1[i],'v2'+ columns1[i])\r\n",
 							"v2deliverynote.createOrReplaceTempView(\"v2deliverynote\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the v2manifest LMSV2 Table\r\n",
-							"v2manifest = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2manifest.parquet', format='parquet')\r\n",
+							"v2manifest = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2manifest.parquet', format='parquet')\r\n",
 							"columns2=v2manifest.columns\r\n",
 							"for i in range(len(columns2)):v2manifest=v2manifest.withColumnRenamed(columns2[i],'v2'+ columns2[i])\r\n",
 							"v2manifest.createOrReplaceTempView(\"v2manifest\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the v2consignment LMSV2 Table\r\n",
-							"v2consignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2consignment.parquet', format='parquet')\r\n",
+							"v2consignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2consignment.parquet', format='parquet')\r\n",
 							"columns3=v2consignment.columns\r\n",
 							"for i in range(len(columns3)):v2consignment=v2consignment.withColumnRenamed(columns3[i],'v2'+ columns3[i])\r\n",
 							"v2consignment.createOrReplaceTempView(\"v2consignment\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the v2parcel LMSV2 Table\r\n",
-							"v2parcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2parcel.parquet', format='parquet')\r\n",
+							"v2parcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2parcel.parquet', format='parquet')\r\n",
 							"columns8=v2parcel.columns\r\n",
 							"for i in range(len(columns8)):v2parcel=v2parcel.withColumnRenamed(columns8[i],'v2'+ columns8[i])\r\n",
 							"v2parcel.createOrReplaceTempView(\"v2parcel\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the v2track LMSV2 Table\r\n",
-							"v2track = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2track.parquet', format='parquet')\r\n",
+							"v2track = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2track.parquet', format='parquet')\r\n",
 							"columns9=v2track.columns\r\n",
 							"for i in range(len(columns9)):v2track=v2track.withColumnRenamed(columns9[i],'v2'+ columns9[i])\r\n",
 							"v2track.createOrReplaceTempView(\"v2track\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the v2movement LMSV2 Table\r\n",
-							"v2movement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2movement.parquet', format='parquet')\r\n",
+							"v2movement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2movement.parquet', format='parquet')\r\n",
 							"columns10=v2movement.columns\r\n",
 							"for i in range(len(columns10)):v2movement=v2movement.withColumnRenamed(columns10[i],'v2'+ columns10[i])\r\n",
 							"v2movement.createOrReplaceTempView(\"v2movement\")\r\n",
@@ -15385,7 +15040,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/LMSv1v2Recon/01_LMSv1v2Recon_ETL"
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -15410,7 +15065,7 @@
 							"reconmovement.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconmovement.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 5
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -15429,7 +15084,7 @@
 							"print(\"SUCCESS\")"
 						],
 						"outputs": [],
-						"execution_count": 6
+						"execution_count": null
 					}
 				]
 			},
@@ -22014,7 +21669,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "89ea7722-e443-4cab-aa0c-e7c6909612f0"
+						"spark.autotune.trackingId": "6444fa9c-fbc2-4f06-82cf-275e3224c3f9"
 					}
 				},
 				"metadata": {
@@ -22099,43 +21754,43 @@
 						},
 						"source": [
 							"# #Create DataFrame for the v2customerorder LMSV2 Table\r\n",
-							"# v2customerorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2customerorder.parquet', format='parquet')\r\n",
+							"# v2customerorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2customerorder.parquet', format='parquet')\r\n",
 							"# columns=v2customerorder.columns\r\n",
 							"# for i in range(len(columns)):v2customerorder=v2customerorder.withColumnRenamed(columns[i],'v2'+ columns[i])\r\n",
 							"# v2customerorder.createOrReplaceTempView(\"v2customerorder\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the v2deliverynote LMSV2 Table\r\n",
-							"# v2deliverynote = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2deliverynote.parquet', format='parquet')\r\n",
+							"# v2deliverynote = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2deliverynote.parquet', format='parquet')\r\n",
 							"# columns1=v2deliverynote.columns\r\n",
 							"# for i in range(len(columns1)):v2deliverynote=v2deliverynote.withColumnRenamed(columns1[i],'v2'+ columns1[i])\r\n",
 							"# v2deliverynote.createOrReplaceTempView(\"v2deliverynote\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the v2manifest LMSV2 Table\r\n",
-							"# v2manifest = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2manifest.parquet', format='parquet')\r\n",
+							"# v2manifest = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2manifest.parquet', format='parquet')\r\n",
 							"# columns2=v2manifest.columns\r\n",
 							"# for i in range(len(columns2)):v2manifest=v2manifest.withColumnRenamed(columns2[i],'v2'+ columns2[i])\r\n",
 							"# v2manifest.createOrReplaceTempView(\"v2manifest\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the v2consignment LMSV2 Table\r\n",
-							"# v2consignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2consignment.parquet', format='parquet')\r\n",
+							"# v2consignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2consignment.parquet', format='parquet')\r\n",
 							"# columns3=v2consignment.columns\r\n",
 							"# for i in range(len(columns3)):v2consignment=v2consignment.withColumnRenamed(columns3[i],'v2'+ columns3[i])\r\n",
 							"# v2consignment.createOrReplaceTempView(\"v2consignment\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the v2parcel LMSV2 Table\r\n",
-							"# v2parcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2parcel.parquet', format='parquet')\r\n",
+							"# v2parcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2parcel.parquet', format='parquet')\r\n",
 							"# columns8=v2parcel.columns\r\n",
 							"# for i in range(len(columns8)):v2parcel=v2parcel.withColumnRenamed(columns8[i],'v2'+ columns8[i])\r\n",
 							"# v2parcel.createOrReplaceTempView(\"v2parcel\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the v2track LMSV2 Table\r\n",
-							"# v2track = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2track.parquet', format='parquet')\r\n",
+							"# v2track = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2track.parquet', format='parquet')\r\n",
 							"# columns9=v2track.columns\r\n",
 							"# for i in range(len(columns9)):v2track=v2track.withColumnRenamed(columns9[i],'v2'+ columns9[i])\r\n",
 							"# v2track.createOrReplaceTempView(\"v2track\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the v2movement LMSV2 Table\r\n",
-							"# v2movement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2movement.parquet', format='parquet')\r\n",
+							"# v2movement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2movement.parquet', format='parquet')\r\n",
 							"# columns10=v2movement.columns\r\n",
 							"# for i in range(len(columns10)):v2movement=v2movement.withColumnRenamed(columns10[i],'v2'+ columns10[i])\r\n",
 							"# v2movement.createOrReplaceTempView(\"v2movement\")\r\n",

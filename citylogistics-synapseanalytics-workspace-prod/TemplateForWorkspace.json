@@ -64346,6 +64346,45 @@
 			},
 			"dependsOn": [],
 			"location": "southafricanorth"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/LMSv2 Adhoc Runs')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Execute CLMasterData for Ad-Hoc LMSv2 - Full Take On",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "CLMasterData LOAD PROD",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"cw_items": "[{\"Source\":{\"TableName\":\"manifest\",\"SchemaName\":\"v2\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"v2manifest\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}\n,{\"Source\":{\"TableName\":\"customerorder\",\"SchemaName\":\"v2\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"v2customerorder\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}\n,{\"Source\":{\"TableName\":\"consignment\",\"SchemaName\":\"v2\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"v2consignment\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}\n,{\"Source\":{\"TableName\":\"movement\",\"SchemaName\":\"v2\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"v2movement\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}\n,{\"Source\":{\"TableName\":\"track\",\"SchemaName\":\"v2\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"v2track\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}\n,{\"Source\":{\"TableName\":\"parcel\",\"SchemaName\":\"v2\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"v2parcel\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}]",
+								"TakeOnPeriod": " ",
+								"Full_Load": true,
+								"ColumnsNamesBlankSpaces": false,
+								"LimitedLoadTopX": " "
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"folder": {
+					"name": "Ad-Hoc"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/pipelines/CLMasterData LOAD PROD')]"
+			]
 		}
 	]
 }

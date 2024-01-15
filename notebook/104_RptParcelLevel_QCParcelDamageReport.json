@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "ApacheSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "162303da-a82b-45e7-9fa5-e9085786bf63"
+				"spark.autotune.trackingId": "568cb622-c1f4-4edc-bc7f-6c7c85c3926c"
 			}
 		},
 		"metadata": {
@@ -45,7 +45,8 @@
 				"sparkVersion": "3.1",
 				"nodeCount": 10,
 				"cores": 8,
-				"memory": 56
+				"memory": 56,
+				"automaticScaleJobs": true
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -67,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 41
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -113,7 +114,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 42
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -132,7 +133,7 @@
 					"# from pyspark.sql.functions import *\r\n",
 					"# from pyspark.sql.window import Window"
 				],
-				"execution_count": 43
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -162,7 +163,7 @@
 					"FROM  dbodamagedparcelaudit dpa\r\n",
 					"LEFT JOIN dbodamagedparcelauditfluteprofiles fp on dpa.flutemeasure between fp.startrange and fp.endrange"
 				],
-				"execution_count": 44
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -180,7 +181,7 @@
 				"source": [
 					"dbodamagedparcelaudit_tmp1 = spark.sql(\"SELECT * FROM dbodamagedparcelaudit_tmp1\")"
 				],
-				"execution_count": 45
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -200,7 +201,7 @@
 					"dbodamagedparcelaudit_tmp1 = dbodamagedparcelaudit_tmp1.withColumn(\"rn\",row_number().over(partitionda))\r\n",
 					"dbodamagedparcelaudit_tmp1.createOrReplaceTempView(\"dbodamagedparcelaudit_tmp2\")"
 				],
-				"execution_count": 46
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -247,7 +248,10 @@
 					"    ,dpa.quantity auditquantity\r\n",
 					"    ,dpa.weight auditweight\r\n",
 					"    ,dpa.flutemeasure\r\n",
-					"    ,dpa.shrinkwrap \r\n",
+					"    ,CASE \r\n",
+					"        WHEN dpa.shrinkwrap = 1 THEN 'YES' \r\n",
+					"        ELSE 'NO'\r\n",
+					"    END as shrinkwrap\r\n",
 					"    ,dpa.comment\r\n",
 					"    ,CAST(dpa.parcelutilization as varchar(128)) || ' %' as utilization\r\n",
 					"\t,dpa.missing as missing\r\n",
@@ -264,7 +268,7 @@
 					"AND dpa.auditdatetime >= to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01')\r\n",
 					""
 				],
-				"execution_count": 47
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -282,7 +286,7 @@
 				"source": [
 					"qcparceldamagereport = spark.sql(\"SELECT * FROM qcparceldamagereport\")"
 				],
-				"execution_count": 48
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -300,7 +304,7 @@
 				"source": [
 					"# qcparceldamagereport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/qcparceldamagereport.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 49
+				"execution_count": 9
 			}
 		]
 	}

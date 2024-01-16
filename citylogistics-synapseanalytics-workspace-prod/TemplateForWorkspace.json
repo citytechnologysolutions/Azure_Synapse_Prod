@@ -436,7 +436,7 @@
 				},
 				{
 					"Source": {
-						"TableName": "deliverynote",
+						"TableName": "movement",
 						"SchemaName": "v2"
 					},
 					"Increment": {
@@ -444,7 +444,43 @@
 						"IdField": "id"
 					},
 					"Destination": {
-						"FileName": "v2deliverynote"
+						"FileName": "v2movement"
+					},
+					"SparkConfig": {
+						"NodeSize": "Small",
+						"MinExecutors": "1",
+						"MaxExecutors": "3"
+					}
+				},
+				{
+					"Source": {
+						"TableName": "track",
+						"SchemaName": "v2"
+					},
+					"Increment": {
+						"IncField": "lastupdate",
+						"IdField": "id"
+					},
+					"Destination": {
+						"FileName": "v2track"
+					},
+					"SparkConfig": {
+						"NodeSize": "Small",
+						"MinExecutors": "1",
+						"MaxExecutors": "3"
+					}
+				},
+				{
+					"Source": {
+						"TableName": "parcel",
+						"SchemaName": "v2"
+					},
+					"Increment": {
+						"IncField": "lastupdate",
+						"IdField": "id"
+					},
+					"Destination": {
+						"FileName": "v2parcel"
 					},
 					"SparkConfig": {
 						"NodeSize": "Small",
@@ -4038,78 +4074,6 @@
 					"Destination": {
 						"FileName": "prpclockinghoursdetail"
 					}
-				},
-				{
-					"Source": {
-						"TableName": "manifest",
-						"SchemaName": "v2"
-					},
-					"Increment": {
-						"IncField": "lastupdate",
-						"IdField": "id"
-					},
-					"Destination": {
-						"FileName": "v2manifest"
-					},
-					"SparkConfig": {
-						"NodeSize": "Small",
-						"MinExecutors": "1",
-						"MaxExecutors": "3"
-					}
-				},
-				{
-					"Source": {
-						"TableName": "customerorder",
-						"SchemaName": "v2"
-					},
-					"Increment": {
-						"IncField": "lastupdate",
-						"IdField": "id"
-					},
-					"Destination": {
-						"FileName": "v2customerorder"
-					},
-					"SparkConfig": {
-						"NodeSize": "Small",
-						"MinExecutors": "1",
-						"MaxExecutors": "3"
-					}
-				},
-				{
-					"Source": {
-						"TableName": "consignment",
-						"SchemaName": "v2"
-					},
-					"Increment": {
-						"IncField": "lastupdate",
-						"IdField": "id"
-					},
-					"Destination": {
-						"FileName": "v2consignment"
-					},
-					"SparkConfig": {
-						"NodeSize": "Small",
-						"MinExecutors": "1",
-						"MaxExecutors": "3"
-					}
-				},
-				{
-					"Source": {
-						"TableName": "deliverynote",
-						"SchemaName": "v2"
-					},
-					"Increment": {
-						"IncField": "lastupdate",
-						"IdField": "id"
-					},
-					"Destination": {
-						"FileName": "v2deliverynote"
-					},
-					"SparkConfig": {
-						"NodeSize": "Small",
-						"MinExecutors": "1",
-						"MaxExecutors": "3"
-					}
 				}
 			]
 		},
@@ -7122,6 +7086,33 @@
 							"driverSize": "Small",
 							"numExecutors": 2
 						}
+					},
+					{
+						"name": "Execute PowerBI Dataset Refresh",
+						"type": "ExecutePipeline",
+						"dependsOn": [
+							{
+								"activity": "Run the LMSv2Recon notebook",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "PBI_Dataflows",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {
+								"URL_Data": {
+									"value": "@pipeline().parameters.URL_Data",
+									"type": "Expression"
+								},
+								"LMS_Refresh_Note": "[]"
+							}
+						}
 					}
 				],
 				"policy": {
@@ -7240,6 +7231,15 @@
 								}
 							}
 						]
+					},
+					"URL_Data": {
+						"type": "array",
+						"defaultValue": [
+							{
+								"GroupID": "639fb4f4-960f-4f63-a713-5d578c6955ef",
+								"DataflowID": "8a06d1fa-609f-4cc3-b0af-72e7964dded0"
+							}
+						]
 					}
 				},
 				"folder": {
@@ -7250,7 +7250,8 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/pipelines/CLMasterData LOAD PROD')]",
 				"[concat(variables('workspaceId'), '/notebooks/00_LMSv1v2Recon_RunOrder')]",
-				"[concat(variables('workspaceId'), '/bigDataPools/PRDSparkPool')]"
+				"[concat(variables('workspaceId'), '/bigDataPools/PRDSparkPool')]",
+				"[concat(variables('workspaceId'), '/pipelines/PBI_Dataflows')]"
 			]
 		},
 		{

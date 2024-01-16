@@ -63,6 +63,33 @@
 					"driverSize": "Small",
 					"numExecutors": 2
 				}
+			},
+			{
+				"name": "Execute PowerBI Dataset Refresh",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Run the LMSv2Recon notebook",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PBI_Dataflows",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"URL_Data": {
+							"value": "@pipeline().parameters.URL_Data",
+							"type": "Expression"
+						},
+						"LMS_Refresh_Note": "[]"
+					}
+				}
 			}
 		],
 		"parameters": {
@@ -176,6 +203,15 @@
 							"MinExecutors": "1",
 							"MaxExecutors": "3"
 						}
+					}
+				]
+			},
+			"URL_Data": {
+				"type": "array",
+				"defaultValue": [
+					{
+						"GroupID": "639fb4f4-960f-4f63-a713-5d578c6955ef",
+						"DataflowID": "8a06d1fa-609f-4cc3-b0af-72e7964dded0"
 					}
 				]
 			}

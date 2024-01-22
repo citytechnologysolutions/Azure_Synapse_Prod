@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "56c2546b-4d50-45fa-8c68-5753b6da454d"
+				"spark.autotune.trackingId": "2bae3291-1bf4-4ce9-960f-d82af86c306d"
 			}
 		},
 		"metadata": {
@@ -474,15 +474,15 @@
 					"    ,to_date(m.transferoutdate) as transferoutdate\r\n",
 					"    ,to_date(COALESCE(p.lms_parcel_pdate,m.transferoutdate)) as date\r\n",
 					"    ,CASE \r\n",
-					"        WHEN p.lms_parcel_pdate is null THEN 1\r\n",
+					"        WHEN p.lms_parcel_id is null THEN 1\r\n",
 					"        ELSE 0\r\n",
 					"    END as existsinmrponly\r\n",
 					"    ,CASE \r\n",
-					"        WHEN m.transferoutdate is null THEN 1\r\n",
+					"        WHEN m.transfernumber is null THEN 1\r\n",
 					"        ELSE 0\r\n",
 					"    END as existsinlmsonly\r\n",
 					"    ,CASE \r\n",
-					"        WHEN p.lms_parcel_pdate is not null AND (m.transferoutdate) is not null THEN 1\r\n",
+					"        WHEN p.lms_parcel_id is not null AND (m.transfernumber) is not null THEN 1\r\n",
 					"        ELSE 0\r\n",
 					"    END as counter\r\n",
 					"    \r\n",
@@ -492,7 +492,6 @@
 					"LEFT JOIN stparcelmrprecon p on p.lms_parcel_barcode = t.combinetransfers\r\n",
 					"LEFT JOIN stmrpcsvfiles m on m.transfernumber = t.combinetransfers\r\n",
 					"WHERE t.combinetransfers is not NULL\r\n",
-					"\r\n",
 					""
 				],
 				"execution_count": 45

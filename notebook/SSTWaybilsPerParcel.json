@@ -11,16 +11,16 @@
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "fb6629e7-8a6f-482f-9fe5-6cee7259a6cc"
+				"spark.autotune.trackingId": "55f2d66e-47ed-4eb9-97e6-a23a29845da8"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -80,7 +80,7 @@
 					"# # ' + StorageAccount + '\r\n",
 					""
 				],
-				"execution_count": 60
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -102,7 +102,7 @@
 					"# dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
 					""
 				],
-				"execution_count": 61
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -138,7 +138,7 @@
 					"    w.waybillid\r\n",
 					"FROM dbowaybillsperparcel w"
 				],
-				"execution_count": 62
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -169,7 +169,7 @@
 					"FROM sstwaybillsperparcelunion_tmp1 t\r\n",
 					"LEFT JOIN dbowaybill w on w.id = t.waybillid "
 				],
-				"execution_count": 63
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -187,7 +187,7 @@
 				"source": [
 					"sstwaybillsperparcelunion_tmp2 = spark.sql(\"SELECT * FROM sstwaybillsperparcelunion_tmp2\")"
 				],
-				"execution_count": 64
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -206,7 +206,7 @@
 					"from pyspark.sql.functions import *\r\n",
 					"from pyspark.sql.window import Window"
 				],
-				"execution_count": 65
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -223,10 +223,10 @@
 				},
 				"source": [
 					"partitionload=Window.partitionBy(\"trackkey\").orderBy(col(\"parcelid\"),col(\"id\").desc())\r\n",
-					"sstwaybillsperparcelunion_tmp2 = sstwaybillsperparcelunion_tmp2.withColumn(\"rn\",row_number().over(partitionload))\r\n",
-					"sstwaybillsperparcelunion_tmp2.createOrReplaceTempView(\"sstwaybillsperparcelunion_tmp2\")"
+					"sstwaybillsperparcelunion_tmp3 = sstwaybillsperparcelunion_tmp2.withColumn(\"rn\",row_number().over(partitionload))\r\n",
+					"sstwaybillsperparcelunion_tmp3.createOrReplaceTempView(\"sstwaybillsperparcelunion_tmp3\")"
 				],
-				"execution_count": 66
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -268,19 +268,18 @@
 					"    c.debrief_comment as lms_waybillsperparcel_debriefcomment,\r\n",
 					"    c.debrief_db_reasondetailid as lms_waybillsperparcel_debriefreasondetailid,\r\n",
 					"    c.reasonupdates as lms_waybillsperparcel_reasonupdates,\r\n",
-					"    c.callprogid as lms_waybillsperparcel_callprogid\r\n",
+					"    c.callprogid as lms_waybillsperparcel_callprogid,\r\n",
+					"    c.orv_deliverydatetime as lms_waybillsperparcel_orvdeliverydate,\r\n",
+					"    c.orv_db_reasondetailid as lms_waybillsperparcel_orvreasondetailid\r\n",
 					"\r\n",
-					"    -- c.orv_deliverydatetime as lms_waybillsperparcel_orvdeliverydate,\r\n",
-					"    -- c.orv_db_reasondetailid as lms_waybillsperparcel_orvreasondetailid,\r\n",
 					"\r\n",
-					"\r\n",
-					"FROM sstwaybillsperparcelunion_tmp2 a\r\n",
+					"FROM sstwaybillsperparcelunion_tmp3 a\r\n",
 					"-- LEFT JOIN dbowaybillsperparcel c on c.waybillid = a.waybillid and c.parcelid = a.parcelid\r\n",
 					"LEFT JOIN dbowaybillsperparcel c on c.id = a.id and a.id is not null\r\n",
 					"WHERE  a.rn=1\r\n",
 					""
 				],
-				"execution_count": 67
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -298,7 +297,7 @@
 				"source": [
 					"sstwaybillsperparcel = spark.sql(\"SELECT * FROM sstwaybillsperparcel\")"
 				],
-				"execution_count": 68
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -316,7 +315,7 @@
 				"source": [
 					"# sstwaybillsperparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Semi Structured Data/OPS/sstwaybillsperparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 69
+				"execution_count": 10
 			}
 		]
 	}

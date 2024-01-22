@@ -1,0 +1,20 @@
+{
+	"name": "D_STUsers",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Distribution"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STUsers') )\n    DROP EXTERNAL TABLE dbo.D_STUsers\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STUsers (\n[lms_users_id] int,\n[lms_users_site] nvarchar(4000),\n[lms_users_locid] int,\n[lms_users_fullname] nvarchar(4000),\n[lms_users_active] int,\n[lms_users_lastlogin] datetime2(7),\n[lms_users_locked] int,\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stusers.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STUsers \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

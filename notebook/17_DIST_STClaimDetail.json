@@ -1,0 +1,216 @@
+{
+	"name": "17_DIST_STClaimDetail",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "ea97fdf1-23a4-431a-8d1b-874a8c7b4b30"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the dboclaimsclaimdetail LMS Table\r\n",
+					"# dboclaimsclaimdetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimdetail.parquet', format='parquet')\r\n",
+					"# dboclaimsclaimdetail.createOrReplaceTempView(\"dboclaimsclaimdetail\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboclaimsclaimreason LMS Table\r\n",
+					"# dboclaimsclaimreason = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimreason.parquet', format='parquet')\r\n",
+					"# dboclaimsclaimreason.createOrReplaceTempView(\"dboclaimsclaimreason\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboclaimsclaimstatus LMS Table\r\n",
+					"# dboclaimsclaimstatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimstatus.parquet', format='parquet')\r\n",
+					"# dboclaimsclaimstatus.createOrReplaceTempView(\"dboclaimsclaimstatus\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dboclaimsrejectionreasons LMS Table\r\n",
+					"# dboclaimsrejectionreasons = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsrejectionreasons.parquet', format='parquet')\r\n",
+					"# dboclaimsrejectionreasons.createOrReplaceTempView(\"dboclaimsrejectionreasons\")\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stclaimsclaimdetail\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"cd.id as lms_claimsclaimdetail_id\r\n",
+					",cd.claimid as lms_claimsclaimdetail_claimid\r\n",
+					",cd.claimstatusid as lms_claimsclaimdetail_claimstatusid\r\n",
+					",cd.barcode as lms_claimsclaimdetail_barcode\r\n",
+					",cd.parcelid as lms_claimsclaimdetail_parcelid\r\n",
+					",cd.stockcode as lms_claimsclaimdetail_stockcode\r\n",
+					",cd.description as lms_claimsclaimdetail_description\r\n",
+					",cd.size as lms_claimsclaimdetail_size\r\n",
+					",cd.claimcost as lms_claimsclaimdetail_claimcost\r\n",
+					",cd.claimunits as lms_claimsclaimdetail_claimunits\r\n",
+					",cd.claimreasonid as lms_claimsclaimdetail_claimreasonid\r\n",
+					",cd.parcelconsigndate as lms_claimsclaimdetail_parcelconsigndate\r\n",
+					",cd.sendingdepot as lms_claimsclaimdetail_sendingdepot\r\n",
+					",cd.ackdepot as lms_claimsclaimdetail_ackdepot\r\n",
+					",cd.claimdepot as lms_claimsclaimdetail_claimdepot\r\n",
+					",cd.claimflagid as lms_claimsclaimdetail_claimflagid\r\n",
+					",cd.claimrejectionreasonid as lms_claimsclaimdetail_claimrejectionreasonid\r\n",
+					",cr.description as lms_claimsclaimreason_claimreasondescription\r\n",
+					",cs.description as lms_claimsclaimstatus_claimstatusdescription\r\n",
+					",crr.description as lms_claimsrejectionreasons_claimsrejectionreasonsdescription\r\n",
+					"\r\n",
+					"FROM\r\n",
+					"dboclaimsclaimdetail cd\r\n",
+					"LEFT JOIN dboclaimsclaimreason cr ON cd.ClaimReasonID = cr.id\r\n",
+					"LEFT JOIN dboclaimsclaimstatus cs ON cd.ClaimStatusID = cs.id\r\n",
+					"LEFT JOIN dboclaimsrejectionreasons crr on cd.ClaimRejectionReasonID = crr.id\r\n",
+					""
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stclaimsclaimdetail = spark.sql(\"SELECT * FROM stclaimsclaimdetail\")"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stclaimsclaimdetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stclaimsclaimdetail.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# print(\"SUCCESS\")"
+				],
+				"execution_count": null
+			}
+		]
+	}
+}

@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "646c2fff-6626-4de3-aa16-368ea1ee36bb"
+				"spark.autotune.trackingId": "4434bcc1-fa7c-4a61-bbe3-97cc27788afc"
 			}
 		},
 		"metadata": {
@@ -187,6 +187,10 @@
 					"# #Create DataFrame for the dbodriver LMS Table\r\n",
 					"# dbodriver = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodriver.parquet', format='parquet')\r\n",
 					"# dbodriver.createOrReplaceTempView(\"dbodriver\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbousers LMS Table\r\n",
+					"# dbousers = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbousers.parquet', format='parquet')\r\n",
+					"# dbousers.createOrReplaceTempView(\"dbousers\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the publicorvuser LMS Table\r\n",
 					"# publicorvuser = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicorvuser.parquet', format='parquet')\r\n",
@@ -420,6 +424,45 @@
 						"transient": {
 							"deleting": false
 						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import *\r\n",
+					"from pyspark.sql.window import Window"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"partitionlmsid=Window.partitionBy(\"lmsid\").orderBy(col(\"status\").asc(),col(\"id\").desc())\r\n",
+					"publicorvuser = publicorvuser.withColumn(\"rn\",row_number().over(partitionlmsid))\r\n",
+					"publicorvuser.createOrReplaceTempView(\"publicorvuser\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
 					},
 					"microsoft": {
 						"language": "sparksql"
@@ -471,7 +514,7 @@
 					",u.id as orv_publicorvuser_id\r\n",
 					"FROM\r\n",
 					"dbodriver d\r\n",
-					"LEFT JOIN publicorvuser u on d.id = u.lmsid"
+					"LEFT JOIN publicorvuser u on d.id = u.lmsid and rn=1"
 				],
 				"execution_count": 9
 			},
@@ -509,7 +552,80 @@
 				"source": [
 					"# stdriver.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdriver.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 11
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					}
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stusers\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"\r\n",
+					" id as lms_users_id\r\n",
+					",site as lms_users_site\r\n",
+					",locid as lms_users_locid\r\n",
+					",fullname as lms_users_fullname\r\n",
+					",active as lms_users_active\r\n",
+					",lastlogin as lms_users_lastlogin\r\n",
+					",locked as lms_users_locked\r\n",
+					"\r\n",
+					"FROM\r\n",
+					"dbousers u\r\n",
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stusers = spark.sql(\"SELECT * FROM stusers\")"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stusers.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stusers.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -1510,6 +1626,7 @@
 					"    ,lc.Town as lms_customer_town\r\n",
 					"    ,lc.VolFact as lms_customer_volfact\r\n",
 					"    ,lc.WType as lms_customer_wtype\r\n",
+					"    ,lc.FranchiseStore as lms_customer_franchisestore\r\n",
 					"    ,oc.id as orv_customer_id\r\n",
 					"    ,oc.name as orv_customer_name\r\n",
 					"    ,oc.contact as orv_customer_contact\r\n",

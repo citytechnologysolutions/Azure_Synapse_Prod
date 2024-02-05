@@ -1,0 +1,20 @@
+{
+	"name": "reconparcelmessage",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/v2Recon"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.reconparcelmessage') )\n    DROP EXTERNAL TABLE dbo.reconparcelmessage\nGO\n\nCREATE EXTERNAL TABLE dbo.reconparcelmessage (\n[v1ID] int,\n[v1ParcelID] int,\n[v1MSDate] datetime2(7),\n[v1UserID] int,\n[v1MSType] int,\n[v1MessageID] int,\n[v2ID] bigint,\n[v2parcelid] bigint,\n[v2message] nvarchar(4000),\n[v2type] nvarchar(4000),\n[v2insby] bigint,\n[v2modby] bigint,\n[v2insdate] bigint,\n[v2moddate] bigint,\n[v2legacyid] bigint,\n[notinv2] int,\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/LMSV2/reconparcelmessage.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.reconparcelmessage \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

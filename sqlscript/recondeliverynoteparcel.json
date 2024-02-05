@@ -1,0 +1,20 @@
+{
+	"name": "recondeliverynoteparcel",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/v2Recon"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.recondeliverynoteparcel') )\n    DROP EXTERNAL TABLE dbo.recondeliverynoteparcel\nGO\n\nCREATE EXTERNAL TABLE dbo.recondeliverynoteparcel (\n\n[v1lms_track_parcelid] int,\n[v2parcelid] bigint,\n[v1waybillid] int,\n[v2waybillid] bigint,\n[v2dnpid] bigint,\n[v2dnpparcelid] bigint,\n[v2dnpdeliverynoteid] bigint,\n[v2dnpstatus] nvarchar(4000),\n[v2dnporvreturned] int,\n[v2dnporvdate] bigint,\n[v2dnporvreason] nvarchar(4000),\n[v2dnpdooruserid] bigint,\n[v2dnpdoordate] bigint,\n[v2dnpdoorreason] nvarchar(4000),\n[v2dnpdebriefuserid] bigint,\n[v2dnpdebriefdate] bigint,\n[v2dnpdebriefreason] nvarchar(4000),\n[v2dnpdebriefcomment] nvarchar(4000),\n[v2dnpinsdate] bigint,\n[v2dnpmoddate] bigint,\n[v2dnpinsby] bigint,\n[v2dnplegacyid] bigint,\n[v2dnpbayid] bigint,\n[v2dnpmigrationstatus] nvarchar(4000),\n[v2dnporvreasonid] int,\n[v2dnpdoorreasonid] int,\n[v2dnpdebriefreasonid] int,\n[v2dnptype] nvarchar(4000),\n[v2dnpbarcode] nvarchar(4000),\n[v2dnplmsoverriden] int,\n[v2dnpbayname] nvarchar(4000),\n[v2dnpdelname] nvarchar(4000),\n[v2dnpdelid] bigint,\n[v2dnppuname] nvarchar(4000),\n[v2dnppuid] bigint,\n[v2dnpcustomerid] bigint,\n[v2dnpcustomername] bigint,\n[notinv2] int,\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/LMSV2/recondeliverynoteparcel.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.recondeliverynoteparcel \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

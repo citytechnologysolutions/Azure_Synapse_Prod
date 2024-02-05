@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "728f7b1e-1db4-4a96-b18b-e1042b83fb2e"
+				"spark.autotune.trackingId": "0b240c4b-15ef-4610-a94d-414d5f634f56"
 			}
 		},
 		"metadata": {
@@ -423,24 +423,10 @@
 					"    --,2.00 * 3961.00 * asin(sqrt((sin(radians((p.lat - d.lat) / 2.00))) ^ 2.00 + cos(radians(d.lat)) * cos(radians(p.lat)) * (sin(radians((p.lng - d.lng ) / 2.00))) ^ 2.00))*1.60934 as orv_delivery_poddistancefromdeliverypoint\r\n",
 					"    ,(to_unix_timestamp(w.DeBriefDt) - d.deliverydate)/86400 as orv_delivery_datediffpoddeldate\r\n",
 					"    ,(COALESCE(d.tsexitgeofenceapp,d.tspodsignature) - COALESCE(d.tsgeofenceenter,d.tsentergeofenceapp))/60 as orv_delivery_deliveryenterexitdiff\r\n",
-					"    ,CASE \r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") < 7 then \"<6\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%7\" then \"7>8\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%8\" then \"8>9\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%9\" then \"9>10\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%10\" then \"10>11\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%11\" then \"11>12\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%12\" then \"12>13\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%13\" then \"13>14\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%14\" then \"14>15\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%15\" then \"15>16\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%16\" then \"16>17\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%17\" then \"17>18\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%18\" then \"18>19\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") = \"%19\" then \"19>20\"\r\n",
-					"        WHEN date_format(to_timestamp(d.tspodsignature), \"%H\") > 19 then \">19\"\r\n",
-					"    ELSE \"BLANK\"\r\n",
-					"    END AS orv_delivery_deliverytimehours\r\n",
+					"    ,d.tsscanningstop - d.tsscanningstart as orv_delivery_scantimediff\r\n",
+					"    ,d.tspodsignature - d.tsscanningstop as orv_delivery_podscanstopdiff\r\n",
+					"    ,d.tspodsignature - d.tsscanningstart as orv_delivery_podscanstartdiff\r\n",
+					"\r\n",
 					"\r\n",
 					"FROM dbowaybill_tmp w\r\n",
 					"LEFT JOIN sstparcelbywaybill pbw on pbw.lms_parcelbywaybill_waybillid =  w.id\r\n",
@@ -448,7 +434,7 @@
 					"LEFT JOIN pod_tmp p on p.did = d.id and row_num = 1\r\n",
 					""
 				],
-				"execution_count": 33
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -466,7 +452,7 @@
 				"source": [
 					"stwaybill_tmp = spark.sql(\"SELECT * FROM stwaybill_tmp\")"
 				],
-				"execution_count": 34
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -484,7 +470,7 @@
 				"source": [
 					"stwaybill = stwaybill_tmp.withColumn(\"a\", pow(sin(radians (col(\"orv_pod_lat\") - col(\"orv_delivery_lat\")) / 2), 2) + cos(radians (\"orv_delivery_lat\")) * cos(radians (col(\"orv_pod_lat\"))) * pow(sin(radians (col(\"orv_pod_lng\") - col(\"orv_delivery_lng\")) / 2), 2)).withColumn(\"orv_delivery_poddistancefromdeliverypoint\", atan2(sqrt(col(\"a\")), sqrt(-col(\"a\") + 1)) * 2 * 6371)"
 				],
-				"execution_count": 35
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -502,7 +488,7 @@
 				"source": [
 					"stwaybill.createOrReplaceTempView(\"stwaybill\")"
 				],
-				"execution_count": 36
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -520,7 +506,7 @@
 				"source": [
 					"# stwaybill.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 37
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -536,9 +522,9 @@
 					}
 				},
 				"source": [
-					"print(\"SUCCESS\")"
+					"# print(\"SUCCESS\")"
 				],
-				"execution_count": 67
+				"execution_count": 14
 			}
 		]
 	}

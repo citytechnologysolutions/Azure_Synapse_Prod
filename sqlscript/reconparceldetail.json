@@ -1,0 +1,20 @@
+{
+	"name": "reconparceldetail",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/v2Recon"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.reconparceldetail') )\n    DROP EXTERNAL TABLE dbo.reconparceldetail\nGO\n\nCREATE EXTERNAL TABLE dbo.reconparceldetail (\n[v1ID] int,\n[v1ParcelID] int,\n[v1InServiceStart] datetime2(7),\n[v1DeliverBy] datetime2(7),\n[v1ServiceDays] int,\n[v1ServiceTime] numeric(36,6),\n[v1Cutofftime] numeric(36,6),\n[v1Appointment] datetime2(7),\n[v1NDDID] int,\n[v1CustOnholdStart] datetime2(7),\n[v1CustOnholdEnd] datetime2(7),\n[v1SplitInitial] int,\n[v1WeekendHolidays] int,\n[v1Inbound] int,\n[v1CourierID] nvarchar(4000),\n[v1ServiceID] nvarchar(4000),\n[v1CustAccID] int,\n[v1BrouteMasterID] int,\n[v1BrouteMasterFromID] int,\n[v1BrouteMasterToID] int,\n[v1LeadTimeID] int,\n[v2id] bigint,\n[v2parcelid] bigint,\n[v2inservicestart] bigint,\n[v2deliverby] bigint,\n[v2servicedays] int,\n[v2servicetime] bigint,\n[v2cutofftime] bigint,\n[v2ndd] nvarchar(4000),\n[v2custonholdstart] bigint,\n[v2custonholdend] bigint,\n[v2splitinitial] int,\n[v2weekendholidays] int,\n[v2inbound] int,\n[v2thirdparty] nvarchar(4000),\n[v2service] nvarchar(4000),\n[v2costcentre] bigint,\n[v2routemasterfromid] bigint,\n[v2routemastertoid] bigint,\n[v2routemasterfrom] nvarchar(4000),\n[v2routemasterto] nvarchar(4000),\n[v2leadtimeid] bigint,\n[v2leadtime] nvarchar(4000),\n[v2insdate] bigint,\n[v2moddate] bigint,\n[v2modby] bigint,\n[v2insby] bigint,\n[v2legacyid] bigint,\n[v2appointment] bigint,\n[notinv2] int,\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/LMSV2/reconparceldetail.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.reconparceldetail \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

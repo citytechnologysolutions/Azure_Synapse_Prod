@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "TESTSparkPoolL",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "112g",
+			"driverCores": 16,
+			"executorMemory": "112g",
+			"executorCores": 16,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "f8ddc606-c305-4de0-a749-c4e53b6f3049"
+				"spark.autotune.trackingId": "0da1ad13-da07-4834-acbe-a3f7ba6ff60a"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPoolL",
+				"name": "TESTSparkPoolL",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPoolL",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
 				"sparkVersion": "3.3",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 16,
+				"memory": 112,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -145,6 +145,53 @@
 					"for i in range(len(columns10)):v2movement=v2movement.withColumnRenamed(columns10[i],'v2'+ columns10[i])\r\n",
 					"v2movement.createOrReplaceTempView(\"v2movement\")\r\n",
 					"\r\n",
+					"#Create DataFrame for the mdcustomer LMSV2 Table\r\n",
+					"mdcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbocustomer.parquet', format='parquet')\r\n",
+					"columns13=mdcustomer.columns\r\n",
+					"for i in range(len(columns13)):mdcustomer=mdcustomer.withColumnRenamed(columns13[i],'v2'+ columns13[i])\r\n",
+					"mdcustomer.createOrReplaceTempView(\"mdcustomer\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the mddeliverycustomer LMSV2 Table\r\n",
+					"mddeliverycustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbodeliverycustomer.parquet', format='parquet')\r\n",
+					"columns14=mddeliverycustomer.columns\r\n",
+					"for i in range(len(columns14)):mddeliverycustomer=mddeliverycustomer.withColumnRenamed(columns14[i],'v2'+ columns14[i])\r\n",
+					"mddeliverycustomer.createOrReplaceTempView(\"mddeliverycustomer\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the v2deliverynoteparcel LMSV2 Table\r\n",
+					"v2deliverynoteparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2deliverynoteparcel.parquet', format='parquet')\r\n",
+					"columns15=v2deliverynoteparcel.columns\r\n",
+					"for i in range(len(columns15)):v2deliverynoteparcel=v2deliverynoteparcel.withColumnRenamed(columns15[i],'v2dnp'+ columns15[i])\r\n",
+					"v2deliverynoteparcel.createOrReplaceTempView(\"v2deliverynoteparcel\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the v2consignmentperparcel LMSV2 Table\r\n",
+					"v2consignmentperparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2consignmentperparcel.parquet', format='parquet')\r\n",
+					"columns16=v2consignmentperparcel.columns\r\n",
+					"for i in range(len(columns16)):v2consignmentperparcel=v2consignmentperparcel.withColumnRenamed(columns16[i],'v2'+ columns16[i])\r\n",
+					"v2consignmentperparcel.createOrReplaceTempView(\"v2consignmentperparcel\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the v2parcelmessage LMSV2 Table\r\n",
+					"v2parcelmessage = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2parcelmessage.parquet', format='parquet')\r\n",
+					"columns17=v2parcelmessage.columns\r\n",
+					"for i in range(len(columns17)):v2parcelmessage=v2parcelmessage.withColumnRenamed(columns17[i],'v2'+ columns17[i])\r\n",
+					"v2parcelmessage.createOrReplaceTempView(\"v2parcelmessage\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the v2debriefdata LMSV2 Table\r\n",
+					"v2debriefdata = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2debriefdata.parquet', format='parquet')\r\n",
+					"columns18=v2debriefdata.columns\r\n",
+					"for i in range(len(columns18)):v2debriefdata=v2debriefdata.withColumnRenamed(columns18[i],'v2ddata'+ columns18[i])\r\n",
+					"v2debriefdata.createOrReplaceTempView(\"v2debriefdata\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the v2debriefdocument LMSV2 Table\r\n",
+					"v2debriefdocument = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2debriefdocument.parquet', format='parquet')\r\n",
+					"columns19=v2debriefdocument.columns\r\n",
+					"for i in range(len(columns19)):v2debriefdocument=v2debriefdocument.withColumnRenamed(columns19[i],'v2ddoc'+ columns19[i])\r\n",
+					"v2debriefdocument.createOrReplaceTempView(\"v2debriefdocument\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the v2parceldetail LMSV2 Table\r\n",
+					"v2parceldetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2parceldetail.parquet', format='parquet')\r\n",
+					"columns20=v2parceldetail.columns\r\n",
+					"for i in range(len(columns20)):v2parceldetail=v2parceldetail.withColumnRenamed(columns20[i],'v2'+ columns20[i])\r\n",
+					"v2parceldetail.createOrReplaceTempView(\"v2parceldetail\")\r\n",
 					"\r\n",
 					"######################################################################################################\r\n",
 					"\r\n",
@@ -172,29 +219,47 @@
 					"for i in range(len(columns7)):dboorder=dboorder.withColumnRenamed(columns7[i],'v1'+ columns7[i])\r\n",
 					"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dboparcel LMS Table\r\n",
-					"# dboparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
-					"# columns11=dboparcel.columns\r\n",
-					"# for i in range(len(columns11)):dboparcel=dboparcel.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
-					"# dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
-					"\r\n",
-					"#Create DataFrame for the sstparcelunion LMS Table\r\n",
+					"# Create DataFrame for the sstparcelunion LMS Table\r\n",
 					"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
 					"columns11=sstparcelunion.columns\r\n",
 					"for i in range(len(columns11)):sstparcelunion=sstparcelunion.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
 					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dbotrack LMS Table\r\n",
-					"# dbotrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
-					"# columns12=dbotrack.columns\r\n",
-					"# for i in range(len(columns12)):dbotrack=dbotrack.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
-					"# dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
-					"\r\n",
-					"#Create DataFrame for the ssttrackunion LMS Table\r\n",
+					"# Create DataFrame for the ssttrackunion LMS Table\r\n",
 					"ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
 					"columns12=ssttrackunion.columns\r\n",
 					"for i in range(len(columns12)):ssttrackunion=ssttrackunion.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
-					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")"
+					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the dbocustomer LMS Table\r\n",
+					"dbocustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
+					"columns21=dbocustomer.columns\r\n",
+					"for i in range(len(columns21)):dbocustomer=dbocustomer.withColumnRenamed(columns21[i],'v1'+ columns21[i])\r\n",
+					"dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the dbowaybillsperparcel LMS Table\r\n",
+					"dbowaybillsperparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybillsperparcel.parquet', format='parquet')\r\n",
+					"columns22=dbowaybillsperparcel.columns\r\n",
+					"for i in range(len(columns22)):dbowaybillsperparcel=dbowaybillsperparcel.withColumnRenamed(columns22[i],'v1'+ columns22[i])\r\n",
+					"dbowaybillsperparcel.createOrReplaceTempView(\"dbowaybillsperparcel\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the dboparcelmessage LMS Table\r\n",
+					"dboparcelmessage = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocsd_messageparcel.parquet', format='parquet')\r\n",
+					"columns23=dboparcelmessage.columns\r\n",
+					"for i in range(len(columns23)):dboparcelmessage=dboparcelmessage.withColumnRenamed(columns23[i],'v1'+ columns23[i])\r\n",
+					"dboparcelmessage.createOrReplaceTempView(\"dboparcelmessage\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the dboparceldetail LMS Table\r\n",
+					"dboparceldetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboparceldetail.parquet', format='parquet')\r\n",
+					"columns24=dboparceldetail.columns\r\n",
+					"for i in range(len(columns24)):dboparceldetail=dboparceldetail.withColumnRenamed(columns24[i],'v1'+ columns24[i])\r\n",
+					"dboparceldetail.createOrReplaceTempView(\"dboparceldetail\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the stlmstrack LMS Table\r\n",
+					"stlmstrack = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', format='parquet')\r\n",
+					"columns25=stlmstrack.columns\r\n",
+					"for i in range(len(columns25)):stlmstrack=stlmstrack.withColumnRenamed(columns25[i],'v1'+ columns25[i])\r\n",
+					"stlmstrack.createOrReplaceTempView(\"stlmstrack\")"
 				],
 				"execution_count": 3
 			},
@@ -215,7 +280,7 @@
 				"source": [
 					"%run TRANSFORM/02 STRUCTURED/Ops/LMSv1v2Recon/01_LMSv1v2Recon_ETL"
 				],
-				"execution_count": null
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -237,9 +302,14 @@
 					"reconconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconconsignment.parquet', mode = \"overwrite\")\r\n",
 					"reconloads.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconloads.parquet', mode = \"overwrite\")\r\n",
 					"recontrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/recontrack.parquet', mode = \"overwrite\")\r\n",
-					"reconmovement.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconmovement.parquet', mode = \"overwrite\")"
+					"reconmovement.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconmovement.parquet', mode = \"overwrite\")\r\n",
+					"reconparcelmessage.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconparcelmessage.parquet', mode = \"overwrite\")\r\n",
+					"reconparceldetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconparceldetail.parquet', mode = \"overwrite\")\r\n",
+					"reconconsignmentperparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconconsignmentperparcel.parquet', mode = \"overwrite\")\r\n",
+					"recondeliverynoteparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/recondeliverynoteparcel.parquet', mode = \"overwrite\")\r\n",
+					""
 				],
-				"execution_count": null
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -257,7 +327,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": null
+				"execution_count": 6
 			}
 		]
 	}

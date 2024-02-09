@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "207aa372-3cf0-4fcc-bfb9-aad2f233faa0"
+				"spark.autotune.trackingId": "0f0d0f67-13d4-4ac0-83bb-b82882208a6a"
 			}
 		},
 		"metadata": {
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 20
+				"execution_count": 122
 			},
 			{
 				"cell_type": "code",
@@ -87,7 +87,7 @@
 					"# from pyspark.sql import functions as F\r\n",
 					"# from pyspark.sql import DataFrame"
 				],
-				"execution_count": 21
+				"execution_count": 123
 			},
 			{
 				"cell_type": "code",
@@ -103,116 +103,165 @@
 					}
 				},
 				"source": [
-					"# #Create DataFrame for the v2customerorder LMSV2 Table\r\n",
-					"# v2customerorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2customerorder.parquet', format='parquet')\r\n",
-					"# columns=v2customerorder.columns\r\n",
-					"# for i in range(len(columns)):v2customerorder=v2customerorder.withColumnRenamed(columns[i],'v2'+ columns[i])\r\n",
-					"# v2customerorder.createOrReplaceTempView(\"v2customerorder\")\r\n",
+					"#Create DataFrame for the v2customerorder LMSV2 Table\r\n",
+					"v2customerorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2customerorder.parquet', format='parquet')\r\n",
+					"columns=v2customerorder.columns\r\n",
+					"for i in range(len(columns)):v2customerorder=v2customerorder.withColumnRenamed(columns[i],'v2'+ columns[i])\r\n",
+					"v2customerorder.createOrReplaceTempView(\"v2customerorder\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the v2deliverynote LMSV2 Table\r\n",
-					"# v2deliverynote = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2deliverynote.parquet', format='parquet')\r\n",
-					"# columns1=v2deliverynote.columns\r\n",
-					"# for i in range(len(columns1)):v2deliverynote=v2deliverynote.withColumnRenamed(columns1[i],'v2'+ columns1[i])\r\n",
-					"# v2deliverynote.createOrReplaceTempView(\"v2deliverynote\")\r\n",
+					"#Create DataFrame for the v2deliverynote LMSV2 Table\r\n",
+					"v2deliverynote = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2deliverynote.parquet', format='parquet')\r\n",
+					"columns1=v2deliverynote.columns\r\n",
+					"for i in range(len(columns1)):v2deliverynote=v2deliverynote.withColumnRenamed(columns1[i],'v2'+ columns1[i])\r\n",
+					"v2deliverynote.createOrReplaceTempView(\"v2deliverynote\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the v2manifest LMSV2 Table\r\n",
-					"# v2manifest = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2manifest.parquet', format='parquet')\r\n",
-					"# columns2=v2manifest.columns\r\n",
-					"# for i in range(len(columns2)):v2manifest=v2manifest.withColumnRenamed(columns2[i],'v2'+ columns2[i])\r\n",
-					"# v2manifest.createOrReplaceTempView(\"v2manifest\")\r\n",
+					"#Create DataFrame for the v2manifest LMSV2 Table\r\n",
+					"v2manifest = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2manifest.parquet', format='parquet')\r\n",
+					"columns2=v2manifest.columns\r\n",
+					"for i in range(len(columns2)):v2manifest=v2manifest.withColumnRenamed(columns2[i],'v2'+ columns2[i])\r\n",
+					"v2manifest.createOrReplaceTempView(\"v2manifest\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the v2consignment LMSV2 Table\r\n",
-					"# v2consignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2consignment.parquet', format='parquet')\r\n",
-					"# columns3=v2consignment.columns\r\n",
-					"# for i in range(len(columns3)):v2consignment=v2consignment.withColumnRenamed(columns3[i],'v2'+ columns3[i])\r\n",
-					"# v2consignment.createOrReplaceTempView(\"v2consignment\")\r\n",
+					"#Create DataFrame for the v2consignment LMSV2 Table\r\n",
+					"v2consignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2consignment.parquet', format='parquet')\r\n",
+					"columns3=v2consignment.columns\r\n",
+					"for i in range(len(columns3)):v2consignment=v2consignment.withColumnRenamed(columns3[i],'v2'+ columns3[i])\r\n",
+					"v2consignment.createOrReplaceTempView(\"v2consignment\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the v2parcel LMSV2 Table\r\n",
-					"# v2parcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2parcel.parquet', format='parquet')\r\n",
-					"# columns8=v2parcel.columns\r\n",
-					"# for i in range(len(columns8)):v2parcel=v2parcel.withColumnRenamed(columns8[i],'v2'+ columns8[i])\r\n",
-					"# v2parcel.createOrReplaceTempView(\"v2parcel\")\r\n",
+					"#Create DataFrame for the v2parcel LMSV2 Table\r\n",
+					"v2parcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2parcel.parquet', format='parquet')\r\n",
+					"columns8=v2parcel.columns\r\n",
+					"for i in range(len(columns8)):v2parcel=v2parcel.withColumnRenamed(columns8[i],'v2'+ columns8[i])\r\n",
+					"v2parcel.createOrReplaceTempView(\"v2parcel\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the v2track LMSV2 Table\r\n",
-					"# v2track = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2track.parquet', format='parquet')\r\n",
-					"# columns9=v2track.columns\r\n",
-					"# for i in range(len(columns9)):v2track=v2track.withColumnRenamed(columns9[i],'v2'+ columns9[i])\r\n",
-					"# v2track.createOrReplaceTempView(\"v2track\")\r\n",
+					"#Create DataFrame for the v2track LMSV2 Table\r\n",
+					"v2track = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2track.parquet', format='parquet')\r\n",
+					"columns9=v2track.columns\r\n",
+					"for i in range(len(columns9)):v2track=v2track.withColumnRenamed(columns9[i],'v2'+ columns9[i])\r\n",
+					"v2track.createOrReplaceTempView(\"v2track\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the v2movement LMSV2 Table\r\n",
-					"# v2movement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMSV2/v2movement.parquet', format='parquet')\r\n",
-					"# columns10=v2movement.columns\r\n",
-					"# for i in range(len(columns10)):v2movement=v2movement.withColumnRenamed(columns10[i],'v2'+ columns10[i])\r\n",
-					"# v2movement.createOrReplaceTempView(\"v2movement\")\r\n",
+					"#Create DataFrame for the v2movement LMSV2 Table\r\n",
+					"v2movement = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2movement.parquet', format='parquet')\r\n",
+					"columns10=v2movement.columns\r\n",
+					"for i in range(len(columns10)):v2movement=v2movement.withColumnRenamed(columns10[i],'v2'+ columns10[i])\r\n",
+					"v2movement.createOrReplaceTempView(\"v2movement\")\r\n",
 					"\r\n",
+					"#Create DataFrame for the mdcustomer LMSV2 Table\r\n",
+					"mdcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbocustomer.parquet', format='parquet')\r\n",
+					"columns13=mdcustomer.columns\r\n",
+					"for i in range(len(columns13)):mdcustomer=mdcustomer.withColumnRenamed(columns13[i],'v2'+ columns13[i])\r\n",
+					"mdcustomer.createOrReplaceTempView(\"mdcustomer\")\r\n",
 					"\r\n",
-					"# ######################################################################################################\r\n",
+					"#Create DataFrame for the mddeliverycustomer LMSV2 Table\r\n",
+					"mddeliverycustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/dbodeliverycustomer.parquet', format='parquet')\r\n",
+					"columns14=mddeliverycustomer.columns\r\n",
+					"for i in range(len(columns14)):mddeliverycustomer=mddeliverycustomer.withColumnRenamed(columns14[i],'v2'+ columns14[i])\r\n",
+					"mddeliverycustomer.createOrReplaceTempView(\"mddeliverycustomer\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dbowaybill LMS Table\r\n",
-					"# dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
-					"# columns4=dbowaybill.columns\r\n",
-					"# for i in range(len(columns4)):dbowaybill=dbowaybill.withColumnRenamed(columns4[i],'v1'+ columns4[i])\r\n",
-					"# dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
+					"#Create DataFrame for the v2deliverynoteparcel LMSV2 Table\r\n",
+					"v2deliverynoteparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2deliverynoteparcel.parquet', format='parquet')\r\n",
+					"columns15=v2deliverynoteparcel.columns\r\n",
+					"for i in range(len(columns15)):v2deliverynoteparcel=v2deliverynoteparcel.withColumnRenamed(columns15[i],'v2dnp'+ columns15[i])\r\n",
+					"v2deliverynoteparcel.createOrReplaceTempView(\"v2deliverynoteparcel\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dboloads LMS Table\r\n",
-					"# dboloads = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
-					"# columns5=dboloads.columns\r\n",
-					"# for i in range(len(columns5)):dboloads=dboloads.withColumnRenamed(columns5[i],'v1'+ columns5[i])\r\n",
-					"# dboloads.createOrReplaceTempView(\"dboloads\")\r\n",
+					"#Create DataFrame for the v2consignmentperparcel LMSV2 Table\r\n",
+					"v2consignmentperparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2consignmentperparcel.parquet', format='parquet')\r\n",
+					"columns16=v2consignmentperparcel.columns\r\n",
+					"for i in range(len(columns16)):v2consignmentperparcel=v2consignmentperparcel.withColumnRenamed(columns16[i],'v2'+ columns16[i])\r\n",
+					"v2consignmentperparcel.createOrReplaceTempView(\"v2consignmentperparcel\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dboconsignment LMS Table\r\n",
-					"# dboconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
-					"# columns6=dboconsignment.columns\r\n",
-					"# for i in range(len(columns6)):dboconsignment=dboconsignment.withColumnRenamed(columns6[i],'v1'+ columns6[i])\r\n",
-					"# dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"#Create DataFrame for the v2parcelmessage LMSV2 Table\r\n",
+					"v2parcelmessage = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2parcelmessage.parquet', format='parquet')\r\n",
+					"columns17=v2parcelmessage.columns\r\n",
+					"for i in range(len(columns17)):v2parcelmessage=v2parcelmessage.withColumnRenamed(columns17[i],'v2'+ columns17[i])\r\n",
+					"v2parcelmessage.createOrReplaceTempView(\"v2parcelmessage\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dboorder LMS Table\r\n",
-					"# dboorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
-					"# columns7=dboorder.columns\r\n",
-					"# for i in range(len(columns7)):dboorder=dboorder.withColumnRenamed(columns7[i],'v1'+ columns7[i])\r\n",
-					"# dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"#Create DataFrame for the v2debriefdata LMSV2 Table\r\n",
+					"v2debriefdata = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2debriefdata.parquet', format='parquet')\r\n",
+					"columns18=v2debriefdata.columns\r\n",
+					"for i in range(len(columns18)):v2debriefdata=v2debriefdata.withColumnRenamed(columns18[i],'v2ddata'+ columns18[i])\r\n",
+					"v2debriefdata.createOrReplaceTempView(\"v2debriefdata\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dboparcel LMS Table\r\n",
-					"# dboparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboparcel.parquet', format='parquet')\r\n",
-					"# columns11=dboparcel.columns\r\n",
-					"# for i in range(len(columns11)):dboparcel=dboparcel.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
-					"# dboparcel.createOrReplaceTempView(\"dboparcel\")\r\n",
+					"#Create DataFrame for the v2debriefdocument LMSV2 Table\r\n",
+					"v2debriefdocument = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2debriefdocument.parquet', format='parquet')\r\n",
+					"columns19=v2debriefdocument.columns\r\n",
+					"for i in range(len(columns19)):v2debriefdocument=v2debriefdocument.withColumnRenamed(columns19[i],'v2ddoc'+ columns19[i])\r\n",
+					"v2debriefdocument.createOrReplaceTempView(\"v2debriefdocument\")\r\n",
 					"\r\n",
-					"# # Create DataFrame for the sstparcelunion LMS Table\r\n",
-					"# sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
-					"# columns11=sstparcelunion.columns\r\n",
-					"# for i in range(len(columns11)):sstparcelunion=sstparcelunion.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
-					"# sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+					"#Create DataFrame for the v2parceldetail LMSV2 Table\r\n",
+					"v2parceldetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2parceldetail.parquet', format='parquet')\r\n",
+					"columns20=v2parceldetail.columns\r\n",
+					"for i in range(len(columns20)):v2parceldetail=v2parceldetail.withColumnRenamed(columns20[i],'v2'+ columns20[i])\r\n",
+					"v2parceldetail.createOrReplaceTempView(\"v2parceldetail\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the dbotrack LMS Table\r\n",
-					"# dbotrack = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbotrack.parquet', format='parquet')\r\n",
-					"# columns12=dbotrack.columns\r\n",
-					"# for i in range(len(columns12)):dbotrack=dbotrack.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
-					"# dbotrack.createOrReplaceTempView(\"dbotrack\")\r\n",
+					"######################################################################################################\r\n",
 					"\r\n",
-					"# # Create DataFrame for the ssttrackunion LMS Table\r\n",
-					"# ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
-					"# columns12=ssttrackunion.columns\r\n",
-					"# for i in range(len(columns12)):ssttrackunion=ssttrackunion.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
-					"# ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
+					"#Create DataFrame for the dbowaybill LMS Table\r\n",
+					"dbowaybill = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybill.parquet', format='parquet')\r\n",
+					"columns4=dbowaybill.columns\r\n",
+					"for i in range(len(columns4)):dbowaybill=dbowaybill.withColumnRenamed(columns4[i],'v1'+ columns4[i])\r\n",
+					"dbowaybill.createOrReplaceTempView(\"dbowaybill\")\r\n",
 					"\r\n",
+					"#Create DataFrame for the dboloads LMS Table\r\n",
+					"dboloads = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
+					"columns5=dboloads.columns\r\n",
+					"for i in range(len(columns5)):dboloads=dboloads.withColumnRenamed(columns5[i],'v1'+ columns5[i])\r\n",
+					"dboloads.createOrReplaceTempView(\"dboloads\")\r\n",
 					"\r\n",
-					""
+					"#Create DataFrame for the dboconsignment LMS Table\r\n",
+					"dboconsignment = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboconsignment.parquet', format='parquet')\r\n",
+					"columns6=dboconsignment.columns\r\n",
+					"for i in range(len(columns6)):dboconsignment=dboconsignment.withColumnRenamed(columns6[i],'v1'+ columns6[i])\r\n",
+					"dboconsignment.createOrReplaceTempView(\"dboconsignment\")\r\n",
+					"\r\n",
+					"#Create DataFrame for the dboorder LMS Table\r\n",
+					"dboorder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboorder.parquet', format='parquet')\r\n",
+					"columns7=dboorder.columns\r\n",
+					"for i in range(len(columns7)):dboorder=dboorder.withColumnRenamed(columns7[i],'v1'+ columns7[i])\r\n",
+					"dboorder.createOrReplaceTempView(\"dboorder\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the sstparcelunion LMS Table\r\n",
+					"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+					"columns11=sstparcelunion.columns\r\n",
+					"for i in range(len(columns11)):sstparcelunion=sstparcelunion.withColumnRenamed(columns11[i],'v1'+ columns11[i])\r\n",
+					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the ssttrackunion LMS Table\r\n",
+					"ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
+					"columns12=ssttrackunion.columns\r\n",
+					"for i in range(len(columns12)):ssttrackunion=ssttrackunion.withColumnRenamed(columns12[i],'v1'+ columns12[i])\r\n",
+					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the dbocustomer LMS Table\r\n",
+					"dbocustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocustomer.parquet', format='parquet')\r\n",
+					"columns21=dbocustomer.columns\r\n",
+					"for i in range(len(columns21)):dbocustomer=dbocustomer.withColumnRenamed(columns21[i],'v1'+ columns21[i])\r\n",
+					"dbocustomer.createOrReplaceTempView(\"dbocustomer\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the dbowaybillsperparcel LMS Table\r\n",
+					"dbowaybillsperparcel = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbowaybillsperparcel.parquet', format='parquet')\r\n",
+					"columns22=dbowaybillsperparcel.columns\r\n",
+					"for i in range(len(columns22)):dbowaybillsperparcel=dbowaybillsperparcel.withColumnRenamed(columns22[i],'v1'+ columns22[i])\r\n",
+					"dbowaybillsperparcel.createOrReplaceTempView(\"dbowaybillsperparcel\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the dboparcelmessage LMS Table\r\n",
+					"dboparcelmessage = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbocsd_messageparcel.parquet', format='parquet')\r\n",
+					"columns23=dboparcelmessage.columns\r\n",
+					"for i in range(len(columns23)):dboparcelmessage=dboparcelmessage.withColumnRenamed(columns23[i],'v1'+ columns23[i])\r\n",
+					"dboparcelmessage.createOrReplaceTempView(\"dboparcelmessage\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the dboparceldetail LMS Table\r\n",
+					"dboparceldetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboparceldetail.parquet', format='parquet')\r\n",
+					"columns24=dboparceldetail.columns\r\n",
+					"for i in range(len(columns24)):dboparceldetail=dboparceldetail.withColumnRenamed(columns24[i],'v1'+ columns24[i])\r\n",
+					"dboparceldetail.createOrReplaceTempView(\"dboparceldetail\")\r\n",
+					"\r\n",
+					"# Create DataFrame for the stlmstrack LMS Table\r\n",
+					"stlmstrack = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', format='parquet')\r\n",
+					"columns25=stlmstrack.columns\r\n",
+					"for i in range(len(columns25)):stlmstrack=stlmstrack.withColumnRenamed(columns25[i],'v1'+ columns25[i])\r\n",
+					"stlmstrack.createOrReplaceTempView(\"stlmstrack\")"
 				],
-				"execution_count": 22
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"<mark>**APPROACH VERSION 3**</mark>"
-				]
+				"execution_count": 124
 			},
 			{
 				"cell_type": "code",
@@ -248,7 +297,7 @@
 					"WHERE  COALESCE(p.v1acceptancedate,p.v1handoverdate)>='2023-01-01 00:00:00' AND COALESCE(p.v1acceptancedate,p.v1handoverdate)<='2023-03-31 23:59:59'\r\n",
 					"AND p.v1orderid IS NOT NULL"
 				],
-				"execution_count": 23
+				"execution_count": 125
 			},
 			{
 				"cell_type": "code",
@@ -266,7 +315,7 @@
 				"source": [
 					"reconparcel = spark.sql(\"SELECT * FROM reconparcel\")"
 				],
-				"execution_count": 24
+				"execution_count": 126
 			},
 			{
 				"cell_type": "code",
@@ -294,7 +343,7 @@
 					"     v1id\r\n",
 					"FROM reconparcel"
 				],
-				"execution_count": 25
+				"execution_count": 127
 			},
 			{
 				"cell_type": "code",
@@ -323,7 +372,7 @@
 					"\r\n",
 					"FROM reconparcel"
 				],
-				"execution_count": 26
+				"execution_count": 128
 			},
 			{
 				"cell_type": "code",
@@ -351,7 +400,7 @@
 					"    v1orderid\r\n",
 					"FROM reconparcel"
 				],
-				"execution_count": 27
+				"execution_count": 129
 			},
 			{
 				"cell_type": "code",
@@ -379,7 +428,276 @@
 					"    v1consignid\r\n",
 					"FROM reconparcel"
 				],
-				"execution_count": 28
+				"execution_count": 130
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"reconparcel_baseparcelconsignid\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT\r\n",
+					"     v1id\r\n",
+					"    ,v1consignid\r\n",
+					"    ,v1id||'|'||v1consignid as v1parcelconsignid\r\n",
+					"FROM reconparcel"
+				],
+				"execution_count": 131
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"recondeliverynoteparcel\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					" t.v1lms_track_parcelid\r\n",
+					",p.v2id as v2parcelid \r\n",
+					",t.v1lms_track_waybillid as v1waybillid\r\n",
+					",dn.v2id as v2waybillid\r\n",
+					",dnp.*\r\n",
+					",CASE \r\n",
+					"    WHEN dnp.v2dnpid IS NULL THEN 1\r\n",
+					"    ELSE 0\r\n",
+					"END as notinv2\r\n",
+					"\r\n",
+					"FROM reconparcel_baseparcelid b\r\n",
+					"LEFT JOIN v2parcel p on p.v2legacyid = b.v1id\r\n",
+					"LEFT JOIN stlmstrack t on t.v1lms_track_parcelid = b.v1id\r\n",
+					"LEFT JOIN v2deliverynote dn on dn.v2legacyid = t.v1lms_track_waybillid\r\n",
+					"LEFT JOIN v2deliverynoteparcel dnp on dnp.v2dnpparcelid = p.v2id  and dnp.v2dnpdeliverynoteid = dn.v2id\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 132
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"recondeliverynoteparcel = spark.sql(\"SELECT * FROM recondeliverynoteparcel\")"
+				],
+				"execution_count": 133
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"reconparcelmessage\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"\r\n",
+					" pm1.*\r\n",
+					",pm2.*\r\n",
+					",CASE \r\n",
+					"    WHEN pm2.v2id IS NULL THEN 1\r\n",
+					"    ELSE 0\r\n",
+					"END as notinv2\r\n",
+					"\r\n",
+					"FROM reconparcel_baseparcelid b\r\n",
+					"LEFT JOIN dboparcelmessage pm1 on pm1.v1id = b.v1id\r\n",
+					"LEFT JOIN v2parcelmessage  pm2 on pm2.v2legacyid = pm1.v1id\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 134
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"reconparcelmessage = spark.sql(\"SELECT * FROM reconparcelmessage\")"
+				],
+				"execution_count": 135
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"reconparceldetail\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"\r\n",
+					" pd1.*\r\n",
+					",pd2.*\r\n",
+					",CASE \r\n",
+					"    WHEN pd2.v2id IS NULL THEN 1\r\n",
+					"    ELSE 0\r\n",
+					"END as notinv2\r\n",
+					"\r\n",
+					"FROM reconparcel_baseparcelid b\r\n",
+					"LEFT JOIN dboparceldetail pd1 on pd1.v1id = b.v1id\r\n",
+					"LEFT JOIN v2parceldetail  pd2 on pd2.v2legacyid = pd1.v1id\r\n",
+					"\r\n",
+					"\r\n",
+					""
+				],
+				"execution_count": 136
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"reconparceldetail = spark.sql(\"SELECT * FROM reconparceldetail\")"
+				],
+				"execution_count": 137
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"reconconsignmentperparcel\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"\r\n",
+					" b.*\r\n",
+					"--,p.*\r\n",
+					",p.v2id v2parcelidparcel\r\n",
+					"--,c.*\r\n",
+					",c.v2id v2consignmentidconsignment\r\n",
+					",cp.*\r\n",
+					",CASE \r\n",
+					"    WHEN cp.v2id IS NULL THEN 1\r\n",
+					"    ELSE 0\r\n",
+					"END as notinv2\r\n",
+					"\r\n",
+					"FROM reconparcel_baseparcelconsignid b\r\n",
+					"LEFT JOIN v2parcel p on p.v2legacyid = b.v1id\r\n",
+					"LEFT JOIN v2consignment c on c.v2legacyid = b.v1consignid\r\n",
+					"LEFT JOIN v2consignmentperparcel cp on cp.v2parcelid = p.v2id and cp.v2consignmentid = c.v2id\r\n",
+					""
+				],
+				"execution_count": 138
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"reconconsignmentperparcel = spark.sql(\"SELECT * FROM reconconsignmentperparcel\")"
+				],
+				"execution_count": 139
 			},
 			{
 				"cell_type": "code",
@@ -407,17 +725,28 @@
 					"\r\n",
 					" w.*\r\n",
 					",dn.*\r\n",
+					",dd.*\r\n",
+					",dd1.*\r\n",
 					",CASE \r\n",
 					"    WHEN dn.v2id IS NULL THEN 1\r\n",
 					"    ELSE 0\r\n",
 					"END as notinv2\r\n",
+					",CASE \r\n",
+					"    WHEN dd.v2ddataid IS NULL THEN 1\r\n",
+					"    ELSE 0\r\n",
+					"END as notinv2debriefdata\r\n",
+					",CASE \r\n",
+					"    WHEN dd1.v2ddocid IS NULL THEN 1\r\n",
+					"    ELSE 0\r\n",
+					"END as notinv2debriefdocument\r\n",
 					"\r\n",
 					"FROM reconparcel_basewaybillid b\r\n",
 					"LEFT JOIN dbowaybill w on w.v1id = b.v1waybillid\r\n",
 					"LEFT JOIN v2deliverynote dn on dn.v2legacyid = w.v1id\r\n",
-					"-- WHERE w.v1date>='2023-01-01'"
+					"LEFT JOIN v2debriefdata dd on dd.v2ddatadeliverynoteid = dn.v2id\r\n",
+					"LEFT JOIN v2debriefdocument dd1 on dd1.v2ddocdeliverynoteid = dn.v2id"
 				],
-				"execution_count": 29
+				"execution_count": 140
 			},
 			{
 				"cell_type": "code",
@@ -435,7 +764,7 @@
 				"source": [
 					"reconwaybill = spark.sql(\"SELECT * FROM reconwaybill\")"
 				],
-				"execution_count": 30
+				"execution_count": 141
 			},
 			{
 				"cell_type": "code",
@@ -471,9 +800,9 @@
 					"FROM reconparcel_baseorderid b \r\n",
 					"LEFT JOIN dboorder o on o.v1id = b.v1orderid\r\n",
 					"LEFT JOIN v2customerorder co on co.v2legacyid = o.v1id\r\n",
-					"-- WHERE  o.v1hodate>='2023-01-01'"
+					""
 				],
-				"execution_count": 31
+				"execution_count": 142
 			},
 			{
 				"cell_type": "code",
@@ -491,7 +820,7 @@
 				"source": [
 					"reconorder = spark.sql(\"SELECT * FROM reconorder\")"
 				],
-				"execution_count": 32
+				"execution_count": 143
 			},
 			{
 				"cell_type": "code",
@@ -527,9 +856,9 @@
 					"FROM reconparcel_baseconsignid b \r\n",
 					"LEFT JOIN dboconsignment c on c.v1id = b.v1consignid\r\n",
 					"LEFT JOIN v2consignment co on co.v2legacyid = c.v1id\r\n",
-					"-- WHERE  c.v1cdate>='2023-01-01'"
+					""
 				],
-				"execution_count": 33
+				"execution_count": 144
 			},
 			{
 				"cell_type": "code",
@@ -547,7 +876,7 @@
 				"source": [
 					"reconconsignment = spark.sql(\"SELECT * FROM reconconsignment\")"
 				],
-				"execution_count": 34
+				"execution_count": 145
 			},
 			{
 				"cell_type": "code",
@@ -582,9 +911,9 @@
 					"FROM reconparcel_baseparcelid b \r\n",
 					"LEFT JOIN ssttrackunion t1 on t1.v1parcelid = b.v1id\r\n",
 					"LEFT JOIN v2track t2 on t2.v2legacyid = t1.v1id\r\n",
-					"-- WHERE t1.v1opendt >='2023-01-01'"
+					""
 				],
-				"execution_count": 35
+				"execution_count": 146
 			},
 			{
 				"cell_type": "code",
@@ -602,7 +931,7 @@
 				"source": [
 					"recontrack = spark.sql(\"SELECT  * FROM recontrack\")"
 				],
-				"execution_count": 36
+				"execution_count": 147
 			},
 			{
 				"cell_type": "code",
@@ -630,7 +959,7 @@
 					"     v1loadid\r\n",
 					"FROM recontrack"
 				],
-				"execution_count": 37
+				"execution_count": 148
 			},
 			{
 				"cell_type": "code",
@@ -648,7 +977,7 @@
 				"source": [
 					"recontrack_base = spark.sql(\"SELECT  * FROM recontrack_base\")"
 				],
-				"execution_count": 38
+				"execution_count": 149
 			},
 			{
 				"cell_type": "code",
@@ -684,9 +1013,9 @@
 					"FROM recontrack_base b\r\n",
 					"LEFT JOIN dboloads l on l.v1id = b.v1loadid\r\n",
 					"LEFT JOIN v2manifest m on m.v2legacyid = l.v1id\r\n",
-					"-- WHERE l.v1ldate >='2023-01-01'"
+					""
 				],
-				"execution_count": 39
+				"execution_count": 150
 			},
 			{
 				"cell_type": "code",
@@ -704,7 +1033,7 @@
 				"source": [
 					"reconloads = spark.sql(\"SELECT * FROM reconloads\")"
 				],
-				"execution_count": 40
+				"execution_count": 151
 			},
 			{
 				"cell_type": "code",
@@ -732,7 +1061,7 @@
 					"    * \r\n",
 					"FROM v2movement"
 				],
-				"execution_count": 41
+				"execution_count": 152
 			},
 			{
 				"cell_type": "code",
@@ -750,1244 +1079,7 @@
 				"source": [
 					"reconmovement = spark.sql(\"SELECT  * FROM reconmovement\")"
 				],
-				"execution_count": 42
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"<mark>**APPROACH VERSION 2**</mark>"
-				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconwaybill\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"\r\n",
-					"# -- w.*\r\n",
-					"# -- ,dn.*\r\n",
-					"# -- ,CASE \r\n",
-					"# --     WHEN dn.v2id IS NULL THEN 1\r\n",
-					"# --     ELSE 0\r\n",
-					"# -- END as notinv2\r\n",
-					"\r\n",
-					"# -- FROM dbowaybill w\r\n",
-					"# -- LEFT JOIN v2deliverynote dn on dn.v2legacyid = w.v1id\r\n",
-					"# -- WHERE w.v1date>='2023-01-01'\r\n",
-					""
-				],
-				"execution_count": 43
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconwaybill = spark.sql(\"SELECT * FROM reconwaybill\")"
-				],
-				"execution_count": 44
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconorder\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"\r\n",
-					"# -- o.*\r\n",
-					"# -- ,co.*\r\n",
-					"# -- ,CASE \r\n",
-					"# --     WHEN co.v2id IS NULL THEN 1\r\n",
-					"# --     ELSE 0\r\n",
-					"# -- END as notinv2\r\n",
-					"\r\n",
-					"# -- FROM dboorder o\r\n",
-					"# -- LEFT JOIN v2customerorder co on co.v2legacyid = o.v1id\r\n",
-					"# -- WHERE  o.v1hodate>='2023-01-01'\r\n",
-					"\r\n",
-					""
-				],
-				"execution_count": 45
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconorder = spark.sql(\"SELECT * FROM reconorder\")"
-				],
-				"execution_count": 46
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconconsignment\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"\r\n",
-					"# -- c.*\r\n",
-					"# -- ,co.*\r\n",
-					"# -- ,CASE \r\n",
-					"# --     WHEN co.v2id IS NULL THEN 1\r\n",
-					"# --     ELSE 0\r\n",
-					"# -- END as notinv2\r\n",
-					"\r\n",
-					"# -- FROM dboconsignment c \r\n",
-					"# -- LEFT JOIN v2consignment co on co.v2legacyid = c.v1id\r\n",
-					"# -- WHERE  c.v1cdate>='2023-01-01'"
-				],
-				"execution_count": 47
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconconsignment = spark.sql(\"SELECT * FROM reconconsignment\")"
-				],
-				"execution_count": 48
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconparcel\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"# --     p.*\r\n",
-					"# --     ,p2.*\r\n",
-					"# --     ,CASE \r\n",
-					"# --         WHEN p2.v2id IS NULL THEN 1\r\n",
-					"# --         ELSE 0\r\n",
-					"# --     END as notinv2\r\n",
-					"# -- FROM sstparcelunion p \r\n",
-					"# -- LEFT JOIN v2parcel p2 on p2.v2legacyid = p.v1id\r\n",
-					"# -- WHERE  COALESCE(p.v1acceptancedate,p.v1handoverdate)>='2023-01-01'"
-				],
-				"execution_count": 49
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconparcel = spark.sql(\"SELECT * FROM reconparcel\")"
-				],
-				"execution_count": 50
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconloads\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"\r\n",
-					"# -- l.*\r\n",
-					"# -- ,m.*\r\n",
-					"# -- ,CASE \r\n",
-					"# --     WHEN m.v2id IS NULL THEN 1\r\n",
-					"# --     ELSE 0\r\n",
-					"# -- END as notinv2\r\n",
-					"\r\n",
-					"# -- FROM dboloads l \r\n",
-					"# -- LEFT JOIN v2manifest m on m.v2legacyid = l.v1id\r\n",
-					"# -- WHERE l.v1ldate >='2023-01-01'"
-				],
-				"execution_count": 51
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconloads = spark.sql(\"SELECT * FROM reconloads\")"
-				],
-				"execution_count": 52
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- recontrack\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"# --     t1.*\r\n",
-					"# --     ,t2.*\r\n",
-					"# --     ,CASE \r\n",
-					"# --         WHEN t2.v2id IS NULL THEN 1\r\n",
-					"# --         ELSE 0\r\n",
-					"# --     END as notinv2\r\n",
-					"\r\n",
-					"# -- FROM ssttrackunion t1 \r\n",
-					"# -- LEFT JOIN v2track t2 on t2.v2legacyid = t1.v1id\r\n",
-					"# -- WHERE t1.v1opendt >='2023-01-01'"
-				],
-				"execution_count": 53
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# recontrack = spark.sql(\"SELECT  * FROM recontrack\")"
-				],
-				"execution_count": 54
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconmovement\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"# --     * \r\n",
-					"# -- FROM v2movement"
-				],
-				"execution_count": 55
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconmovement = spark.sql(\"SELECT  * FROM reconmovement\")"
-				],
-				"execution_count": 56
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"<mark>**APPROACH VERSION 1**</mark>"
-				]
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"**BASE PARCEL**"
-				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconparcel_base\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"# --      v1id\r\n",
-					"# --     ,v1consignid\r\n",
-					"# --     ,v1waybillid\r\n",
-					"# --     ,v1orderid\r\n",
-					"# -- FROM sstparcelunion p\r\n",
-					"# -- WHERE  COALESCE(p.v1acceptancedate,p.v1handoverdate)>='2023-01-01'"
-				],
-				"execution_count": 57
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconparcel_base = spark.sql(\"SELECT * FROM reconparcel_base\")"
-				],
-				"execution_count": 58
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"**WAYBILL**"
-				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconwaybill_tmp1\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT w.v1id\r\n",
-					"# -- FROM dbowaybill w\r\n",
-					"# -- WHERE  w.v1date>='2023-01-01'\r\n",
-					"\r\n",
-					"# -- UNION \r\n",
-					"\r\n",
-					"# -- SELECT DISTINCT p.v1waybillid as v1id\r\n",
-					"# -- FROM reconparcel_base p\r\n",
-					""
-				],
-				"execution_count": 59
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconwaybill_tmp1 = spark.sql(\"SELECT DISTINCT * FROM reconwaybill_tmp1\")"
-				],
-				"execution_count": 60
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconwaybill\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"\r\n",
-					"# -- w.*\r\n",
-					"# -- ,dn.*\r\n",
-					"# -- ,CASE \r\n",
-					"# --     WHEN dn.v2id IS NULL THEN 1\r\n",
-					"# --     ELSE 0\r\n",
-					"# -- END as notinv2\r\n",
-					"\r\n",
-					"# -- FROM reconwaybill_tmp1 t\r\n",
-					"# -- LEFT JOIN dbowaybill w on w.v1id = t.v1id\r\n",
-					"# -- LEFT JOIN v2deliverynote dn on dn.v2legacyid = w.v1id\r\n",
-					"\r\n",
-					""
-				],
-				"execution_count": 61
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconwaybill = spark.sql(\"SELECT * FROM reconwaybill\")"
-				],
-				"execution_count": 62
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"**ORDER**"
-				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconorder_tmp1\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT o.v1id\r\n",
-					"# -- FROM dboorder o\r\n",
-					"# -- WHERE  o.v1hodate>='2023-01-01'\r\n",
-					"\r\n",
-					"# -- UNION \r\n",
-					"\r\n",
-					"# -- SELECT DISTINCT p.v1orderid as v1id\r\n",
-					"# -- FROM reconparcel_base p\r\n",
-					""
-				],
-				"execution_count": 63
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconorder_tmp1 = spark.sql(\"SELECT DISTINCT * FROM reconorder_tmp1\")"
-				],
-				"execution_count": 64
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconorder\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"\r\n",
-					"# -- o.*\r\n",
-					"# -- ,co.*\r\n",
-					"# -- ,CASE \r\n",
-					"# --     WHEN co.v2id IS NULL THEN 1\r\n",
-					"# --     ELSE 0\r\n",
-					"# -- END as notinv2\r\n",
-					"\r\n",
-					"# -- FROM reconorder_tmp1 t\r\n",
-					"# -- LEFT JOIN dboorder o on o.v1id = t.v1id\r\n",
-					"# -- LEFT JOIN v2customerorder co on co.v2legacyid = o.v1id\r\n",
-					"\r\n",
-					""
-				],
-				"execution_count": 65
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconorder = spark.sql(\"SELECT * FROM reconorder\")"
-				],
-				"execution_count": 66
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"**CONSIGNMENT**"
-				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconconsignment_tmp1\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT c.v1id\r\n",
-					"# -- FROM dboconsignment c\r\n",
-					"# -- WHERE  c.v1cdate>='2023-01-01'\r\n",
-					"\r\n",
-					"# -- UNION \r\n",
-					"\r\n",
-					"# -- SELECT DISTINCT p.v1consignid as v1id\r\n",
-					"# -- FROM reconparcel_base p\r\n",
-					""
-				],
-				"execution_count": 67
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconconsignment_tmp1 = spark.sql(\"SELECT DISTINCT * FROM reconconsignment_tmp1\")"
-				],
-				"execution_count": 68
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconconsignment\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"\r\n",
-					"# -- c.*\r\n",
-					"# -- ,co.*\r\n",
-					"# -- ,CASE \r\n",
-					"# --     WHEN co.v2id IS NULL THEN 1\r\n",
-					"# --     ELSE 0\r\n",
-					"# -- END as notinv2\r\n",
-					"\r\n",
-					"# -- FROM reconconsignment_tmp1 t\r\n",
-					"# -- LEFT JOIN dboconsignment c on c.v1id = t. v1id\r\n",
-					"# -- LEFT JOIN v2consignment co on co.v2legacyid = c.v1id\r\n",
-					"\r\n",
-					"\r\n",
-					""
-				],
-				"execution_count": 69
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconconsignment = spark.sql(\"SELECT * FROM reconconsignment\")"
-				],
-				"execution_count": 70
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"**PARCEL FINAL**"
-				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconparcel_tmp1\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT p.v1id\r\n",
-					"# -- FROM reconwaybill w\r\n",
-					"# -- LEFT JOIN sstparcelunion p on p.v1waybillid = w.v1id \r\n",
-					"\r\n",
-					"\r\n",
-					"# -- UNION \r\n",
-					"\r\n",
-					"# -- SELECT p.v1id\r\n",
-					"# -- FROM reconconsignment c\r\n",
-					"# -- LEFT JOIN sstparcelunion p on p.v1consignid = c.v1id \r\n",
-					"\r\n",
-					"# -- UNION \r\n",
-					"\r\n",
-					"# -- SELECT p.v1id\r\n",
-					"# -- FROM reconorder o\r\n",
-					"# -- LEFT JOIN sstparcelunion p on p.v1orderid = o.v1id "
-				],
-				"execution_count": 71
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconparcel_tmp1 = spark.sql(\"SELECT DISTINCT * FROM reconparcel_tmp1 WHERE v1id is not NULL\")"
-				],
-				"execution_count": 72
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconparcel\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"# --     p.*\r\n",
-					"# --     ,p2.*\r\n",
-					"# --     ,CASE \r\n",
-					"# --         WHEN p2.v2id IS NULL THEN 1\r\n",
-					"# --         ELSE 0\r\n",
-					"# --     END as notinv2\r\n",
-					"# -- FROM reconparcel_tmp1 t\r\n",
-					"# -- LEFT JOIN sstparcelunion p on p.v1id = t.v1id\r\n",
-					"# -- LEFT JOIN v2parcel p2 on p2.v2legacyid = p.v1id\r\n",
-					""
-				],
-				"execution_count": 73
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconparcel = spark.sql(\"SELECT * FROM reconparcel\")"
-				],
-				"execution_count": 74
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"**TRACK**"
-				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- recontrack_tmp1\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"# --      t.v1id\r\n",
-					"# --     ,t.v1loadid\r\n",
-					"# -- FROM ssttrackunion t\r\n",
-					"# -- WHERE t.v1opendt >='2023-01-01'\r\n",
-					"\r\n",
-					"# -- UNION \r\n",
-					"\r\n",
-					"# -- SELECT \r\n",
-					"# --      t.v1id\r\n",
-					"# --     ,t.v1loadid\r\n",
-					"# -- FROM reconparcel p\r\n",
-					"# -- LEFT JOIN ssttrackunion t on t.v1parcelid = p.v1id"
-				],
-				"execution_count": 75
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# recontrack_tmp1 = spark.sql(\"SELECT DISTINCT * FROM recontrack_tmp1\")"
-				],
-				"execution_count": 76
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconloads_tmp1\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"# --      l.v1id\r\n",
-					"# -- FROM dboloads l\r\n",
-					"# -- WHERE l.v1ldate >='2023-01-01'\r\n",
-					"\r\n",
-					"# -- UNION \r\n",
-					"\r\n",
-					"# -- SELECT \r\n",
-					"# --     l.v1id\r\n",
-					"# -- FROM recontrack_tmp1 t\r\n",
-					"# -- LEFT JOIN dboloads l on l.v1id = t.v1loadid"
-				],
-				"execution_count": 77
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconloads_tmp1 = spark.sql(\"SELECT DISTINCT * FROM reconloads_tmp1\")"
-				],
-				"execution_count": 78
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconloads\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"\r\n",
-					"# -- l.*\r\n",
-					"# -- ,m.*\r\n",
-					"# -- ,CASE \r\n",
-					"# --     WHEN m.v2id IS NULL THEN 1\r\n",
-					"# --     ELSE 0\r\n",
-					"# -- END as notinv2\r\n",
-					"\r\n",
-					"# -- FROM reconloads_tmp1 t\r\n",
-					"# -- LEFT JOIN dboloads l on l.v1id = t.v1id\r\n",
-					"# -- LEFT JOIN v2manifest m on m.v2legacyid = l.v1id"
-				],
-				"execution_count": 79
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconloads = spark.sql(\"SELECT * FROM reconloads\")"
-				],
-				"execution_count": 80
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- recontrack_tmp2\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"# --     t.v1id\r\n",
-					"\r\n",
-					"# -- FROM recontrack_tmp1 t\r\n",
-					"\r\n",
-					"# -- UNION \r\n",
-					"\r\n",
-					"# -- SELECT \r\n",
-					"# --     t.v1id\r\n",
-					"\r\n",
-					"# -- FROM reconloads l\r\n",
-					"# -- LEFT JOIN ssttrackunion t on t.v1loadid = l.v1id"
-				],
-				"execution_count": 81
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# recontrack_tmp2 = spark.sql(\"SELECT DISTINCT * FROM recontrack_tmp2\")"
-				],
-				"execution_count": 82
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- recontrack\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"# --     t2.*\r\n",
-					"# --     ,t3.*\r\n",
-					"# --     ,CASE \r\n",
-					"# --         WHEN t3.v2id IS NULL THEN 1\r\n",
-					"# --         ELSE 0\r\n",
-					"# --     END as notinv2\r\n",
-					"\r\n",
-					"# -- FROM recontrack_tmp2 t1\r\n",
-					"# -- LEFT JOIN ssttrackunion t2 on t2.v1id = t1.v1id\r\n",
-					"# -- LEFT JOIN v2track t3 on t3.v2legacyid = t1.v1id"
-				],
-				"execution_count": 83
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# recontrack = spark.sql(\"SELECT  * FROM recontrack\")"
-				],
-				"execution_count": 84
-			},
-			{
-				"cell_type": "markdown",
-				"metadata": {
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"**MOVEMENT**"
-				]
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# -- %%sql\r\n",
-					"# -- CREATE OR REPLACE TEMP VIEW\r\n",
-					"# -- reconmovement\r\n",
-					"# -- AS\r\n",
-					"# -- SELECT \r\n",
-					"# --     * \r\n",
-					"# -- FROM v2movement"
-				],
-				"execution_count": 85
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"# reconmovement = spark.sql(\"SELECT  * FROM reconmovement\")"
-				],
-				"execution_count": 86
+				"execution_count": 153
 			},
 			{
 				"cell_type": "code",
@@ -2009,9 +1101,17 @@
 					"# reconconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconconsignment.parquet', mode = \"overwrite\")\r\n",
 					"# reconloads.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconloads.parquet', mode = \"overwrite\")\r\n",
 					"# recontrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/recontrack.parquet', mode = \"overwrite\")\r\n",
-					"# reconmovement.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconmovement.parquet', mode = \"overwrite\")"
+					"# reconmovement.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconmovement.parquet', mode = \"overwrite\")\r\n",
+					"# reconparcelmessage.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconparcelmessage.parquet', mode = \"overwrite\")\r\n",
+					"# reconparceldetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconparceldetail.parquet', mode = \"overwrite\")\r\n",
+					"# reconconsignmentperparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconconsignmentperparcel.parquet', mode = \"overwrite\")\r\n",
+					"# recondeliverynoteparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/recondeliverynoteparcel.parquet', mode = \"overwrite\")\r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
+					""
 				],
-				"execution_count": 87
+				"execution_count": 154
 			}
 		]
 	}

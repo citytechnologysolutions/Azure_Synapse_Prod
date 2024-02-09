@@ -1,0 +1,20 @@
+{
+	"name": "reconconsignmentperparcel",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/v2Recon"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.reconconsignmentperparcel') )\n    DROP EXTERNAL TABLE dbo.reconconsignmentperparcel\nGO\n\nCREATE EXTERNAL TABLE dbo.reconconsignmentperparcel (\n[v1id] int,\n[v1consignid] int,\n[v1parcelconsignid] nvarchar(4000),\n[v2parcelidparcel] bigint,\n[v2consignmentidconsignment] bigint,\n[v2id] bigint,\n[v2parcelid] bigint,\n[v2consignmentid] bigint,\n[v2status] nvarchar(4000),\n[v2type] nvarchar(4000),\n[v2insdate] bigint,\n[v2moddate] bigint,\n[v2insby] bigint,\n[v2legacyid] bigint,\n[v2migrationstatus] nvarchar(4000),\n[notinv2] int,\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/LMSV2/reconconsignmentperparcel.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.reconconsignmentperparcel \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

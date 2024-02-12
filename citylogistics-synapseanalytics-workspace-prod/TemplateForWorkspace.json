@@ -13658,7 +13658,7 @@
 					"name": "Structured Schema on Read/Ops/Distribution"
 				},
 				"content": {
-					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STEndorsmentReasons') )\n    DROP EXTERNAL TABLE dbo.D_STEndorsmentReasons\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STEndorsmentReasons (\n\t[lmds_db_reasondetail_id] int,\n\t[lmds_db_reasondetail_description] nvarchar(4000),\n\t[lmds_db_reasondetail_reasongroupid] int,\n\t[lmds_db_reasondetail_orv_type] int,\n\t[lmds_db_reasondetail_active] int,\n\t[lmds_db_reasondetail_actionid] int,\n\t[lmds_db_reasondetail_cancelreason] int,\n\t[lmds_db_reasondetail_lmsreasonrule] int,\n\t[lmds_db_reasongroup_description] nvarchar(4000),\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stendorsmentreason.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STEndorsmentReasons \nGO\n",
+					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STEndorsmentReasons') )\n    DROP EXTERNAL TABLE dbo.D_STEndorsmentReasons\nGO\n\n-- CREATE EXTERNAL TABLE dbo.D_STEndorsmentReasons (\n-- \t[lmds_db_reasondetail_id] int,\n-- \t[lmds_db_reasondetail_description] nvarchar(4000),\n-- \t[lmds_db_reasondetail_reasongroupid] int,\n-- \t[lmds_db_reasondetail_orv_type] int,\n-- \t[lmds_db_reasondetail_active] int,\n-- \t[lmds_db_reasondetail_actionid] int,\n-- \t[lmds_db_reasondetail_cancelreason] int,\n-- \t[lmds_db_reasondetail_lmsreasonrule] int,\n-- \t[lmds_db_reasongroup_description] nvarchar(4000),\n\n\n-- \t)\n-- \tWITH (\n-- \tLOCATION = 'Structured Data/OPS/stendorsmentreason.parquet',\n-- \tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n-- \tFILE_FORMAT = [SynapseParquetFormat]\n-- \t)\n-- GO\n\n\n-- SELECT TOP 100 * FROM dbo.D_STEndorsmentReasons \n-- GO\n",
 					"metadata": {
 						"language": "sql"
 					},
@@ -14271,6 +14271,29 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/D_STReasonDetail')]",
+			"type": "Microsoft.Synapse/workspaces/sqlscripts",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "Structured Schema on Read/Ops/Distribution"
+				},
+				"content": {
+					"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STReasonDetail') )\n    DROP EXTERNAL TABLE dbo.D_STReasonDetail\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STReasonDetail (\n\t[lmds_db_reasondetail_id] int,\n\t[lmds_db_reasondetail_description] nvarchar(4000),\n\t[lmds_db_reasondetail_reasongroupid] int,\n\t[lmds_db_reasondetail_orv_type] int,\n\t[lmds_db_reasondetail_active] int,\n\t[lmds_db_reasondetail_actionid] int,\n\t[lmds_db_reasondetail_cancelreason] int,\n\t[lmds_db_reasondetail_lmsreasonrule] int,\n\t[lmds_db_reasongroup_description] nvarchar(4000),\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/streasondetail.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STReasonDetail \nGO\n",
+					"metadata": {
+						"language": "sql"
+					},
+					"currentConnection": {
+						"databaseName": "STOPS",
+						"poolName": "Built-in"
+					},
+					"resultLimit": 5000
+				},
+				"type": "SqlQuery"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/D_STRouteRateType')]",
 			"type": "Microsoft.Synapse/workspaces/sqlscripts",
 			"apiVersion": "2019-06-01-preview",
@@ -14555,7 +14578,7 @@
 					"name": "Structured Schema on Read/Ops/Distribution"
 				},
 				"content": {
-					"query": "\nIF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STWaybillInServiceReasons') )\n    DROP EXTERNAL TABLE dbo.D_STWaybillInServiceReasons\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STWaybillInServiceReasons (\n    [lms_inservicereason_id] bigint,\n    [lms_inservicereason_description] nvarchar(4000),\n    [lms_inservicereason_group] nvarchar(4000),\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stwaybillinservicereasons.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STWaybillInServiceReasons \nGO\n",
+					"query": "\nIF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STWaybillInServiceReasons') )\n    DROP EXTERNAL TABLE dbo.D_STWaybillInServiceReasons\nGO\n\n-- CREATE EXTERNAL TABLE dbo.D_STWaybillInServiceReasons (\n--     [lms_inservicereason_id] bigint,\n--     [lms_inservicereason_description] nvarchar(4000),\n--     [lms_inservicereason_group] nvarchar(4000),\n\n\n-- \t)\n-- \tWITH (\n-- \tLOCATION = 'Structured Data/OPS/stwaybillinservicereasons.parquet',\n-- \tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n-- \tFILE_FORMAT = [SynapseParquetFormat]\n-- \t)\n-- GO\n\n\n-- SELECT TOP 100 * FROM dbo.D_STWaybillInServiceReasons \n-- GO\n",
 					"metadata": {
 						"language": "sql"
 					},
@@ -14601,7 +14624,7 @@
 					"name": "Structured Schema on Read/Ops/Distribution"
 				},
 				"content": {
-					"query": "\nIF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STWaybillReasonDetails') )\n    DROP EXTERNAL TABLE dbo.D_STWaybillReasonDetails\nGO\n\nCREATE EXTERNAL TABLE dbo.D_STWaybillReasonDetails (\n    [lms_reasondetail_id] bigint,\n    [lms_reasondetail_description] nvarchar(4000),\n    [lms_reasondetail_group] nvarchar(4000),\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/OPS/stwaybillreasondetails.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.D_STWaybillReasonDetails \nGO\n",
+					"query": "\nIF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_STWaybillReasonDetails') )\n    DROP EXTERNAL TABLE dbo.D_STWaybillReasonDetails\nGO\n\n-- CREATE EXTERNAL TABLE dbo.D_STWaybillReasonDetails (\n--     [lms_reasondetail_id] bigint,\n--     [lms_reasondetail_description] nvarchar(4000),\n--     [lms_reasondetail_group] nvarchar(4000),\n\n-- \t)\n-- \tWITH (\n-- \tLOCATION = 'Structured Data/OPS/stwaybillreasondetails.parquet',\n-- \tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n-- \tFILE_FORMAT = [SynapseParquetFormat]\n-- \t)\n-- GO\n\n\n-- SELECT TOP 100 * FROM dbo.D_STWaybillReasonDetails \n-- GO\n",
 					"metadata": {
 						"language": "sql"
 					},
@@ -20057,16 +20080,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "4434bcc1-fa7c-4a61-bbe3-97cc27788afc"
+						"spark.autotune.trackingId": "1b814313-fadc-408a-a5b8-73bef5fa9e38"
 					}
 				},
 				"metadata": {
@@ -20080,18 +20103,18 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -22274,7 +22297,7 @@
 						"source": [
 							"%%sql\r\n",
 							"CREATE OR REPLACE TEMP VIEW\r\n",
-							"stendorsmentreason \r\n",
+							"streasondetail \r\n",
 							"AS\r\n",
 							"SELECT \t\r\n",
 							"    rd.id as lmds_db_reasondetail_id\r\n",
@@ -22306,7 +22329,7 @@
 							}
 						},
 						"source": [
-							"stendorsmentreason = spark.sql(\"SELECT * FROM stendorsmentreason\")"
+							"streasondetail = spark.sql(\"SELECT * FROM streasondetail\")"
 						],
 						"outputs": [],
 						"execution_count": null
@@ -22325,7 +22348,7 @@
 							}
 						},
 						"source": [
-							"# stendorsmentreason.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stendorsmentreason.parquet', mode = \"overwrite\")\r\n",
+							"# streasondetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/streasondetail.parquet', mode = \"overwrite\")\r\n",
 							""
 						],
 						"outputs": [],
@@ -22438,82 +22461,12 @@
 								"transient": {
 									"deleting": false
 								}
-							},
-							"microsoft": {
-								"language": "sparksql"
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%%sql\r\n",
-							"CREATE OR REPLACE TEMP VIEW\r\n",
-							"stwaybillreasondetails\r\n",
-							"AS\r\n",
-							"SELECT \t\r\n",
-							"\trd.id AS lms_reasondetail_id\r\n",
-							"\t,rd.description AS lms_reasondetail_description\r\n",
-							"\t,rg.description AS lms_reasondetail_group\r\n",
-							"\r\n",
-							"FROM dbodb_reasondetail rd\r\n",
-							"LEFT JOIN dbodb_reasongroup rg on rg.id = rd.db_reasongroupid\r\n",
-							"WHERE rd.description is not NULL or rd.description <> \"\""
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"microsoft": {
-								"language": "sparksql"
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%%sql\r\n",
-							"CREATE OR REPLACE TEMP VIEW\r\n",
-							"stwaybillinservicereasons\r\n",
-							"AS\r\n",
-							"SELECT \t\r\n",
-							"\tisr.id AS lms_inservicereason_id\r\n",
-							"\t,isr.reason AS lms_inservicereason_description\r\n",
-							"\t,rg.description AS lms_inservicereason_group\r\n",
-							"\r\n",
-							"FROM dbodb_inservicereason isr\r\n",
-							"LEFT JOIN dbodb_reasongroup rg on rg.id = isr.reasongroupid\r\n",
-							"WHERE isr.reason is not NULL or isr.reason <> \"\""
-						],
-						"outputs": [],
-						"execution_count": null
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
 							}
 						},
 						"source": [
 							"stwaybilldelayreasons = spark.sql(\"SELECT * FROM stwaybilldelayreasons\")\r\n",
 							"stwaybillnotdbreasons = spark.sql(\"SELECT * FROM stwaybillnotdbreasons\")\r\n",
-							"stwaybilldeliverystatusreasons = spark.sql(\"SELECT * FROM stwaybilldeliverystatusreasons\")\r\n",
-							"stwaybillreasondetails = spark.sql(\"SELECT * FROM stwaybillreasondetails\")\r\n",
-							"stwaybillinservicereasons = spark.sql(\"SELECT * FROM stwaybillinservicereasons\")"
+							"stwaybilldeliverystatusreasons = spark.sql(\"SELECT * FROM stwaybilldeliverystatusreasons\")"
 						],
 						"outputs": [],
 						"execution_count": null
@@ -22534,9 +22487,7 @@
 						"source": [
 							"# stwaybilldelayreasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybilldelayreasons.parquet', mode = \"overwrite\")\r\n",
 							"# stwaybillnotdbreasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybillnotdbreasons.parquet', mode = \"overwrite\")\r\n",
-							"# stwaybilldeliverystatusreasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybilldeliverystatusreasons.parquet', mode = \"overwrite\")\r\n",
-							"# stwaybillreasondetails.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybillreasondetails.parquet', mode = \"overwrite\")\r\n",
-							"# stwaybillinservicereasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybillinservicereasons.parquet', mode = \"overwrite\")"
+							"# stwaybilldeliverystatusreasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybilldeliverystatusreasons.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
 						"execution_count": null
@@ -59218,7 +59169,7 @@
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.3",
+						"sparkVersion": "3.1",
 						"nodeCount": 10,
 						"cores": 16,
 						"memory": 112
@@ -59483,12 +59434,10 @@
 							"stbillzoneroute.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stbillzoneroute.parquet', mode = \"overwrite\")\r\n",
 							"stbillzone.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stbillzone.parquet', mode = \"overwrite\")\r\n",
 							"stlocation.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', mode = \"overwrite\")\r\n",
-							"stendorsmentreason.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stendorsmentreason.parquet', mode = \"overwrite\")\r\n",
+							"streasondetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/streasondetail.parquet', mode = \"overwrite\")\r\n",
 							"stwaybilldelayreasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybilldelayreasons.parquet', mode = \"overwrite\")\r\n",
 							"stwaybillnotdbreasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybillnotdbreasons.parquet', mode = \"overwrite\")\r\n",
 							"stwaybilldeliverystatusreasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybilldeliverystatusreasons.parquet', mode = \"overwrite\")\r\n",
-							"stwaybillreasondetails.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybillreasondetails.parquet', mode = \"overwrite\")\r\n",
-							"stwaybillinservicereasons.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybillinservicereasons.parquet', mode = \"overwrite\")\r\n",
 							"strouteratetype.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/strouteratetype.parquet', mode = \"overwrite\")\r\n",
 							"stdriver.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdriver.parquet', mode = \"overwrite\")\r\n",
 							"stusers.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stusers.parquet', mode = \"overwrite\")\r\n",
@@ -60752,6 +60701,77 @@
 						],
 						"outputs": [],
 						"execution_count": 70
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"#Create DataFrame for the dboclaimsclaimdetail LMS Table\r\n",
+							"dboclaimsclaimdetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimdetail.parquet', format='parquet')\r\n",
+							"dboclaimsclaimdetail.createOrReplaceTempView(\"dboclaimsclaimdetail\")\r\n",
+							"\r\n",
+							"#Create DataFrame for the dboclaimsclaimreason LMS Table\r\n",
+							"dboclaimsclaimreason = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimreason.parquet', format='parquet')\r\n",
+							"dboclaimsclaimreason.createOrReplaceTempView(\"dboclaimsclaimreason\")\r\n",
+							"\r\n",
+							"#Create DataFrame for the dboclaimsclaimstatus LMS Table\r\n",
+							"dboclaimsclaimstatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimstatus.parquet', format='parquet')\r\n",
+							"dboclaimsclaimstatus.createOrReplaceTempView(\"dboclaimsclaimstatus\")\r\n",
+							"\r\n",
+							"#Create DataFrame for the dboclaimsrejectionreasons LMS Table\r\n",
+							"dboclaimsrejectionreasons = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsrejectionreasons.parquet', format='parquet')\r\n",
+							"dboclaimsrejectionreasons.createOrReplaceTempView(\"dboclaimsrejectionreasons\")"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/17_DIST_STClaimDetail"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"stclaimsclaimdetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stclaimsclaimdetail.parquet', mode = \"overwrite\")"
+						],
+						"outputs": [],
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",

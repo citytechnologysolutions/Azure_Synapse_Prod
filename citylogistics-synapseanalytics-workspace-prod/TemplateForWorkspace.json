@@ -2205,6 +2205,37 @@
 			"type": "string",
 			"defaultValue": " "
 		},
+		"Full Take-on PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_CW_Items": {
+			"type": "array",
+			"defaultValue": [
+				{
+					"Source": {
+						"TableName": "csdreason",
+						"SchemaName": "dbo"
+					},
+					"Increment": {
+						"IncField": "0",
+						"IdField": "0"
+					},
+					"Destination": {
+						"FileName": "dbocsdreason"
+					},
+					"SparkConfig": {
+						"NodeSize": "Small",
+						"MinExecutors": "1",
+						"MaxExecutors": "3"
+					}
+				}
+			]
+		},
+		"Full Take-on PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_Full_Load": {
+			"type": "bool",
+			"defaultValue": true
+		},
+		"Full Take-on PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_ColumnsNamesBlankSpaces": {
+			"type": "bool",
+			"defaultValue": false
+		},
 		"Incre PROD_Daily Trigger Midnight_properties_LMS LOAD PROD_parameters_CW_Items": {
 			"type": "array",
 			"defaultValue": [
@@ -4020,6 +4051,37 @@
 		"Incre PROD_Daily Trigger Midnight_properties_CLMasterData LOAD PROD_parameters_LimitedLoadTopX": {
 			"type": "string",
 			"defaultValue": " "
+		},
+		"Incre PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_CW_Items": {
+			"type": "array",
+			"defaultValue": [
+				{
+					"Source": {
+						"TableName": "csdoutofservice",
+						"SchemaName": "dbo"
+					},
+					"Increment": {
+						"IncField": "moddate",
+						"IdField": "id"
+					},
+					"Destination": {
+						"FileName": "dbocsdoutofservice"
+					},
+					"SparkConfig": {
+						"NodeSize": "Small",
+						"MinExecutors": "1",
+						"MaxExecutors": "3"
+					}
+				}
+			]
+		},
+		"Incre PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_Full_Load": {
+			"type": "bool",
+			"defaultValue": false
+		},
+		"Incre PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_ColumnsNamesBlankSpaces": {
+			"type": "bool",
+			"defaultValue": false
 		},
 		"Rolling PROD_Weekly Trigger_properties_LMS LOAD PROD_parameters_CW_Items": {
 			"type": "array",
@@ -12565,6 +12627,17 @@
 							"ColumnsNamesBlankSpaces": "[parameters('Full Take-on PROD_Daily Trigger Midnight_properties_TMS LOAD PROD_parameters_ColumnsNamesBlankSpaces')]",
 							"LimitedLoadTopX": "[parameters('Full Take-on PROD_Daily Trigger Midnight_properties_TMS LOAD PROD_parameters_LimitedLoadTopX')]"
 						}
+					},
+					{
+						"pipelineReference": {
+							"referenceName": "CSD LOAD PROD",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"CW_Items": "[parameters('Full Take-on PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_CW_Items')]",
+							"Full_Load": "[parameters('Full Take-on PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_Full_Load')]",
+							"ColumnsNamesBlankSpaces": "[parameters('Full Take-on PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_ColumnsNamesBlankSpaces')]"
+						}
 					}
 				],
 				"type": "ScheduleTrigger",
@@ -12599,7 +12672,8 @@
 				"[concat(variables('workspaceId'), '/pipelines/Avis Full Take-on')]",
 				"[concat(variables('workspaceId'), '/pipelines/Sharepoint Full Take-on')]",
 				"[concat(variables('workspaceId'), '/pipelines/ORV LOAD PROD')]",
-				"[concat(variables('workspaceId'), '/pipelines/TMS LOAD PROD')]"
+				"[concat(variables('workspaceId'), '/pipelines/TMS LOAD PROD')]",
+				"[concat(variables('workspaceId'), '/pipelines/CSD LOAD PROD')]"
 			]
 		},
 		{
@@ -12714,6 +12788,17 @@
 							"ColumnsNamesBlankSpaces": "[parameters('Incre PROD_Daily Trigger Midnight_properties_CLMasterData LOAD PROD_parameters_ColumnsNamesBlankSpaces')]",
 							"LimitedLoadTopX": "[parameters('Incre PROD_Daily Trigger Midnight_properties_CLMasterData LOAD PROD_parameters_LimitedLoadTopX')]"
 						}
+					},
+					{
+						"pipelineReference": {
+							"referenceName": "CSD LOAD PROD",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"CW_Items": "[parameters('Incre PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_CW_Items')]",
+							"Full_Load": "[parameters('Incre PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_Full_Load')]",
+							"ColumnsNamesBlankSpaces": "[parameters('Incre PROD_Daily Trigger Midnight_properties_CSD LOAD PROD_parameters_ColumnsNamesBlankSpaces')]"
+						}
 					}
 				],
 				"type": "ScheduleTrigger",
@@ -12746,7 +12831,8 @@
 				"[concat(variables('workspaceId'), '/pipelines/SAP LOAD PROD')]",
 				"[concat(variables('workspaceId'), '/pipelines/ORV LOAD PROD')]",
 				"[concat(variables('workspaceId'), '/pipelines/TMS LOAD PROD')]",
-				"[concat(variables('workspaceId'), '/pipelines/CLMasterData LOAD PROD')]"
+				"[concat(variables('workspaceId'), '/pipelines/CLMasterData LOAD PROD')]",
+				"[concat(variables('workspaceId'), '/pipelines/CSD LOAD PROD')]"
 			]
 		},
 		{
@@ -54116,7 +54202,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "7e4bc37b-6c45-45ad-803d-e5a6b2d3d72d"
+						"spark.autotune.trackingId": "748c7109-ef68-4db8-9b23-f48db334e10d"
 					}
 				},
 				"metadata": {
@@ -54141,8 +54227,7 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56,
-						"automaticScaleJobs": false
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -63897,6 +63982,832 @@
 			},
 			"dependsOn": [],
 			"location": "southafricanorth"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/CSD LOAD PROD')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "Iterate Data",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.CW_Items",
+								"type": "Expression"
+							},
+							"batchCount": 4,
+							"activities": [
+								{
+									"name": "If ColumnsNamesBlankSpacesOrLimitedLoad",
+									"type": "IfCondition",
+									"dependsOn": [
+										{
+											"activity": "If FullLoad",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@or(pipeline().parameters.ColumnsNamesBlankSpaces,greater(length(pipeline().parameters.LimitedLoadTopX),1))",
+											"type": "Expression"
+										},
+										"ifTrueActivities": [
+											{
+												"name": "SelectStatementBuilder",
+												"type": "Lookup",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.03:00:00",
+													"retry": 3,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "SqlServerSource",
+														"sqlReaderQuery": {
+															"value": "@concat(' \nDECLARE @s VARCHAR(MAX)\nDECLARE @tablename VARCHAR(MAX) = ''', item().Source.TableName,'''\nSELECT @s = ISNULL(@s + '', '','''') + ''['' + c.name + '']'' + '' as [''+replace(c.name,'' '',''_'')+''] ''\nFROM sys.all_columns c \njoin sys.objects t ON c.object_id = t.object_id \nWHERE t.name =  @tablename \nSELECT ''SELECT ', if(greater(length(pipeline().parameters.LimitedLoadTopX),0),concat('TOP ', pipeline().parameters.LimitedLoadTopX),''), ' '' + @s + '' FROM ['' +  @tablename + '']', if(greater(length(item().Increment.IdField),1),concat(' ORDER BY ', item().Increment.IdField, ' DESC'),''),''' as Query')",
+															"type": "Expression"
+														},
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"dataset": {
+														"referenceName": "SqlServerDataSet",
+														"type": "DatasetReference",
+														"parameters": {
+															"ServerName": {
+																"value": "@variables('ServerName')",
+																"type": "Expression"
+															},
+															"DatabaseName": {
+																"value": "@variables('DatabaseName')",
+																"type": "Expression"
+															},
+															"UserName": {
+																"value": "@variables('UserName')",
+																"type": "Expression"
+															},
+															"CW_SchemaName": {
+																"value": "@variables('SchemaName')",
+																"type": "Expression"
+															},
+															"SecretName": {
+																"value": "@variables('SecretName')",
+																"type": "Expression"
+															},
+															"CW_TableName": {
+																"value": "@item().Source.TableName",
+																"type": "Expression"
+															}
+														}
+													}
+												}
+											}
+										]
+									}
+								},
+								{
+									"name": "If FullLoad",
+									"type": "IfCondition",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"expression": {
+											"value": "@pipeline().parameters.Full_Load",
+											"type": "Expression"
+										},
+										"ifFalseActivities": [
+											{
+												"name": "Lookup Last Max Field",
+												"type": "Lookup",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.03:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "AzureSqlSource",
+														"sqlReaderQuery": {
+															"value": "@concat('SELECT MAX(',item().Increment.IncField,')  as Field \n FROM\n    OPENROWSET(\n        BULK ','''',variables('DataLake'),variables('ContainerName'),'/',variables('FolderName'),'/',item().destination.FileName,'.parquet','''',\n        ',FORMAT = ','''PARQUET''','\n    ) AS [result]')",
+															"type": "Expression"
+														},
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"dataset": {
+														"referenceName": "AzureSqlConnection",
+														"type": "DatasetReference",
+														"parameters": {
+															"ASAEndpoint": {
+																"value": "@variables('ASAEndpoint')",
+																"type": "Expression"
+															},
+															"ASADataBase": {
+																"value": "@variables('ASADataBase')",
+																"type": "Expression"
+															}
+														}
+													}
+												}
+											},
+											{
+												"name": "Remove Old Data Incremental Data_SingleFile",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Lookup Last Max Field",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.03:00:00",
+													"retry": 3,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@concat(variables('FolderName'),'_Incremental_Data')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('TempContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
+															}
+														}
+													},
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											}
+										],
+										"ifTrueActivities": [
+											{
+												"name": "Remove Old Data Data_Folder",
+												"type": "Delete",
+												"dependsOn": [
+													{
+														"activity": "Remove Old Data Data_SingleFile",
+														"dependencyConditions": [
+															"Failed"
+														]
+													}
+												],
+												"policy": {
+													"timeout": "0.03:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('TempContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
+															}
+														}
+													},
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"wildcardFileName": {
+															"value": "@{concat(variables('TempContainerName'),'/',variables('FolderName'),'/',item().Destination.FileName,'.parquet','/')}",
+															"type": "Expression"
+														},
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "Remove Old Data Data_SingleFile",
+												"type": "Delete",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.03:00:00",
+													"retry": 0,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"dataset": {
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('TempContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
+															}
+														}
+													},
+													"enableLogging": false,
+													"storeSettings": {
+														"type": "AzureBlobFSReadSettings",
+														"recursive": true,
+														"enablePartitionDiscovery": false
+													}
+												}
+											},
+											{
+												"name": "WaitBecause of Error",
+												"type": "Wait",
+												"dependsOn": [
+													{
+														"activity": "Remove Old Data Data_Folder",
+														"dependencyConditions": [
+															"Failed"
+														]
+													}
+												],
+												"userProperties": [],
+												"typeProperties": {
+													"waitTimeInSeconds": 1
+												}
+											}
+										]
+									}
+								},
+								{
+									"name": "Switch1",
+									"type": "Switch",
+									"dependsOn": [
+										{
+											"activity": "If ColumnsNamesBlankSpacesOrLimitedLoad",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"userProperties": [],
+									"typeProperties": {
+										"on": {
+											"value": "@if(pipeline().parameters.Full_Load,'FullTakeOn'\n   ,if(equals(item().Increment.IncField,item().Increment.IdField),'IdLoad'\n      ,'DateLoad'\n   )\n)",
+											"type": "Expression"
+										},
+										"cases": [
+											{
+												"value": "DateLoad",
+												"activities": [
+													{
+														"name": "Copy New incremental data",
+														"type": "Copy",
+														"dependsOn": [],
+														"policy": {
+															"timeout": "0.03:00:00",
+															"retry": 3,
+															"retryIntervalInSeconds": 30,
+															"secureOutput": false,
+															"secureInput": false
+														},
+														"userProperties": [],
+														"typeProperties": {
+															"source": {
+																"type": "SqlServerSource",
+																"sqlReaderQuery": {
+																	"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1)),\n        activity('SelectStatementBuilder').output.firstRow.Query,concat('SELECT * FROM [', item().Source.TableName,']')\n        )\n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,concat('''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n        )\n    )",
+																	"type": "Expression"
+																},
+																"queryTimeout": "02:00:00",
+																"partitionOption": "None"
+															},
+															"sink": {
+																"type": "ParquetSink",
+																"storeSettings": {
+																	"type": "AzureBlobFSWriteSettings"
+																},
+																"formatSettings": {
+																	"type": "ParquetWriteSettings"
+																}
+															},
+															"enableStaging": false,
+															"validateDataConsistency": false,
+															"translator": {
+																"type": "TabularTranslator",
+																"typeConversion": true,
+																"typeConversionSettings": {
+																	"allowDataTruncation": true,
+																	"treatBooleanAsNumber": false
+																}
+															}
+														},
+														"inputs": [
+															{
+																"referenceName": "SqlServerDataSet",
+																"type": "DatasetReference",
+																"parameters": {
+																	"ServerName": {
+																		"value": "@variables('ServerName')",
+																		"type": "Expression"
+																	},
+																	"DatabaseName": {
+																		"value": "@variables('DatabaseName')",
+																		"type": "Expression"
+																	},
+																	"UserName": {
+																		"value": "@variables('UserName')",
+																		"type": "Expression"
+																	},
+																	"CW_SchemaName": {
+																		"value": "@variables('SchemaName')",
+																		"type": "Expression"
+																	},
+																	"SecretName": {
+																		"value": "@variables('SecretName')",
+																		"type": "Expression"
+																	},
+																	"CW_TableName": {
+																		"value": "@item().Source.TableName",
+																		"type": "Expression"
+																	}
+																}
+															}
+														],
+														"outputs": [
+															{
+																"referenceName": "DataLakeParquet",
+																"type": "DatasetReference",
+																"parameters": {
+																	"CW_FolderName": {
+																		"value": "@variables('FolderName')",
+																		"type": "Expression"
+																	},
+																	"CW_FileName": {
+																		"value": "@concat(item().Destination.FileName,'.parquet')",
+																		"type": "Expression"
+																	},
+																	"ContainerName": {
+																		"value": "@variables('TempContainerName')",
+																		"type": "Expression"
+																	},
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															}
+														]
+													}
+												]
+											},
+											{
+												"value": "IdLoad",
+												"activities": [
+													{
+														"name": "Copy New incremental data_IDLoad",
+														"type": "Copy",
+														"dependsOn": [],
+														"policy": {
+															"timeout": "0.03:00:00",
+															"retry": 3,
+															"retryIntervalInSeconds": 30,
+															"secureOutput": false,
+															"secureInput": false
+														},
+														"userProperties": [],
+														"typeProperties": {
+															"source": {
+																"type": "SqlServerSource",
+																"sqlReaderQuery": {
+																	"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces,    greater(length(pipeline().parameters.LimitedLoadTopX),1)),\n        activity('SelectStatementBuilder').output.firstRow.Query, concat('SELECT * FROM [', item().Source.TableName,']')\n        )   \n    ,' WHERE ', item().Increment.IncField, ' > ',\n        if(greater(length(pipeline().parameters.TakeOnPeriod),1)\n        ,pipeline().parameters.TakeOnPeriod\n        ,activity('Lookup Last Max Field').output.firstRow.Field\n        )\n    )",
+																	"type": "Expression"
+																},
+																"queryTimeout": "02:00:00",
+																"partitionOption": "None"
+															},
+															"sink": {
+																"type": "ParquetSink",
+																"storeSettings": {
+																	"type": "AzureBlobFSWriteSettings"
+																},
+																"formatSettings": {
+																	"type": "ParquetWriteSettings"
+																}
+															},
+															"enableStaging": false,
+															"validateDataConsistency": false,
+															"translator": {
+																"type": "TabularTranslator",
+																"typeConversion": true,
+																"typeConversionSettings": {
+																	"allowDataTruncation": true,
+																	"treatBooleanAsNumber": false
+																}
+															}
+														},
+														"inputs": [
+															{
+																"referenceName": "SqlServerDataSet",
+																"type": "DatasetReference",
+																"parameters": {
+																	"ServerName": {
+																		"value": "@variables('ServerName')",
+																		"type": "Expression"
+																	},
+																	"DatabaseName": {
+																		"value": "@variables('DatabaseName')",
+																		"type": "Expression"
+																	},
+																	"UserName": {
+																		"value": "@variables('UserName')",
+																		"type": "Expression"
+																	},
+																	"CW_SchemaName": {
+																		"value": "@variables('SchemaName')",
+																		"type": "Expression"
+																	},
+																	"SecretName": {
+																		"value": "@variables('SecretName')",
+																		"type": "Expression"
+																	},
+																	"CW_TableName": {
+																		"value": "@item().Source.TableName",
+																		"type": "Expression"
+																	}
+																}
+															}
+														],
+														"outputs": [
+															{
+																"referenceName": "DataLakeParquet",
+																"type": "DatasetReference",
+																"parameters": {
+																	"CW_FolderName": {
+																		"value": "@variables('FolderName')",
+																		"type": "Expression"
+																	},
+																	"CW_FileName": {
+																		"value": "@concat(item().Destination.FileName,'.parquet')",
+																		"type": "Expression"
+																	},
+																	"ContainerName": {
+																		"value": "@variables('TempContainerName')",
+																		"type": "Expression"
+																	},
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															}
+														]
+													}
+												]
+											},
+											{
+												"value": "FullTakeOn",
+												"activities": [
+													{
+														"name": "Copy_Data_Full_Take_On",
+														"type": "Copy",
+														"dependsOn": [],
+														"policy": {
+															"timeout": "7.00:00:00",
+															"retry": 3,
+															"retryIntervalInSeconds": 30,
+															"secureOutput": false,
+															"secureInput": false
+														},
+														"userProperties": [],
+														"typeProperties": {
+															"source": {
+																"type": "SqlServerSource",
+																"sqlReaderQuery": {
+																	"value": "@if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1)),\n    activity('SelectStatementBuilder').output.firstRow.Query,\n    concat('SELECT * FROM [', item().Source.TableName,']')\n    )",
+																	"type": "Expression"
+																},
+																"partitionOption": "None"
+															},
+															"sink": {
+																"type": "ParquetSink",
+																"storeSettings": {
+																	"type": "AzureBlobFSWriteSettings"
+																},
+																"formatSettings": {
+																	"type": "ParquetWriteSettings"
+																}
+															},
+															"enableStaging": false,
+															"validateDataConsistency": false,
+															"translator": {
+																"type": "TabularTranslator",
+																"typeConversion": true,
+																"typeConversionSettings": {
+																	"allowDataTruncation": true,
+																	"treatBooleanAsNumber": false
+																}
+															}
+														},
+														"inputs": [
+															{
+																"referenceName": "SqlServerDataSet",
+																"type": "DatasetReference",
+																"parameters": {
+																	"ServerName": {
+																		"value": "@variables('ServerName')",
+																		"type": "Expression"
+																	},
+																	"DatabaseName": {
+																		"value": "@variables('DatabaseName')",
+																		"type": "Expression"
+																	},
+																	"UserName": {
+																		"value": "@variables('UserName')",
+																		"type": "Expression"
+																	},
+																	"CW_SchemaName": {
+																		"value": "@variables('SchemaName')",
+																		"type": "Expression"
+																	},
+																	"SecretName": {
+																		"value": "@variables('SecretName')",
+																		"type": "Expression"
+																	},
+																	"CW_TableName": {
+																		"value": "@item().Source.TableName",
+																		"type": "Expression"
+																	}
+																}
+															}
+														],
+														"outputs": [
+															{
+																"referenceName": "DataLakeParquet",
+																"type": "DatasetReference",
+																"parameters": {
+																	"CW_FolderName": {
+																		"value": "@variables('FolderName')",
+																		"type": "Expression"
+																	},
+																	"CW_FileName": {
+																		"value": "@concat(item().Destination.FileName,'.parquet')",
+																		"type": "Expression"
+																	},
+																	"ContainerName": {
+																		"value": "@variables('TempContainerName')",
+																		"type": "Expression"
+																	},
+																	"DataLake": {
+																		"value": "@variables('DataLake')",
+																		"type": "Expression"
+																	}
+																}
+															}
+														]
+													}
+												]
+											}
+										],
+										"defaultActivities": [
+											{
+												"name": "Fail1",
+												"type": "Fail",
+												"dependsOn": [],
+												"userProperties": [],
+												"typeProperties": {
+													"message": "ERROR",
+													"errorCode": "500"
+												}
+											}
+										]
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "ProdNotebook",
+						"type": "SynapseNotebook",
+						"dependsOn": [
+							{
+								"activity": "Iterate Data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "IncrementalProdScript",
+								"type": "NotebookReference"
+							},
+							"parameters": {
+								"cw_FolderName": {
+									"value": {
+										"value": "@variables('FolderName')",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"ContainerName": {
+									"value": {
+										"value": "@variables('ContainerName')",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"DataLakeDF": {
+									"value": {
+										"value": "@replace(variables('DataLake'),'https://','')",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"Items": {
+									"value": {
+										"value": "@{pipeline().parameters.cw_items}",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"FullLoad": {
+									"value": {
+										"value": "@pipeline().parameters.Full_Load",
+										"type": "Expression"
+									},
+									"type": "string"
+								},
+								"TempContainerName": {
+									"value": {
+										"value": "@variables('TempContainerName')",
+										"type": "Expression"
+									},
+									"type": "string"
+								}
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "TESTSparkPool",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Small",
+							"conf": {
+								"spark.dynamicAllocation.enabled": true,
+								"spark.dynamicAllocation.minExecutors": 1,
+								"spark.dynamicAllocation.maxExecutors": 4
+							},
+							"driverSize": "Small",
+							"numExecutors": 1
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"CW_Items": {
+						"type": "Array",
+						"defaultValue": []
+					},
+					"TakeOnPeriod": {
+						"type": "string",
+						"defaultValue": " "
+					},
+					"Full_Load": {
+						"type": "bool",
+						"defaultValue": false
+					},
+					"ColumnsNamesBlankSpaces": {
+						"type": "bool",
+						"defaultValue": false
+					},
+					"LimitedLoadTopX": {
+						"type": "string",
+						"defaultValue": " "
+					}
+				},
+				"variables": {
+					"FolderName": {
+						"type": "String",
+						"defaultValue": "Unstructured Data/CSD"
+					},
+					"DataLake": {
+						"type": "String",
+						"defaultValue": "https://citylogisticsstorageprod.dfs.core.windows.net/"
+					},
+					"ServerName": {
+						"type": "String",
+						"defaultValue": "CCLMSPROD"
+					},
+					"DatabaseName": {
+						"type": "String",
+						"defaultValue": "csdapi"
+					},
+					"UserName": {
+						"type": "String",
+						"defaultValue": "Synapse@citylogistics.co.za"
+					},
+					"SecretName": {
+						"type": "String",
+						"defaultValue": "LMSSecret"
+					},
+					"SchemaName": {
+						"type": "String",
+						"defaultValue": "dbo"
+					},
+					"ContainerName": {
+						"type": "String",
+						"defaultValue": "synapse"
+					},
+					"ASAEndpoint": {
+						"type": "String",
+						"defaultValue": "citylogistics-synapseanalytics-workspace-prod-ondemand.sql.azuresynapse.net"
+					},
+					"ASADataBase": {
+						"type": "String",
+						"defaultValue": "master"
+					},
+					"TempContainerName": {
+						"type": "String",
+						"defaultValue": "temp"
+					}
+				},
+				"folder": {
+					"name": "PROD/BackEnd/Extract/CSD"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-04-04T06:38:01Z"
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/IncrementalProdScript')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/TESTSparkPool')]",
+				"[concat(variables('workspaceId'), '/datasets/SqlServerDataSet')]",
+				"[concat(variables('workspaceId'), '/datasets/AzureSqlConnection')]",
+				"[concat(variables('workspaceId'), '/datasets/DataLakeParquet')]"
+			]
 		}
 	]
 }

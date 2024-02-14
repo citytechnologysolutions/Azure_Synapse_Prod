@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "1b814313-fadc-408a-a5b8-73bef5fa9e38"
+				"spark.autotune.trackingId": "018dbeab-11e6-49bb-a23d-77296842b0db"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -207,9 +207,204 @@
 					"# #Create DataFrame for the dbodamagedparcelaudittype LMS Table\r\n",
 					"# dbodamagedparcelaudittype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelaudittype.parquet', format='parquet')\r\n",
 					"# dbodamagedparcelaudittype.createOrReplaceTempView(\"dbodamagedparcelaudittype\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbocsdoutofservice CSD Table\r\n",
+					"# dbocsdoutofservice = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CSD/dbocsdoutofservice.parquet', format='parquet')\r\n",
+					"# dbocsdoutofservice.createOrReplaceTempView(\"dbocsdoutofservice\")\r\n",
+					"\r\n",
+					"\r\n",
 					""
 				],
 				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stcsdoutofserviceconsignment\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT\r\n",
+					"consignmentid as csd_csdoutofservice_consignmentid\r\n",
+					",max(reason) as csd_csdoutofservice_reason\r\n",
+					",max(liability) as csd_csdoutofservice_liability\r\n",
+					",max(category) as csd_csdoutofservice_category\r\n",
+					"\r\n",
+					"FROM\r\n",
+					"dbocsdoutofservice \r\n",
+					"\r\n",
+					"GROUP BY\r\n",
+					"consignmentid"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stcsdoutofserviceconsignment = spark.sql(\"SELECT * FROM stcsdoutofserviceconsignment\")"
+				],
+				"execution_count": 6
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stcsdoutofserviceconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stcsdoutofserviceconsignment.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stcsdoutofserviceparcel\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"id as csd_csdoutofservice_id,\r\n",
+					"barcode as csd_csdoutofservice_barcode,\r\n",
+					"billingcustomer as csd_csdoutofservice_billingcustomer,\r\n",
+					"pickupcustomer as csd_csdoutofservice_pickupcustomer,\r\n",
+					"deliverycustomer as csd_csdoutofservice_deliverycustomer,\r\n",
+					"deliveryaddress as csd_csdoutofservice_deliveryaddress,\r\n",
+					"parcelstatus as csd_csdoutofservice_parcelstatus,\r\n",
+					"outofservice as csd_csdoutofservice_outofservice,\r\n",
+					"startdate as csd_csdoutofservice_startdate,\r\n",
+					"linehauloffload as csd_csdoutofservice_linehauloffload,\r\n",
+					"inservicedate as csd_csdoutofservice_inservicedate,\r\n",
+					"linehauloutofservice as csd_csdoutofservice_linehauloutofservice,\r\n",
+					"faileddeliveryattempts as csd_csdoutofservice_faileddeliveryattempts,\r\n",
+					"redirect as csd_csdoutofservice_redirect,\r\n",
+					"deliveryloaddate as csd_csdoutofservice_deliveryloaddate,\r\n",
+					"servicedays as csd_csdoutofservice_servicedays,\r\n",
+					"servicetime as csd_csdoutofservice_servicetime,\r\n",
+					"cutofftime as csd_csdoutofservice_cutofftime,\r\n",
+					"appointment as csd_csdoutofservice_appointment,\r\n",
+					"ndddescription as csd_csdoutofservice_ndddescription,\r\n",
+					"custonholdbegin as csd_csdoutofservice_custonholdbegin,\r\n",
+					"custonholdend as csd_csdoutofservice_custonholdend,\r\n",
+					"splitinitial as csd_csdoutofservice_splitinitial,\r\n",
+					"weekendholidays as csd_csdoutofservice_weekendholidays,\r\n",
+					"inbound as csd_csdoutofservice_inbound,\r\n",
+					"courierid as csd_csdoutofservice_courierid,\r\n",
+					"serviceid as csd_csdoutofservice_serviceid,\r\n",
+					"custaccid as csd_csdoutofservice_custaccid,\r\n",
+					"broutemasterid as csd_csdoutofservice_broutemasterid,\r\n",
+					"broutemasterfromid as csd_csdoutofservice_broutemasterfromid,\r\n",
+					"broutemastertoid as csd_csdoutofservice_broutemastertoid,\r\n",
+					"leadtimeid as csd_csdoutofservice_leadtimeid,\r\n",
+					"lastupdate as csd_csdoutofservice_lastupdate,\r\n",
+					"reason as csd_csdoutofservice_reason,\r\n",
+					"insdate as csd_csdoutofservice_insdate,\r\n",
+					"moddate as csd_csdoutofservice_moddate,\r\n",
+					"insby as csd_csdoutofservice_insby,\r\n",
+					"billingcustomerid as csd_csdoutofservice_billingcustomerid,\r\n",
+					"parcelstatusid as csd_csdoutofservice_parcelstatusid,\r\n",
+					"deliverybranchid as csd_csdoutofservice_deliverybranchid,\r\n",
+					"deliverybranch as csd_csdoutofservice_deliverybranch,\r\n",
+					"consignmentid as csd_csdoutofservice_consignmentid,\r\n",
+					"deliverynoteid as csd_csdoutofservice_deliverynoteid,\r\n",
+					"parcelid as csd_csdoutofservice_parcelid,\r\n",
+					"orderid as csd_csdoutofservice_orderid,\r\n",
+					"orderno as csd_csdoutofservice_orderno,\r\n",
+					"poddate as csd_csdoutofservice_poddate,\r\n",
+					"deliverymanifest as csd_csdoutofservice_deliverymanifest,\r\n",
+					"ActiveStatus as csd_csdoutofservice_ActiveStatus,\r\n",
+					"liability as csd_csdoutofservice_liability,\r\n",
+					"category as csd_csdoutofservice_category,\r\n",
+					"csdreasonid as csd_csdoutofservice_csdreasonid\r\n",
+					"\r\n",
+					"FROM\r\n",
+					"dbocsdoutofservice"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stcsdoutofserviceparcel = spark.sql(\"SELECT * FROM stcsdoutofserviceparcel\")"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stcsdoutofserviceparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stcsdoutofserviceparcel.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",

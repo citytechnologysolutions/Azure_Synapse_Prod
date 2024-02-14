@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "ApacheSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -15,12 +15,12 @@
 			"driverCores": 8,
 			"executorMemory": "56g",
 			"executorCores": 8,
-			"numExecutors": 2,
+			"numExecutors": 1,
 			"conf": {
-				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "2",
-				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "0f0d0f67-13d4-4ac0-83bb-b82882208a6a"
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "349f54f5-6441-432f-a53f-c08266031433"
 			}
 		},
 		"metadata": {
@@ -34,19 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.1",
 				"nodeCount": 10,
 				"cores": 8,
 				"memory": 56,
-				"automaticScaleJobs": false
+				"automaticScaleJobs": true
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -554,8 +554,8 @@
 					"END as notinv2\r\n",
 					"\r\n",
 					"FROM reconparcel_baseparcelid b\r\n",
-					"LEFT JOIN dboparcelmessage pm1 on pm1.v1id = b.v1id\r\n",
-					"LEFT JOIN v2parcelmessage  pm2 on pm2.v2legacyid = pm1.v1id\r\n",
+					"LEFT JOIN dboparcelmessage pm1 on pm1.v1ParcelID = b.v1id\r\n",
+					"LEFT JOIN v2parcelmessage  pm2 on pm2.v2legacyid = pm1.v1ParcelID\r\n",
 					"\r\n",
 					"\r\n",
 					""
@@ -612,8 +612,8 @@
 					"END as notinv2\r\n",
 					"\r\n",
 					"FROM reconparcel_baseparcelid b\r\n",
-					"LEFT JOIN dboparceldetail pd1 on pd1.v1id = b.v1id\r\n",
-					"LEFT JOIN v2parceldetail  pd2 on pd2.v2legacyid = pd1.v1id\r\n",
+					"LEFT JOIN dboparceldetail pd1 on pd1.v1ParcelID = b.v1id\r\n",
+					"LEFT JOIN v2parceldetail  pd2 on pd2.v2legacyid = pd1.v1ParcelID\r\n",
 					"\r\n",
 					"\r\n",
 					""
@@ -1105,11 +1105,7 @@
 					"# reconparcelmessage.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconparcelmessage.parquet', mode = \"overwrite\")\r\n",
 					"# reconparceldetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconparceldetail.parquet', mode = \"overwrite\")\r\n",
 					"# reconconsignmentperparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconconsignmentperparcel.parquet', mode = \"overwrite\")\r\n",
-					"# recondeliverynoteparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/recondeliverynoteparcel.parquet', mode = \"overwrite\")\r\n",
-					"\r\n",
-					"\r\n",
-					"\r\n",
-					""
+					"# recondeliverynoteparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/recondeliverynoteparcel.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 154
 			}

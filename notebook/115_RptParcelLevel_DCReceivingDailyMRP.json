@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "19ae448b-8e51-4efb-9c4a-928a6a883475"
+				"spark.autotune.trackingId": "e2a9d4ec-273b-4a46-8665-f47b29e64706"
 			}
 		},
 		"metadata": {
@@ -113,24 +113,6 @@
 						"transient": {
 							"deleting": false
 						}
-					}
-				},
-				"source": [
-					"rptparcellevellimitload.dtypes"
-				],
-				"execution_count": 3
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
 					},
 					"microsoft": {
 						"language": "sparksql"
@@ -144,19 +126,53 @@
 					"AS\r\n",
 					"SELECT\r\n",
 					"\r\n",
+					"\t p.lms_parcel_ordercorderno as corderno\r\n",
+					"\t,p.lms_parcel_orderbillcustid as billingcustomerid\r\n",
+					"    ,p.lms_parcel_orderbillcustname as billingcustomername\r\n",
+					"    ,p.lms_parcel_orderdelivercustid as deliverycustomerid\r\n",
+					"    ,p.lms_parcel_orderdelivercustname as deliverycustomername\r\n",
+					"    ,p.lms_parcel_orderpickupcustid as pickupcustomerid\r\n",
+					"    ,p.lms_parcel_orderpickupcustname as pickupcustomername\r\n",
+					"    ,p.lms_parcel_id as parcelid\r\n",
+					"    ,p.lms_parcel_barcode as barcode\r\n",
+					"    ,p.lms_parcel_orderdelivercustsrouteid as deliverycustomersrouteid\r\n",
+					"    ,p.lms_parcel_sroutedescriptiondelivercust as deliverycustomersroutedescription\r\n",
+					"    ,p.lms_parcel_acceptancedate as acceptancedate\r\n",
+					"    ,p.lms_parcel_handoverdate as handoverdate\r\n",
+					"    ,coalesce(p.lms_parcel_acceptancedate,p.lms_parcel_handoverdate) as date\r\n",
+					"    ,p.lms_parcel_waybillid as waybillid\r\n",
+					"    ,p.lms_parcel_consignid as consignid\r\n",
+					"\r\n",
+					"    ,p.lms_parcel_pl as pl\r\n",
+					"    ,p.lms_parcel_ph as ph\r\n",
+					"    ,p.lms_parcel_pw as pw\r\n",
+					"    ,p.lms_parcel_weight as weight\r\n",
+					"    ,p.lms_parcel_volweight as volweight\r\n",
+					"    ,p.lms_parcel_chargeweight as chargeweight\r\n",
+					"\r\n",
+					"\r\n",
+					"--needc to add these\r\n",
+					"\t-- DCust.Adres1 [Address],\r\n",
+					"\t-- rrt.Description [BillRoute],\r\n",
+					"\t-- zr.Description [BillingRoute],\r\n",
+					"\t-- loc.description [PclStatus],\r\n",
+					"\t-- cons.CRef [ConsignRef],\r\n",
+					"    -- bpt.Description [ParcelType]\r\n",
+					"\r\n",
+					"\r\n",
+					"\t   \r\n",
+					"\r\n",
+					"\r\n",
+					"\r\n",
 					"FROM\r\n",
-					"rptparcellevellimitload p\r\n",
+					"rptparcellevel p\r\n",
 					"\r\n",
-					"LEFT JOIN stconsignment c ON p.lms_parcel_consignid = c.lms_consignment_id\r\n",
-					"LEFT JOIN sstparcelunion pu ON p.lms_parcel_id = pu.id\r\n",
-					"LEFT JOIN stlmstrack t ON p.lms_parcel_id = t.lms_track_parcelid\r\n",
 					"\r\n",
-					"WHERE p.lms_parcel_ptype IN (10,2,20,21,22) \r\n",
-					"AND p.lms_parcel_orderbillcustid IN (15,16,17,18,20)\r\n",
+					"--WHERE \r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 20
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",

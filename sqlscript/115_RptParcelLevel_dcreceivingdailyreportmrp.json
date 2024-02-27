@@ -1,0 +1,20 @@
+{
+	"name": "115_RptParcelLevel_dcreceivingdailyreportmrp",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.dcreceivingdailyreportmrp') )\n    DROP EXTERNAL TABLE dbo.dcreceivingdailyreportmrp\nGO\n\nCREATE EXTERNAL TABLE dbo.dcreceivingdailyreportmrp (\n[corderno] nvarchar(4000),\n[parcelid] int,\n[barcode] nvarchar(4000),\n[billingcustomerid] int,\n[billingcustomername] nvarchar(4000),\n[pickupcustomerid] int,\n[pickupcustomername] nvarchar(4000),\n[deliverycustomerid] int,\n[deliverycustomername] nvarchar(4000),\n[srouteid] int,\n[sroutedesc] nvarchar(4000),\n[routeratetypedesc] nvarchar(4000),\n[zoneroutedesc] nvarchar(4000),\n[date] datetime2(7),\n[acceptancedate] datetime2(7),\n[handoverdate] datetime2(7),\n[parcelstatus] nvarchar(4000),\n[waybillid] int,\n[consignid] int,\n[consignref] nvarchar(4000),\n[pl] numeric(36,6),\n[ph] numeric(36,6),\n[pw] numeric(36,6),\n[parcelweight] float,\n[parcelvolweight] float,\n[parcelchargeweight] numeric(36,6),\n[billparceltype] nvarchar(4000),\n\n\n\n\t)\n\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/dcreceivingdailyreportmrp.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.dcreceivingdailyreportmrp \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

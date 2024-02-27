@@ -1,0 +1,20 @@
+{
+	"name": "116_RptParcelLevel_bulkmanifestdetail",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Reports/ExternalTables"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.bulkmanifestdetail') )\n    DROP EXTERNAL TABLE dbo.bulkmanifestdetail\nGO\n\nCREATE EXTERNAL TABLE dbo.bulkmanifestdetail (\n[parcelweight] float,\n[parcelchargeweight] numeric(36,6),\n[parcelvolweight] float,\n[parcelid] int,\n[billingcustomerid] int,\n[billingcustomername] nvarchar(4000),\n[loadid] int,\n[orderid] int,\n[corderno] nvarchar(4000),\n[deliverycustomerid] int,\n[deliverycustomername] nvarchar(4000),\n[date] datetime2(7),\n[acceptancedate] datetime2(7),\n[handoverdate] datetime2(7),\n[waybillid] int,\n[currentlocation] nvarchar(4000),\n[zonedescription] nvarchar(4000),\n\n\n\n\n\t)\n\n\tWITH (\n\tLOCATION = 'Structured Data/RPT/bulkmanifestdetail.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.bulkmanifestdetail \nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "RPT",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

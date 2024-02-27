@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "e1c76344-9c15-46c6-9a3e-daa0e93f8513"
+				"spark.autotune.trackingId": "288149ec-7316-44f9-ab37-4a6ca72dc0e7"
 			}
 		},
 		"metadata": {
@@ -45,7 +45,8 @@
 				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
-				"memory": 28
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -67,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 49
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -103,11 +104,46 @@
 					"# stwaybill = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', format='parquet')\r\n",
 					"# stwaybill.createOrReplaceTempView(\"stwaybill\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the stsroute LMS Table\r\n",
+					"# stsroute = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', format='parquet')\r\n",
+					"# stsroute.createOrReplaceTempView(\"stsroute\")\r\n",
+					"\r\n",
 					"# #Create DataFrame for the stbillcustomer LMS Table\r\n",
 					"# stbillcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbillcustomer.parquet', format='parquet')\r\n",
 					"# stbillcustomer.createOrReplaceTempView(\"stbillcustomer\")"
 				],
-				"execution_count": 50
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stloadchild_tmp\r\n",
+					"AS\r\n",
+					"SELECT DISTINCT\r\n",
+					"     lc.lms_loadchild_parentloadid\r\n",
+					"    ,max(lc.lms_loadchild_srouteid) lms_loadparent_srouteid\r\n",
+					"FROM stloadchild lc\r\n",
+					"GROUP BY lms_loadchild_parentloadid\r\n",
+					""
+				],
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -142,14 +178,14 @@
 					"        WHEN lms_customer_billcustgrouptypedescription <> 'Express' Then 1\r\n",
 					"        ELSE 0\r\n",
 					"    END) as lms_loadparent_retailelivercustomers\r\n",
-					"\r\n",
+					"    ,lms_customer_name||'('||lms_parcelbywaybill_aggrnoparcels||')' lms_loadparent_billcustparcels\r\n",
 					"\r\n",
 					"FROM stwaybill w\r\n",
 					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id =w.lms_waybill_billcust\r\n",
-					"GROUP BY lms_waybill_loadid\r\n",
+					"GROUP BY lms_waybill_loadid, lms_customer_name, lms_parcelbywaybill_aggrnoparcels\r\n",
 					""
 				],
-				"execution_count": 51
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -179,7 +215,7 @@
 					"    ,lp.orv_dispatch_estdepdate as lms_loadparent_estdepdate\r\n",
 					"    ,lp.orv_dispatch_originalstartdate as lms_loadparent_originalstartdate\r\n",
 					"    ,concat_ws(\",\",collect_list(lc.lms_loadchild_id)) as lms_loadparent_childloadids\r\n",
-					"    -- ,explode(collect_set(lc.lms_loadchild_id)) as lms_loadparent_loadchildids\r\n",
+					"    ,concat_ws(\",\",collect_list(w.lms_loadparent_billcustparcels)) as lms_loadparent_billcustparcels\r\n",
 					"    ,fl.id as lms_loadparent_locationfromid\r\n",
 					"    ,fl.description as lms_loadparent_locationfromdescription\r\n",
 					"    ,tl.id as lms_loadparent_locationtoid\r\n",
@@ -204,7 +240,12 @@
 					"    ,sum(lms_loadparent_aggrweight )as lms_loadparent_weight\r\n",
 					"    ,sum(lms_loadparent_aggrchargeweight) as lms_loadparent_chargeweight\r\n",
 					"    ,count(lc.lms_loadchild_id) as lms_loadparent_nochildloads\r\n",
-					"\r\n",
+					"    ,lms_loadparent_srouteid\r\n",
+					"    ,lms_sroute_description as lms_loadparent_sroute\r\n",
+					"    ,CASE \r\n",
+					"        WHEN lms_sroute_description like 'outlaying' THEN  'Outlaying'\r\n",
+					"        ELSE 'Local'\r\n",
+					"    END as lms_loadparent_routetype\r\n",
 					"\r\n",
 					"\r\n",
 					"FROM stloadparent lp\r\n",
@@ -213,6 +254,9 @@
 					"LEFT JOIN dbolocation tl on tl.id = lms_loadchild_tolocid and lc.lms_loadchild_parentloadid = lp.lms_loadparent_parentloadid\r\n",
 					"LEFT JOIN stmdvehicle v on v.md_vehicle_orvid = orv_dispatch_vid\r\n",
 					"LEFT JOIN stwaybill_tmp w on w.lms_waybill_loadid = lc.lms_loadchild_id\r\n",
+					"LEFT JOIN stloadchild_tmp lct on lct.lms_loadchild_parentloadid = lp.lms_loadparent_parentloadid\r\n",
+					"LEFT JOIN stsroute s on s.lms_sroute_id = lms_loadparent_srouteid\r\n",
+					"\r\n",
 					"\r\n",
 					"\r\n",
 					"WHERE lms_loadparent_ldate >= (to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01'))\r\n",
@@ -240,12 +284,14 @@
 					"    ,w.lms_loadparent_nodeliverycustomers \r\n",
 					"    ,w.lms_loadparent_expressdelivercustomers\r\n",
 					"    ,w.lms_loadparent_retailelivercustomers\r\n",
+					"    ,lms_loadparent_srouteid\r\n",
+					"    ,lms_sroute_description\r\n",
 					"\r\n",
 					"    \r\n",
 					"order by lms_loadparent_parentloadid desc\r\n",
 					""
 				],
-				"execution_count": 52
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -263,7 +309,7 @@
 				"source": [
 					"rptloadparentlevel = spark.sql(\"SELECT * FROM rptloadparentlevel\")"
 				],
-				"execution_count": 53
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -281,7 +327,7 @@
 				"source": [
 					"# rptloadparentlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptloadparentlevel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 54
+				"execution_count": 33
 			}
 		]
 	}

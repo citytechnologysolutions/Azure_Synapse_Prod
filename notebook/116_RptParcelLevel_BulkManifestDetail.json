@@ -1,5 +1,5 @@
 {
-	"name": "115_RptParcelLevel_DCReceivingDailyMRP",
+	"name": "116_RptParcelLevel_BulkManifestDetail",
 	"properties": {
 		"folder": {
 			"name": "TRANSFORM/02 STRUCTURED/Reports/LMS"
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "84bc938e-986c-4120-a02c-62223b2be5a5"
+				"spark.autotune.trackingId": "a5f6a1bc-3c91-49a0-94e7-bc1f635ac7a9"
 			}
 		},
 		"metadata": {
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# ' + StorageAccount + '"
 				],
-				"execution_count": 19
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -88,9 +88,9 @@
 					"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
 					"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
 					"\r\n",
-					"# #create dataframe for the stlocation lms table\r\n",
-					"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
-					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
+					"# #Create DataFrame for the rpttracklevel LMS Table\r\n",
+					"# rpttracklevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rpttracklevel.parquet', format='parquet')\r\n",
+					"# rpttracklevel.createOrReplaceTempView(\"rpttracklevel\")\r\n",
 					"\r\n",
 					"# #create dataframe for the storder lms table\r\n",
 					"# storder = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/storder.parquet', format='parquet')\r\n",
@@ -104,23 +104,19 @@
 					"# stsroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', format='parquet')\r\n",
 					"# stsroute.createOrReplaceTempView(\"stsroute\")\r\n",
 					"\r\n",
+					"# #create dataframe for the stzone lms table\r\n",
+					"# stzone = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/stzone.parquet', format='parquet')\r\n",
+					"# stzone.createOrReplaceTempView(\"stzone\")\r\n",
+					"\r\n",
+					"# #create dataframe for the stlocation lms table\r\n",
+					"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
+					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
+					"\r\n",
 					"# #create dataframe for the stdeliverypickupcustomer lms table\r\n",
 					"# stdeliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', format='parquet')\r\n",
-					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
-					"\r\n",
-					"# #create dataframe for the dborouteratetype lms table\r\n",
-					"# dborouteratetype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dborouteratetype.parquet', format='parquet')\r\n",
-					"# dborouteratetype.createOrReplaceTempView(\"dborouteratetype\")\r\n",
-					"\r\n",
-					"# #create dataframe for the dbobillzoneroute lms table\r\n",
-					"# dbobillzoneroute = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_zoneroute.parquet', format='parquet')\r\n",
-					"# dbobillzoneroute.createOrReplaceTempView(\"dbobillzoneroute\")\r\n",
-					"\r\n",
-					"# #create dataframe for the dbobillparceltype lms table\r\n",
-					"# dbobillparceltype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_parceltype.parquet', format='parquet')\r\n",
-					"# dbobillparceltype.createOrReplaceTempView(\"dbobillparceltype\")"
+					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")"
 				],
-				"execution_count": 20
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -142,51 +138,36 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"dcreceivingdailyreportmrp\r\n",
+					"bulkmanifestdetail\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
-					" o.lms_order_corderno as corderno\r\n",
+					" p.lms_parcel_weight as parcelweight\r\n",
+					",p.lms_parcel_chargeweight as parcelchargeweight\r\n",
+					",p.lms_parcel_volweight as parcelvolweight\r\n",
 					",p.lms_parcel_id as parcelid\r\n",
-					",p.lms_parcel_barcode as barcode\r\n",
 					",p.lms_parcel_orderbillcustid as billingcustomerid\r\n",
 					",p.lms_parcel_orderbillcustname as billingcustomername\r\n",
-					",p.lms_parcel_orderpickupcustid as pickupcustomerid\r\n",
-					",p.lms_parcel_orderpickupcustname as pickupcustomername\r\n",
+					",t.lms_track_loadid as loadid\r\n",
+					",p.lms_parcel_orderid as orderid\r\n",
+					",o.lms_order_corderno as corderno\r\n",
 					",p.lms_parcel_orderdelivercustid as deliverycustomerid\r\n",
 					",p.lms_parcel_orderdelivercustname as deliverycustomername\r\n",
-					",sr.lms_sroute_id as srouteid\r\n",
-					",sr.lms_sroute_description as sroutedesc\r\n",
-					",rt.description as routeratetypedesc\r\n",
-					",zr.description as zoneroutedesc\r\n",
 					",COALESCE(p.lms_parcel_acceptancedate,p.lms_parcel_handoverdate) as date\r\n",
 					",p.lms_parcel_acceptancedate as acceptancedate\r\n",
 					",p.lms_parcel_handoverdate as handoverdate\r\n",
-					",l.lms_location_description as parcelstatus\r\n",
 					",p.lms_parcel_waybillid as waybillid\r\n",
-					",p.lms_parcel_consignid as consignid\r\n",
-					",c.lms_consignment_cref as consignref\r\n",
-					",p.lms_parcel_pl as pl\r\n",
-					",p.lms_parcel_ph as ph\r\n",
-					",p.lms_parcel_pw as pw\r\n",
-					",p.lms_parcel_weight as parcelweight\r\n",
-					",p.lms_parcel_volweight as parcelvolweight\r\n",
-					",p.lms_parcel_chargeweight as parcelchargeweight\r\n",
-					",bpt.description as billparceltype\r\n",
+					",l.lms_location_description as currentlocation\r\n",
+					",z.lms_zone_description as zonedescription\r\n",
 					"\r\n",
 					"FROM rptparcellevel p\r\n",
+					"LEFT JOIN rpttracklevel t on t.lms_track_parcelid = p.lms_parcel_id\r\n",
 					"LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
 					"LEFT JOIN stlocation l on l.lms_location_id = p.lms_parcel_locid\r\n",
 					"LEFT JOIN stdeliverypickupcustomer dc on dc.lms_customer_id = p.lms_parcel_orderdelivercustid\r\n",
 					"LEFT JOIN stsroute sr on sr.lms_sroute_id = dc.lms_customer_srouteid\r\n",
-					"LEFT JOIN dborouteratetype rt on rt.id = dc.lms_customer_brouteid\r\n",
-					"LEFT JOIN dbobillzoneroute zr on zr.id = dc.lms_customer_bill_zonerouteid\r\n",
-					"LEFT JOIN stconsignment c on c.lms_consignment_id = p.lms_parcel_consignid\r\n",
-					"LEFT JOIN dbobillparceltype bpt on bpt.ptype = p.lms_parcel_ptype\r\n",
-					"\r\n",
-					"WHERE p.lms_parcel_orderpickupcustid in (1570419,1570420,1570421,1570422,1570423) \r\n",
-					""
+					"LEFT JOIN stzone z on z.lms_zone_id = sr.lms_sroute_zoneid"
 				],
-				"execution_count": 21
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -202,9 +183,9 @@
 					}
 				},
 				"source": [
-					"dcreceivingdailyreportmrp = spark.sql(\"SELECT * FROM dcreceivingdailyreportmrp\")"
+					"bulkmanifestdetail = spark.sql(\"SELECT * FROM bulkmanifestdetail\")"
 				],
-				"execution_count": 22
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -220,9 +201,9 @@
 					}
 				},
 				"source": [
-					"# dcreceivingdailyreportmrp.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/dcreceivingdailyreportmrp.parquet', mode = \"overwrite\")"
+					"# bulkmanifestdetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/bulkmanifestdetail.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 23
+				"execution_count": 10
 			}
 		]
 	}

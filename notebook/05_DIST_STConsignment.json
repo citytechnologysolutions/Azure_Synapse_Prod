@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "69aecf45-b9af-4d21-a0f1-7d2b9d71ac9b"
+				"spark.autotune.trackingId": "71882a59-028c-4f06-8be2-977c893fee13"
 			}
 		},
 		"metadata": {
@@ -335,7 +335,8 @@
 					"\r\n",
 					"FROM  stparcel p\r\n",
 					"LEFT JOIN dbowaybill w on w.id = p.lms_parcel_waybillid\r\n",
-					"WHERE p.lms_parcel_consignid is not null\r\n",
+					"WHERE p.lms_parcel_consignid is not null \r\n",
+					"AND  p.lms_parcel_locid NOT IN (163,110,213,27)\r\n",
 					"GROUP BY p.lms_parcel_consignid"
 				],
 				"execution_count": 29
@@ -375,8 +376,9 @@
 					"    ,(to_unix_timestamp(coalesce(c2.lms_consignment_maxpoddate,CURRENT_TIMESTAMP)) - (to_unix_timestamp(to_timestamp((cast(to_date(c.lms_consignment_cdate,'yyyy-MM-dd') as string)||' 23:59:59.999')))))/86400 as lms_consignment_actualleaddaysinclwe\r\n",
 					"    ,to_timestamp((cast(to_date(c.lms_consignment_cdate,'yyyy-MM-dd') as string)||' 23:59:59.999')) lms_consignment_cdateroundup\r\n",
 					"    ,(to_unix_timestamp(coalesce(c2.lms_consignment_maxpoddate,CURRENT_TIMESTAMP)) - to_unix_timestamp(to_timestamp((cast(to_date(c.lms_consignment_cdate,'yyyy-MM-dd') as string)||' 23:59:59.999')))) as consignagedifferenceinseconds\r\n",
-					"FROM stconsignment_tmp1 c\r\n",
-					"LEFT JOIN stconsignment_Tmp2 c2 ON c2.lms_parcel_consignid = c.lms_consignment_id"
+					"FROM stconsignment_Tmp2 c2\r\n",
+					"LEFT JOIN stconsignment_tmp1 c  ON c.lms_consignment_id = c2.lms_parcel_consignid\r\n",
+					""
 				],
 				"execution_count": 30
 			},

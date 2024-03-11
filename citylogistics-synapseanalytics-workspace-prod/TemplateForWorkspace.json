@@ -61002,7 +61002,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "473bf02d-441f-4184-8be8-21b2f948951a"
+						"spark.autotune.trackingId": "bb70b62e-792b-4ba5-b23d-7e0c0e1beacc"
 					}
 				},
 				"metadata": {
@@ -61027,13 +61027,38 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%%configure -f\r\n",
+							"{\r\n",
+							" \"conf\" : { \"spark.sql.autoBroadcastJoinThreshold\": 20971520\r\n",
+							"    }\r\n",
+							"}"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"if 'prod' in Environment:\r\n",

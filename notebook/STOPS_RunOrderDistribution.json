@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "ApacheSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -15,12 +15,12 @@
 			"driverCores": 8,
 			"executorMemory": "56g",
 			"executorCores": 8,
-			"numExecutors": 2,
+			"numExecutors": 1,
 			"conf": {
-				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "2",
-				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "07f32ee2-8b7c-405f-87c1-b964cbd8a936"
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "df7ead97-e022-4d98-81de-c59feb6fae5e"
 			}
 		},
 		"metadata": {
@@ -34,19 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.1",
 				"nodeCount": 10,
 				"cores": 8,
 				"memory": 56,
-				"automaticScaleJobs": false
+				"automaticScaleJobs": true
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -1082,19 +1082,19 @@
 				},
 				"source": [
 					"#Create DataFrame for the dbodamagedparcelaudit LMS Table\r\n",
-					"dbodamagedparcelaudit = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelaudit.parquet', format='parquet')\r\n",
+					"dbodamagedparcelaudit = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit.parquet', format='parquet')\r\n",
 					"dbodamagedparcelaudit.createOrReplaceTempView(\"dbodamagedparcelaudit\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the stdamagedparcelauditfluteprofiles LMS Table\r\n",
-					"stdamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelauditfluteprofiles.parquet', format='parquet')\r\n",
+					"stdamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/dbodamaged_parcel_audit_flute_profiles.parquet', format='parquet')\r\n",
 					"stdamagedparcelauditfluteprofiles.createOrReplaceTempView(\"stdamagedparcelauditfluteprofiles\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the stdamagedparcelaudittapetype LMS Table\r\n",
-					"stdamagedparcelaudittapetype = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudittapetype.parquet', format='parquet')\r\n",
+					"stdamagedparcelaudittapetype = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/dbodamaged_parcel_audit_tapetype.parquet', format='parquet')\r\n",
 					"stdamagedparcelaudittapetype.createOrReplaceTempView(\"stdamagedparcelaudittapetype\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the stdamagedparcelaudittype LMS Table\r\n",
-					"stdamagedparcelaudittype = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudittype.parquet', format='parquet')\r\n",
+					"stdamagedparcelaudittype = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/dbodamaged_parcel_audit_type.parquet', format='parquet')\r\n",
 					"stdamagedparcelaudittype.createOrReplaceTempView(\"stdamagedparcelaudittype\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the stlocation LMS Table\r\n",
@@ -1160,19 +1160,19 @@
 				},
 				"source": [
 					"#Create DataFrame for the dboclaimsclaimdetail LMS Table\r\n",
-					"dboclaimsclaimdetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimdetail.parquet', format='parquet')\r\n",
+					"dboclaimsclaimdetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_claimdetail.parquet', format='parquet')\r\n",
 					"dboclaimsclaimdetail.createOrReplaceTempView(\"dboclaimsclaimdetail\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dboclaimsclaimreason LMS Table\r\n",
-					"dboclaimsclaimreason = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimreason.parquet', format='parquet')\r\n",
+					"dboclaimsclaimreason = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_claimreason.parquet', format='parquet')\r\n",
 					"dboclaimsclaimreason.createOrReplaceTempView(\"dboclaimsclaimreason\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dboclaimsclaimstatus LMS Table\r\n",
-					"dboclaimsclaimstatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimstatus.parquet', format='parquet')\r\n",
+					"dboclaimsclaimstatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_claimstatus.parquet', format='parquet')\r\n",
 					"dboclaimsclaimstatus.createOrReplaceTempView(\"dboclaimsclaimstatus\")\r\n",
 					"\r\n",
 					"#Create DataFrame for the dboclaimsrejectionreasons LMS Table\r\n",
-					"dboclaimsrejectionreasons = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsrejectionreasons.parquet', format='parquet')\r\n",
+					"dboclaimsrejectionreasons = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_rejectionreasons.parquet', format='parquet')\r\n",
 					"dboclaimsrejectionreasons.createOrReplaceTempView(\"dboclaimsrejectionreasons\")"
 				],
 				"execution_count": 82

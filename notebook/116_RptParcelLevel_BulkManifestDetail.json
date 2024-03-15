@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "a5f6a1bc-3c91-49a0-94e7-bc1f635ac7a9"
+				"spark.autotune.trackingId": "19cf9de7-5ab6-4d15-a57b-d2de6dee975d"
 			}
 		},
 		"metadata": {
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# ' + StorageAccount + '"
 				],
-				"execution_count": 4
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -84,9 +84,9 @@
 					}
 				},
 				"source": [
-					"# #Create DataFrame for the rptparcellevel LMS Table\r\n",
-					"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
-					"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+					"# #Create DataFrame for the rptparcellevellimitload LMS Table\r\n",
+					"# rptparcellevellimitload = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevellimitload.parquet', format='parquet')\r\n",
+					"# rptparcellevellimitload.createOrReplaceTempView(\"rptparcellevellimitload\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the rpttracklevel LMS Table\r\n",
 					"# rpttracklevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rpttracklevel.parquet', format='parquet')\r\n",
@@ -116,7 +116,7 @@
 					"# stdeliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', format='parquet')\r\n",
 					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")"
 				],
-				"execution_count": 5
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -158,8 +158,9 @@
 					",p.lms_parcel_waybillid as waybillid\r\n",
 					",l.lms_location_description as currentlocation\r\n",
 					",z.lms_zone_description as zonedescription\r\n",
+					",t.lms_track_loadid as manifestid\r\n",
 					"\r\n",
-					"FROM rptparcellevel p\r\n",
+					"FROM rptparcellevellimitload p\r\n",
 					"LEFT JOIN rpttracklevel t on t.lms_track_parcelid = p.lms_parcel_id\r\n",
 					"LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
 					"LEFT JOIN stlocation l on l.lms_location_id = p.lms_parcel_locid\r\n",
@@ -167,7 +168,7 @@
 					"LEFT JOIN stsroute sr on sr.lms_sroute_id = dc.lms_customer_srouteid\r\n",
 					"LEFT JOIN stzone z on z.lms_zone_id = sr.lms_sroute_zoneid"
 				],
-				"execution_count": 8
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -185,7 +186,7 @@
 				"source": [
 					"bulkmanifestdetail = spark.sql(\"SELECT * FROM bulkmanifestdetail\")"
 				],
-				"execution_count": 9
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -203,7 +204,7 @@
 				"source": [
 					"# bulkmanifestdetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/bulkmanifestdetail.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": 12
 			}
 		]
 	}

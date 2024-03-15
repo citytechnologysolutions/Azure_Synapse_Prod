@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "84bc938e-986c-4120-a02c-62223b2be5a5"
+				"spark.autotune.trackingId": "5b8fe1bd-0a1a-4a6f-852e-10d379c63973"
 			}
 		},
 		"metadata": {
@@ -84,9 +84,9 @@
 					}
 				},
 				"source": [
-					"# #Create DataFrame for the rptparcellevel LMS Table\r\n",
-					"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
-					"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+					"# #Create DataFrame for the rptparcellevellimitload LMS Table\r\n",
+					"# rptparcellevellimitload = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevellimitload.parquet', format='parquet')\r\n",
+					"# rptparcellevellimitload.createOrReplaceTempView(\"rptparcellevellimitload\")\r\n",
 					"\r\n",
 					"# #create dataframe for the stlocation lms table\r\n",
 					"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
@@ -173,7 +173,7 @@
 					",p.lms_parcel_chargeweight as parcelchargeweight\r\n",
 					",bpt.description as billparceltype\r\n",
 					"\r\n",
-					"FROM rptparcellevel p\r\n",
+					"FROM rptparcellevellimitload p\r\n",
 					"LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
 					"LEFT JOIN stlocation l on l.lms_location_id = p.lms_parcel_locid\r\n",
 					"LEFT JOIN stdeliverypickupcustomer dc on dc.lms_customer_id = p.lms_parcel_orderdelivercustid\r\n",

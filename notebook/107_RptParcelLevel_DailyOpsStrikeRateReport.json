@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "737a33e9-3a3e-4ed6-b827-cedd5fcb941d"
+				"spark.autotune.trackingId": "a08cdd1e-4f06-45fa-94a7-98cd93bfc1ca"
 			}
 		},
 		"metadata": {
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -84,9 +84,9 @@
 					}
 				},
 				"source": [
-					"# #Create DataFrame for the rptparcellevel LMS Table\r\n",
-					"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
-					"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+					"# #Create DataFrame for the rptparcellevellimitload LMS Table\r\n",
+					"# rptparcellevellimitload = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevellimitload.parquet', format='parquet')\r\n",
+					"# rptparcellevellimitload.createOrReplaceTempView(\"rptparcellevellimitload\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the dbolocation LMS Table\r\n",
 					"# dbolocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
@@ -96,7 +96,7 @@
 					"# dbozone = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbozone.parquet', format='parquet')\r\n",
 					"# dbozone.createOrReplaceTempView(\"dbozone\")"
 				],
-				"execution_count": 2
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -151,7 +151,7 @@
 					"    ,l.description\r\n",
 					"    ,to_date(p.lms_parcel_waybillpoddate)"
 				],
-				"execution_count": 7
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -169,7 +169,7 @@
 				"source": [
 					"dailyopsstrikeratereport = spark.sql(\"SELECT * FROM dailyopsstrikeratereport\")"
 				],
-				"execution_count": 8
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -187,7 +187,7 @@
 				"source": [
 					"# dailyopsstrikeratereport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/dailyopsstrikeratereport.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": 8
 			}
 		]
 	}

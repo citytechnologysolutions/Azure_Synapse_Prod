@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "d0d8b6c3-0bad-4200-95ad-b33c5a9b2508"
+				"spark.autotune.trackingId": "0e469895-106e-4890-a9eb-7dbbedbfadd4"
 			}
 		},
 		"metadata": {
@@ -54,21 +54,21 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"if 'prod' in Environment:\r\n",
-					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"else:\r\n",
-					"    StorageAccount = 'citylogisticsstorage'\r\n",
-					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
-					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# ' + StorageAccount + '"
+					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -84,32 +84,32 @@
 					}
 				},
 				"source": [
-					"#Create DataFrame for the dbodamagedparcelaudit LMS Table\r\n",
-					"dbodamagedparcelaudit = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit.parquet', format='parquet')\r\n",
-					"dbodamagedparcelaudit.createOrReplaceTempView(\"dbodamagedparcelaudit\")\r\n",
+					"# #Create DataFrame for the dbodamagedparcelaudit LMS Table\r\n",
+					"# dbodamagedparcelaudit = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit.parquet', format='parquet')\r\n",
+					"# dbodamagedparcelaudit.createOrReplaceTempView(\"dbodamagedparcelaudit\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the stdamagedparcelauditfluteprofiles LMS Table\r\n",
-					"stdamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/dbodamaged_parcel_audit_flute_profiles.parquet', format='parquet')\r\n",
-					"stdamagedparcelauditfluteprofiles.createOrReplaceTempView(\"stdamagedparcelauditfluteprofiles\")\r\n",
+					"# #Create DataFrame for the stdamagedparcelauditfluteprofiles LMS Table\r\n",
+					"# stdamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelauditfluteprofiles.parquet', format='parquet')\r\n",
+					"# stdamagedparcelauditfluteprofiles.createOrReplaceTempView(\"stdamagedparcelauditfluteprofiles\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the stdamagedparcelaudittapetype LMS Table\r\n",
-					"stdamagedparcelaudittapetype = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/dbodamaged_parcel_audit_tapetype.parquet', format='parquet')\r\n",
-					"stdamagedparcelaudittapetype.createOrReplaceTempView(\"stdamagedparcelaudittapetype\")\r\n",
+					"# #Create DataFrame for the stdamagedparcelaudittapetype LMS Table\r\n",
+					"# stdamagedparcelaudittapetype = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudittapetype.parquet', format='parquet')\r\n",
+					"# stdamagedparcelaudittapetype.createOrReplaceTempView(\"stdamagedparcelaudittapetype\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the stdamagedparcelaudittype LMS Table\r\n",
-					"stdamagedparcelaudittype = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/dbodamaged_parcel_audit_type.parquet', format='parquet')\r\n",
-					"stdamagedparcelaudittype.createOrReplaceTempView(\"stdamagedparcelaudittype\")\r\n",
+					"# #Create DataFrame for the stdamagedparcelaudittype LMS Table\r\n",
+					"# stdamagedparcelaudittype = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudittype.parquet', format='parquet')\r\n",
+					"# stdamagedparcelaudittype.createOrReplaceTempView(\"stdamagedparcelaudittype\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the stlocation LMS Table\r\n",
-					"stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
-					"stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
+					"# #Create DataFrame for the stlocation LMS Table\r\n",
+					"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
+					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
 					"\r\n",
-					"#Create DataFrame for the stparcel LMS Table\r\n",
-					"stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', format='parquet')\r\n",
-					"stparcel.createOrReplaceTempView(\"stparcel\")\r\n",
+					"# #Create DataFrame for the stparcel LMS Table\r\n",
+					"# stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', format='parquet')\r\n",
+					"# stparcel.createOrReplaceTempView(\"stparcel\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -167,7 +167,7 @@
 					"LEFT JOIN stdamagedparcelaudittapetype tt on d.tapeusedid = tt.lms_damagedparcelaudittapetype_id\r\n",
 					""
 				],
-				"execution_count": 3
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -185,7 +185,7 @@
 				"source": [
 					"stdamagedparcelaudit = spark.sql(\"SELECT * FROM stdamagedparcelaudit\")"
 				],
-				"execution_count": 4
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -201,9 +201,9 @@
 					}
 				},
 				"source": [
-					"stdamagedparcelaudit.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudit.parquet', mode = \"overwrite\")"
+					"# stdamagedparcelaudit.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudit.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 8
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -221,7 +221,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 16
+				"execution_count": 12
 			}
 		]
 	}

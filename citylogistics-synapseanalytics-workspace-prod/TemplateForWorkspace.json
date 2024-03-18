@@ -1534,6 +1534,78 @@
 						"MinExecutors": "1",
 						"MaxExecutors": "3"
 					}
+				},
+				{
+					"Source": {
+						"TableName": "Damaged_Parcel_Audit_Type",
+						"SchemaName": "dbo"
+					},
+					"Increment": {
+						"IncField": "0",
+						"IdField": "0"
+					},
+					"Destination": {
+						"FileName": "dbodamaged_parcel_audit_type"
+					},
+					"SparkConfig": {
+						"NodeSize": "Small",
+						"MinExecutors": "1",
+						"MaxExecutors": "3"
+					}
+				},
+				{
+					"Source": {
+						"TableName": "Claims_ClaimReason",
+						"SchemaName": "dbo"
+					},
+					"Increment": {
+						"IncField": "0",
+						"IdField": "0"
+					},
+					"Destination": {
+						"FileName": "dboclaims_claimreason"
+					},
+					"SparkConfig": {
+						"NodeSize": "Small",
+						"MinExecutors": "1",
+						"MaxExecutors": "3"
+					}
+				},
+				{
+					"Source": {
+						"TableName": "Claims_ClaimStatus",
+						"SchemaName": "dbo"
+					},
+					"Increment": {
+						"IncField": "0",
+						"IdField": "0"
+					},
+					"Destination": {
+						"FileName": "dboclaims_claimstatus"
+					},
+					"SparkConfig": {
+						"NodeSize": "Small",
+						"MinExecutors": "1",
+						"MaxExecutors": "3"
+					}
+				},
+				{
+					"Source": {
+						"TableName": "Claims_RejectionReasons",
+						"SchemaName": "dbo"
+					},
+					"Increment": {
+						"IncField": "0",
+						"IdField": "0"
+					},
+					"Destination": {
+						"FileName": "dboclaims_rejectionreasons"
+					},
+					"SparkConfig": {
+						"NodeSize": "Small",
+						"MinExecutors": "1",
+						"MaxExecutors": "3"
+					}
 				}
 			]
 		},
@@ -2898,6 +2970,24 @@
 					},
 					"Destination": {
 						"FileName": "dbopnphudetail"
+					},
+					"SparkConfig": {
+						"NodeSize": "Small",
+						"MinExecutors": "1",
+						"MaxExecutors": "3"
+					}
+				},
+				{
+					"Source": {
+						"TableName": "Consignment",
+						"SchemaName": "dbo"
+					},
+					"Increment": {
+						"IncField": "id",
+						"IdField": "id"
+					},
+					"Destination": {
+						"FileName": "dboconsignment"
 					},
 					"SparkConfig": {
 						"NodeSize": "Small",
@@ -4392,6 +4482,24 @@
 					},
 					"destination": {
 						"FileName": "dboplc_lpnrouting"
+					}
+				},
+				{
+					"Source": {
+						"TableName": "Consignment",
+						"SchemaName": "dbo"
+					},
+					"Increment": {
+						"IncField": "id",
+						"IdField": "id"
+					},
+					"Destination": {
+						"FileName": "dboconsignment"
+					},
+					"SparkConfig": {
+						"NodeSize": "Small",
+						"MinExecutors": "1",
+						"MaxExecutors": "3"
 					}
 				}
 			]
@@ -17506,7 +17614,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "9a03826f-a04b-409a-911b-02769927d397"
+						"spark.autotune.trackingId": "da18434f-0dd8-4e0b-b799-e6422d6ddede"
 					}
 				},
 				"metadata": {
@@ -17554,7 +17662,7 @@
 							"# ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 3
+						"execution_count": 1
 					},
 					{
 						"cell_type": "code",
@@ -17574,7 +17682,7 @@
 							"from pyspark.sql.window import Window"
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": 2
 					},
 					{
 						"cell_type": "code",
@@ -17612,7 +17720,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 5
+						"execution_count": 3
 					},
 					{
 						"cell_type": "code",
@@ -17632,7 +17740,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/_01_RptParcelLevel"
 						],
 						"outputs": [],
-						"execution_count": 6
+						"execution_count": 4
 					},
 					{
 						"cell_type": "code",
@@ -17652,7 +17760,7 @@
 							"rptparcellevellimitload.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevellimitload.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 7
+						"execution_count": 5
 					},
 					{
 						"cell_type": "code",
@@ -17698,7 +17806,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 6
 					},
 					{
 						"cell_type": "code",
@@ -17718,7 +17826,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/_02_RptTrackLevel"
 						],
 						"outputs": [],
-						"execution_count": 9
+						"execution_count": 7
 					},
 					{
 						"cell_type": "code",
@@ -17737,7 +17845,7 @@
 							"rpttracklevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rpttracklevel.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
@@ -17782,7 +17890,7 @@
 							"stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")"
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -17802,7 +17910,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/_03_RptLoadLevel"
 						],
 						"outputs": [],
-						"execution_count": 12
+						"execution_count": 10
 					},
 					{
 						"cell_type": "code",
@@ -17821,7 +17929,7 @@
 							"rptloadparentlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptloadparentlevel.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 13
+						"execution_count": 11
 					},
 					{
 						"cell_type": "code",
@@ -17874,7 +17982,7 @@
 							"dbobillzoneroute.createOrReplaceTempView(\"dbobillzoneroute\")"
 						],
 						"outputs": [],
-						"execution_count": 14
+						"execution_count": 12
 					},
 					{
 						"cell_type": "code",
@@ -17894,7 +18002,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/_04_RptConsignmentLevel"
 						],
 						"outputs": [],
-						"execution_count": 15
+						"execution_count": 13
 					},
 					{
 						"cell_type": "code",
@@ -17915,7 +18023,7 @@
 							"rptbillconsignmentexceptionlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptbillconsignmentexceptionlevel.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 16
+						"execution_count": 14
 					},
 					{
 						"cell_type": "code",
@@ -17957,7 +18065,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 17
+						"execution_count": 15
 					},
 					{
 						"cell_type": "code",
@@ -17977,7 +18085,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/_05_RptWaybillLevel"
 						],
 						"outputs": [],
-						"execution_count": 18
+						"execution_count": 16
 					},
 					{
 						"cell_type": "code",
@@ -17996,7 +18104,7 @@
 							"rptwaybilllevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptwaybilllevel.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 19
+						"execution_count": 17
 					},
 					{
 						"cell_type": "markdown",
@@ -18029,10 +18137,6 @@
 							"sttrip = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/sttrip.parquet', format='parquet')\r\n",
 							"sttrip.createOrReplaceTempView(\"sttrip\")\r\n",
 							"\r\n",
-							"#Create DataFrame for the stbooking LMS Table\r\n",
-							"stbooking = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stbooking.parquet', format='parquet')\r\n",
-							"stbooking.createOrReplaceTempView(\"stbooking\")\r\n",
-							"\r\n",
 							"#Create DataFrame for the stlmsbookingweights LMS Table\r\n",
 							"stlmsbookingweights = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlmsbookingweights.parquet', format='parquet')\r\n",
 							"stlmsbookingweights.createOrReplaceTempView(\"stlmsbookingweights\")\r\n",
@@ -18048,18 +18152,10 @@
 							"#Create DataFrame for the stthirdparty LMS Table\r\n",
 							"stthirdparty = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stthirdparty.parquet', format='parquet')\r\n",
 							"stthirdparty.createOrReplaceTempView(\"stthirdparty\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the stlmstrack LMS Table\r\n",
-							"stlmstrack = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', format='parquet')\r\n",
-							"stlmstrack.createOrReplaceTempView(\"stlmstrack\")\r\n",
-							"\r\n",
-							"#Create DataFrame for the publiclmsdata LMS Table\r\n",
-							"publiclmsdata = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publiclmsdata.parquet', format='parquet')\r\n",
-							"publiclmsdata.createOrReplaceTempView(\"publiclmsdata\")\r\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 20
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -18072,14 +18168,13 @@
 								"transient": {
 									"deleting": false
 								}
-							},
-							"collapsed": false
+							}
 						},
 						"source": [
 							"%run TRANSFORM/02 STRUCTURED/Reports/TMS/_01_RptTripLevel"
 						],
 						"outputs": [],
-						"execution_count": 21
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -18098,7 +18193,7 @@
 							"rpttriplevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rpttriplevel.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 22
+						"execution_count": null
 					},
 					{
 						"cell_type": "markdown",
@@ -18137,7 +18232,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 23
+						"execution_count": 18
 					},
 					{
 						"cell_type": "code",
@@ -18157,7 +18252,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/101_RptParcelLevel_CenturionSorterReport"
 						],
 						"outputs": [],
-						"execution_count": 24
+						"execution_count": 19
 					},
 					{
 						"cell_type": "code",
@@ -18176,7 +18271,7 @@
 							"centurionsorterreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/centurionsorterreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 25
+						"execution_count": 20
 					},
 					{
 						"cell_type": "code",
@@ -18205,7 +18300,7 @@
 							"dbovolumiserlocation.createOrReplaceTempView(\"dbovolumiserlocation\")"
 						],
 						"outputs": [],
-						"execution_count": 26
+						"execution_count": 21
 					},
 					{
 						"cell_type": "code",
@@ -18225,7 +18320,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/102_RptParcelLevel_VolumiserLogReport"
 						],
 						"outputs": [],
-						"execution_count": 27
+						"execution_count": 22
 					},
 					{
 						"cell_type": "code",
@@ -18244,7 +18339,7 @@
 							"volumiserlogreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/volumiserlogreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 28
+						"execution_count": 23
 					},
 					{
 						"cell_type": "code",
@@ -18285,7 +18380,7 @@
 							"stloadchild.createOrReplaceTempView(\"stloadchild\")"
 						],
 						"outputs": [],
-						"execution_count": 29
+						"execution_count": 24
 					},
 					{
 						"cell_type": "code",
@@ -18305,7 +18400,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/103_RptParcelLevel_ParcelDamageReport"
 						],
 						"outputs": [],
-						"execution_count": 30
+						"execution_count": 25
 					},
 					{
 						"cell_type": "code",
@@ -18324,7 +18419,7 @@
 							"parceldamagereport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/parceldamagereport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 31
+						"execution_count": 26
 					},
 					{
 						"cell_type": "code",
@@ -18371,7 +18466,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 32
+						"execution_count": 27
 					},
 					{
 						"cell_type": "code",
@@ -18391,7 +18486,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/104_RptParcelLevel_QCParcelDamageReport"
 						],
 						"outputs": [],
-						"execution_count": 33
+						"execution_count": 28
 					},
 					{
 						"cell_type": "code",
@@ -18410,7 +18505,7 @@
 							"qcparceldamagereport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/qcparceldamagereport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 34
+						"execution_count": 29
 					},
 					{
 						"cell_type": "code",
@@ -18468,7 +18563,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 35
+						"execution_count": 30
 					},
 					{
 						"cell_type": "code",
@@ -18488,7 +18583,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/105_RptTrackLevel_BranchVolumesReport"
 						],
 						"outputs": [],
-						"execution_count": 36
+						"execution_count": 31
 					},
 					{
 						"cell_type": "code",
@@ -18507,7 +18602,7 @@
 							"branchvolumesreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/branchvolumesreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 37
+						"execution_count": 32
 					},
 					{
 						"cell_type": "code",
@@ -18529,7 +18624,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 38
+						"execution_count": 33
 					},
 					{
 						"cell_type": "code",
@@ -18549,7 +18644,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/106_RptLoadLevel_VehicleUtilisationReport"
 						],
 						"outputs": [],
-						"execution_count": 39
+						"execution_count": 34
 					},
 					{
 						"cell_type": "code",
@@ -18568,7 +18663,7 @@
 							"vehicleutilisationreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/vehicleutilisationreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 40
+						"execution_count": 35
 					},
 					{
 						"cell_type": "code",
@@ -18584,9 +18679,9 @@
 							}
 						},
 						"source": [
-							"#Create DataFrame for the rptparcellevel LMS Table\r\n",
-							"rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
-							"rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+							"#Create DataFrame for the rptparcellevellimitload LMS Table\r\n",
+							"rptparcellevellimitload = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevellimitload.parquet', format='parquet')\r\n",
+							"rptparcellevellimitload.createOrReplaceTempView(\"rptparcellevellimitload\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the dbolocation LMS Table\r\n",
 							"dbolocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
@@ -18597,7 +18692,7 @@
 							"dbozone.createOrReplaceTempView(\"dbozone\")"
 						],
 						"outputs": [],
-						"execution_count": 41
+						"execution_count": 36
 					},
 					{
 						"cell_type": "code",
@@ -18617,7 +18712,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/107_RptParcelLevel_DailyOpsStrikeRateReport"
 						],
 						"outputs": [],
-						"execution_count": 42
+						"execution_count": 78
 					},
 					{
 						"cell_type": "code",
@@ -18636,7 +18731,7 @@
 							"dailyopsstrikeratereport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/dailyopsstrikeratereport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 43
+						"execution_count": 79
 					},
 					{
 						"cell_type": "code",
@@ -18661,7 +18756,7 @@
 							"rptbillconsignmentexceptionlevel.createOrReplaceTempView(\"rptbillconsignmentexceptionlevel\")"
 						],
 						"outputs": [],
-						"execution_count": 44
+						"execution_count": 39
 					},
 					{
 						"cell_type": "code",
@@ -18681,7 +18776,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/108_RptBillConsignmentLevel_RevenueVerticalReport"
 						],
 						"outputs": [],
-						"execution_count": 45
+						"execution_count": 40
 					},
 					{
 						"cell_type": "code",
@@ -18700,7 +18795,7 @@
 							"revenueverticalreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/revenueverticalreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 46
+						"execution_count": 41
 					},
 					{
 						"cell_type": "code",
@@ -18737,7 +18832,7 @@
 							"stlocation.createOrReplaceTempView(\"stlocation\")"
 						],
 						"outputs": [],
-						"execution_count": 47
+						"execution_count": 42
 					},
 					{
 						"cell_type": "code",
@@ -18757,7 +18852,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/109_RptParcelLevel_ManifestWeightAnalysis"
 						],
 						"outputs": [],
-						"execution_count": 48
+						"execution_count": 43
 					},
 					{
 						"cell_type": "code",
@@ -18776,7 +18871,7 @@
 							"manifestweightanalysisreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/manifestweightanalysisreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 49
+						"execution_count": 44
 					},
 					{
 						"cell_type": "code",
@@ -18817,7 +18912,7 @@
 							"dbodcprepack.createOrReplaceTempView(\"dbodcprepack\")"
 						],
 						"outputs": [],
-						"execution_count": 50
+						"execution_count": 45
 					},
 					{
 						"cell_type": "code",
@@ -18837,7 +18932,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/110_RptParcelLevel_DCReceivingDaily"
 						],
 						"outputs": [],
-						"execution_count": 51
+						"execution_count": 46
 					},
 					{
 						"cell_type": "code",
@@ -18856,7 +18951,7 @@
 							"dcreceivingdailyreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/dcreceivingdailyreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 52
+						"execution_count": 47
 					},
 					{
 						"cell_type": "code",
@@ -18890,7 +18985,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 53
+						"execution_count": 48
 					},
 					{
 						"cell_type": "code",
@@ -18909,7 +19004,7 @@
 							"# %run TRANSFORM/02 STRUCTURED/Reports/LMS/111_RptWaybillLevel_HiltiWBSummary"
 						],
 						"outputs": [],
-						"execution_count": 54
+						"execution_count": 49
 					},
 					{
 						"cell_type": "code",
@@ -18928,7 +19023,7 @@
 							"# hiltiwbregionsummaryreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/hiltiwbregionsummaryreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 55
+						"execution_count": 50
 					},
 					{
 						"cell_type": "code",
@@ -18962,7 +19057,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 56
+						"execution_count": 51
 					},
 					{
 						"cell_type": "code",
@@ -18982,7 +19077,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/112_RptParcelLevel_OTDBillingReport"
 						],
 						"outputs": [],
-						"execution_count": 57
+						"execution_count": 80
 					},
 					{
 						"cell_type": "code",
@@ -19001,7 +19096,7 @@
 							"otdbillingreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/otdbillingreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 58
+						"execution_count": 81
 					},
 					{
 						"cell_type": "code",
@@ -19051,7 +19146,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 59
+						"execution_count": 54
 					},
 					{
 						"cell_type": "code",
@@ -19071,7 +19166,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/113_RptParcelLevel_EcomBillingReport"
 						],
 						"outputs": [],
-						"execution_count": 60
+						"execution_count": 82
 					},
 					{
 						"cell_type": "code",
@@ -19090,7 +19185,7 @@
 							"ecombillingreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/ecombillingreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 61
+						"execution_count": 83
 					},
 					{
 						"cell_type": "code",
@@ -19127,7 +19222,7 @@
 							"stlmstrack.createOrReplaceTempView(\"stlmstrack\")"
 						],
 						"outputs": [],
-						"execution_count": 62
+						"execution_count": 57
 					},
 					{
 						"cell_type": "code",
@@ -19147,7 +19242,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/114_RptParcelLevel_MrPIBTReport"
 						],
 						"outputs": [],
-						"execution_count": 63
+						"execution_count": 84
 					},
 					{
 						"cell_type": "code",
@@ -19166,7 +19261,7 @@
 							"mrpibtreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/mrpibtreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 64
+						"execution_count": 85
 					},
 					{
 						"cell_type": "code",
@@ -19182,9 +19277,9 @@
 							}
 						},
 						"source": [
-							"#Create DataFrame for the rptparcellevel LMS Table\r\n",
-							"rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
-							"rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+							"#Create DataFrame for the rptparcellevellimitload LMS Table\r\n",
+							"rptparcellevellimitload = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevellimitload.parquet', format='parquet')\r\n",
+							"rptparcellevellimitload.createOrReplaceTempView(\"rptparcellevellimitload\")\r\n",
 							"\r\n",
 							"#create dataframe for the stlocation lms table\r\n",
 							"stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
@@ -19219,7 +19314,7 @@
 							"dbobillparceltype.createOrReplaceTempView(\"dbobillparceltype\")"
 						],
 						"outputs": [],
-						"execution_count": 65
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -19232,14 +19327,13 @@
 								"transient": {
 									"deleting": false
 								}
-							},
-							"collapsed": false
+							}
 						},
 						"source": [
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/115_RptParcelLevel_DCReceivingDailyMRP"
 						],
 						"outputs": [],
-						"execution_count": 66
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -19258,7 +19352,7 @@
 							"dcreceivingdailyreportmrp.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/dcreceivingdailyreportmrp.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 67
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -19274,9 +19368,9 @@
 							}
 						},
 						"source": [
-							"#Create DataFrame for the rptparcellevel LMS Table\r\n",
-							"rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
-							"rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+							"#Create DataFrame for the rptparcellevellimitload LMS Table\r\n",
+							"rptparcellevellimitload = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevellimitload.parquet', format='parquet')\r\n",
+							"rptparcellevellimitload.createOrReplaceTempView(\"rptparcellevellimitload\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the rpttracklevel LMS Table\r\n",
 							"rpttracklevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rpttracklevel.parquet', format='parquet')\r\n",
@@ -19307,7 +19401,7 @@
 							"stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")"
 						],
 						"outputs": [],
-						"execution_count": 68
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -19320,14 +19414,13 @@
 								"transient": {
 									"deleting": false
 								}
-							},
-							"collapsed": false
+							}
 						},
 						"source": [
 							"%run TRANSFORM/02 STRUCTURED/Reports/LMS/116_RptParcelLevel_BulkManifestDetail"
 						],
 						"outputs": [],
-						"execution_count": 69
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -19346,7 +19439,7 @@
 							"bulkmanifestdetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/bulkmanifestdetail.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 70
+						"execution_count": null
 					},
 					{
 						"cell_type": "markdown",
@@ -19381,7 +19474,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 71
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -19394,14 +19487,13 @@
 								"transient": {
 									"deleting": false
 								}
-							},
-							"collapsed": false
+							}
 						},
 						"source": [
 							"%run TRANSFORM/02 STRUCTURED/Reports/TMS/301_RptTripLevel_linehaulleadtimereport"
 						],
 						"outputs": [],
-						"execution_count": 72
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -19420,7 +19512,7 @@
 							"linehaulleadtimereport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/linehaulleadtimereport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 73
+						"execution_count": null
 					}
 				]
 			},
@@ -21272,7 +21364,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "2b6d69e0-d521-4ac2-aee8-7bbae473cd63"
+						"spark.autotune.trackingId": "c90cc60c-b9fd-4233-a57a-90509f59b39c"
 					}
 				},
 				"metadata": {
@@ -21449,15 +21541,15 @@
 							"# publicorvuser.createOrReplaceTempView(\"publicorvuser\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the dbodamagedparcelauditfluteprofiles LMS Table\r\n",
-							"# dbodamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelauditfluteprofiles.parquet', format='parquet')\r\n",
+							"# dbodamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamage_parcel_audit_flute_profiles.parquet', format='parquet')\r\n",
 							"# dbodamagedparcelauditfluteprofiles.createOrReplaceTempView(\"dbodamagedparcelauditfluteprofiles\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the dbodamagedparcelaudittapetype LMS Table\r\n",
-							"# dbodamagedparcelaudittapetype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelaudittapetype.parquet', format='parquet')\r\n",
+							"# dbodamagedparcelaudittapetype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit_tapetype.parquet', format='parquet')\r\n",
 							"# dbodamagedparcelaudittapetype.createOrReplaceTempView(\"dbodamagedparcelaudittapetype\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the dbodamagedparcelaudittype LMS Table\r\n",
-							"# dbodamagedparcelaudittype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelaudittype.parquet', format='parquet')\r\n",
+							"# dbodamagedparcelaudittype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit_type.parquet', format='parquet')\r\n",
 							"# dbodamagedparcelaudittype.createOrReplaceTempView(\"dbodamagedparcelaudittype\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the csdcsdoutofservice CSD Table\r\n",
@@ -21624,7 +21716,7 @@
 							"csdreasonid as csd_csdoutofservice_csdreasonid\r\n",
 							"\r\n",
 							"FROM\r\n",
-							"csdcsdoutofservice"
+							"dbocsdoutofservice"
 						],
 						"outputs": [],
 						"execution_count": 10
@@ -28067,7 +28159,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "f132ded9-65cc-43ac-aaaf-b1820d6dcb73"
+						"spark.autotune.trackingId": "ade5991e-d24f-4321-a62a-843903dfbe9a"
 					}
 				},
 				"metadata": {
@@ -28092,13 +28184,38 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%%configure -f\r\n",
+							"{\r\n",
+							" \"conf\" : { \"spark.sql.autoBroadcastJoinThreshold\": 20971520\r\n",
+							"    }\r\n",
+							"}"
+						],
+						"outputs": [],
+						"execution_count": 44
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"# print(Environment)\r\n",
@@ -30565,7 +30682,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "f94ad095-3d8f-4fbb-aac6-21493ed02020"
+						"spark.autotune.trackingId": "5128b61b-2a2c-4af2-aec5-7c0206c75d07"
 					}
 				},
 				"metadata": {
@@ -32094,16 +32211,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "28466094-46b8-46eb-981e-6236931b2b94"
+						"spark.autotune.trackingId": "b65fbe0c-5944-4b36-89e5-d7a664102455"
 					}
 				},
 				"metadata": {
@@ -32117,18 +32234,18 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -43930,7 +44047,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "48e750c8-f911-4683-a83b-86da27bbfe90"
+						"spark.autotune.trackingId": "270d8bf0-1dd7-49bc-a633-28740bfad05c"
 					}
 				},
 				"metadata": {
@@ -44150,16 +44267,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "737a33e9-3a3e-4ed6-b827-cedd5fcb941d"
+						"spark.autotune.trackingId": "3db1937d-8d39-453c-b757-3446de278310"
 					}
 				},
 				"metadata": {
@@ -44173,18 +44290,18 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -44207,7 +44324,7 @@
 							"# # ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 1
+						"execution_count": 4
 					},
 					{
 						"cell_type": "code",
@@ -44223,9 +44340,9 @@
 							}
 						},
 						"source": [
-							"# #Create DataFrame for the rptparcellevel LMS Table\r\n",
-							"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
-							"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+							"# #Create DataFrame for the rptparcellevellimitload LMS Table\r\n",
+							"# rptparcellevellimitload = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevellimitload.parquet', format='parquet')\r\n",
+							"# rptparcellevellimitload.createOrReplaceTempView(\"rptparcellevellimitload\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the dbolocation LMS Table\r\n",
 							"# dbolocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
@@ -44236,7 +44353,7 @@
 							"# dbozone.createOrReplaceTempView(\"dbozone\")"
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 5
 					},
 					{
 						"cell_type": "code",
@@ -44292,7 +44409,7 @@
 							"    ,to_date(p.lms_parcel_waybillpoddate)"
 						],
 						"outputs": [],
-						"execution_count": 7
+						"execution_count": 6
 					},
 					{
 						"cell_type": "code",
@@ -44311,7 +44428,7 @@
 							"dailyopsstrikeratereport = spark.sql(\"SELECT * FROM dailyopsstrikeratereport\")"
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 7
 					},
 					{
 						"cell_type": "code",
@@ -44330,7 +44447,7 @@
 							"# dailyopsstrikeratereport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/dailyopsstrikeratereport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 8
 					}
 				]
 			},
@@ -46999,16 +47116,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "84bc938e-986c-4120-a02c-62223b2be5a5"
+						"spark.autotune.trackingId": "722a47f3-d96d-48b6-b806-38e9bcd652ae"
 					}
 				},
 				"metadata": {
@@ -47022,18 +47139,18 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -47072,9 +47189,9 @@
 							}
 						},
 						"source": [
-							"# #Create DataFrame for the rptparcellevel LMS Table\r\n",
-							"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
-							"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+							"# #Create DataFrame for the rptparcellevellimitload LMS Table\r\n",
+							"# rptparcellevellimitload = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevellimitload.parquet', format='parquet')\r\n",
+							"# rptparcellevellimitload.createOrReplaceTempView(\"rptparcellevellimitload\")\r\n",
 							"\r\n",
 							"# #create dataframe for the stlocation lms table\r\n",
 							"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
@@ -47162,7 +47279,7 @@
 							",p.lms_parcel_chargeweight as parcelchargeweight\r\n",
 							",bpt.description as billparceltype\r\n",
 							"\r\n",
-							"FROM rptparcellevel p\r\n",
+							"FROM rptparcellevellimitload p\r\n",
 							"LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
 							"LEFT JOIN stlocation l on l.lms_location_id = p.lms_parcel_locid\r\n",
 							"LEFT JOIN stdeliverypickupcustomer dc on dc.lms_customer_id = p.lms_parcel_orderdelivercustid\r\n",
@@ -47235,16 +47352,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "a5f6a1bc-3c91-49a0-94e7-bc1f635ac7a9"
+						"spark.autotune.trackingId": "5aa449bd-c7c7-4056-ad4e-9c889ad4a289"
 					}
 				},
 				"metadata": {
@@ -47258,18 +47375,18 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -47292,7 +47409,7 @@
 							"# ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
@@ -47308,9 +47425,9 @@
 							}
 						},
 						"source": [
-							"# #Create DataFrame for the rptparcellevel LMS Table\r\n",
-							"# rptparcellevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevel.parquet', format='parquet')\r\n",
-							"# rptparcellevel.createOrReplaceTempView(\"rptparcellevel\")\r\n",
+							"# #Create DataFrame for the rptparcellevellimitload LMS Table\r\n",
+							"# rptparcellevellimitload = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rptparcellevellimitload.parquet', format='parquet')\r\n",
+							"# rptparcellevellimitload.createOrReplaceTempView(\"rptparcellevellimitload\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the rpttracklevel LMS Table\r\n",
 							"# rpttracklevel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/RPT/rpttracklevel.parquet', format='parquet')\r\n",
@@ -47341,7 +47458,7 @@
 							"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")"
 						],
 						"outputs": [],
-						"execution_count": 5
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -47383,8 +47500,9 @@
 							",p.lms_parcel_waybillid as waybillid\r\n",
 							",l.lms_location_description as currentlocation\r\n",
 							",z.lms_zone_description as zonedescription\r\n",
+							",t.lms_track_loadid as manifestid\r\n",
 							"\r\n",
-							"FROM rptparcellevel p\r\n",
+							"FROM rptparcellevellimitload p\r\n",
 							"LEFT JOIN rpttracklevel t on t.lms_track_parcelid = p.lms_parcel_id\r\n",
 							"LEFT JOIN storder o on o.lms_order_id = p.lms_parcel_orderid\r\n",
 							"LEFT JOIN stlocation l on l.lms_location_id = p.lms_parcel_locid\r\n",
@@ -47393,7 +47511,7 @@
 							"LEFT JOIN stzone z on z.lms_zone_id = sr.lms_sroute_zoneid"
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 10
 					},
 					{
 						"cell_type": "code",
@@ -47412,7 +47530,7 @@
 							"bulkmanifestdetail = spark.sql(\"SELECT * FROM bulkmanifestdetail\")"
 						],
 						"outputs": [],
-						"execution_count": 9
+						"execution_count": 11
 					},
 					{
 						"cell_type": "code",
@@ -47431,7 +47549,7 @@
 							"# bulkmanifestdetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/bulkmanifestdetail.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 12
 					}
 				]
 			},
@@ -47972,16 +48090,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "c832ec78-3b3f-419e-9108-51738faff136"
+						"spark.autotune.trackingId": "45018d16-23fc-4e06-8497-d46a1fe02e29"
 					}
 				},
 				"metadata": {
@@ -48006,15 +48124,13 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56,
-						"automaticScaleJobs": false
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"# if 'prod' in Environment:\r\n",
@@ -48031,20 +48147,7 @@
 							"# # ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 1
-					},
-					{
-						"cell_type": "markdown",
-						"metadata": {
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"##Force publication"
-						]
+						"execution_count": 7
 					},
 					{
 						"cell_type": "code",
@@ -48061,7 +48164,7 @@
 						},
 						"source": [
 							"# #Create DataFrame for the dbodamagedparcelaudit LMS Table\r\n",
-							"# dbodamagedparcelaudit = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelaudit.parquet', format='parquet')\r\n",
+							"# dbodamagedparcelaudit = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit.parquet', format='parquet')\r\n",
 							"# dbodamagedparcelaudit.createOrReplaceTempView(\"dbodamagedparcelaudit\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the stdamagedparcelauditfluteprofiles LMS Table\r\n",
@@ -48086,7 +48189,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
@@ -48141,10 +48244,11 @@
 							"LEFT JOIN stparcel p on d.parcelid = p.lms_parcel_id\r\n",
 							"LEFT JOIN stlocation l on d.locid = l.lms_location_id\r\n",
 							"LEFT JOIN stdamagedparcelaudittype t on d.damagetypeid = t.lms_damagedparcelaudittype_id\r\n",
-							"LEFT JOIN stdamagedparcelaudittapetype tt on d.tapeusedid = tt.lms_damagedparcelaudittapetype_id"
+							"LEFT JOIN stdamagedparcelaudittapetype tt on d.tapeusedid = tt.lms_damagedparcelaudittapetype_id\r\n",
+							""
 						],
 						"outputs": [],
-						"execution_count": 3
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -48163,7 +48267,7 @@
 							"stdamagedparcelaudit = spark.sql(\"SELECT * FROM stdamagedparcelaudit\")"
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": 10
 					},
 					{
 						"cell_type": "code",
@@ -48182,7 +48286,7 @@
 							"# stdamagedparcelaudit.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudit.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 11
 					},
 					{
 						"cell_type": "code",
@@ -48201,7 +48305,7 @@
 							"print(\"SUCCESS\")"
 						],
 						"outputs": [],
-						"execution_count": 16
+						"execution_count": 12
 					}
 				]
 			},
@@ -48222,16 +48326,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "d352df64-2ab2-4c31-8618-1fc05a482d22"
+						"spark.autotune.trackingId": "eaccf236-5577-4b86-980b-0abdaea142d7"
 					}
 				},
 				"metadata": {
@@ -48245,18 +48349,18 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -48279,7 +48383,7 @@
 							"# # ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 15
+						"execution_count": 1
 					},
 					{
 						"cell_type": "code",
@@ -48296,25 +48400,25 @@
 						},
 						"source": [
 							"# #Create DataFrame for the dboclaimsclaimdetail LMS Table\r\n",
-							"# dboclaimsclaimdetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimdetail.parquet', format='parquet')\r\n",
+							"# dboclaimsclaimdetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_claimdetail.parquet', format='parquet')\r\n",
 							"# dboclaimsclaimdetail.createOrReplaceTempView(\"dboclaimsclaimdetail\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the dboclaimsclaimreason LMS Table\r\n",
-							"# dboclaimsclaimreason = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimreason.parquet', format='parquet')\r\n",
+							"# dboclaimsclaimreason = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_claimreason.parquet', format='parquet')\r\n",
 							"# dboclaimsclaimreason.createOrReplaceTempView(\"dboclaimsclaimreason\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the dboclaimsclaimstatus LMS Table\r\n",
-							"# dboclaimsclaimstatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimstatus.parquet', format='parquet')\r\n",
+							"# dboclaimsclaimstatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_claimstatus.parquet', format='parquet')\r\n",
 							"# dboclaimsclaimstatus.createOrReplaceTempView(\"dboclaimsclaimstatus\")\r\n",
 							"\r\n",
 							"# #Create DataFrame for the dboclaimsrejectionreasons LMS Table\r\n",
-							"# dboclaimsrejectionreasons = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsrejectionreasons.parquet', format='parquet')\r\n",
+							"# dboclaimsrejectionreasons = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_rejectionreasons.parquet', format='parquet')\r\n",
 							"# dboclaimsrejectionreasons.createOrReplaceTempView(\"dboclaimsrejectionreasons\")\r\n",
 							"\r\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 16
+						"execution_count": 2
 					},
 					{
 						"cell_type": "code",
@@ -48368,7 +48472,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 17
+						"execution_count": 3
 					},
 					{
 						"cell_type": "code",
@@ -48387,7 +48491,7 @@
 							"stclaimsclaimdetail = spark.sql(\"SELECT * FROM stclaimsclaimdetail\")"
 						],
 						"outputs": [],
-						"execution_count": 19
+						"execution_count": 4
 					},
 					{
 						"cell_type": "code",
@@ -48406,7 +48510,7 @@
 							"# stclaimsclaimdetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stclaimsclaimdetail.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 22
+						"execution_count": 5
 					},
 					{
 						"cell_type": "code",
@@ -48425,7 +48529,7 @@
 							"# print(\"SUCCESS\")"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 6
 					}
 				]
 			},
@@ -48658,12 +48762,12 @@
 					"driverCores": 8,
 					"executorMemory": "56g",
 					"executorCores": 8,
-					"numExecutors": 1,
+					"numExecutors": 2,
 					"conf": {
-						"spark.dynamicAllocation.enabled": "true",
-						"spark.dynamicAllocation.minExecutors": "1",
-						"spark.dynamicAllocation.maxExecutors": "4",
-						"spark.autotune.trackingId": "5bc8b783-39a1-4fac-b03d-33efaa7722a8"
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "88d09793-7370-4e48-97c3-1dd9a50c1a25"
 					}
 				},
 				"metadata": {
@@ -48677,15 +48781,15 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
-						"name": "ApacheSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.1",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
 						"memory": 56
@@ -61013,20 +61117,20 @@
 				"nbformat": 4,
 				"nbformat_minor": 2,
 				"bigDataPool": {
-					"referenceName": "TESTSparkPoolL",
+					"referenceName": "PRDSparkPool",
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "112g",
-					"driverCores": 16,
-					"executorMemory": "112g",
-					"executorCores": 16,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
-						"spark.dynamicAllocation.enabled": "true",
+						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
-						"spark.dynamicAllocation.maxExecutors": "5",
-						"spark.autotune.trackingId": "636f95a0-35af-40f2-9e1d-434fc7a80909"
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "bff3723e-4253-48eb-a58f-15a36b25714e"
 					}
 				},
 				"metadata": {
@@ -61040,46 +61144,23 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPoolL",
-						"name": "TESTSparkPoolL",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPoolL",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 16,
-						"memory": 112,
+						"cores": 8,
+						"memory": 56,
 						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"%%configure -f\r\n",
-							"{\r\n",
-							" \"conf\" : { \"spark.sql.autoBroadcastJoinThreshold\": 20971520\r\n",
-							"    }\r\n",
-							"}"
-						],
-						"outputs": [],
-						"execution_count": 1
-					},
 					{
 						"cell_type": "code",
 						"metadata": {},
@@ -61099,7 +61180,7 @@
 							"# ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 38
 					},
 					{
 						"cell_type": "code",
@@ -61123,7 +61204,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 3
+						"execution_count": 39
 					},
 					{
 						"cell_type": "code",
@@ -61252,23 +61333,23 @@
 							"publicorvuser.createOrReplaceTempView(\"publicorvuser\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the dbodamagedparcelauditfluteprofiles LMS Table\r\n",
-							"dbodamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelauditfluteprofiles.parquet', format='parquet')\r\n",
+							"dbodamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamage_parcel_audit_flute_profiles.parquet', format='parquet')\r\n",
 							"dbodamagedparcelauditfluteprofiles.createOrReplaceTempView(\"dbodamagedparcelauditfluteprofiles\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the dbodamagedparcelaudittapetype LMS Table\r\n",
-							"dbodamagedparcelaudittapetype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelaudittapetype.parquet', format='parquet')\r\n",
+							"dbodamagedparcelaudittapetype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit_tapetype.parquet', format='parquet')\r\n",
 							"dbodamagedparcelaudittapetype.createOrReplaceTempView(\"dbodamagedparcelaudittapetype\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the dbodamagedparcelaudittype LMS Table\r\n",
-							"dbodamagedparcelaudittype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelaudittype.parquet', format='parquet')\r\n",
+							"dbodamagedparcelaudittype = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit_type.parquet', format='parquet')\r\n",
 							"dbodamagedparcelaudittype.createOrReplaceTempView(\"dbodamagedparcelaudittype\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the dbocsdoutofservice CSD Table\r\n",
-							"dbocsdoutofservice = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CSD/csdcsdoutofservice.parquet', format='parquet')\r\n",
-							"dbocsdoutofservice.createOrReplaceTempView(\"csdcsdoutofservice\")"
+							"dbocsdoutofservice = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CSD/dbocsdoutofservice.parquet', format='parquet')\r\n",
+							"dbocsdoutofservice.createOrReplaceTempView(\"dbocsdoutofservice\")"
 						],
 						"outputs": [],
-						"execution_count": 7
+						"execution_count": 40
 					},
 					{
 						"cell_type": "code",
@@ -61288,7 +61369,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/01_DIST_STDimensions"
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 41
 					},
 					{
 						"cell_type": "code",
@@ -61333,7 +61414,7 @@
 							"stcsdoutofserviceparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stcsdoutofserviceparcel.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 9
+						"execution_count": 42
 					},
 					{
 						"cell_type": "code",
@@ -61370,7 +61451,7 @@
 							"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 43
 					},
 					{
 						"cell_type": "code",
@@ -61390,7 +61471,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/02_DIST_STLMSTrack"
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 44
 					},
 					{
 						"cell_type": "code",
@@ -61410,7 +61491,7 @@
 							"stvsmparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stvsmparcel.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 12
+						"execution_count": 45
 					},
 					{
 						"cell_type": "code",
@@ -61483,7 +61564,7 @@
 							"stlocation.createOrReplaceTempView(\"stlocation\")"
 						],
 						"outputs": [],
-						"execution_count": 13
+						"execution_count": 46
 					},
 					{
 						"cell_type": "code",
@@ -61503,7 +61584,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/03_DIST_STParcel"
 						],
 						"outputs": [],
-						"execution_count": 14
+						"execution_count": 49
 					},
 					{
 						"cell_type": "code",
@@ -61522,7 +61603,7 @@
 							"stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 15
+						"execution_count": 50
 					},
 					{
 						"cell_type": "code",
@@ -61559,7 +61640,7 @@
 							"sstconsignmentunion.createOrReplaceTempView(\"sstconsignmentunion\")"
 						],
 						"outputs": [],
-						"execution_count": 16
+						"execution_count": 51
 					},
 					{
 						"cell_type": "code",
@@ -61579,7 +61660,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/04_DIST_STOrder"
 						],
 						"outputs": [],
-						"execution_count": 17
+						"execution_count": 52
 					},
 					{
 						"cell_type": "code",
@@ -61598,7 +61679,7 @@
 							"storder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/storder.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 18
+						"execution_count": 53
 					},
 					{
 						"cell_type": "code",
@@ -61645,7 +61726,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 19
+						"execution_count": 57
 					},
 					{
 						"cell_type": "code",
@@ -61665,7 +61746,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/05_DIST_STConsignment"
 						],
 						"outputs": [],
-						"execution_count": 20
+						"execution_count": 59
 					},
 					{
 						"cell_type": "code",
@@ -61684,7 +61765,7 @@
 							"stconsignment.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stconsignment.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 21
+						"execution_count": 60
 					},
 					{
 						"cell_type": "code",
@@ -61723,7 +61804,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 22
+						"execution_count": 61
 					},
 					{
 						"cell_type": "code",
@@ -61743,7 +61824,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/06_DIST_STWaybill"
 						],
 						"outputs": [],
-						"execution_count": 23
+						"execution_count": 62
 					},
 					{
 						"cell_type": "code",
@@ -61762,7 +61843,7 @@
 							"stwaybill.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 24
+						"execution_count": 63
 					},
 					{
 						"cell_type": "code",
@@ -61787,7 +61868,7 @@
 							"sstparcelbyload.createOrReplaceTempView(\"sstparcelbyload\")"
 						],
 						"outputs": [],
-						"execution_count": 25
+						"execution_count": 64
 					},
 					{
 						"cell_type": "code",
@@ -61807,7 +61888,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/07_DIST_STLoadChild"
 						],
 						"outputs": [],
-						"execution_count": 26
+						"execution_count": 65
 					},
 					{
 						"cell_type": "code",
@@ -61826,7 +61907,7 @@
 							"stloadchild.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 27
+						"execution_count": 66
 					},
 					{
 						"cell_type": "code",
@@ -61881,7 +61962,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 28
+						"execution_count": 67
 					},
 					{
 						"cell_type": "code",
@@ -61901,7 +61982,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/08_DIST_STLoadParent"
 						],
 						"outputs": [],
-						"execution_count": 29
+						"execution_count": 68
 					},
 					{
 						"cell_type": "code",
@@ -61920,7 +62001,7 @@
 							"stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 30
+						"execution_count": 69
 					},
 					{
 						"cell_type": "code",
@@ -61941,7 +62022,7 @@
 							"dbodc_transfer.createOrReplaceTempView(\"dbodc_transfer\")"
 						],
 						"outputs": [],
-						"execution_count": 31
+						"execution_count": 70
 					},
 					{
 						"cell_type": "code",
@@ -61961,7 +62042,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/09_DIST_STDCTransfer"
 						],
 						"outputs": [],
-						"execution_count": 32
+						"execution_count": 71
 					},
 					{
 						"cell_type": "code",
@@ -61980,7 +62061,7 @@
 							"stdctransfer.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdctransfer.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 33
+						"execution_count": 72
 					},
 					{
 						"cell_type": "code",
@@ -62014,7 +62095,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 34
+						"execution_count": 73
 					},
 					{
 						"cell_type": "code",
@@ -62034,7 +62115,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/10_DIST_STEndorsments"
 						],
 						"outputs": [],
-						"execution_count": 35
+						"execution_count": 74
 					},
 					{
 						"cell_type": "code",
@@ -62053,7 +62134,7 @@
 							"stendorsments.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stendorsments.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 36
+						"execution_count": 75
 					},
 					{
 						"cell_type": "code",
@@ -62091,7 +62172,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 37
+						"execution_count": 76
 					},
 					{
 						"cell_type": "code",
@@ -62111,7 +62192,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/11_1_DIST_STCollection"
 						],
 						"outputs": [],
-						"execution_count": 38
+						"execution_count": 77
 					},
 					{
 						"cell_type": "code",
@@ -62130,7 +62211,7 @@
 							"stcollection.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stcollection.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 39
+						"execution_count": 78
 					},
 					{
 						"cell_type": "code",
@@ -62147,7 +62228,7 @@
 						},
 						"source": [
 							"#Create DataFrame for the dbodamagedparcelaudit LMS Table\r\n",
-							"dbodamagedparcelaudit = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamagedparcelaudit.parquet', format='parquet')\r\n",
+							"dbodamagedparcelaudit = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit.parquet', format='parquet')\r\n",
 							"dbodamagedparcelaudit.createOrReplaceTempView(\"dbodamagedparcelaudit\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the stdamagedparcelauditfluteprofiles LMS Table\r\n",
@@ -62172,7 +62253,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 40
+						"execution_count": 79
 					},
 					{
 						"cell_type": "code",
@@ -62192,7 +62273,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/11_2_DIST_STParcelDamagedAudit"
 						],
 						"outputs": [],
-						"execution_count": 41
+						"execution_count": 80
 					},
 					{
 						"cell_type": "code",
@@ -62211,7 +62292,7 @@
 							"stdamagedparcelaudit.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdamagedparcelaudit.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 42
+						"execution_count": 81
 					},
 					{
 						"cell_type": "code",
@@ -62228,23 +62309,23 @@
 						},
 						"source": [
 							"#Create DataFrame for the dboclaimsclaimdetail LMS Table\r\n",
-							"dboclaimsclaimdetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimdetail.parquet', format='parquet')\r\n",
+							"dboclaimsclaimdetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_claimdetail.parquet', format='parquet')\r\n",
 							"dboclaimsclaimdetail.createOrReplaceTempView(\"dboclaimsclaimdetail\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the dboclaimsclaimreason LMS Table\r\n",
-							"dboclaimsclaimreason = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimreason.parquet', format='parquet')\r\n",
+							"dboclaimsclaimreason = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_claimreason.parquet', format='parquet')\r\n",
 							"dboclaimsclaimreason.createOrReplaceTempView(\"dboclaimsclaimreason\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the dboclaimsclaimstatus LMS Table\r\n",
-							"dboclaimsclaimstatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsclaimstatus.parquet', format='parquet')\r\n",
+							"dboclaimsclaimstatus = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_claimstatus.parquet', format='parquet')\r\n",
 							"dboclaimsclaimstatus.createOrReplaceTempView(\"dboclaimsclaimstatus\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the dboclaimsrejectionreasons LMS Table\r\n",
-							"dboclaimsrejectionreasons = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaimsrejectionreasons.parquet', format='parquet')\r\n",
+							"dboclaimsrejectionreasons = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboclaims_rejectionreasons.parquet', format='parquet')\r\n",
 							"dboclaimsrejectionreasons.createOrReplaceTempView(\"dboclaimsrejectionreasons\")"
 						],
 						"outputs": [],
-						"execution_count": 43
+						"execution_count": 82
 					},
 					{
 						"cell_type": "code",
@@ -62264,7 +62345,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/11_3_DIST_STClaimDetail"
 						],
 						"outputs": [],
-						"execution_count": 44
+						"execution_count": 83
 					},
 					{
 						"cell_type": "code",
@@ -62283,7 +62364,7 @@
 							"stclaimsclaimdetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stclaimsclaimdetail.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 45
+						"execution_count": 84
 					},
 					{
 						"cell_type": "code",
@@ -62342,7 +62423,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 46
+						"execution_count": 85
 					},
 					{
 						"cell_type": "code",
@@ -62362,7 +62443,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/12_DIST_ST3MonthRoling"
 						],
 						"outputs": [],
-						"execution_count": 47
+						"execution_count": 86
 					},
 					{
 						"cell_type": "code",
@@ -62391,7 +62472,7 @@
 							"stclaimsclaimdetail3myoy.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stclaimsclaimdetail3myoy.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 48
+						"execution_count": 87
 					},
 					{
 						"cell_type": "code",
@@ -62426,7 +62507,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 49
+						"execution_count": 88
 					},
 					{
 						"cell_type": "code",
@@ -62446,7 +62527,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/13_DIST_STOpsFinTransactions"
 						],
 						"outputs": [],
-						"execution_count": 50
+						"execution_count": 89
 					},
 					{
 						"cell_type": "code",
@@ -62465,7 +62546,7 @@
 							"stopsfintransactions.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stopsfintransactions.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 51
+						"execution_count": 90
 					},
 					{
 						"cell_type": "code",
@@ -62489,7 +62570,7 @@
 							"mrp_csv_files = spark.read.option(\"header\", True).csv(var_File_Path)"
 						],
 						"outputs": [],
-						"execution_count": 52
+						"execution_count": 91
 					},
 					{
 						"cell_type": "code",
@@ -62509,7 +62590,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/14_DIST_STReadMRPFiles"
 						],
 						"outputs": [],
-						"execution_count": 53
+						"execution_count": 92
 					},
 					{
 						"cell_type": "code",
@@ -62530,7 +62611,7 @@
 							"sttransfers.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttransfers.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 54
+						"execution_count": 93
 					},
 					{
 						"cell_type": "code",
@@ -62551,7 +62632,7 @@
 							"publicretroanalysis.createOrReplaceTempView(\"publicretroanalysis\")"
 						],
 						"outputs": [],
-						"execution_count": 55
+						"execution_count": 94
 					},
 					{
 						"cell_type": "code",
@@ -62571,7 +62652,7 @@
 							"%run TRANSFORM/02 STRUCTURED/Ops/Distribution/15_DIST_STRetroDispatch"
 						],
 						"outputs": [],
-						"execution_count": 56
+						"execution_count": 95
 					},
 					{
 						"cell_type": "code",
@@ -62590,7 +62671,7 @@
 							"stretroanalysis.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stretroanalysis.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 57
+						"execution_count": 96
 					},
 					{
 						"cell_type": "code",
@@ -62609,7 +62690,7 @@
 							"print(\"SUCCESS\")"
 						],
 						"outputs": [],
-						"execution_count": 58
+						"execution_count": 97
 					}
 				]
 			},
@@ -62630,16 +62711,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
-						"spark.dynamicAllocation.enabled": "true",
+						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
-						"spark.dynamicAllocation.maxExecutors": "4",
-						"spark.autotune.trackingId": "2e9fea79-56cd-438a-aac4-a505ebf77d4c"
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "1c63adec-1b00-4d58-a780-51fada9d404f"
 					}
 				},
 				"metadata": {
@@ -64351,7 +64432,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "575ea0ed-c606-427a-bb1f-56421690e327"
+						"spark.autotune.trackingId": "20a8c0ae-91c5-442d-b8b1-9e6e5d404ac6"
 					}
 				},
 				"metadata": {
@@ -64376,13 +64457,15 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"# if 'prod' in Environment:\r\n",

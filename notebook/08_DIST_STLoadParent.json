@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "0130ba52-e8b8-48c9-9353-90bc5417455c"
+				"spark.autotune.trackingId": "930d22be-782b-451a-b3b7-3dbeb0689b9f"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -103,10 +103,6 @@
 					"# #Create DataFrame for the stsroute LMS Table\r\n",
 					"# stsroute = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', format='parquet')\r\n",
 					"# stsroute.createOrReplaceTempView(\"stsroute\")\r\n",
-					"\r\n",
-					"# #Create DataFrame for the stlmstrack LMS Table\r\n",
-					"# stlmstrack = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', format='parquet')\r\n",
-					"# stlmstrack.createOrReplaceTempView(\"stlmstrack\")\r\n",
 					"\r\n",
 					"# #Create DataFrame for the stwaybill LMS Table\r\n",
 					"# stwaybill = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', format='parquet')\r\n",
@@ -136,9 +132,13 @@
 					"# publiccourier = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publiccourier.parquet', format='parquet')\r\n",
 					"# publiccourier.createOrReplaceTempView(\"publiccourier\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the stlocation LMS Table\r\n",
+					"# stlocation = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stlocation.parquet', format='parquet')\r\n",
+					"# stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 56
 			},
 			{
 				"cell_type": "code",
@@ -157,7 +157,7 @@
 					"# from pyspark.sql.functions import *\r\n",
 					"# from pyspark.sql.window import Window"
 				],
-				"execution_count": 3
+				"execution_count": 57
 			},
 			{
 				"cell_type": "code",
@@ -177,7 +177,7 @@
 					"stloadchild = stloadchild.withColumn(\"rn\",row_number().over(partitionparent))\r\n",
 					"stloadchild.createOrReplaceTempView(\"stloadchild\")"
 				],
-				"execution_count": 10
+				"execution_count": 58
 			},
 			{
 				"cell_type": "code",
@@ -197,7 +197,7 @@
 					"publicdispatch = publicdispatch.withColumn(\"rn\",row_number().over(partitionlmsid))\r\n",
 					"publicdispatch.createOrReplaceTempView(\"publicdispatch\")"
 				],
-				"execution_count": 11
+				"execution_count": 59
 			},
 			{
 				"cell_type": "code",
@@ -231,16 +231,20 @@
 					"        WHEN sum(lms_sroute_localflag)/count(lms_sroute_localflag) = 2 THEN 'Cross Border'\r\n",
 					"        ELSE 'Mixed'   \r\n",
 					"    END as lms_loadchild_type\r\n",
-					"\r\n",
+					"    ,MIN(tr.lms_track_opendt) as lms_loadparent_minopendt\r\n",
+					"    ,MAX(tr.lms_track_opendt) as lms_loadparent_maxopendt\r\n",
+					"    ,MIN(tr.lms_track_closedt) as lms_loadparent_minclosedt\r\n",
+					"    ,MAX(tr.lms_track_closedt) as lms_loadparent_maxclosedt\r\n",
 					"\r\n",
 					"FROM stlmstrack tr \r\n",
 					"LEFT JOIN stwaybill w on w.lms_waybill_id = tr.lms_track_waybillid\r\n",
 					"LEFT JOIN stdeliverypickupcustomer c on c.lms_customer_id = w.lms_waybill_delivercustid\r\n",
 					"LEFT JOIN stsroute s on s.lms_sroute_id = c.lms_customer_srouteid\r\n",
 					"\r\n",
-					"GROUP BY lms_track_loadparenetloadid"
+					"GROUP BY \r\n",
+					"lms_track_loadparenetloadid"
 				],
-				"execution_count": 5
+				"execution_count": 60
 			},
 			{
 				"cell_type": "code",
@@ -258,7 +262,7 @@
 				"source": [
 					"stlmstrack_tmp = spark.sql(\"SELECT * FROM stlmstrack_tmp\")"
 				],
-				"execution_count": 6
+				"execution_count": 61
 			},
 			{
 				"cell_type": "code",
@@ -280,7 +284,7 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"stloadparent_tmp\r\n",
+					"stloadparent_tmp1\r\n",
 					"AS\r\n",
 					"SELECT \r\n",
 					"    lc.lms_loadchild_parentloadid\r\n",
@@ -307,6 +311,11 @@
 					"    ,sum(lc.lms_loadchild_aggrvolumiserweightexclspecdel) as lms_loadchild_aggrvolumiserweightexclspecdel\r\n",
 					"    ,sum(lc.lms_loadchild_aggrmaxweightexclspecdel) as lms_loadchild_aggrmaxweightexclspecdel\r\n",
 					"    ,sum(lc.lms_loadchild_aggrnoparcelsexclspecdel) as lms_loadchild_aggrnoparcelsexclspecdel\r\n",
+					"    ,tr.lms_loadparent_minopendt\r\n",
+					"    ,tr.lms_loadparent_maxopendt\r\n",
+					"    ,tr.lms_loadparent_minclosedt\r\n",
+					"    ,tr.lms_loadparent_maxclosedt\r\n",
+					"\r\n",
 					"FROM stloadchild lc \r\n",
 					"LEFT JOIN stloadchild lc2 on lc2.lms_loadchild_parentloadid = lc.lms_loadchild_parentloadid and lc2.rn = 1\r\n",
 					"LEFT JOIN stlmstrack_tmp tr on tr.lms_track_loadparenetloadid = lc.lms_loadchild_parentloadid\r\n",
@@ -321,9 +330,12 @@
 					"    ,lc2.lms_loadchild_tolocid\r\n",
 					"    ,tr.lms_loadchild_type\r\n",
 					"    ,lc2.lms_loadchild_ttypeid\r\n",
-					""
+					"    ,tr.lms_loadparent_minopendt\r\n",
+					"    ,tr.lms_loadparent_maxopendt\r\n",
+					"    ,tr.lms_loadparent_minclosedt\r\n",
+					"    ,tr.lms_loadparent_maxclosedt"
 				],
-				"execution_count": 7
+				"execution_count": 65
 			},
 			{
 				"cell_type": "code",
@@ -339,9 +351,38 @@
 					}
 				},
 				"source": [
-					"stloadparent_tmp = spark.sql(\"SELECT * FROM stloadparent_tmp\")"
+					"stloadparent_tmp1 = spark.sql(\"SELECT * FROM stloadparent_tmp1\")"
 				],
-				"execution_count": 8
+				"execution_count": 66
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"SELECT\r\n",
+					"lms_loadchild_parentloadid\r\n",
+					",COUNT(*)\r\n",
+					"from\r\n",
+					"stloadparent_tmp1\r\n",
+					"group BY lms_loadchild_parentloadid\r\n",
+					"having COUNT(*) > 1"
+				],
+				"execution_count": 67
 			},
 			{
 				"cell_type": "code",
@@ -363,7 +404,7 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"stloadparent\r\n",
+					"stloadparent_tmp2\r\n",
 					"AS\r\n",
 					"SELECT\r\n",
 					"    t.lms_loadchild_parentloadid as  lms_loadparent_parentloadid \r\n",
@@ -495,41 +536,339 @@
 					"\t,(x.durationseconds)/3600 as orv_dispatch_durationhours\r\n",
 					"\t,to_timestamp(x.timeduebackatdepot) as orv_dispatch_timeduebackatdepot\r\n",
 					"\t,to_timestamp(x.lastcanceleddeltodepotime) as orv_dispatch_lastcanceleddeltodepotime\r\n",
-					"    ,(d.stopdate - coalesce(x.timeduebackatdepot,x.lastcanceleddeltodepotime))/3600  orv_dispatch_difstopdatevstimedueback\r\n",
+					"    ,(d.stopdate - COALESCE(x.timeduebackatdepot,x.lastcanceleddeltodepotime))/3600  orv_dispatch_difstopdatevstimedueback\r\n",
 					"    ,CASE \r\n",
 					"        WHEN to_date(to_timestamp(d.startdate)) = to_date(to_timestamp(d.stopdate)) THEN 1\r\n",
 					"        ELSE 0\r\n",
 					"    END AS orv_dispatch_completesameday\r\n",
 					"    ,CASE\r\n",
-					"        WHEN (d.startdate + 1800) > coalesce(d.tsstartdepoexitapp,d.tsstartdepoexit) THEN 1\r\n",
+					"        WHEN (d.startdate + 1800) > COALESCE(d.tsstartdepoexitapp,d.tsstartdepoexit)\r\n",
+					"        THEN 1\r\n",
 					"        ELSE 0\r\n",
 					"    END AS orv_dispatch_latedepotexitflag\r\n",
 					"    ,CASE\r\n",
-					"        WHEN (x.timeduebackatdepot + 1800) > coalesce(d.tsstopdepoenter,d.tsstopdepoenterapp) THEN 1\r\n",
+					"        WHEN (x.timeduebackatdepot + 1800) > COALESCE(d.tsstopdepoenter,d.tsstopdepoenterapp)\r\n",
+					"        THEN 1 \r\n",
 					"        ELSE 0\r\n",
 					"    END AS orv_dispatch_latedepotenterflag\r\n",
 					"    ,CASE\r\n",
-					"        WHEN coalesce(d.startdate,coalesce(d.tsstartdepoexitapp,d.tsstartdepoexit)) IS NULL THEN 1\r\n",
+					"        WHEN COALESCE(d.startdate,COALESCE(d.tsstartdepoexitapp,d.tsstartdepoexit)) IS NULL THEN 1\r\n",
 					"        ELSE 0\r\n",
 					"    END AS orv_dispatch_latedepotexitflagnull\r\n",
 					"    ,CASE\r\n",
-					"        WHEN coalesce(x.timeduebackatdepot,coalesce(d.tsstopdepoenter,d.tsstopdepoenterapp)) IS NULL THEN 1\r\n",
+					"        WHEN COALESCE(x.timeduebackatdepot,COALESCE(d.tsstopdepoenter,d.tsstopdepoenterapp)) IS NULL THEN 1\r\n",
 					"        ELSE 0\r\n",
 					"    END AS orv_dispatch_latedepotenterflagnull\r\n",
 					"    ,c.cexternal as orv_dispatch_cexternal\r\n",
 					"    ,CASE\r\n",
-					"        WHEN d.stopdate > (coalesce(d.tsstopdepoenter,d.tsstopdepoenterapp) + 900) THEN 1\r\n",
+					"        WHEN d.stopdate > (COALESCE(d.tsstopdepoenter,d.tsstopdepoenterapp) + 900) THEN 1\r\n",
 					"        ELSE 0\r\n",
 					"    END AS orv_dispatch_latestopdateflag\r\n",
+					"    ,MIN(w.orv_delivery_tsscanningstart) as orv_delivery_mintsscanningstart\r\n",
+					"    ,COALESCE(MIN(w.orv_delivery_tsgeofenceenter),MIN(w.orv_delivery_tsentergeofenceapp)) as orv_delivery_mintsgeofenceenter\r\n",
+					"    ,MAX(w.orv_delivery_tspodsignature) as orv_delivery_maxtspodsignature\r\n",
+					"    ,COALESCE(MAX(w.orv_delivery_tsexitgeofenceapp),MAX(w.orv_delivery_tspodsignature)) as orv_delivery_maxtsexitgeofenceapp\r\n",
+					"    ,CAST(lms_location_latitude as DOUBLE)\r\n",
+					"    ,CAST(lms_location_longitude as DOUBLE)\r\n",
+					"    ,t.lms_loadparent_minopendt\r\n",
+					"    ,t.lms_loadparent_maxopendt\r\n",
+					"    ,t.lms_loadparent_minclosedt\r\n",
+					"    ,t.lms_loadparent_maxclosedt\r\n",
 					"\r\n",
-					"FROM stloadparent_tmp t\r\n",
+					"FROM stloadparent_tmp1 t\r\n",
 					"LEFT JOIN publicdispatch d on d.lmsid = t.lms_loadchild_parentloadid and d.vehicletype = 6 and d.rn = 1\r\n",
 					"LEFT JOIN publicreportdistotmgntdispatchdt x on x.dispatchid = d.id\r\n",
 					"LEFT JOIN stmdvehicle v on v.md_vehicle_lmsid = t.lms_loadchild_vehicleid\r\n",
 					"LEFT JOIN publiccourier c on d.courierid = c.id\r\n",
+					"LEFT JOIN stwaybill w on t.lms_loadchild_parentloadid = w.lms_waybill_loadid\r\n",
+					"LEFT JOIN stlocation l on t.lms_loadchild_fromlocid = l.lms_location_id\r\n",
+					"\r\n",
+					"GROUP BY\r\n",
+					"t.lms_loadchild_parentloadid\r\n",
+					",t.lms_loadchild_vehicleid\r\n",
+					",t.lms_loadchild_ldate\r\n",
+					",t.lms_loadchild_vehodo\r\n",
+					",t.lms_loadchild_vehodo2\r\n",
+					",t.lms_loadchild_fromlocid\r\n",
+					",t.lms_loadchild_tolocid\r\n",
+					",t.lms_loadchild_ttypeid\r\n",
+					",t.lms_loadchild_type\r\n",
+					",t.lms_loadchild_aggrweight \r\n",
+					",t.lms_loadchild_aggrchargeweight\r\n",
+					",t.lms_loadchild_aggrvolweight\r\n",
+					",t.lms_loadchild_aggrvolumiserweight\r\n",
+					",t.lms_loadchild_aggrmaxweight\r\n",
+					",t.lms_loadchild_aggrnoparcels\r\n",
+					",t.lms_loadchild_aggrweightexclspecdel\r\n",
+					",t.lms_loadchild_aggrchargeweightexclspecdel\r\n",
+					",t.lms_loadchild_aggrvolweightexclspecdel\r\n",
+					",t.lms_loadchild_aggrvolumiserweightexclspecdel\r\n",
+					",t.lms_loadchild_aggrmaxweightexclspecdel\r\n",
+					",t.lms_loadchild_aggrnoparcelsexclspecdel\r\n",
+					",v.md_vehicle_vehicletype\r\n",
+					",v.md_vehicle_internalvolume\r\n",
+					",d.id\r\n",
+					",d.lmsid\r\n",
+					",d.vid\r\n",
+					",d.did\r\n",
+					",d.status\r\n",
+					",to_timestamp(d.startdate)\r\n",
+					",to_timestamp(d.stopdate)\r\n",
+					",d.vehicletype\r\n",
+					",d.uid\r\n",
+					",to_timestamp(d.estdepdate)\r\n",
+					",d.trailer\r\n",
+					",d.trailer2\r\n",
+					",d.fromlocid\r\n",
+					",d.tolocid\r\n",
+					",d.site\r\n",
+					",to_timestamp(d.lastupdate)\r\n",
+					",d.etastatus\r\n",
+					",d.startinglat\r\n",
+					",d.startinglng\r\n",
+					",d.endinglat\r\n",
+					",d.endinglng\r\n",
+					",d.startingfrom\r\n",
+					",d.goingto\r\n",
+					",d.importissue\r\n",
+					",to_timestamp(d.insdate)\r\n",
+					",to_timestamp(d.estarrdate)\r\n",
+					",d.duration\r\n",
+					",d.distance\r\n",
+					",d.cost\r\n",
+					",d.stoplat\r\n",
+					",d.stoplng\r\n",
+					",d.stopreason\r\n",
+					",d.startodo\r\n",
+					",d.stopodo\r\n",
+					",d.expduration\r\n",
+					",d.expdistance\r\n",
+					",d.expcost\r\n",
+					",d.collectionid\r\n",
+					",d.crew\r\n",
+					",d.crewnames\r\n",
+					",d.bocloseuid\r\n",
+					",d.routing\r\n",
+					",d.swapct\r\n",
+					",d.debriefed\r\n",
+					",d.debriefnotes\r\n",
+					",d.bopin\r\n",
+					",d.cpicost\r\n",
+					",d.labourcost\r\n",
+					",d.maintcost\r\n",
+					",d.inscost\r\n",
+					",d.tollcost\r\n",
+					",d.fuelcost\r\n",
+					",d.internal\r\n",
+					",d.childids\r\n",
+					",d.guid\r\n",
+					",d.timedefinite\r\n",
+					",d.orvcode\r\n",
+					",to_timestamp(d.tsstopdepoenter)\r\n",
+					",to_timestamp(d.tsstartdepoexit)\r\n",
+					",d.reroutect\r\n",
+					",to_timestamp(d.actualarrdate)\r\n",
+					",d.physicalstartlat\r\n",
+					",d.physicalstartlng\r\n",
+					",to_timestamp(d.tsstartdepoexitapp)\r\n",
+					",to_timestamp(d.tsstopdepoenterapp)\r\n",
+					",to_timestamp(d.uncanceldate)\r\n",
+					",d.uncancelusername\r\n",
+					",d.lmsdebrifed\r\n",
+					",d.reviseddebrief\r\n",
+					",d.lhtransporter\r\n",
+					",d.triptype\r\n",
+					",d.startreason\r\n",
+					",d.route\r\n",
+					",d.tmstraileridentify\r\n",
+					",d.tmstrailer2identify\r\n",
+					",d.tmscontroller\r\n",
+					",d.routekey\r\n",
+					",d.courierid\r\n",
+					",to_timestamp(d.originalstartdate)\r\n",
+					",to_timestamp(d.originalextarrival)\r\n",
+					",d.recomputeoriginals\r\n",
+					",d.originalextdistance\r\n",
+					",d.originalextduration\r\n",
+					",to_timestamp(d.moddate)\r\n",
+					",d.tmsmode\r\n",
+					",d.driversignature\r\n",
+					",to_timestamp(x.exitdepot)\r\n",
+					",to_timestamp(x.enterdepot)\r\n",
+					",to_timestamp(x.fdeliverydate)\r\n",
+					",to_timestamp(x.fdeltsgeofenceenter)\r\n",
+					",to_timestamp(x.fdeltsscanningstart)\r\n",
+					",to_timestamp(x.fdeltsscanningstop)\r\n",
+					",to_timestamp(x.fdeltspodsignature)\r\n",
+					",x.fdelnumprcls\r\n",
+					",to_timestamp(x.deliverydate)\r\n",
+					",to_timestamp(x.ldeltsgeofenceenter)\r\n",
+					",to_timestamp(x.ldeltsscanningstart)\r\n",
+					",to_timestamp(x.ldeltsscanningstop)\r\n",
+					",to_timestamp(x.ldeltspodsignature)\r\n",
+					",x.ldelnumprcls\r\n",
+					",x.fromdelid\r\n",
+					",x.todelid\r\n",
+					",x.distancemeters\r\n",
+					",(x.durationseconds)/3600\r\n",
+					",to_timestamp(x.timeduebackatdepot)\r\n",
+					",to_timestamp(x.lastcanceleddeltodepotime)\r\n",
+					",d.stopdate\r\n",
+					",x.timeduebackatdepot\r\n",
+					",x.lastcanceleddeltodepotime\r\n",
+					",d.startdate\r\n",
+					",d.tsstartdepoexitapp\r\n",
+					",d.tsstartdepoexit\r\n",
+					",d.tsstopdepoenter\r\n",
+					",d.tsstopdepoenterapp\r\n",
+					",c.cexternal\r\n",
+					",CAST(lms_location_latitude as DOUBLE)\r\n",
+					",CAST(lms_location_longitude as DOUBLE)\r\n",
+					",t.lms_loadparent_minopendt\r\n",
+					",t.lms_loadparent_maxopendt\r\n",
+					",t.lms_loadparent_minclosedt\r\n",
+					",t.lms_loadparent_maxclosedt"
+				],
+				"execution_count": 68
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stloadparent_tmp2 = spark.sql(\"SELECT * FROM stloadparent_tmp2\")"
+				],
+				"execution_count": 69
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stloadparent_tmp3 = stloadparent_tmp2.withColumn(\"a\", pow(sin(radians (col(\"orv_dispatch_startinglat\") - col(\"lms_location_latitude\")) / 2), 2) + cos(radians (\"lms_location_latitude\")) * cos(radians (col(\"orv_dispatch_startinglat\"))) * pow(sin(radians (col(\"orv_dispatch_startinglng\") - col(\"lms_location_longitude\")) / 2), 2)).withColumn(\"orv_dispatch_startdistancefromdepot\", atan2(sqrt(col(\"a\")), sqrt(-col(\"a\") + 1)) * 2 * 6371)"
+				],
+				"execution_count": 70
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stloadparent_tmp3.createOrReplaceTempView(\"stloadparent_tmp3\")"
+				],
+				"execution_count": 71
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stloadparent_tmp4 = stloadparent_tmp3.withColumn(\"a\", pow(sin(radians (col(\"orv_dispatch_stoplat\") - col(\"orv_dispatch_endinglat\")) / 2), 2) + cos(radians (\"orv_dispatch_endinglat\")) * cos(radians (col(\"orv_dispatch_stoplat\"))) * pow(sin(radians (col(\"orv_dispatch_stoplng\") - col(\"orv_dispatch_endinglng\")) / 2), 2)).withColumn(\"orv_dispatch_stopdistancefromdepot\", atan2(sqrt(col(\"a\")), sqrt(-col(\"a\") + 1)) * 2 * 6371)"
+				],
+				"execution_count": 72
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stloadparent_tmp4.createOrReplaceTempView(\"stloadparent_tmp4\")"
+				],
+				"execution_count": 73
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stloadparent\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"*\r\n",
+					",to_unix_timestamp(orv_delivery_mintsscanningstart) - to_unix_timestamp(COALESCE(orv_dispatch_tsstartdepoexitapp,orv_dispatch_tsstartdepoexit)) as orv_dispatch_exitscanningstartdiff\r\n",
+					",to_unix_timestamp(orv_delivery_mintsscanningstart) - to_unix_timestamp(orv_delivery_mintsgeofenceenter) as orv_dispatch_geoenterscanningstartdiff\r\n",
+					",to_unix_timestamp(orv_delivery_maxtspodsignature) - to_unix_timestamp(orv_delivery_maxtsexitgeofenceapp) as orv_dispatch_podgeoexitdiff\r\n",
+					",to_unix_timestamp(COALESCE(orv_dispatch_tsstopdepoenter,orv_dispatch_tsstopdepoenterapp)) - to_unix_timestamp(orv_delivery_maxtspodsignature) as orv_dispatch_podenterdiff\r\n",
+					",CASE\r\n",
+					"    WHEN orv_dispatch_startdistancefromdepot > 0.3\r\n",
+					"    THEN 1\r\n",
+					"    ELSE 0\r\n",
+					"END AS orv_dispatch_startdistancefromdepotflag\r\n",
+					",CASE\r\n",
+					"    WHEN orv_dispatch_stopdistancefromdepot > 0.3\r\n",
+					"    THEN 1\r\n",
+					"    ELSE 0\r\n",
+					"END AS orv_dispatch_stopdistancefromdepotflag\r\n",
+					",to_unix_timestamp(lms_loadparent_maxopendt) - to_unix_timestamp(lms_loadparent_minopendt) as lms_loadparent_loadduration\r\n",
+					",to_unix_timestamp(lms_loadparent_maxclosedt) - to_unix_timestamp(lms_loadparent_minclosedt) as lms_loadparent_offloadduration\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM\r\n",
+					"stloadparent_tmp4\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": 10
+				"execution_count": 74
 			},
 			{
 				"cell_type": "code",
@@ -547,7 +886,7 @@
 				"source": [
 					"stloadparent = spark.sql(\"SELECT * FROM stloadparent\")"
 				],
-				"execution_count": 11
+				"execution_count": 75
 			},
 			{
 				"cell_type": "code",
@@ -563,9 +902,9 @@
 					}
 				},
 				"source": [
-					"stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
+					"# stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 12
+				"execution_count": 76
 			},
 			{
 				"cell_type": "code",
@@ -583,7 +922,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 19
+				"execution_count": 38
 			}
 		]
 	}

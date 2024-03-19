@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "b65fbe0c-5944-4b36-89e5-d7a664102455"
+				"spark.autotune.trackingId": "5867baa4-4b7b-4a12-8f2a-cc31515dc253"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 7
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -161,7 +161,7 @@
 					"# publicbooking.createOrReplaceTempView(\"publicbooking\")\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -180,7 +180,7 @@
 					"# from pyspark.sql.functions import *\r\n",
 					"# from pyspark.sql.window import Window"
 				],
-				"execution_count": null
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -198,7 +198,7 @@
 				"source": [
 					"partitionfirst=Window.partitionBy(\"LoadID\").orderBy(col(\"ID\").asc())"
 				],
-				"execution_count": null
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -216,7 +216,7 @@
 				"source": [
 					"partitionlast=Window.partitionBy(\"LoadID\").orderBy(col(\"ID\").desc())"
 				],
-				"execution_count": null
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -234,7 +234,7 @@
 				"source": [
 					"ssttrackunion = ssttrackunion.withColumn(\"lms_track_firstscan\",row_number().over(partitionfirst))"
 				],
-				"execution_count": null
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -252,7 +252,7 @@
 				"source": [
 					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")"
 				],
-				"execution_count": null
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -270,7 +270,7 @@
 				"source": [
 					"ssttrackunion = ssttrackunion.withColumn(\"lms_track_lastscan\",row_number().over(partitionlast))"
 				],
-				"execution_count": null
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -288,7 +288,7 @@
 				"source": [
 					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")"
 				],
-				"execution_count": null
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -304,7 +304,8 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
@@ -324,7 +325,7 @@
 					"AND l.masterloadid IS NOT NULL\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -342,7 +343,7 @@
 				"source": [
 					"stlmstrackfirstscan = spark.sql(\"SELECT * FROM stlmstrackfirstscan\")"
 				],
-				"execution_count": null
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -358,7 +359,8 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
@@ -377,7 +379,7 @@
 					"AND l.masterloadid IS NOT NULL\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -395,7 +397,7 @@
 				"source": [
 					"stlmstracklastscan = spark.sql(\"SELECT * FROM stlmstracklastscan\")"
 				],
-				"execution_count": null
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -411,7 +413,8 @@
 					},
 					"microsoft": {
 						"language": "sparksql"
-					}
+					},
+					"collapsed": false
 				},
 				"source": [
 					"%%sql\r\n",
@@ -429,7 +432,7 @@
 					"FROM stlmstrackfirstscan t1\r\n",
 					"LEFT JOIN stlmstracklastscan t2 on t2.lms_track_loadid = t1.lms_track_loadid"
 				],
-				"execution_count": null
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -447,7 +450,7 @@
 				"source": [
 					"stlmstrackscantime = spark.sql(\"SELECT * FROM stlmstrackscantime\")"
 				],
-				"execution_count": null
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -465,7 +468,7 @@
 				"source": [
 					"# stlmstrackscantime.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmstrackscantime.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": null
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -510,7 +513,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 51
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -528,7 +531,7 @@
 				"source": [
 					"stdriverpay = spark.sql(\"SELECT * FROM stdriverpay\")"
 				],
-				"execution_count": 52
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -546,7 +549,7 @@
 				"source": [
 					"# stdriverpay.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stdriverpay.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 53
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -589,7 +592,7 @@
 					"\r\n",
 					"FROM publicfuelcard f"
 				],
-				"execution_count": 2
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -608,7 +611,7 @@
 					"\r\n",
 					"stfuelcard = spark.sql(\"SELECT * FROM stfuelcard\")"
 				],
-				"execution_count": 3
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -627,7 +630,7 @@
 					"\r\n",
 					"# stfuelcard.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stfuelcard.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 4
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -665,7 +668,7 @@
 					"FROM publicfuelzone f\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -684,7 +687,7 @@
 					"\r\n",
 					"stfuelzone = spark.sql(\"SELECT * FROM stfuelzone\")"
 				],
-				"execution_count": 7
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -703,7 +706,7 @@
 					"\r\n",
 					"# stfuelzone.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stfuelzone.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 8
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -742,7 +745,7 @@
 					"FROM publicfuelzonehistory f\r\n",
 					""
 				],
-				"execution_count": 16
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -760,7 +763,7 @@
 				"source": [
 					"stfuelzonehistory = spark.sql(\"SELECT * FROM stfuelzonehistory\")"
 				],
-				"execution_count": 17
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -778,7 +781,7 @@
 				"source": [
 					"# stfuelzonehistory.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stfuelzonehistory.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 18
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -818,7 +821,7 @@
 					"\r\n",
 					"FROM publicratecomponent r"
 				],
-				"execution_count": 21
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -836,7 +839,7 @@
 				"source": [
 					"stratecomponent = spark.sql(\"SELECT * FROM stratecomponent\")"
 				],
-				"execution_count": 24
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -854,7 +857,7 @@
 				"source": [
 					"# stratecomponent.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stratecomponent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 25
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",
@@ -899,7 +902,7 @@
 					"FROM publicrateprofile r\r\n",
 					""
 				],
-				"execution_count": 27
+				"execution_count": 36
 			},
 			{
 				"cell_type": "code",
@@ -917,7 +920,7 @@
 				"source": [
 					"strateprofile = spark.sql(\"SELECT * FROM strateprofile\")"
 				],
-				"execution_count": 28
+				"execution_count": 37
 			},
 			{
 				"cell_type": "code",
@@ -935,7 +938,7 @@
 				"source": [
 					"# strateprofile.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/strateprofile.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 29
+				"execution_count": 38
 			},
 			{
 				"cell_type": "code",
@@ -980,7 +983,7 @@
 					"LEFT JOIN publicselistitem s2 on s2.lid = s.id\r\n",
 					""
 				],
-				"execution_count": 41
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -998,7 +1001,7 @@
 				"source": [
 					"sttmslist = spark.sql(\"SELECT * FROM sttmslist\")"
 				],
-				"execution_count": 42
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
@@ -1016,7 +1019,7 @@
 				"source": [
 					"# sttmslist.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/sttmslist.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 43
+				"execution_count": 41
 			},
 			{
 				"cell_type": "code",
@@ -1068,7 +1071,7 @@
 					"WHERE c.parentid is null\r\n",
 					""
 				],
-				"execution_count": 12
+				"execution_count": 42
 			},
 			{
 				"cell_type": "code",
@@ -1086,7 +1089,7 @@
 				"source": [
 					"stprimarycustomer = spark.sql(\"SELECT * FROM stprimarycustomer\")"
 				],
-				"execution_count": 13
+				"execution_count": 43
 			},
 			{
 				"cell_type": "code",
@@ -1105,7 +1108,7 @@
 					"# stprimarycustomer.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stprimarycustomer.parquet', mode = \"overwrite\")\r\n",
 					""
 				],
-				"execution_count": 14
+				"execution_count": 44
 			},
 			{
 				"cell_type": "code",
@@ -1157,7 +1160,7 @@
 					"WHERE c.parentid is not null\r\n",
 					""
 				],
-				"execution_count": 16
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -1175,7 +1178,7 @@
 				"source": [
 					"stsecondarycustomer = spark.sql(\"SELECT * FROM stsecondarycustomer\")"
 				],
-				"execution_count": 17
+				"execution_count": 46
 			},
 			{
 				"cell_type": "code",
@@ -1194,7 +1197,7 @@
 					"# stsecondarycustomer.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stsecondarycustomer.parquet', mode = \"overwrite\")\r\n",
 					""
 				],
-				"execution_count": 18
+				"execution_count": 47
 			},
 			{
 				"cell_type": "code",
@@ -1248,7 +1251,7 @@
 					"\r\n",
 					"FROM publicthirdparty t"
 				],
-				"execution_count": 27
+				"execution_count": 48
 			},
 			{
 				"cell_type": "code",
@@ -1266,7 +1269,7 @@
 				"source": [
 					"stthirdparty = spark.sql(\"SELECT * FROM stthirdparty\")"
 				],
-				"execution_count": 28
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
@@ -1284,7 +1287,7 @@
 				"source": [
 					"# stthirdparty.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stthirdparty.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 29
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -1329,7 +1332,7 @@
 					"WHERE r.parentroute is null\r\n",
 					""
 				],
-				"execution_count": 36
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -1347,7 +1350,7 @@
 				"source": [
 					"stparentroute = spark.sql(\"SELECT * FROM stparentroute\")"
 				],
-				"execution_count": null
+				"execution_count": 52
 			},
 			{
 				"cell_type": "code",
@@ -1365,7 +1368,7 @@
 				"source": [
 					"# stparentroute.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stparentroute.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 38
+				"execution_count": 53
 			},
 			{
 				"cell_type": "code",
@@ -1410,7 +1413,7 @@
 					"WHERE r.parentroute is not null\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
@@ -1428,7 +1431,7 @@
 				"source": [
 					"stopsroute_tmp1 = spark.sql(\"SELECT * FROM stopsroute_tmp1\")"
 				],
-				"execution_count": 3
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -1459,7 +1462,7 @@
 					"FROM dbolh_routes r\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 56
 			},
 			{
 				"cell_type": "code",
@@ -1477,7 +1480,7 @@
 				"source": [
 					"stopsroute_tmp2 = spark.sql(\"SELECT * FROM stopsroute_tmp2\")"
 				],
-				"execution_count": 8
+				"execution_count": 57
 			},
 			{
 				"cell_type": "code",
@@ -1496,7 +1499,7 @@
 					"stopsroute = stopsroute_tmp1.unionByName(stopsroute_tmp2, allowMissingColumns = True)\r\n",
 					"stopsroute.createOrReplaceTempView(\"stopsroute\")"
 				],
-				"execution_count": 9
+				"execution_count": 58
 			},
 			{
 				"cell_type": "code",
@@ -1514,7 +1517,7 @@
 				"source": [
 					"stopsroute = spark.sql(\"SELECT * FROM stopsroute\")"
 				],
-				"execution_count": 10
+				"execution_count": 59
 			},
 			{
 				"cell_type": "code",
@@ -1532,7 +1535,7 @@
 				"source": [
 					"# stopsroute.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/Structured Data/OPS/stopsroute.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 11
+				"execution_count": 60
 			},
 			{
 				"cell_type": "code",
@@ -1571,7 +1574,7 @@
 					"\t\r\n",
 					"FROM publicdispatchactionlog"
 				],
-				"execution_count": 7
+				"execution_count": 61
 			},
 			{
 				"cell_type": "code",
@@ -1589,7 +1592,7 @@
 				"source": [
 					"stdispatchactionlog = spark.sql(\"SELECT * FROM stdispatchactionlog\")"
 				],
-				"execution_count": 8
+				"execution_count": 62
 			},
 			{
 				"cell_type": "code",
@@ -1607,7 +1610,7 @@
 				"source": [
 					"# stdispatchactionlog.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stdispatchactionlog.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 9
+				"execution_count": 63
 			},
 			{
 				"cell_type": "code",
@@ -1647,7 +1650,7 @@
 					"LEFT JOIN ssttrackunion t ON t.loadid = l.loadid\r\n",
 					"LEFT JOIN dbocustomer c ON c.id = t.BillCustID"
 				],
-				"execution_count": 9
+				"execution_count": 64
 			},
 			{
 				"cell_type": "code",
@@ -1665,7 +1668,7 @@
 				"source": [
 					"stlmsparcelweights = spark.sql(\"SELECT * FROM stlmsparcelweights\")"
 				],
-				"execution_count": 10
+				"execution_count": 65
 			},
 			{
 				"cell_type": "code",
@@ -1683,7 +1686,7 @@
 				"source": [
 					"# stlmsparcelweights.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmsparcelweights.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 11
+				"execution_count": 66
 			},
 			{
 				"cell_type": "code",
@@ -1729,7 +1732,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 30
+				"execution_count": 67
 			},
 			{
 				"cell_type": "code",
@@ -1747,7 +1750,7 @@
 				"source": [
 					"stlmsbookingweights_tmp = spark.sql(\"SELECT * FROM stlmsbookingweights_tmp\")"
 				],
-				"execution_count": 31
+				"execution_count": 68
 			},
 			{
 				"cell_type": "code",
@@ -1787,9 +1790,29 @@
 					"\r\n",
 					"FROM publiclmsdata l\r\n",
 					"LEFT JOIN stlmsbookingweights_tmp t ON t.tms_lmsbookingweights_bookingid||'|'||t.tms_lmsbookingweights_loadid = l.bookingid||'|'||l.loadid\r\n",
+					"\r\n",
+					"\r\n",
+					"UNION \r\n",
+					"\r\n",
+					"\r\n",
+					"SELECT \r\n",
+					"     b.tripid as tms_lmsbookingweights_tripid\r\n",
+					"    ,b.id as tms_lmsbookingweights_bookingid\r\n",
+					"    ,null as tms_lmsbookingweights_loadid\r\n",
+					"    ,null as tms_lmsbookingweights_noofparcels\r\n",
+					"    ,(b.billingquantity)*1000 as tms_lmsbookingweights_weight\r\n",
+					"    ,(b.billingquantity)*1000 as tms_lmsbookingweights_chargeweight\r\n",
+					"    ,null as tms_lmsbookingweights_volweight\r\n",
+					"    ,null as tms_lmsbookingweights_volumiserweight\r\n",
+					"    ,'FW LESA' as tms_lmsbookingweights_billbustomer\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM publicbooking b\r\n",
+					"WHERE b.customerid = 184\r\n",
+					"AND b.billingmethod = 'unit_meter'\r\n",
 					""
 				],
-				"execution_count": 36
+				"execution_count": 72
 			},
 			{
 				"cell_type": "code",
@@ -1807,7 +1830,7 @@
 				"source": [
 					"stlmsbookingweights = spark.sql(\"SELECT * FROM stlmsbookingweights\")"
 				],
-				"execution_count": 37
+				"execution_count": 73
 			},
 			{
 				"cell_type": "code",
@@ -1825,7 +1848,7 @@
 				"source": [
 					"# stlmsbookingweights.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmsbookingweights.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 38
+				"execution_count": 74
 			},
 			{
 				"cell_type": "code",

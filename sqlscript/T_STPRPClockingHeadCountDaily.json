@@ -1,0 +1,20 @@
+{
+	"name": "T_STPRPClockingHeadCountDaily",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.T_STPRPClockingHeadCountDaily') )\n    DROP EXTERNAL TABLE dbo.T_STPRPClockingHeadCountDaily\nGO\n\nCREATE EXTERNAL TABLE dbo.T_STPRPClockingHeadCountDaily (\n    [prp_clockingheadcountdaily_date] date,\n\t[prp_clockingheadcountdaily_division] nvarchar(4000),\n\t[prp_clockingheadcountdaily_costcentredescription] nvarchar(4000),\n\t[prp_clockingheadcountdaily_costcentrecode] nvarchar(4000),\n\t[prp_clockingheadcountdaily_teamname] nvarchar(4000),\n\t[prp_clockingheadcountdaily_payroll] nvarchar(4000),\n    [prp_clockingheadcountdaily_jobcategory] nvarchar(4000),\n\t[prp_clockingheadcountdaily_clockingcount] int\n\n\n\n\t)\n\tWITH (\n\tLOCATION = 'Structured Data/FINANCE/stprpclockingheadcountdaily.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n\t)\nGO\n\n\nSELECT TOP 100 * FROM dbo.T_STPRPClockingHeadCountDaily --where prp_clockinghoursdaily_date is not NULL\nGO",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

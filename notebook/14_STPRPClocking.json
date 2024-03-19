@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "bc0479d5-755d-4301-868f-57d1b01d199e"
+				"spark.autotune.trackingId": "a687b889-146a-4a04-ac4c-3fa2e3f3c0bf"
 			}
 		},
 		"metadata": {
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 4
+				"execution_count": 73
 			},
 			{
 				"cell_type": "code",
@@ -88,7 +88,7 @@
 					"# prpclockinghoursdetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/prpclockinghoursdetail.parquet', format='parquet')\r\n",
 					"# prpclockinghoursdetail.createOrReplaceTempView(\"prpclockinghoursdetail\")"
 				],
-				"execution_count": 5
+				"execution_count": 74
 			},
 			{
 				"cell_type": "code",
@@ -140,7 +140,7 @@
 					"FROM prpclockinghoursdetail\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
@@ -158,7 +158,7 @@
 				"source": [
 					"stprpclockinghoursdetail = spark.sql(\"SELECT * FROM stprpclockinghoursdetail\")"
 				],
-				"execution_count": 7
+				"execution_count": 41
 			},
 			{
 				"cell_type": "code",
@@ -177,6 +177,155 @@
 					"# stprpclockinghoursdetail.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stprpclockinghoursdetail.parquet', mode = \"overwrite\")"
 				],
 				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stprpclockingheadcountdaily_tmp1\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"to_date(date, 'dd MMM yyyy') as prp_clockingheadcountdaily_date\r\n",
+					",division as prp_clockingheadcountdaily_division\r\n",
+					",costcentredescription as prp_clockingheadcountdaily_costcentredescription\r\n",
+					",costcentrecode as prp_clockingheadcountdaily_costcentrecode\r\n",
+					",teamname as prp_clockingheadcountdaily_teamname\r\n",
+					",payroll as prp_clockingheadcountdaily_payroll\r\n",
+					",jobcategory as prp_clockingheadcountdaily_jobcategory\r\n",
+					",employee as prp_clockingheadcountdaily_employee\r\n",
+					",row_number() \r\n",
+					"    OVER \r\n",
+					"    (PARTITION BY \r\n",
+					"        division\r\n",
+					"        ,costcentredescription\r\n",
+					"        ,costcentrecode\r\n",
+					"        ,teamname\r\n",
+					"        ,payroll\r\n",
+					"        ,employee\r\n",
+					"        ,jobcategory\r\n",
+					"        ,to_date(date, 'dd MMM yyyy')\r\n",
+					"    \r\n",
+					"    ORDER BY employee desc) AS prp_clockingheadcountdaily_clockingcount\r\n",
+					"\r\n",
+					"from prpclockinghoursdetail\r\n",
+					""
+				],
+				"execution_count": 110
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stprpclockingheadcountdaily_tmp1 = spark.sql(\"SELECT * FROM stprpclockingheadcountdaily_tmp1\")"
+				],
+				"execution_count": 111
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stprpclockingheadcountdaily\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"prp_clockingheadcountdaily_date\r\n",
+					",prp_clockingheadcountdaily_division\r\n",
+					",prp_clockingheadcountdaily_costcentredescription\r\n",
+					",prp_clockingheadcountdaily_costcentrecode\r\n",
+					",prp_clockingheadcountdaily_teamname\r\n",
+					",prp_clockingheadcountdaily_payroll\r\n",
+					",prp_clockingheadcountdaily_jobcategory\r\n",
+					",SUM(prp_clockingheadcountdaily_clockingcount) AS prp_clockingheadcountdaily_clockingcount\r\n",
+					"FROM\r\n",
+					"stprpclockingheadcountdaily_tmp1\r\n",
+					"WHERE prp_clockingheadcountdaily_clockingcount = 1\r\n",
+					"GROUP BY\r\n",
+					"prp_clockingheadcountdaily_date\r\n",
+					",prp_clockingheadcountdaily_division\r\n",
+					",prp_clockingheadcountdaily_costcentredescription\r\n",
+					",prp_clockingheadcountdaily_costcentrecode\r\n",
+					",prp_clockingheadcountdaily_teamname\r\n",
+					",prp_clockingheadcountdaily_jobcategory\r\n",
+					",prp_clockingheadcountdaily_payroll"
+				],
+				"execution_count": 112
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stprpclockingheadcountdaily = spark.sql(\"SELECT * FROM stprpclockingheadcountdaily\")"
+				],
+				"execution_count": 113
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stprpclockingheadcountdaily.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stprpclockingheadcountdaily.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 114
 			},
 			{
 				"cell_type": "code",
@@ -228,7 +377,7 @@
 					"    ,finalflag\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -246,7 +395,7 @@
 				"source": [
 					"stprpclockinghoursdaily = spark.sql(\"SELECT * FROM stprpclockinghoursdaily\")"
 				],
-				"execution_count": 10
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",

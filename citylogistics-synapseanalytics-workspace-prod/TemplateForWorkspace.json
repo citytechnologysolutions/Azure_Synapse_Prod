@@ -56695,7 +56695,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "748c7109-ef68-4db8-9b23-f48db334e10d"
+						"spark.autotune.trackingId": "20e057b9-2194-4337-b709-174ff0d3ea4f"
 					}
 				},
 				"metadata": {
@@ -56720,7 +56720,8 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -56750,7 +56751,7 @@
 							" }"
 						],
 						"outputs": [],
-						"execution_count": null
+						"execution_count": 1
 					},
 					{
 						"cell_type": "code",
@@ -56769,7 +56770,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 16
+						"execution_count": 2
 					},
 					{
 						"cell_type": "code",
@@ -56785,15 +56786,37 @@
 							}
 						},
 						"source": [
-							"#cw_FolderName = \"Unstructured Data/SAP\"\r\n",
-							"#ContainerName = \"synapse\"\r\n",
-							"#DataLakeDF = \"citylogisticsstorageprod.dfs.core.windows.net/\"\r\n",
-							"#Items = ''\r\n",
-							"#FullLoad = \"true\"\r\n",
-							"#TempContainerName = \"temp\""
+							"# This cell is generated from runtime parameters. Learn more: https://go.microsoft.com/fwlink/?linkid=2161015\r\n",
+							"cw_FolderName = \"Unstructured Data/Onroute\"\r\n",
+							"ContainerName = \"synapse\"\r\n",
+							"DataLakeDF = \"citylogisticsstorageprod.dfs.core.windows.net/\"\r\n",
+							"Items = \"[{\\\"Source\\\":{\\\"TableName\\\":\\\"chatmsg\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicchatmsg\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"claim\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicclaim\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"customer\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"lastupdate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiccustomer\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"customeraccess\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiccustomeraccess\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"customeraccesschild\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiccustomeraccesschild\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"cutomerdeliverytracking\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiccutomerdeliverytracking\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"delivery\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdelivery\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"dispatch\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdispatch\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"dispatchactionlog\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdispatchactionlog\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"dispatchdevice\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdispatchdevice\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"dispatchsegment\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdispatchsegment\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"dispatchstart\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdispatchstart\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"draftcollection\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdraftcollection\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"emaildeliverystatus\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicemaildeliverystatus\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"event\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicevent\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"expense\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicexpense\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"hvcomment\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publichvcomment\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"hvcustomersurvey\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publichvcustomersurvey\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"hvlog\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publichvlog\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"hvnotification\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publichvnotification\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"hvticket\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publichvticket\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"lhchangerequest\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiclhchangerequest\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"lhdelivery\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiclhdelivery\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"lhdispatchsegment\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiclhdispatchsegment\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"lhtmsdata\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiclhtmsdata\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"orvconnect\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"lastupdate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicorvconnect\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"orvconnectemailampm\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicorvconnectemailampm\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"orvconnectnotes\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicorvconnectnotes\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"orvconnectparcel\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"lastupdate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicorvconnectparcel\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"parcel\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicparcel\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"pod\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicpod\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"precheckanswer\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicprecheckanswer\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"supervisorticket\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicsupervisorticket\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"tmstrailerslog\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publictmstrailerslog\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"whatsappmsg\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicwhatsappmsg\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"reportdistotmgntdispatchdt\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"dispatchid\\\",\\\"IdField\\\":\\\"dispatchid\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicreportdistotmgntdispatchdt\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"orvuser\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicorvuser\\\"}}]\"\r\n",
+							"FullLoad = \"false\"\r\n",
+							"TempContainerName = \"temp\""
 						],
 						"outputs": [],
-						"execution_count": 26
+						"execution_count": 20
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"TMS = [{\\\"Source\\\":{\\\"TableName\\\":\\\"address\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicaddress\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"booking\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicbooking\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"customer\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiccustomer\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"driverpay\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdriverpay\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"financedata\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicfinancedata\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"fuelcard\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicfuelcard\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"fuelzone\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicfuelzone\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"fuelzonehistory\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicfuelzonehistory\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"instruction\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicinstruction\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"invoice\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicinvoice\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"invoiceitem\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicinvoiceitem\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"lmsdata\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiclmsdata\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"nonbooking\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicnonbooking\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"ratecomponent\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicratecomponent\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"rateprofile\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicrateprofile\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"route\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicroute\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"thirdparty\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicthirdparty\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"track\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publictrack\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"trip\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publictrip\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"triptrackinghistory\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publictriptrackinghistory\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"selist\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicselist\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"selistitem\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicselistitem\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"routepoint\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicroutepoint\\\"}}]\r\n",
+							"\r\n",
+							"ORV = [{\\\"Source\\\":{\\\"TableName\\\":\\\"chatmsg\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicchatmsg\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"claim\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicclaim\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"customer\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"lastupdate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiccustomer\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"customeraccess\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiccustomeraccess\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"customeraccesschild\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiccustomeraccesschild\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"cutomerdeliverytracking\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiccutomerdeliverytracking\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"delivery\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdelivery\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"dispatch\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdispatch\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"dispatchactionlog\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdispatchactionlog\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"dispatchdevice\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdispatchdevice\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"dispatchsegment\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdispatchsegment\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"dispatchstart\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdispatchstart\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"draftcollection\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicdraftcollection\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"emaildeliverystatus\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicemaildeliverystatus\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"event\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicevent\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"expense\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicexpense\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"hvcomment\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publichvcomment\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"hvcustomersurvey\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publichvcustomersurvey\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"hvlog\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publichvlog\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"hvnotification\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publichvnotification\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"hvticket\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publichvticket\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"lhchangerequest\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiclhchangerequest\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"lhdelivery\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiclhdelivery\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"lhdispatchsegment\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiclhdispatchsegment\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"lhtmsdata\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publiclhtmsdata\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"orvconnect\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"lastupdate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicorvconnect\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"orvconnectemailampm\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicorvconnectemailampm\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"orvconnectnotes\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicorvconnectnotes\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"orvconnectparcel\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"lastupdate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicorvconnectparcel\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"parcel\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicparcel\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"pod\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicpod\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"precheckanswer\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicprecheckanswer\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"supervisorticket\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicsupervisorticket\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"tmstrailerslog\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publictmstrailerslog\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"whatsappmsg\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicwhatsappmsg\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"reportdistotmgntdispatchdt\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"dispatchid\\\",\\\"IdField\\\":\\\"dispatchid\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicreportdistotmgntdispatchdt\\\"}},{\\\"Source\\\":{\\\"TableName\\\":\\\"orvuser\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"id\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicorvuser\\\"}}]"
+						],
+						"outputs": [],
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -56816,7 +56839,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 27
+						"execution_count": 21
 					},
 					{
 						"cell_type": "code",
@@ -56835,7 +56858,7 @@
 							"print(Items)"
 						],
 						"outputs": [],
-						"execution_count": 28
+						"execution_count": 22
 					},
 					{
 						"cell_type": "code",
@@ -56941,7 +56964,7 @@
 							"    raise ValueError(\"One of the table iterations has failed\") "
 						],
 						"outputs": [],
-						"execution_count": 29
+						"execution_count": 23
 					},
 					{
 						"cell_type": "code",
@@ -61753,7 +61776,7 @@
 						"spark.dynamicAllocation.enabled": "true",
 						"spark.dynamicAllocation.minExecutors": "1",
 						"spark.dynamicAllocation.maxExecutors": "4",
-						"spark.autotune.trackingId": "e531c789-5710-4095-ba54-e0c568a12bf8"
+						"spark.autotune.trackingId": "5337f4ad-f8e1-4ba7-81a0-96b89e9d24d7"
 					}
 				},
 				"metadata": {
@@ -61767,24 +61790,26 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
-						"name": "ApacheSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.1",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"if 'prod' in Environment:\r\n",
@@ -61954,7 +61979,7 @@
 							"publicorvuser.createOrReplaceTempView(\"publicorvuser\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the dbodamagedparcelauditfluteprofiles LMS Table\r\n",
-							"dbodamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamage_parcel_audit_flute_profiles.parquet', format='parquet')\r\n",
+							"dbodamagedparcelauditfluteprofiles = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodamaged_parcel_audit_flute_profiles.parquet', format='parquet')\r\n",
 							"dbodamagedparcelauditfluteprofiles.createOrReplaceTempView(\"dbodamagedparcelauditfluteprofiles\")\r\n",
 							"\r\n",
 							"#Create DataFrame for the dbodamagedparcelaudittapetype LMS Table\r\n",

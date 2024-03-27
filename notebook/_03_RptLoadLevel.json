@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "83e69725-f4af-4c41-987e-9d81df281a7e"
+				"spark.autotune.trackingId": "c400eda1-23bc-449e-8c67-198e9cbae9c7"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 110
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -117,7 +117,7 @@
 					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
 					""
 				],
-				"execution_count": 111
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -146,7 +146,7 @@
 					"# -- GROUP BY lms_loadchild_parentloadid\r\n",
 					""
 				],
-				"execution_count": 112
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -191,7 +191,7 @@
 					"GROUP BY lms_waybill_loadid, bc.lms_customer_name,sr.lms_sroute_description, lms_parcelbywaybill_aggrnoparcels\r\n",
 					""
 				],
-				"execution_count": 113
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -257,7 +257,7 @@
 					"LEFT JOIN stloadchild lc on lc.lms_loadchild_parentloadid = lp.lms_loadparent_parentloadid\r\n",
 					"LEFT JOIN dbolocation fl on fl.id = lms_loadchild_fromlocid and lc.lms_loadchild_parentloadid = lp.lms_loadparent_parentloadid\r\n",
 					"LEFT JOIN dbolocation tl on tl.id = lms_loadchild_tolocid and lc.lms_loadchild_parentloadid = lp.lms_loadparent_parentloadid\r\n",
-					"LEFT JOIN stmdvehicle v on v.md_vehicle_orvid = orv_dispatch_vid\r\n",
+					"LEFT JOIN stmdvehicle v on v.md_vehicle_lmsid = lp.lms_loadparent_vehicleid\r\n",
 					"LEFT JOIN stwaybill_tmp w on w.lms_waybill_loadid = lc.lms_loadchild_id\r\n",
 					"\r\n",
 					"WHERE lms_loadparent_ldate >= (to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01'))\r\n",
@@ -286,7 +286,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 114
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -304,7 +304,7 @@
 				"source": [
 					"rptloadparentlevel = spark.sql(\"SELECT * FROM rptloadparentlevel\")"
 				],
-				"execution_count": 115
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -322,7 +322,7 @@
 				"source": [
 					"# rptloadparentlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptloadparentlevel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 116
+				"execution_count": 11
 			}
 		]
 	}

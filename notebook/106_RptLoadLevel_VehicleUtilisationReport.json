@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "ApacheSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -15,12 +15,12 @@
 			"driverCores": 8,
 			"executorMemory": "56g",
 			"executorCores": 8,
-			"numExecutors": 2,
+			"numExecutors": 1,
 			"conf": {
-				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "2",
-				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "b62bc8a1-2b8d-4afe-bace-ddd6442b2bc2"
+				"spark.dynamicAllocation.enabled": "true",
+				"spark.dynamicAllocation.minExecutors": "1",
+				"spark.dynamicAllocation.maxExecutors": "4",
+				"spark.autotune.trackingId": "ccb25338-c4cf-45ab-8f6d-8b75d7a05b23"
 			}
 		},
 		"metadata": {
@@ -34,19 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/ApacheSparkPool",
+				"name": "ApacheSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/ApacheSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.1",
 				"nodeCount": 10,
 				"cores": 8,
 				"memory": 56,
-				"automaticScaleJobs": false
+				"automaticScaleJobs": true
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 8
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -89,7 +89,7 @@
 					"# rptloadparentlevel.createOrReplaceTempView(\"rptloadparentlevel\")\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -179,7 +179,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -197,7 +197,7 @@
 				"source": [
 					"vehicleutilisationreport = spark.sql(\"SELECT * FROM vehicleutilisationreport\")"
 				],
-				"execution_count": 12
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -215,7 +215,7 @@
 				"source": [
 					"# vehicleutilisationreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/vehicleutilisationreport.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 13
+				"execution_count": 9
 			}
 		]
 	}

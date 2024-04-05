@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "445ffd56-fdd8-4614-a757-8151154407cf"
+				"spark.autotune.trackingId": "b6b41839-f43c-4475-862b-7ca0070e89f0"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 5
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -117,7 +117,7 @@
 					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
 					""
 				],
-				"execution_count": 6
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -146,7 +146,7 @@
 					"# -- GROUP BY lms_loadchild_parentloadid\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -172,6 +172,7 @@
 					"AS\r\n",
 					"SELECT\r\n",
 					"    lms_waybill_loadid\r\n",
+					"\r\n",
 					"    ,count(distinct w.lms_waybill_delivercustid) as lms_loadparent_nodeliverycustomers\r\n",
 					"    ,sum(CASE \r\n",
 					"        WHEN bc.lms_customer_billcustgrouptypedescription = 'Express' Then 1\r\n",
@@ -181,17 +182,20 @@
 					"        WHEN bc.lms_customer_billcustgrouptypedescription <> 'Express' Then 1\r\n",
 					"        ELSE 0\r\n",
 					"    END) as lms_loadparent_retailelivercustomers\r\n",
-					"    ,bc.lms_customer_name||'('||lms_parcelbywaybill_aggrnoparcels||')' as lms_loadparent_billcustparcels\r\n",
-					"    ,sr.lms_sroute_description as lms_loadparent_sroutedescriptions\r\n",
+					"    ,concat_ws(\",\",collect_set(bc.lms_customer_name||'('||lms_parcelbywaybill_aggrnoparcels||')')) as lms_loadparent_billcustparcels\r\n",
+					"    ,concat_ws(\",\",collect_set(sr.lms_sroute_description)) as lms_loadparent_sroutedescriptions\r\n",
+					"\r\n",
 					"\r\n",
 					"FROM stwaybill w\r\n",
 					"LEFT JOIN stbillcustomer bc on bc.lms_customer_id =w.lms_waybill_billcust\r\n",
 					"LEFT JOIN stdeliverypickupcustomer dc on dc.lms_customer_id = w.lms_waybill_delivercustid\r\n",
 					"LEFT JOIN stsroute sr on sr.lms_sroute_id = dc.lms_customer_srouteid\r\n",
-					"GROUP BY lms_waybill_loadid, bc.lms_customer_name,sr.lms_sroute_description, lms_parcelbywaybill_aggrnoparcels\r\n",
+					"GROUP BY lms_waybill_loadid\r\n",
+					"\r\n",
+					"\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -221,7 +225,7 @@
 					"    ,lp.orv_dispatch_estdepdate as lms_loadparent_estdepdate\r\n",
 					"    ,lp.orv_dispatch_originalstartdate as lms_loadparent_originalstartdate\r\n",
 					"    ,concat_ws(\",\",collect_set(lc.lms_loadchild_id)) as lms_loadparent_childloadids\r\n",
-					"    ,concat_ws(\",\",collect_list(w.lms_loadparent_billcustparcels)) as lms_loadparent_billcustparcels\r\n",
+					"    ,w.lms_loadparent_billcustparcels as lms_loadparent_billcustparcels\r\n",
 					"    ,fl.id as lms_loadparent_locationfromid\r\n",
 					"    ,fl.description as lms_loadparent_locationfromdescription\r\n",
 					"    ,tl.id as lms_loadparent_locationtoid\r\n",
@@ -246,9 +250,9 @@
 					"    ,sum(lms_loadparent_aggrweight )as lms_loadparent_weight\r\n",
 					"    ,sum(lms_loadparent_aggrchargeweight) as lms_loadparent_chargeweight\r\n",
 					"    ,count(lc.lms_loadchild_id) as lms_loadparent_nochildloads\r\n",
-					"    ,concat_ws(\",\",collect_set(w.lms_loadparent_sroutedescriptions)) as lms_loadparent_sroutedescriptions\r\n",
+					"    ,w.lms_loadparent_sroutedescriptions as lms_loadparent_sroutedescriptions\r\n",
 					"    ,CASE \r\n",
-					"        WHEN concat_ws(\",\",collect_set(w.lms_loadparent_sroutedescriptions)) like 'outlaying' THEN  'Outlaying'\r\n",
+					"        WHEN concat_ws(\",\",collect_set(w.lms_loadparent_sroutedescriptions)) like '%outlaying%' THEN  'Outlaying'\r\n",
 					"        ELSE 'Local'\r\n",
 					"    END as lms_loadparent_routetype\r\n",
 					"\r\n",
@@ -282,11 +286,13 @@
 					"    ,lp.orv_dispatch_stopodo\r\n",
 					"    ,lp.orv_dispatch_distance\r\n",
 					"    ,lp.orv_dispatch_duration\r\n",
+					"    ,w.lms_loadparent_billcustparcels\r\n",
+					"    ,w.lms_loadparent_sroutedescriptions\r\n",
 					"    \r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -304,7 +310,7 @@
 				"source": [
 					"rptloadparentlevel = spark.sql(\"SELECT * FROM rptloadparentlevel\")"
 				],
-				"execution_count": 10
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -322,7 +328,7 @@
 				"source": [
 					"# rptloadparentlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptloadparentlevel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 11
+				"execution_count": 27
 			}
 		]
 	}

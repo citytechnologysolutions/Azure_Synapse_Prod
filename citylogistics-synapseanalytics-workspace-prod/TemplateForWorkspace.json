@@ -45129,7 +45129,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "b62bc8a1-2b8d-4afe-bace-ddd6442b2bc2"
+						"spark.autotune.trackingId": "b0df46b3-ba7f-47e8-bfc3-b039a19f8a0d"
 					}
 				},
 				"metadata": {
@@ -45154,13 +45154,15 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"# if 'prod' in Environment:\r\n",
@@ -45177,7 +45179,7 @@
 							"# # ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 5
 					},
 					{
 						"cell_type": "code",
@@ -45199,7 +45201,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 9
+						"execution_count": 6
 					},
 					{
 						"cell_type": "code",
@@ -45290,7 +45292,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 7
 					},
 					{
 						"cell_type": "code",
@@ -45309,7 +45311,7 @@
 							"vehicleutilisationreport = spark.sql(\"SELECT * FROM vehicleutilisationreport\")"
 						],
 						"outputs": [],
-						"execution_count": 12
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
@@ -45328,7 +45330,7 @@
 							"# vehicleutilisationreport.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/vehicleutilisationreport.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 13
+						"execution_count": 9
 					}
 				]
 			},
@@ -65683,7 +65685,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "83e69725-f4af-4c41-987e-9d81df281a7e"
+						"spark.autotune.trackingId": "b0e9d1c9-47a6-4666-9661-e3bf23bae163"
 					}
 				},
 				"metadata": {
@@ -65708,13 +65710,15 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"# if 'prod' in Environment:\r\n",
@@ -65731,7 +65735,7 @@
 							"# # ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 110
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
@@ -65781,7 +65785,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 111
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -65811,7 +65815,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 112
+						"execution_count": 10
 					},
 					{
 						"cell_type": "code",
@@ -65837,6 +65841,7 @@
 							"AS\r\n",
 							"SELECT\r\n",
 							"    lms_waybill_loadid\r\n",
+							"\r\n",
 							"    ,count(distinct w.lms_waybill_delivercustid) as lms_loadparent_nodeliverycustomers\r\n",
 							"    ,sum(CASE \r\n",
 							"        WHEN bc.lms_customer_billcustgrouptypedescription = 'Express' Then 1\r\n",
@@ -65846,18 +65851,21 @@
 							"        WHEN bc.lms_customer_billcustgrouptypedescription <> 'Express' Then 1\r\n",
 							"        ELSE 0\r\n",
 							"    END) as lms_loadparent_retailelivercustomers\r\n",
-							"    ,bc.lms_customer_name||'('||lms_parcelbywaybill_aggrnoparcels||')' as lms_loadparent_billcustparcels\r\n",
-							"    ,sr.lms_sroute_description as lms_loadparent_sroutedescriptions\r\n",
+							"    ,concat_ws(\",\",collect_set(bc.lms_customer_name||'('||lms_parcelbywaybill_aggrnoparcels||')')) as lms_loadparent_billcustparcels\r\n",
+							"    ,concat_ws(\",\",collect_set(sr.lms_sroute_description)) as lms_loadparent_sroutedescriptions\r\n",
+							"\r\n",
 							"\r\n",
 							"FROM stwaybill w\r\n",
 							"LEFT JOIN stbillcustomer bc on bc.lms_customer_id =w.lms_waybill_billcust\r\n",
 							"LEFT JOIN stdeliverypickupcustomer dc on dc.lms_customer_id = w.lms_waybill_delivercustid\r\n",
 							"LEFT JOIN stsroute sr on sr.lms_sroute_id = dc.lms_customer_srouteid\r\n",
-							"GROUP BY lms_waybill_loadid, bc.lms_customer_name,sr.lms_sroute_description, lms_parcelbywaybill_aggrnoparcels\r\n",
+							"GROUP BY lms_waybill_loadid\r\n",
+							"\r\n",
+							"\r\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 113
+						"execution_count": 23
 					},
 					{
 						"cell_type": "code",
@@ -65887,7 +65895,7 @@
 							"    ,lp.orv_dispatch_estdepdate as lms_loadparent_estdepdate\r\n",
 							"    ,lp.orv_dispatch_originalstartdate as lms_loadparent_originalstartdate\r\n",
 							"    ,concat_ws(\",\",collect_set(lc.lms_loadchild_id)) as lms_loadparent_childloadids\r\n",
-							"    ,concat_ws(\",\",collect_list(w.lms_loadparent_billcustparcels)) as lms_loadparent_billcustparcels\r\n",
+							"    ,w.lms_loadparent_billcustparcels as lms_loadparent_billcustparcels\r\n",
 							"    ,fl.id as lms_loadparent_locationfromid\r\n",
 							"    ,fl.description as lms_loadparent_locationfromdescription\r\n",
 							"    ,tl.id as lms_loadparent_locationtoid\r\n",
@@ -65912,9 +65920,9 @@
 							"    ,sum(lms_loadparent_aggrweight )as lms_loadparent_weight\r\n",
 							"    ,sum(lms_loadparent_aggrchargeweight) as lms_loadparent_chargeweight\r\n",
 							"    ,count(lc.lms_loadchild_id) as lms_loadparent_nochildloads\r\n",
-							"    ,concat_ws(\",\",collect_set(w.lms_loadparent_sroutedescriptions)) as lms_loadparent_sroutedescriptions\r\n",
+							"    ,w.lms_loadparent_sroutedescriptions as lms_loadparent_sroutedescriptions\r\n",
 							"    ,CASE \r\n",
-							"        WHEN concat_ws(\",\",collect_set(w.lms_loadparent_sroutedescriptions)) like 'outlaying' THEN  'Outlaying'\r\n",
+							"        WHEN concat_ws(\",\",collect_set(w.lms_loadparent_sroutedescriptions)) like '%outlaying%' THEN  'Outlaying'\r\n",
 							"        ELSE 'Local'\r\n",
 							"    END as lms_loadparent_routetype\r\n",
 							"\r\n",
@@ -65923,7 +65931,7 @@
 							"LEFT JOIN stloadchild lc on lc.lms_loadchild_parentloadid = lp.lms_loadparent_parentloadid\r\n",
 							"LEFT JOIN dbolocation fl on fl.id = lms_loadchild_fromlocid and lc.lms_loadchild_parentloadid = lp.lms_loadparent_parentloadid\r\n",
 							"LEFT JOIN dbolocation tl on tl.id = lms_loadchild_tolocid and lc.lms_loadchild_parentloadid = lp.lms_loadparent_parentloadid\r\n",
-							"LEFT JOIN stmdvehicle v on v.md_vehicle_orvid = orv_dispatch_vid\r\n",
+							"LEFT JOIN stmdvehicle v on v.md_vehicle_lmsid = lp.lms_loadparent_vehicleid\r\n",
 							"LEFT JOIN stwaybill_tmp w on w.lms_waybill_loadid = lc.lms_loadchild_id\r\n",
 							"\r\n",
 							"WHERE lms_loadparent_ldate >= (to_timestamp(year(current_date())-1||'-'||(month(current_date()))||'-'||'01'))\r\n",
@@ -65948,12 +65956,14 @@
 							"    ,lp.orv_dispatch_stopodo\r\n",
 							"    ,lp.orv_dispatch_distance\r\n",
 							"    ,lp.orv_dispatch_duration\r\n",
+							"    ,w.lms_loadparent_billcustparcels\r\n",
+							"    ,w.lms_loadparent_sroutedescriptions\r\n",
 							"    \r\n",
 							"\r\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 114
+						"execution_count": 25
 					},
 					{
 						"cell_type": "code",
@@ -65972,7 +65982,7 @@
 							"rptloadparentlevel = spark.sql(\"SELECT * FROM rptloadparentlevel\")"
 						],
 						"outputs": [],
-						"execution_count": 115
+						"execution_count": 26
 					},
 					{
 						"cell_type": "code",
@@ -65991,7 +66001,7 @@
 							"# rptloadparentlevel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/RPT/rptloadparentlevel.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 116
+						"execution_count": 27
 					}
 				]
 			},

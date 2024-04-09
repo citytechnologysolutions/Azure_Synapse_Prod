@@ -1,0 +1,224 @@
+{
+	"name": "16_DIST_STWaybillsPerParcelAggr",
+	"properties": {
+		"folder": {
+			"name": "TRANSFORM/02 STRUCTURED/Ops/Distribution"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "PRDSparkPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "b0d3f276-408d-4dfa-b813-1ee5628a8125"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"# if 'prod' in Environment:\r\n",
+					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"# else:\r\n",
+					"#     StorageAccount = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"\r\n",
+					"# # ' + StorageAccount + '"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# #Create DataFrame for the sstwaybillsperparcel LMS Table\r\n",
+					"# sstwaybillsperparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstwaybillsperparcel.parquet', format='parquet')\r\n",
+					"# sstwaybillsperparcel.createOrReplaceTempView(\"sstwaybillsperparcel\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stwaybill LMS Table\r\n",
+					"# stwaybill = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', format='parquet')\r\n",
+					"# stwaybill.createOrReplaceTempView(\"stwaybill\")"
+				],
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stwaybillsperparcelaggr\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"wp.lms_waybillsperparcel_waybillid\r\n",
+					",wp.lms_waybillsperparcel_loadid\r\n",
+					",MAX(wp.lms_waybillsperparcel_rdate) AS lms_waybillsperparcel_rdate\r\n",
+					",w.lms_waybill_date\r\n",
+					",wp.lms_waybillsperparcel_returnedflag\r\n",
+					",wp.lms_waybillsperparcel_dooruserid\r\n",
+					",MAX(wp.lms_waybillsperparcel_doordeliverydate) AS lms_waybillsperparcel_doordeliverydate\r\n",
+					",wp.lms_waybillsperparcel_stationid\r\n",
+					",wp.lms_waybillsperparcel_doorreasondetailid\r\n",
+					",wp.lms_waybillsperparcel_doorcomment\r\n",
+					",wp.lms_waybillsperparcel_debriefuserid\r\n",
+					",wp.lms_waybillsperparcel_debriefdeliverydate\r\n",
+					",wp.lms_waybillsperparcel_debriefcomment\r\n",
+					",wp.lms_waybillsperparcel_debriefreasondetailid\r\n",
+					",wp.lms_waybillsperparcel_reasonupdates\r\n",
+					",wp.lms_waybillsperparcel_callprogid\r\n",
+					",wp.lms_waybillsperparcel_orvdeliverydate\r\n",
+					",wp.lms_waybillsperparcel_orvreasondetailid\r\n",
+					",COUNT(*) as lms_waybillsperparcel_parcelsreturned\r\n",
+					"\r\n",
+					"\r\n",
+					"FROM sstwaybillsperparcel wp\r\n",
+					"\r\n",
+					"INNER JOIN stwaybill w ON wp.lms_waybillsperparcel_waybillid = w.lms_waybill_id\r\n",
+					"\r\n",
+					"GROUP BY\r\n",
+					"lms_waybillsperparcel_waybillid\r\n",
+					",lms_waybillsperparcel_loadid\r\n",
+					",w.lms_waybill_date\r\n",
+					",lms_waybillsperparcel_returnedflag\r\n",
+					",lms_waybillsperparcel_dooruserid\r\n",
+					",lms_waybillsperparcel_stationid\r\n",
+					",lms_waybillsperparcel_doorreasondetailid\r\n",
+					",lms_waybillsperparcel_doorcomment\r\n",
+					",lms_waybillsperparcel_debriefuserid\r\n",
+					",lms_waybillsperparcel_debriefdeliverydate\r\n",
+					",lms_waybillsperparcel_debriefcomment\r\n",
+					",lms_waybillsperparcel_debriefreasondetailid\r\n",
+					",lms_waybillsperparcel_reasonupdates\r\n",
+					",lms_waybillsperparcel_callprogid\r\n",
+					",lms_waybillsperparcel_orvdeliverydate\r\n",
+					",lms_waybillsperparcel_orvreasondetailid\r\n",
+					"\r\n",
+					"ORDER BY\r\n",
+					"lms_waybillsperparcel_waybillid DESC"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stwaybillsperparcelaggr = spark.sql(\"SELECT * FROM stwaybillsperparcelaggr\")"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stwaybillsperparcelaggr.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybillsperparcelaggr.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"print(\"SUCCESS\")"
+				],
+				"execution_count": 11
+			}
+		]
+	}
+}

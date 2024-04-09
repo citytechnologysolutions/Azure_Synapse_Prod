@@ -11,16 +11,16 @@
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "06f2b9dd-554e-46ae-9ad4-2d4208aae1ea"
+				"spark.autotune.trackingId": "e552a605-9ed1-4406-a9c0-9f882b36de5d"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -104,10 +104,28 @@
 					"# publicpod = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
 					"# publicpod.createOrReplaceTempView(\"publicpod\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the stdeliverypickupcustomer LMS Table\r\n",
+					"# stdeliverypickupcustomer = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stdeliverypickupcustomer.parquet', format='parquet')\r\n",
+					"# stdeliverypickupcustomer.createOrReplaceTempView(\"stdeliverypickupcustomer\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the stsroute LMS Table\r\n",
+					"# stsroute = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stsroute.parquet', format='parquet')\r\n",
+					"# stsroute.createOrReplaceTempView(\"stsroute\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stzone LMS Table\r\n",
+					"# stzone = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stzone.parquet', format='parquet')\r\n",
+					"# stzone.createOrReplaceTempView(\"stzone\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stzone LMS Table\r\n",
+					"# stzone = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stzone.parquet', format='parquet')\r\n",
+					"# stzone.createOrReplaceTempView(\"stzone\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the stloadparent LMS Table\r\n",
+					"# stloadparent = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', format='parquet')\r\n",
+					"# stloadparent.createOrReplaceTempView(\"stloadparent\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -127,7 +145,7 @@
 					"# from pyspark.sql.window import Window\r\n",
 					"# from pyspark.sql.types import IntegralType"
 				],
-				"execution_count": 3
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -145,7 +163,7 @@
 				"source": [
 					"partitionfirst=Window.partitionBy(\"did\").orderBy(col(\"did\").asc())"
 				],
-				"execution_count": 4
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",
@@ -163,7 +181,7 @@
 				"source": [
 					"pod_tmp = publicpod.withColumn(\"row_num\",row_number().over(partitionfirst))"
 				],
-				"execution_count": 5
+				"execution_count": 36
 			},
 			{
 				"cell_type": "code",
@@ -181,7 +199,7 @@
 				"source": [
 					"pod_tmp.createOrReplaceTempView(\"pod_tmp\")"
 				],
-				"execution_count": 6
+				"execution_count": 37
 			},
 			{
 				"cell_type": "code",
@@ -214,7 +232,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 38
 			},
 			{
 				"cell_type": "code",
@@ -232,7 +250,7 @@
 				"source": [
 					"dbowaybill_tmp = spark.sql(\"SELECT * FROM dbowaybill_tmp\")"
 				],
-				"execution_count": 8
+				"execution_count": 39
 			},
 			{
 				"cell_type": "code",
@@ -426,15 +444,18 @@
 					"    ,d.tsscanningstop - d.tsscanningstart as orv_delivery_scantimediff\r\n",
 					"    ,d.tspodsignature - d.tsscanningstop as orv_delivery_podscanstopdiff\r\n",
 					"    ,d.tspodsignature - d.tsscanningstart as orv_delivery_podscanstartdiff\r\n",
-					"\r\n",
+					"    ,z.lms_zone_locid\r\n",
 					"\r\n",
 					"FROM dbowaybill_tmp w\r\n",
 					"LEFT JOIN sstparcelbywaybill pbw on pbw.lms_parcelbywaybill_waybillid =  w.id\r\n",
 					"LEFT JOIN publicdelivery d on d.waybillid =  w.id and d.did = w.dispatchid\r\n",
 					"LEFT JOIN pod_tmp p on p.did = d.id and row_num = 1\r\n",
+					"LEFT JOIN stdeliverypickupcustomer dc on w.DeliverCustID = dc.lms_customer_id\r\n",
+					"LEFT JOIN stsroute sr on dc.lms_customer_srouteid = sr.lms_sroute_id\r\n",
+					"LEFT JOIN stzone z on sr.lms_sroute_zoneid = z.lms_zone_id\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 40
 			},
 			{
 				"cell_type": "code",
@@ -452,7 +473,42 @@
 				"source": [
 					"stwaybill_tmp = spark.sql(\"SELECT * FROM stwaybill_tmp\")"
 				],
-				"execution_count": 10
+				"execution_count": 41
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stwaybill_tmp1\r\n",
+					"AS\r\n",
+					"SELECT\r\n",
+					"DISTINCT\r\n",
+					"w.*\r\n",
+					",CASE\r\n",
+					"    WHEN w.lms_zone_locid <> l.lms_loadparent_fromlocid THEN 1 ELSE 0\r\n",
+					"    END AS lms_waybill_routedepotmismatchflag \r\n",
+					"\r\n",
+					"FROM stwaybill_tmp w \r\n",
+					"LEFT JOIN stloadparent l on w.lms_waybill_LoadID = l.lms_loadparent_parentloadid\r\n",
+					""
+				],
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -468,9 +524,27 @@
 					}
 				},
 				"source": [
-					"stwaybill = stwaybill_tmp.withColumn(\"a\", pow(sin(radians (col(\"orv_pod_lat\") - col(\"orv_delivery_lat\")) / 2), 2) + cos(radians (\"orv_delivery_lat\")) * cos(radians (col(\"orv_pod_lat\"))) * pow(sin(radians (col(\"orv_pod_lng\") - col(\"orv_delivery_lng\")) / 2), 2)).withColumn(\"orv_delivery_poddistancefromdeliverypoint\", atan2(sqrt(col(\"a\")), sqrt(-col(\"a\") + 1)) * 2 * 6371)"
+					"stwaybill_tmp1 = spark.sql(\"SELECT * FROM stwaybill_tmp1\")"
 				],
-				"execution_count": 12
+				"execution_count": 56
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stwaybill = stwaybill_tmp1.withColumn(\"a\", pow(sin(radians (col(\"orv_pod_lat\") - col(\"orv_delivery_lat\")) / 2), 2) + cos(radians (\"orv_delivery_lat\")) * cos(radians (col(\"orv_pod_lat\"))) * pow(sin(radians (col(\"orv_pod_lng\") - col(\"orv_delivery_lng\")) / 2), 2)).withColumn(\"orv_delivery_poddistancefromdeliverypoint\", atan2(sqrt(col(\"a\")), sqrt(-col(\"a\") + 1)) * 2 * 6371)"
+				],
+				"execution_count": 57
 			},
 			{
 				"cell_type": "code",
@@ -488,7 +562,7 @@
 				"source": [
 					"stwaybill.createOrReplaceTempView(\"stwaybill\")"
 				],
-				"execution_count": 13
+				"execution_count": 58
 			},
 			{
 				"cell_type": "code",
@@ -506,7 +580,7 @@
 				"source": [
 					"# stwaybill.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stwaybill.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 14
+				"execution_count": 59
 			},
 			{
 				"cell_type": "code",
@@ -522,9 +596,9 @@
 					}
 				},
 				"source": [
-					"# print(\"SUCCESS\")"
+					"print(\"SUCCESS\")"
 				],
-				"execution_count": 14
+				"execution_count": 50
 			}
 		]
 	}

@@ -11,16 +11,16 @@
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "1078ee36-8fb8-4b86-9b9b-49c3235ea8c4"
+				"spark.autotune.trackingId": "adaf0b44-e63e-43a7-a2e5-48443f958978"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 55
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -138,7 +138,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 56
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -157,7 +157,7 @@
 					"# from pyspark.sql.functions import *\r\n",
 					"# from pyspark.sql.window import Window"
 				],
-				"execution_count": 57
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -177,7 +177,7 @@
 					"stloadchild = stloadchild.withColumn(\"rn\",row_number().over(partitionparent))\r\n",
 					"stloadchild.createOrReplaceTempView(\"stloadchild\")"
 				],
-				"execution_count": 58
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -197,7 +197,7 @@
 					"publicdispatch = publicdispatch.withColumn(\"rn\",row_number().over(partitionlmsid))\r\n",
 					"publicdispatch.createOrReplaceTempView(\"publicdispatch\")"
 				],
-				"execution_count": 59
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -244,7 +244,7 @@
 					"GROUP BY \r\n",
 					"lms_track_loadparenetloadid"
 				],
-				"execution_count": 60
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -262,7 +262,7 @@
 				"source": [
 					"stlmstrack_tmp = spark.sql(\"SELECT * FROM stlmstrack_tmp\")"
 				],
-				"execution_count": 61
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -335,7 +335,7 @@
 					"    ,tr.lms_loadparent_minclosedt\r\n",
 					"    ,tr.lms_loadparent_maxclosedt"
 				],
-				"execution_count": 65
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -353,7 +353,7 @@
 				"source": [
 					"stloadparent_tmp1 = spark.sql(\"SELECT * FROM stloadparent_tmp1\")"
 				],
-				"execution_count": 66
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -382,7 +382,7 @@
 					"group BY lms_loadchild_parentloadid\r\n",
 					"having COUNT(*) > 1"
 				],
-				"execution_count": 67
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -430,6 +430,7 @@
 					"    ,t.lms_loadchild_aggrnoparcelsexclspecdel  as  lms_loadparent_aggrnoparcelsexclspecdel\r\n",
 					"    ,v.md_vehicle_vehicletype\r\n",
 					"    ,v.md_vehicle_internalvolume\r\n",
+					"    ,v.md_vehicle_id\r\n",
 					"    ,d.id as orv_dispatch_id\r\n",
 					"    ,d.lmsid as orv_dispatch_lmsid\r\n",
 					"    ,d.vid as orv_dispatch_vid\r\n",
@@ -607,6 +608,7 @@
 					",t.lms_loadchild_aggrnoparcelsexclspecdel\r\n",
 					",v.md_vehicle_vehicletype\r\n",
 					",v.md_vehicle_internalvolume\r\n",
+					",md_vehicle_id\r\n",
 					",d.id\r\n",
 					",d.lmsid\r\n",
 					",d.vid\r\n",
@@ -729,7 +731,7 @@
 					",t.lms_loadparent_minclosedt\r\n",
 					",t.lms_loadparent_maxclosedt"
 				],
-				"execution_count": 68
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -747,7 +749,7 @@
 				"source": [
 					"stloadparent_tmp2 = spark.sql(\"SELECT * FROM stloadparent_tmp2\")"
 				],
-				"execution_count": 69
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -765,7 +767,7 @@
 				"source": [
 					"stloadparent_tmp3 = stloadparent_tmp2.withColumn(\"a\", pow(sin(radians (col(\"orv_dispatch_startinglat\") - col(\"lms_location_latitude\")) / 2), 2) + cos(radians (\"lms_location_latitude\")) * cos(radians (col(\"orv_dispatch_startinglat\"))) * pow(sin(radians (col(\"orv_dispatch_startinglng\") - col(\"lms_location_longitude\")) / 2), 2)).withColumn(\"orv_dispatch_startdistancefromdepot\", atan2(sqrt(col(\"a\")), sqrt(-col(\"a\") + 1)) * 2 * 6371)"
 				],
-				"execution_count": 70
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -783,7 +785,7 @@
 				"source": [
 					"stloadparent_tmp3.createOrReplaceTempView(\"stloadparent_tmp3\")"
 				],
-				"execution_count": 71
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -801,7 +803,7 @@
 				"source": [
 					"stloadparent_tmp4 = stloadparent_tmp3.withColumn(\"a\", pow(sin(radians (col(\"orv_dispatch_stoplat\") - col(\"orv_dispatch_endinglat\")) / 2), 2) + cos(radians (\"orv_dispatch_endinglat\")) * cos(radians (col(\"orv_dispatch_stoplat\"))) * pow(sin(radians (col(\"orv_dispatch_stoplng\") - col(\"orv_dispatch_endinglng\")) / 2), 2)).withColumn(\"orv_dispatch_stopdistancefromdepot\", atan2(sqrt(col(\"a\")), sqrt(-col(\"a\") + 1)) * 2 * 6371)"
 				],
-				"execution_count": 72
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -819,7 +821,7 @@
 				"source": [
 					"stloadparent_tmp4.createOrReplaceTempView(\"stloadparent_tmp4\")"
 				],
-				"execution_count": 73
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -868,7 +870,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 74
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -886,7 +888,7 @@
 				"source": [
 					"stloadparent = spark.sql(\"SELECT * FROM stloadparent\")"
 				],
-				"execution_count": 75
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -904,7 +906,7 @@
 				"source": [
 					"# stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 76
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",

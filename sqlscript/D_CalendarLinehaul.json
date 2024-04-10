@@ -1,0 +1,20 @@
+{
+	"name": "D_CalendarLinehaul",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Ops/Linehaul"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.external_tables WHERE object_id = OBJECT_ID('dbo.D_CalendarLinehaul') )\n    DROP EXTERNAL TABLE dbo.D_CalendarLinehaul\nGO\n\nCREATE EXTERNAL TABLE STOPS.dbo.D_CalendarLinehaul (\n\t[Day of week] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,\n\tDate date NULL,\n\t[Fin Year] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,\n\t[Month] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,\n\t[Fin Year Week] bigint NULL,\n\t[Day] bigint NULL,\n\t[CY Fin Year Week Day] bigint NULL,\n\t[PY Fin Year Week Day] bigint NULL,\n\t[CY date check] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,\n\t[PY Date check] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,\n\tVariance varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,\n\t[Cal Year] bigint NULL,\n\t[Cal Month] varchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,\n\t[Working day] bigint NULL\n) WITH (\n\tLOCATION = 'Unstructured Data/RetailCanender/CalendarLinehaul.parquet',\n\tDATA_SOURCE = [synapse_citylogisticsstorage_dfs_core_windows_net],\n\tFILE_FORMAT = [SynapseParquetFormat]\n) GO\n\n\nSELECT TOP 100 * FROM dbo.D_CalendarLinehaul \nGO\n",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STOPS",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

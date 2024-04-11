@@ -320,7 +320,7 @@
 							"userProperties": [],
 							"typeProperties": {
 								"on": {
-									"value": "@if(pipeline().parameters.Full_Load,'FullTakeOn'\n   ,if(equals(item().Increment.IncField,item().Increment.IdField),'IdLoad'\n      ,'DateLoad'\n   )\n)",
+									"value": "@if(pipeline().parameters.Full_Load,\n    'FullTakeOn',\n    if(equals(item().Increment.IncField, item().Increment.IdField),\n        'IdLoad',\n        if(greater(length(item().Source.ComplexSQL), 1),\n            'ComplexSQL',\n            'DateLoad'\n        )\n    )\n)\n",
 									"type": "Expression"
 								},
 								"cases": [
@@ -634,6 +634,110 @@
 												]
 											}
 										]
+									},
+									{
+										"value": "ComplexSQL",
+										"activities": [
+											{
+												"name": "Copy New incremental data_copy1",
+												"type": "Copy",
+												"dependsOn": [],
+												"policy": {
+													"timeout": "0.03:00:00",
+													"retry": 3,
+													"retryIntervalInSeconds": 30,
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"source": {
+														"type": "SqlServerSource",
+														"sqlReaderQuery": {
+															"value": "@concat(if(or(pipeline().parameters.ColumnsNamesBlankSpaces, greater(length(pipeline().parameters.LimitedLoadTopX),1)),\n        activity('SelectStatementBuilder').output.firstRow.Query,concat('SELECT * FROM [', item().Source.SchemaName,'].[', item().Source.TableName,']')\n        )\n    ,' WHERE ', item().Increment.IncField, \n        concat('IN ','''',activity('Lookup Last Max Field').output.firstRow.Field,'''')\n    )",
+															"type": "Expression"
+														},
+														"queryTimeout": "02:00:00",
+														"partitionOption": "None"
+													},
+													"sink": {
+														"type": "ParquetSink",
+														"storeSettings": {
+															"type": "AzureBlobFSWriteSettings"
+														},
+														"formatSettings": {
+															"type": "ParquetWriteSettings"
+														}
+													},
+													"enableStaging": false,
+													"validateDataConsistency": false,
+													"translator": {
+														"type": "TabularTranslator",
+														"typeConversion": true,
+														"typeConversionSettings": {
+															"allowDataTruncation": true,
+															"treatBooleanAsNumber": false
+														}
+													}
+												},
+												"inputs": [
+													{
+														"referenceName": "SqlServerDataSet",
+														"type": "DatasetReference",
+														"parameters": {
+															"ServerName": {
+																"value": "@variables('ServerName')",
+																"type": "Expression"
+															},
+															"DatabaseName": {
+																"value": "@variables('DatabaseName')",
+																"type": "Expression"
+															},
+															"UserName": {
+																"value": "@variables('UserName')",
+																"type": "Expression"
+															},
+															"CW_SchemaName": {
+																"value": "@variables('SchemaName')",
+																"type": "Expression"
+															},
+															"SecretName": {
+																"value": "@variables('SecretName')",
+																"type": "Expression"
+															},
+															"CW_TableName": {
+																"value": "@item().Source.TableName",
+																"type": "Expression"
+															}
+														}
+													}
+												],
+												"outputs": [
+													{
+														"referenceName": "DataLakeParquet",
+														"type": "DatasetReference",
+														"parameters": {
+															"CW_FolderName": {
+																"value": "@variables('FolderName')",
+																"type": "Expression"
+															},
+															"CW_FileName": {
+																"value": "@concat(item().Destination.FileName,'.parquet')",
+																"type": "Expression"
+															},
+															"ContainerName": {
+																"value": "@variables('TempContainerName')",
+																"type": "Expression"
+															},
+															"DataLake": {
+																"value": "@variables('DataLake')",
+																"type": "Expression"
+															}
+														}
+													}
+												]
+											}
+										]
 									}
 								],
 								"defaultActivities": [
@@ -740,7 +844,343 @@
 		"parameters": {
 			"cw_items": {
 				"type": "Array",
-				"defaultValue": []
+				"defaultValue": [
+					{
+						"Source": {
+							"TableName": "citybranch",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbocitybranch"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "deporequester",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbodeporequester"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "depot",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbodepot"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "ipaddress",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dboipaddress"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "maillistaddress",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbomaillistaddress"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "maillistcontact",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbomaillistcontact"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "maillistcustomer",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbomaillistcustomer"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "peoplebasic",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbopeoplebasic"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "peopledriver",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbopeopledriver"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "peoplepersonal",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbopeoplepersonal"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "selist",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dboselist"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "selistitem",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dboselistitem"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "vehicleadmin",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbovehicleadmin"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "vehiclebasic",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbovehiclebasic"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "vehicleequipment",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbovehicleequipment"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "vehiclefinance",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbovehiclefinance"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "vehiclemovement",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbovehiclemovement"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "vehicleoperations",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbovehicleoperations"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "vehicletracking",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbovehicletracking"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "vehicletype",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbovehicletype"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "wfapproval",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbowfapproval"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "wfmail",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbowfmail"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "wftargets",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbowftargets"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "customer",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbocustomer"
+						},
+						"SparkConfig": {
+							"NodeSize": "Small",
+							"MinExecutors": "1",
+							"MaxExecutors": "3"
+						}
+					},
+					{
+						"Source": {
+							"TableName": "deliverycustomer",
+							"SchemaName": "dbo"
+						},
+						"Increment": {
+							"IncField": "0",
+							"IdField": "0"
+						},
+						"Destination": {
+							"FileName": "dbodeliverycustomer"
+						},
+						"SparkConfig": {
+							"NodeSize": "Small",
+							"MinExecutors": "1",
+							"MaxExecutors": "3"
+						}
+					}
+				]
 			},
 			"TakeOnPeriod": {
 				"type": "string",

@@ -1,0 +1,20 @@
+{
+	"name": "vw_T_RLS_Access_Level",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.views WHERE object_id = OBJECT_ID('dbo.vw_T_RLS_Access_Level') )\n    DROP VIEW dbo.vw_T_RLS_Access_Level\nGO\n\nCREATE VIEW [dbo].[vw_T_RLS_Access_Level]\nAS\nSELECT \n Al.[rls_level1_id]\n,Us.[rls_username]\nFROM [dbo].[vw_T_RLS_Access] Ac \nLEFT JOIN [STMD].[dbo].[vw_D_RLS_AccountLevel1] Al on Ac.[rls_level1_id] = Al.[rls_level1_id]\nLEFT JOIN [STMD].[dbo].[vw_D_RLS_User] Us on Ac.rls_userid = Us.rls_userid\nWHERE Al.[rls_level1_id] IS NOT NULL;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

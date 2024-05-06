@@ -1,0 +1,20 @@
+{
+	"name": "vw_T_RLS_Access_Depot",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/Finance"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.views WHERE object_id = OBJECT_ID('dbo.vw_T_RLS_Access_Depot') )\n    DROP VIEW dbo.vw_T_RLS_Access_Depot\nGO\n\nCreate VIEW [dbo].[vw_T_RLS_Access_Depot]\nAS\nSELECT \n Ac.[rls_depot_parent_id]\n,Us.[rls_username]\nFROM [dbo].[vw_T_RLS_Access] Ac \nLEFT JOIN [STMD].[dbo].[vw_D_RLS_DepotParent] Pd on Ac.rls_depot_parent_id = Pd.[rls_depot_parent_id]\nLEFT JOIN [STMD].[dbo].[vw_D_RLS_User] Us on Ac.rls_userid = Us.rls_userid\nWHERE Ac.[rls_depot_parent_id] IS NOT NULL;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STSAP",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

@@ -1,0 +1,20 @@
+{
+	"name": "vw_D_RLS_AccountLevel1",
+	"properties": {
+		"folder": {
+			"name": "Structured Schema on Read/MasterData"
+		},
+		"content": {
+			"query": "IF EXISTS ( SELECT * FROM sys.views WHERE object_id = OBJECT_ID('dbo.vw_D_RLS_AccountLevel1') )\n    DROP VIEW dbo.vw_D_RLS_AccountLevel1\nGO\n\n\nCREATE VIEW [dbo].[vw_D_RLS_AccountLevel1]\nAS\n\nwith cte_D_RLS_AccountLevel1 (rls_level1_id, sap_account_level1name)\nas\n(\nSELECT              1,\t'ASSETS'\nunion all SELECT    2,\t'CAPITAL AND RESERVES'\nunion all SELECT    3,\t'COST OF SALES'\nunion all SELECT    4,\t'LIABILITIES'\nunion all SELECT    5,\t'OPERATING COSTS'\nunion all SELECT    6,\t'TAXATION AND EXTRAORDINARY ITEMS'\nunion all SELECT    7,\t'TURNOVER'\n)\n\nselect * from cte_D_RLS_AccountLevel1;",
+			"metadata": {
+				"language": "sql"
+			},
+			"currentConnection": {
+				"databaseName": "STMD",
+				"poolName": "Built-in"
+			},
+			"resultLimit": 5000
+		},
+		"type": "SqlQuery"
+	}
+}

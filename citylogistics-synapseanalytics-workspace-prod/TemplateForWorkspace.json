@@ -5913,7 +5913,7 @@
 								"value": "@pipeline().parameters.CW_Items",
 								"type": "Expression"
 							},
-							"batchCount": 4,
+							"batchCount": 8,
 							"activities": [
 								{
 									"name": "If ColumnsNamesBlankSpacesOrLimitedLoad",
@@ -6740,7 +6740,7 @@
 								"value": "@pipeline().parameters.CW_Items",
 								"type": "Expression"
 							},
-							"batchCount": 4,
+							"batchCount": 8,
 							"activities": [
 								{
 									"name": "If ColumnsNamesBlankSpacesOrLimitedLoad",
@@ -8886,7 +8886,7 @@
 								"value": "@pipeline().parameters.CW_Items",
 								"type": "Expression"
 							},
-							"batchCount": 8,
+							"batchCount": 12,
 							"activities": [
 								{
 									"name": "If ColumnsNamesBlankSpacesOrLimitedLoad",
@@ -10116,7 +10116,7 @@
 								"value": "@pipeline().parameters.CW_Items",
 								"type": "Expression"
 							},
-							"batchCount": 8,
+							"batchCount": 12,
 							"activities": [
 								{
 									"name": "If ColumnsNamesBlankSpacesOrLimitedLoad",
@@ -11477,6 +11477,51 @@
 							"driverSize": "Medium",
 							"numExecutors": 2
 						}
+					},
+					{
+						"name": "STOPS_00_SorterRunOrder",
+						"type": "SynapseNotebook",
+						"dependsOn": [
+							{
+								"activity": "STOPS_RunOrderDistribution",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "STOPS_RunOrderLinehaul",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "00_SorterRunOrder",
+								"type": "NotebookReference"
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "PRDSparkPool",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Medium",
+							"conf": {
+								"spark.dynamicAllocation.enabled": true,
+								"spark.dynamicAllocation.minExecutors": 2,
+								"spark.dynamicAllocation.maxExecutors": 3
+							},
+							"driverSize": "Medium",
+							"numExecutors": 2
+						}
 					}
 				],
 				"policy": {
@@ -11497,7 +11542,8 @@
 				"[concat(variables('workspaceId'), '/notebooks/00_STSAP_RunOrder')]",
 				"[concat(variables('workspaceId'), '/notebooks/Dedupe on bill_consignmentr')]",
 				"[concat(variables('workspaceId'), '/notebooks/00_ReportsRunOrder')]",
-				"[concat(variables('workspaceId'), '/notebooks/00_LMSv1v2Recon_RunOrder')]"
+				"[concat(variables('workspaceId'), '/notebooks/00_LMSv1v2Recon_RunOrder')]",
+				"[concat(variables('workspaceId'), '/notebooks/00_SorterRunOrder')]"
 			]
 		},
 		{
@@ -11516,7 +11562,7 @@
 								"value": "@pipeline().parameters.CW_Items",
 								"type": "Expression"
 							},
-							"batchCount": 10,
+							"batchCount": 12,
 							"activities": [
 								{
 									"name": "If ColumnsNamesBlankSpacesOrLimitedLoad",
@@ -12661,7 +12707,7 @@
 								"value": "@pipeline().parameters.CW_Items",
 								"type": "Expression"
 							},
-							"batchCount": 4,
+							"batchCount": 12,
 							"activities": [
 								{
 									"name": "If ColumnsNamesBlankSpacesOrLimitedLoad",
@@ -38326,7 +38372,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "adaf0b44-e63e-43a7-a2e5-48443f958978"
+						"spark.autotune.trackingId": "9b2934f2-9312-4a9c-845b-03831b766738"
 					}
 				},
 				"metadata": {
@@ -38340,18 +38386,19 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -38389,6 +38436,7 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"# #Create DataFrame for the stloadchild LMS Table\r\n",
 							"# stloadchild = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stloadchild.parquet', format='parquet')\r\n",

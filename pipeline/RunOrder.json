@@ -324,6 +324,51 @@
 					"driverSize": "Medium",
 					"numExecutors": 2
 				}
+			},
+			{
+				"name": "STOPS_00_SorterRunOrder",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "STOPS_RunOrderDistribution",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "STOPS_RunOrderLinehaul",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "00_SorterRunOrder",
+						"type": "NotebookReference"
+					},
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "PRDSparkPool",
+						"type": "BigDataPoolReference"
+					},
+					"executorSize": "Medium",
+					"conf": {
+						"spark.dynamicAllocation.enabled": true,
+						"spark.dynamicAllocation.minExecutors": 2,
+						"spark.dynamicAllocation.maxExecutors": 3
+					},
+					"driverSize": "Medium",
+					"numExecutors": 2
+				}
 			}
 		],
 		"folder": {

@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "9178943d-6fd0-407d-a3c1-a4353d9af968"
+				"spark.autotune.trackingId": "cc6c830e-a0df-43f0-aea7-04748a434f07"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 44
 			},
 			{
 				"cell_type": "code",
@@ -104,9 +104,11 @@
 					"# publicpod = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Onroute/publicpod.parquet', format='parquet')\r\n",
 					"# publicpod.createOrReplaceTempView(\"publicpod\")\r\n",
 					"\r\n",
-					""
+					"# #Create DataFrame for the dbolocation LMS Table\r\n",
+					"# dbolocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
+					"# dbolocation.createOrReplaceTempView(\"dbolocation\")"
 				],
-				"execution_count": 2
+				"execution_count": 45
 			},
 			{
 				"cell_type": "code",
@@ -126,7 +128,7 @@
 					"# from pyspark.sql.window import Window\r\n",
 					"# from pyspark.sql.types import IntegralType"
 				],
-				"execution_count": 3
+				"execution_count": 46
 			},
 			{
 				"cell_type": "code",
@@ -144,7 +146,7 @@
 				"source": [
 					"partitionfirst=Window.partitionBy(\"did\").orderBy(col(\"did\").asc())"
 				],
-				"execution_count": 4
+				"execution_count": 47
 			},
 			{
 				"cell_type": "code",
@@ -162,7 +164,7 @@
 				"source": [
 					"pod_tmp = publicpod.withColumn(\"row_num\",row_number().over(partitionfirst))"
 				],
-				"execution_count": 5
+				"execution_count": 48
 			},
 			{
 				"cell_type": "code",
@@ -180,7 +182,7 @@
 				"source": [
 					"pod_tmp.createOrReplaceTempView(\"pod_tmp\")"
 				],
-				"execution_count": 6
+				"execution_count": 49
 			},
 			{
 				"cell_type": "code",
@@ -198,7 +200,7 @@
 				"source": [
 					"partitionfirst=Window.partitionBy(\"collectionwaybillid\").orderBy(col(\"collectionwaybillid\").asc()).orderBy(col(\"id\").asc())"
 				],
-				"execution_count": 7
+				"execution_count": 50
 			},
 			{
 				"cell_type": "code",
@@ -216,7 +218,7 @@
 				"source": [
 					"draftcollection_tmp = publicdraftcollection.withColumn(\"row_num\",row_number().over(partitionfirst))"
 				],
-				"execution_count": 8
+				"execution_count": 51
 			},
 			{
 				"cell_type": "code",
@@ -234,7 +236,7 @@
 				"source": [
 					"draftcollection_tmp.createOrReplaceTempView(\"draftcollection_tmp\")"
 				],
-				"execution_count": 9
+				"execution_count": 52
 			},
 			{
 				"cell_type": "code",
@@ -266,6 +268,8 @@
 					"    ,c.pickupcustid as lms_collect_pickupcustid\r\n",
 					"    ,c.delivercustid as lms_collect_delivercustid\r\n",
 					"    ,c.locationid as lms_collect_locationid\r\n",
+					"    ,l.description as lms_collect_locationname\r\n",
+					"    ,l.code as lms_collect_locationcode\r\n",
 					"    ,c.noofparcels as lms_collect_noofparcels\r\n",
 					"    ,c.weight as lms_collect_weight\r\n",
 					"    ,c.timeready as lms_collect_timeready\r\n",
@@ -441,10 +445,12 @@
 					"LEFT JOIN draftcollection_tmp dc on dc.collectionwaybillid = c.id and dc.row_num = 1\r\n",
 					"LEFT JOIN publicdelivery d on d.waybillid =  dc.collectionwaybillid and d.mode = 'collect'\r\n",
 					"LEFT JOIN pod_tmp p on p.did = d.id and p.row_num = 1\r\n",
+					"LEFT JOIN dbolocation l on l.id = c.locationid\r\n",
+					"\r\n",
 					"\r\n",
 					""
 				],
-				"execution_count": 10
+				"execution_count": 53
 			},
 			{
 				"cell_type": "code",
@@ -462,7 +468,7 @@
 				"source": [
 					"stcollection = spark.sql(\"SELECT * FROM stcollection\")"
 				],
-				"execution_count": 11
+				"execution_count": 54
 			},
 			{
 				"cell_type": "code",
@@ -480,7 +486,7 @@
 				"source": [
 					"# stcollection.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stcollection.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 16
+				"execution_count": 55
 			},
 			{
 				"cell_type": "code",
@@ -498,7 +504,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 13
+				"execution_count": 56
 			}
 		]
 	}

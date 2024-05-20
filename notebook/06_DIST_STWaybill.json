@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "e552a605-9ed1-4406-a9c0-9f882b36de5d"
+				"spark.autotune.trackingId": "6ca3afb0-2220-4862-b0e7-18f73c69556f"
 			}
 		},
 		"metadata": {
@@ -116,13 +116,9 @@
 					"# stzone = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stzone.parquet', format='parquet')\r\n",
 					"# stzone.createOrReplaceTempView(\"stzone\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the stzone LMS Table\r\n",
-					"# stzone = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stzone.parquet', format='parquet')\r\n",
-					"# stzone.createOrReplaceTempView(\"stzone\")\r\n",
-					"\r\n",
-					"# #Create DataFrame for the stloadparent LMS Table\r\n",
-					"# stloadparent = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', format='parquet')\r\n",
-					"# stloadparent.createOrReplaceTempView(\"stloadparent\")\r\n",
+					"# #Create DataFrame for the dboloads LMS Table\r\n",
+					"# dboloads = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
+					"# dboloads.createOrReplaceTempView(\"dboloads\")\r\n",
 					""
 				],
 				"execution_count": 33
@@ -501,11 +497,11 @@
 					"DISTINCT\r\n",
 					"w.*\r\n",
 					",CASE\r\n",
-					"    WHEN w.lms_zone_locid <> l.lms_loadparent_fromlocid THEN 1 ELSE 0\r\n",
+					"    WHEN w.lms_zone_locid <> l.fromlocid THEN 1 ELSE 0\r\n",
 					"    END AS lms_waybill_routedepotmismatchflag \r\n",
 					"\r\n",
 					"FROM stwaybill_tmp w \r\n",
-					"LEFT JOIN stloadparent l on w.lms_waybill_LoadID = l.lms_loadparent_parentloadid\r\n",
+					"LEFT JOIN dboloads l on w.lms_waybill_LoadID = l.id\r\n",
 					""
 				],
 				"execution_count": 55

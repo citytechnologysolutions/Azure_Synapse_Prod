@@ -25252,7 +25252,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "e7b7e3aa-a095-4a45-89dd-03ff61ad36aa"
+						"spark.autotune.trackingId": "23a1b7fc-b6bc-407a-9a98-0f914c9cbb64"
 					}
 				},
 				"metadata": {
@@ -25266,18 +25266,19 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -25313,6 +25314,7 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"# #Create DataFrame for the publicbooking TMS Table\r\n",
 							"# publicbooking = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicbooking.parquet', format='parquet')\r\n",
@@ -25589,7 +25591,7 @@
 							"\r\n",
 							"    (b.id)*-1 as tms_booking_id\r\n",
 							"    ,(b.allocationuserid)*-1 as tms_booking_allocatedby\r\n",
-							"    ,to_timestamp(7200+b.AllocationDate) as tms_booking_allocateddate\r\n",
+							"    ,to_timestamp(b.AllocationDate) as tms_booking_allocateddate\r\n",
 							"    ,null as tms_booking_assetreleasedate\r\n",
 							"    ,null as tms_booking_billingmethod\r\n",
 							"    ,null as tms_booking_billingstatus\r\n",
@@ -31156,7 +31158,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "ac689bbe-8a1b-4744-aa98-d2843e3434d0"
+						"spark.autotune.trackingId": "2b99ee14-91d5-46c1-a381-fae3531e6546"
 					}
 				},
 				"metadata": {
@@ -31170,18 +31172,20 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56,
+						"extraHeader": {},
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -31219,6 +31223,7 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"# #Create DataFrame for the publicInstruction TMS Table\r\n",
 							"# publicInstruction = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicinstruction.parquet', format='parquet')\r\n",
@@ -31444,7 +31449,7 @@
 							"    ,si.tms_instruction_insby\r\n",
 							"    ,si.tms_instruction_duedate\r\n",
 							"    ,si.tms_instruction_actualdate\r\n",
-							"    ,to_timestamp(7200+si.tms_instruction_bookingpickupdeliverydate) as tms_instruction_bookingpickupdeliverydate\r\n",
+							"    ,to_timestamp(si.tms_instruction_bookingpickupdeliverydate) as tms_instruction_bookingpickupdeliverydate\r\n",
 							"    ,i.id as orv_lhdelivery_id\r\n",
 							"    ,i.did as orv_lhdelivery_did\r\n",
 							"    ,i.lat as orv_lhdelivery_lat\r\n",
@@ -39309,7 +39314,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "49f6a62a-2fae-4093-9cc3-983c93fe5e1d"
+						"spark.autotune.trackingId": "70881a8d-1f18-4092-981a-fc5265ab0dc8"
 					}
 				},
 				"metadata": {
@@ -39323,18 +39328,19 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -39372,6 +39378,7 @@
 					},
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"# #Create DataFrame for the publictrip TMS Table\r\n",
 							"# publictrip = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publictrip.parquet', format='parquet')\r\n",
@@ -40088,7 +40095,7 @@
 							"    ,x.dispatchaddress as tms_trip_startfromaddress\r\n",
 							"    ,x.dispatchlongitude as tms_trip_startfromlat\r\n",
 							"    ,x.dispatchlatitude as tms_trip_startfromlng\r\n",
-							"    ,to_timestamp(7200+coalesce(x.dispatchdate,x.cdate)) as tms_trip_dispatchdate\r\n",
+							"    ,to_timestamp(coalesce(x.dispatchdate,x.cdate)) as tms_trip_dispatchdate\r\n",
 							"    ,x.destinationaddress as tms_trip_stopaddress\r\n",
 							"    ,x.destinationlongitude as tms_trip_stoplat\r\n",
 							"    ,x.destinationlatitude as tms_trip_stoplng\r\n",

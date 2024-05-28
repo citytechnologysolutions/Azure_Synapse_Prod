@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "0728c68c-fa2c-439f-b103-89890d772558"
+				"spark.autotune.trackingId": "b3687e74-5f7b-4948-abc4-755df04de60c"
 			}
 		},
 		"metadata": {
@@ -34,12 +34,19 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
+				"type": "Spark",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
-				}
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -112,18 +119,18 @@
 					"SELECT \r\n",
 					"    i.id as tms_invoice_id\r\n",
 					"    ,i.customerid as tms_invoice_customerid\r\n",
-					"    ,to_timestamp(i.invoicedate) as tms_invoice_invoicedate\r\n",
+					"    ,to_timestamp(7200+i.invoicedate) as tms_invoice_invoicedate\r\n",
 					"    ,i.reference as tms_invoice_reference\r\n",
 					"    ,i.status as tms_invoice_status\r\n",
 					"    ,i.insby as tms_invoice_insby\r\n",
-					"    ,to_timestamp(i.insdate) as tms_invoice_insdate\r\n",
+					"    ,to_timestamp(7200+i.insdate) as tms_invoice_insdate\r\n",
 					"    ,i.total as tms_invoice_total\r\n",
 					"    ,i.vat as tms_invoice_vat\r\n",
 					"    ,i.invoicenum as tms_invoice_invoicenum\r\n",
 					"    ,i.opaqueid as tms_invoice_opaqueid\r\n",
 					"    ,i.sapstatus as tms_invoice_sapstatus\r\n",
 					"    ,i.sapid as tms_invoice_sapid\r\n",
-					"    ,to_timestamp(i.sendsapdate) as tms_invoice_sendsapdate\r\n",
+					"    ,to_timestamp(7200+i.sendsapdate) as tms_invoice_sendsapdate\r\n",
 					"    ,i.legacyid as tms_invoice_legacyid\r\n",
 					"    ,i.customercode as tms_invoice_customercode\r\n",
 					"    ,i.revennuecode as tms_invoice_revennuecode\r\n",
@@ -134,8 +141,8 @@
 					"    ,i2.amount as tms_invoiceitem_amount\r\n",
 					"    ,i2.vat as tms_invoiceitem_vat\r\n",
 					"    ,i2.linetotal as tms_invoiceitem_linetotal\r\n",
-					"    ,to_timestamp(i2.insdate) as tms_invoiceitem_insdate\r\n",
-					"    ,to_timestamp(i2.moddate) as tms_invoiceitem_moddate\r\n",
+					"    ,to_timestamp(7200+i2.insdate) as tms_invoiceitem_insdate\r\n",
+					"    ,to_timestamp(7200+i2.moddate) as tms_invoiceitem_moddate\r\n",
 					"    ,i2.insby as tms_invoiceitem_insby\r\n",
 					"    ,i2.linenum as tms_invoiceitem_linenum\r\n",
 					"    ,i2.legacyid as tms_invoiceitem_legacyid\r\n",

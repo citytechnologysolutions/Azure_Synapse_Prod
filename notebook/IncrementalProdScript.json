@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "9b3d9d75-10fa-4103-93b9-2a4a07c971fd"
+				"spark.autotune.trackingId": "9880036c-b20f-4491-a519-c594d944e40a"
 			}
 		},
 		"metadata": {
@@ -82,15 +82,15 @@
 					]
 				},
 				"source": [
-					"cw_FolderName = \"Unstructured Data/TMS_JCDDEV\"\r\n",
+					"cw_FolderName = \"Unstructured Data/LMS_JCDDEV\"\r\n",
 					"ContainerName = \"synapse\"\r\n",
 					"DataLakeDF = \"citylogisticsstorageprod.dfs.core.windows.net/\"\r\n",
-					"Items = \"[{\\\"Source\\\":{\\\"TableName\\\":\\\"financedata\\\",\\\"SchemaName\\\":\\\"public\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"moddate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"publicfinancedata\\\"},\\\"SparkConfig\\\":{\\\"NodeSize\\\":\\\"Small\\\",\\\"MinExecutors\\\":\\\"1\\\",\\\"MaxExecutors\\\":\\\"3\\\"}}]\"\r\n",
+					"Items = \"[{\\\"Source\\\":{\\\"TableName\\\":\\\"Driver\\\",\\\"SchemaName\\\":\\\"dbo\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"lastupdate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"dbodriver\\\"},\\\"SparkConfig\\\":{\\\"NodeSize\\\":\\\"Small\\\",\\\"MinExecutors\\\":\\\"1\\\",\\\"MaxExecutors\\\":\\\"3\\\"}}]\"\r\n",
 					"FullLoad = \"false\"\r\n",
 					"TempContainerName = \"temp\"\r\n",
-					"TakeOnPeriod = \"(SELECT extract(epoch from (select date_trunc('month', CURRENT_DATE) - interval '2 months' - interval '1 day')))\""
+					"TakeOnPeriod = \"(SELECT DATEADD(DAY,1,EOMONTH(DATEADD(MONTH,-3,GETDATE()),-1)))\""
 				],
-				"execution_count": 27
+				"execution_count": 86
 			},
 			{
 				"cell_type": "code",
@@ -134,7 +134,7 @@
 					"from notebookutils import mssparkutils\r\n",
 					"from pyspark.sql.functions import broadcast, col, count, min"
 				],
-				"execution_count": 64
+				"execution_count": 87
 			},
 			{
 				"cell_type": "code",
@@ -152,7 +152,7 @@
 				"source": [
 					"Items = json.loads(Items)"
 				],
-				"execution_count": 29
+				"execution_count": 88
 			},
 			{
 				"cell_type": "code",
@@ -170,7 +170,7 @@
 				"source": [
 					"print(Items)"
 				],
-				"execution_count": 30
+				"execution_count": 89
 			},
 			{
 				"cell_type": "code",
@@ -186,9 +186,119 @@
 					}
 				},
 				"source": [
-					""
+					"            MinDate = IncrementFile.select(min(IncField))\r\n",
+					"            MinDate = str(MinDate.collect()[0][0])"
 				],
-				"execution_count": 61
+				"execution_count": 102
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"MinDate"
+				],
+				"execution_count": 103
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"display(ProdFile.select(max(\"lastupdate\")))"
+				],
+				"execution_count": 105
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df_with_rows_deleted = ProdFile.filter(IncField + ' < \"' + MinDate + '\"')"
+				],
+				"execution_count": 96
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"IncField + ' < \"' + MinDate + '\"'"
+				],
+				"execution_count": 101
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"MinDate"
+				],
+				"execution_count": 99
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df_with_rows_deleted.count()"
+				],
+				"execution_count": 98
 			},
 			{
 				"cell_type": "code",
@@ -267,7 +377,7 @@
 					"            MinDate = IncrementFile.select(min(IncField))\r\n",
 					"            MinDate = str(MinDate.collect()[0][0])\r\n",
 					"            print(\"MinDate from Source System = \" + MinDate + \" For Table \" + cw_FileName) \r\n",
-					"            df_with_rows_deleted = ProdFile.filter(IncField + \" <\" + MinDate)\r\n",
+					"            df_with_rows_deleted = ProdFile.filter(IncField + \" < '\" + MinDate + \"'\")\r\n",
 					"            unioned = df_with_rows_deleted.unionByName(IncrementFile, allowMissingColumns=False)\r\n",
 					"            t1path = 'abfss://' + TempContainerName + '@' + DataLakeDF + cw_FolderName + '/T1_' + cw_FileName\r\n",
 					"            unioned.write.parquet(t1path, mode='overwrite')\r\n",
@@ -321,12 +431,12 @@
 					"            print(\"Parameters not correctly specified\")\r\n",
 					"            raise ValueError(\"Parameters not correctly specified\")\r\n",
 					"        print(Finalpath)\r\n",
-					"        FinalDF.write.parquet(Finalpath, mode='overwrite')\r\n",
+					"        # FinalDF.write.parquet(Finalpath, mode='overwrite')\r\n",
 					"        print(copypath, t1path)\r\n",
 					"        ## Remove the temporary tables and directories in the the temp container\r\n",
-					"        mssparkutils.fs.rm(copypath, True) \r\n",
-					"        if t1path != '' :\r\n",
-					"            mssparkutils.fs.rm(t1path, True) \r\n",
+					"        # mssparkutils.fs.rm(copypath, True) \r\n",
+					"        # if t1path != '' :\r\n",
+					"        #     mssparkutils.fs.rm(t1path, True) \r\n",
 					"    except:\r\n",
 					"        failflag = 1\r\n",
 					"        failflaglist += [i]\r\n",
@@ -335,7 +445,7 @@
 					"    print(failflaglist)\r\n",
 					"    raise ValueError(\"One of the table iterations has failed\") "
 				],
-				"execution_count": 78
+				"execution_count": 97
 			},
 			{
 				"cell_type": "code",

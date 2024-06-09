@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "067aab5b-e142-4e18-8852-f9c5566b2dab"
+				"spark.autotune.trackingId": "6c65798d-b4f9-454b-a0ec-34e3c5225159"
 			}
 		},
 		"metadata": {
@@ -255,7 +255,8 @@
 					"            # print(\"MinDate from Source System = \" + MinDate + \" For Table \" + cw_FileName) \r\n",
 					"            print(\"MaxDate to remove from DataLake = \" + TakeOnPeriod + \" For Table \" + cw_FileName) \r\n",
 					"            # df_with_rows_deleted = ProdFile.filter(IncField + \" < '\" + MinDate + \"'\")\r\n",
-					"            df_with_rows_deleted = ProdFile.filter(IncField + \" < '\" + TakeOnPeriod + \"'\")\r\n",
+					"            df_with_rows_deleted_TOP = ProdFile.filter(IncField + \" < '\" + TakeOnPeriod + \"'\")\r\n",
+					"            df_with_rows_deleted = df_with_rows_deleted_TOP.join(broadcast(IncrementFile), on = IdField, how = 'left_anti')\r\n",
 					"            unioned = df_with_rows_deleted.unionByName(IncrementFile, allowMissingColumns=False)\r\n",
 					"            t1path = 'abfss://' + TempContainerName + '@' + DataLakeDF + cw_FolderName + '/T1_' + cw_FileName\r\n",
 					"            unioned.write.parquet(t1path, mode='overwrite')\r\n",

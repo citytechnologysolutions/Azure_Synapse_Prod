@@ -656,11 +656,9 @@
 			{
 				"name": "ProdNotebook",
 				"type": "SynapseNotebook",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
-						"activity": "Iterate Data",
+						"activity": "If PeriodLoad",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -721,6 +719,13 @@
 								"type": "Expression"
 							},
 							"type": "string"
+						},
+						"TakeOnPeriod": {
+							"value": {
+								"value": "@if(greater(length(pipeline().parameters.TakeOnPeriod),1),string(activity('LookupPeriod').output),' ')",
+								"type": "Expression"
+							},
+							"type": "string"
 						}
 					},
 					"snapshot": true,
@@ -736,6 +741,78 @@
 					},
 					"driverSize": "Small",
 					"numExecutors": 1
+				}
+			},
+			{
+				"name": "If PeriodLoad",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Iterate Data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(length(pipeline().parameters.TakeOnPeriod),1)",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "LookupPeriod",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "@pipeline().parameters.TakeOnPeriod",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "SqlServerDataSet",
+									"type": "DatasetReference",
+									"parameters": {
+										"ServerName": {
+											"value": "@variables('ServerName')",
+											"type": "Expression"
+										},
+										"DatabaseName": {
+											"value": "@variables('DatabaseName')",
+											"type": "Expression"
+										},
+										"UserName": {
+											"value": "@variables('UserName')",
+											"type": "Expression"
+										},
+										"CW_SchemaName": {
+											"value": "@variables('SchemaName')",
+											"type": "Expression"
+										},
+										"SecretName": {
+											"value": "@variables('SecretName')",
+											"type": "Expression"
+										},
+										"CW_TableName": "' '"
+									}
+								}
+							}
+						}
+					]
 				}
 			}
 		],

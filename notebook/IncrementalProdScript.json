@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "9880036c-b20f-4491-a519-c594d944e40a"
+				"spark.autotune.trackingId": "84007075-3d81-463b-b7ac-99ef00d6e2c8"
 			}
 		},
 		"metadata": {
@@ -72,25 +72,28 @@
 					"           }\r\n",
 					" }"
 				],
-				"execution_count": 32
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
 				"metadata": {
-					"tags": [
-						"parameters"
-					]
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
 				},
 				"source": [
-					"cw_FolderName = \"Unstructured Data/LMS_JCDDEV\"\r\n",
-					"ContainerName = \"synapse\"\r\n",
-					"DataLakeDF = \"citylogisticsstorageprod.dfs.core.windows.net/\"\r\n",
-					"Items = \"[{\\\"Source\\\":{\\\"TableName\\\":\\\"Driver\\\",\\\"SchemaName\\\":\\\"dbo\\\"},\\\"Increment\\\":{\\\"IncField\\\":\\\"lastupdate\\\",\\\"IdField\\\":\\\"id\\\"},\\\"Destination\\\":{\\\"FileName\\\":\\\"dbodriver\\\"},\\\"SparkConfig\\\":{\\\"NodeSize\\\":\\\"Small\\\",\\\"MinExecutors\\\":\\\"1\\\",\\\"MaxExecutors\\\":\\\"3\\\"}}]\"\r\n",
-					"FullLoad = \"false\"\r\n",
-					"TempContainerName = \"temp\"\r\n",
-					"TakeOnPeriod = \"(SELECT DATEADD(DAY,1,EOMONTH(DATEADD(MONTH,-3,GETDATE()),-1)))\""
+					"try :\r\n",
+					"    float(TakeOnPeriod)\r\n",
+					"except :\r\n",
+					"    TakeOnPeriod = str(datetime.strptime(TakeOnPeriod, '%m/%d/%Y').date())"
 				],
-				"execution_count": 86
+				"execution_count": 146
 			},
 			{
 				"cell_type": "code",
@@ -114,7 +117,7 @@
 					"TempContainerName = \"\"\r\n",
 					"TakeOnPeriod = \"\""
 				],
-				"execution_count": 5
+				"execution_count": 144
 			},
 			{
 				"cell_type": "code",
@@ -132,9 +135,10 @@
 				"source": [
 					"import json\r\n",
 					"from notebookutils import mssparkutils\r\n",
-					"from pyspark.sql.functions import broadcast, col, count, min"
+					"from pyspark.sql.functions import broadcast, col, count, min, max\r\n",
+					"from datetime import datetime"
 				],
-				"execution_count": 87
+				"execution_count": 147
 			},
 			{
 				"cell_type": "code",
@@ -152,7 +156,7 @@
 				"source": [
 					"Items = json.loads(Items)"
 				],
-				"execution_count": 88
+				"execution_count": 148
 			},
 			{
 				"cell_type": "code",
@@ -170,135 +174,7 @@
 				"source": [
 					"print(Items)"
 				],
-				"execution_count": 89
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"            MinDate = IncrementFile.select(min(IncField))\r\n",
-					"            MinDate = str(MinDate.collect()[0][0])"
-				],
-				"execution_count": 102
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"MinDate"
-				],
-				"execution_count": 103
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					},
-					"collapsed": false
-				},
-				"source": [
-					"display(ProdFile.select(max(\"lastupdate\")))"
-				],
-				"execution_count": 105
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"df_with_rows_deleted = ProdFile.filter(IncField + ' < \"' + MinDate + '\"')"
-				],
-				"execution_count": 96
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"IncField + ' < \"' + MinDate + '\"'"
-				],
-				"execution_count": 101
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"MinDate"
-				],
-				"execution_count": 99
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"df_with_rows_deleted.count()"
-				],
-				"execution_count": 98
+				"execution_count": 149
 			},
 			{
 				"cell_type": "code",
@@ -374,10 +250,12 @@
 					"                    print(\"IncField or IdField contains Null values\")\r\n",
 					"                    raise Exception (\"IncField or IdField contains Null values\")\r\n",
 					"\r\n",
-					"            MinDate = IncrementFile.select(min(IncField))\r\n",
-					"            MinDate = str(MinDate.collect()[0][0])\r\n",
-					"            print(\"MinDate from Source System = \" + MinDate + \" For Table \" + cw_FileName) \r\n",
-					"            df_with_rows_deleted = ProdFile.filter(IncField + \" < '\" + MinDate + \"'\")\r\n",
+					"            # MinDate = IncrementFile.select(min(IncField))\r\n",
+					"            # MinDate = str(MinDate.collect()[0][0])\r\n",
+					"            # print(\"MinDate from Source System = \" + MinDate + \" For Table \" + cw_FileName) \r\n",
+					"            print(\"MaxDate to remove from DataLake = \" + TakeOnPeriod + \" For Table \" + cw_FileName) \r\n",
+					"            # df_with_rows_deleted = ProdFile.filter(IncField + \" < '\" + MinDate + \"'\")\r\n",
+					"            df_with_rows_deleted = ProdFile.filter(IncField + \" < '\" + TakeOnPeriod + \"'\")\r\n",
 					"            unioned = df_with_rows_deleted.unionByName(IncrementFile, allowMissingColumns=False)\r\n",
 					"            t1path = 'abfss://' + TempContainerName + '@' + DataLakeDF + cw_FolderName + '/T1_' + cw_FileName\r\n",
 					"            unioned.write.parquet(t1path, mode='overwrite')\r\n",
@@ -445,25 +323,7 @@
 					"    print(failflaglist)\r\n",
 					"    raise ValueError(\"One of the table iterations has failed\") "
 				],
-				"execution_count": 97
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					""
-				],
-				"execution_count": null
+				"execution_count": 150
 			}
 		]
 	}

@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "9b611844-96c7-4605-982f-e93ff4a21abe"
+				"spark.autotune.trackingId": "f2e55be7-b988-4007-ad88-9d207864d157"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,27 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 49
+				"execution_count": 51
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# import pandas as pd\r\n",
+					"# from pyspark.sql.types import DecimalType\r\n",
+					"# from pyspark.sql.functions import col"
+				],
+				"execution_count": 52
 			},
 			{
 				"cell_type": "code",
@@ -97,9 +117,72 @@
 				"source": [
 					"# #Create DataFrame for the sttransactionssummary SAP Table\r\n",
 					"# sttransactionssummary = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/FINANCE/sttransactionssummary.parquet', format='parquet')\r\n",
-					"# sttransactionssummary.createOrReplaceTempView(\"sttransactionssummary\")"
+					"# sttransactionssummary.createOrReplaceTempView(\"sttransactionssummary\")\r\n",
+					"\r\n",
+					""
 				],
-				"execution_count": 50
+				"execution_count": 53
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# %%pyspark\r\n",
+					"# stretailcalendar = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/Finance and Operations Mapping Sources/Finance_Retail_Calendar.csv', format='csv'\r\n",
+					"# , header=True\r\n",
+					"# )"
+				],
+				"execution_count": 54
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stretailcalendar = stretailcalendar.withColumn('Date', col('Date').cast('date'))\\\r\n",
+					".withColumn('RetailFinYearWeek', col('RetailFinYearWeek').cast('int')\r\n",
+					"\r\n",
+					")"
+				],
+				"execution_count": 55
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#Create DataFrame for the stretailcalendar SAP Table\r\n",
+					"stretailcalendar.createOrReplaceTempView(\"stretailcalendar\")"
+				],
+				"execution_count": 56
 			},
 			{
 				"cell_type": "code",
@@ -117,7 +200,7 @@
 				"source": [
 					"endDateDF = spark.sql(\"SELECT max(sap_transactionsheader_postingdate) as enddate FROM sttransactionssummary\")"
 				],
-				"execution_count": 51
+				"execution_count": 57
 			},
 			{
 				"cell_type": "code",
@@ -135,7 +218,7 @@
 				"source": [
 					"endDate = endDateDF.first()['enddate']"
 				],
-				"execution_count": 52
+				"execution_count": 58
 			},
 			{
 				"cell_type": "code",
@@ -159,7 +242,7 @@
 					"  spark.sql(f\"select explode(sequence(to_date('{beginDate}'), to_date('{endDate}'), interval 1 day)) as calendarDate\").createOrReplaceTempView('dates')\r\n",
 					")"
 				],
-				"execution_count": 53
+				"execution_count": 59
 			},
 			{
 				"cell_type": "code",
@@ -181,7 +264,7 @@
 				"source": [
 					"%%sql\r\n",
 					"CREATE OR REPLACE TEMP VIEW\r\n",
-					"stfinancedates\r\n",
+					"stfinancedates_tmp\r\n",
 					"AS\r\n",
 					"SELECT \r\n",
 					"\r\n",
@@ -256,7 +339,38 @@
 					"  end,calendarDate  asc\r\n",
 					""
 				],
-				"execution_count": 54
+				"execution_count": 60
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stfinancedates\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					" a.*\r\n",
+					",b.RetailFinYearWeek as retail_fin_year_week\r\n",
+					"\r\n",
+					"FROM stfinancedates_tmp a\r\n",
+					"LEFT JOIN stretailcalendar b on b.Date = a.sap_transactionsheader_postingdate"
+				],
+				"execution_count": 61
 			},
 			{
 				"cell_type": "code",
@@ -274,7 +388,7 @@
 				"source": [
 					"stfinancedates = spark.sql(\"SELECT * FROM stfinancedates\")"
 				],
-				"execution_count": 55
+				"execution_count": 62
 			},
 			{
 				"cell_type": "code",
@@ -292,7 +406,7 @@
 				"source": [
 					"# stfinancedates.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/FINANCE/stfinancedates.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 56
+				"execution_count": 64
 			}
 		]
 	}

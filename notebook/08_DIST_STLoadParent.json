@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "a5728d3d-9bbc-4c4f-a76f-0cf9b9fade55"
+				"spark.autotune.trackingId": "38f56a70-726d-4d54-bc2b-b19171f77188"
 			}
 		},
 		"metadata": {
@@ -731,7 +731,7 @@
 					",t.lms_loadparent_minclosedt\r\n",
 					",t.lms_loadparent_maxclosedt"
 				],
-				"execution_count": 12
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -749,7 +749,7 @@
 				"source": [
 					"stloadparent_tmp2 = spark.sql(\"SELECT * FROM stloadparent_tmp2\")"
 				],
-				"execution_count": 13
+				"execution_count": 12
 			},
 			{
 				"cell_type": "code",
@@ -767,7 +767,7 @@
 				"source": [
 					"stloadparent_tmp3 = stloadparent_tmp2.withColumn(\"a\", pow(sin(radians (col(\"orv_dispatch_startinglat\") - col(\"lms_location_latitude\")) / 2), 2) + cos(radians (\"lms_location_latitude\")) * cos(radians (col(\"orv_dispatch_startinglat\"))) * pow(sin(radians (col(\"orv_dispatch_startinglng\") - col(\"lms_location_longitude\")) / 2), 2)).withColumn(\"orv_dispatch_startdistancefromdepot\", atan2(sqrt(col(\"a\")), sqrt(-col(\"a\") + 1)) * 2 * 6371)"
 				],
-				"execution_count": 14
+				"execution_count": 13
 			},
 			{
 				"cell_type": "code",
@@ -785,7 +785,7 @@
 				"source": [
 					"stloadparent_tmp3.createOrReplaceTempView(\"stloadparent_tmp3\")"
 				],
-				"execution_count": 15
+				"execution_count": 14
 			},
 			{
 				"cell_type": "code",
@@ -803,7 +803,7 @@
 				"source": [
 					"stloadparent_tmp4 = stloadparent_tmp3.withColumn(\"a\", pow(sin(radians (col(\"orv_dispatch_stoplat\") - col(\"orv_dispatch_endinglat\")) / 2), 2) + cos(radians (\"orv_dispatch_endinglat\")) * cos(radians (col(\"orv_dispatch_stoplat\"))) * pow(sin(radians (col(\"orv_dispatch_stoplng\") - col(\"orv_dispatch_endinglng\")) / 2), 2)).withColumn(\"orv_dispatch_stopdistancefromdepot\", atan2(sqrt(col(\"a\")), sqrt(-col(\"a\") + 1)) * 2 * 6371)"
 				],
-				"execution_count": 16
+				"execution_count": 15
 			},
 			{
 				"cell_type": "code",
@@ -821,7 +821,7 @@
 				"source": [
 					"stloadparent_tmp4.createOrReplaceTempView(\"stloadparent_tmp4\")"
 				],
-				"execution_count": 17
+				"execution_count": 16
 			},
 			{
 				"cell_type": "code",
@@ -863,6 +863,10 @@
 					"END AS orv_dispatch_stopdistancefromdepotflag\r\n",
 					",to_unix_timestamp(lms_loadparent_maxopendt) - to_unix_timestamp(lms_loadparent_minopendt) as lms_loadparent_loadduration\r\n",
 					",to_unix_timestamp(lms_loadparent_maxclosedt) - to_unix_timestamp(lms_loadparent_minclosedt) as lms_loadparent_offloadduration\r\n",
+					",CASE \r\n",
+					"    WHEN 6371 * acos(cos(radians(orv_dispatch_physicalstartlat)) * cos(radians(orv_dispatch_startinglat)) * cos( radians(orv_dispatch_startinglng) - radians(orv_dispatch_physicalstartlng)) + sin(radians(orv_dispatch_physicalstartlat))  * sin(radians(orv_dispatch_startinglat)) ) < 0.5 THEN 1\r\n",
+					"    ELSE 0\r\n",
+					"END as orv_dispatch_startedingeofenceflag\r\n",
 					"\r\n",
 					"\r\n",
 					"FROM\r\n",
@@ -870,7 +874,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 18
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",
@@ -888,7 +892,7 @@
 				"source": [
 					"stloadparent = spark.sql(\"SELECT * FROM stloadparent\")"
 				],
-				"execution_count": 19
+				"execution_count": 18
 			},
 			{
 				"cell_type": "code",
@@ -906,7 +910,7 @@
 				"source": [
 					"# stloadparent.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stloadparent.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 20
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -924,7 +928,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 38
+				"execution_count": 20
 			}
 		]
 	}

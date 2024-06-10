@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "9421927b-8fbd-499d-b60e-bf0d2285fd9d"
+				"spark.autotune.trackingId": "762b39d9-1b88-47e3-90e2-b4f1a2d1dc4c"
 			}
 		},
 		"metadata": {
@@ -122,14 +122,14 @@
 					"\r\n",
 					"FROM sttrip\r\n",
 					" WHERE \r\n",
-					"\t  tms_trip_vehiclefleetcode IS NOT NULL AND tms_trip_dispatchdate IS NOT NULL AND tms_trip_trackstatus = 'Complete'\r\n",
+					"\t  tms_trip_vehiclefleetcode IS NOT NULL AND tms_trip_dispatchdate IS NOT NULL AND tms_trip_trackstatus in ('complete','started')\r\n",
 					"  GROUP BY\r\n",
 					"\t tms_trip_vehicleid\r\n",
 					"\t,tms_trip_vehiclefleetcode\r\n",
 					"\t,to_date(tms_trip_dispatchdate)\r\n",
 					"\t,tms_trip_trackstatus"
 				],
-				"execution_count": 19
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -147,7 +147,7 @@
 				"source": [
 					"sttripvehicleturns = spark.sql(\"SELECT * FROM sttripvehicleturns\")"
 				],
-				"execution_count": 20
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -165,7 +165,7 @@
 				"source": [
 					"# sttripvehicleturns.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/sttripvehicleturns.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 22
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -183,7 +183,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 23
+				"execution_count": 6
 			}
 		]
 	}

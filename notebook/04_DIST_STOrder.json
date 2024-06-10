@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "5df0ee0c-5ea2-42d3-9b27-9189ebae64fe"
+				"spark.autotune.trackingId": "ecf97a71-c183-4872-a0a5-accc2f10675d"
 			}
 		},
 		"metadata": {
@@ -208,7 +208,10 @@
 					"\r\n",
 					"p.orderid,\r\n",
 					"max(w.poddate) as lms_order_maxpoddate,\r\n",
-					"min(c.deliverby) as lms_order_mindeliverby\r\n",
+					"min(c.deliverby) as lms_order_mindeliverby,\r\n",
+					"max(coalesce(c.cdate,CURRENT_TIMESTAMP)) as lms_order_maxcdate,\r\n",
+					"min(coalesce(p.acceptancedate,p.handoverdate)) as lms_order_minpdate\r\n",
+					"\r\n",
 					"\r\n",
 					"FROM  sstparcelunion p\r\n",
 					"LEFT JOIN dbowaybill w on w.id = p.waybillid\r\n",
@@ -248,6 +251,9 @@
 					"\t    WHEN (coalesce(o2.lms_order_maxpoddate,CURRENT_TIMESTAMP)) <= (date(o2.lms_order_mindeliverby) + interval '86399 seconds') THEN 1\r\n",
 					"\t    ELSE 0\r\n",
 					"    END lms_order_inserviceflag\r\n",
+					"    ,o2.lms_order_maxcdate\r\n",
+					"    ,o2.lms_order_minpdate\r\n",
+					"    ,(to_unix_timestamp(o2.lms_order_maxcdate)-to_unix_timestamp(o2.lms_order_minpdate)) as lms_order_pdatetocdate\r\n",
 					"    ,to_timestamp((cast(to_date(o.lms_order_hodate,'yyyy-MM-dd') as string)||' 23:59:59.999')) as  lms_order_actualleaddaysstartdate\r\n",
 					"    ,coalesce(o2.lms_order_maxpoddate,CURRENT_TIMESTAMP) AS lms_order_actualleaddaysenddate\r\n",
 					"    ,(to_unix_timestamp(coalesce(o2.lms_order_maxpoddate,CURRENT_TIMESTAMP)) - (to_unix_timestamp(to_timestamp((cast(to_date(o.lms_order_hodate,'yyyy-MM-dd') as string)||' 23:59:59.999')))))/86400 as lms_order_actualleaddaysinclwe\r\n",
@@ -257,7 +263,7 @@
 					"FROM storder_tmp1 o\r\n",
 					"LEFT JOIN storder_tmp2 o2 ON o2.orderid = o.lms_order_id"
 				],
-				"execution_count": 5
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -288,7 +294,7 @@
 					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_order_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_order_actualleaddaysenddate))\r\n",
 					"GROUP BY o.lms_order_id"
 				],
-				"execution_count": 6
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -318,7 +324,7 @@
 					"FROM storder_tmp3 o\r\n",
 					"LEFT JOIN storder_tmp4 o1 on o1.lms_order_id = o.lms_order_id"
 				],
-				"execution_count": 7
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -362,7 +368,7 @@
 					"FROM storder_tmp5\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -380,7 +386,7 @@
 				"source": [
 					"storder = spark.sql(\"SELECT * FROM storder\")"
 				],
-				"execution_count": 9
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -398,7 +404,7 @@
 				"source": [
 					"# storder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/storder.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -416,7 +422,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 11
+				"execution_count": 12
 			}
 		]
 	}

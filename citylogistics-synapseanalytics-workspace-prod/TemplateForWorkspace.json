@@ -20801,7 +20801,7 @@
 						"spark.dynamicAllocation.enabled": "true",
 						"spark.dynamicAllocation.minExecutors": "1",
 						"spark.dynamicAllocation.maxExecutors": "4",
-						"spark.autotune.trackingId": "4eaacff8-3163-4814-9abb-bddc7c075866"
+						"spark.autotune.trackingId": "836c6414-fbbb-4537-aa78-3809a7ef3519"
 					}
 				},
 				"metadata": {
@@ -20826,15 +20826,13 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56,
-						"automaticScaleJobs": false
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"if 'prod' in Environment:\r\n",
@@ -58575,16 +58573,16 @@
 					"type": "BigDataPoolReference"
 				},
 				"sessionProperties": {
-					"driverMemory": "28g",
-					"driverCores": 4,
-					"executorMemory": "28g",
-					"executorCores": 4,
+					"driverMemory": "56g",
+					"driverCores": 8,
+					"executorMemory": "56g",
+					"executorCores": 8,
 					"numExecutors": 2,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "abac35c9-fe4f-438e-aafa-f0e152b655fd"
+						"spark.autotune.trackingId": "b629a010-b30e-4b1d-a39b-0fe758c900b4"
 					}
 				},
 				"metadata": {
@@ -58598,30 +58596,95 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/TESTSparkPool",
-						"name": "TESTSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/TESTSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
 						"source": [
-							"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
+							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+							"if 'prod' in Environment:\r\n",
+							"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+							"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+							"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+							"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+							"else:\r\n",
+							"    StorageAccount = 'citylogisticsstorage'\r\n",
+							"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+							"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+							"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
+							"\r\n",
+							"# ' + StorageAccount + '"
+						],
+						"outputs": [],
+						"execution_count": 44
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"from notebookutils import mssparkutils"
+						],
+						"outputs": [],
+						"execution_count": 45
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"<mark>DEDUP **dbobill_consignmentr**</mark>"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"df = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
 							"df.createOrReplaceTempView(\"df\")"
 						],
 						"outputs": [],
-						"execution_count": 1
+						"execution_count": 46
 					},
 					{
 						"cell_type": "code",
@@ -58637,10 +58700,10 @@
 							}
 						},
 						"source": [
-							"df.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', mode = \"overwrite\")"
+							"df.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 47
 					},
 					{
 						"cell_type": "code",
@@ -58656,31 +58719,11 @@
 							}
 						},
 						"source": [
-							"df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', format='parquet')\r\n",
-							"#df = spark.read.load('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/bill_consignmentr_BU_2023_06_29.parquet', format='parquet')\r\n",
+							"df = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', format='parquet')\r\n",
 							"df.createOrReplaceTempView(\"df\")"
 						],
 						"outputs": [],
-						"execution_count": 3
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							}
-						},
-						"source": [
-							"df.dtypes"
-						],
-						"outputs": [],
-						"execution_count": 4
+						"execution_count": 48
 					},
 					{
 						"cell_type": "code",
@@ -58710,7 +58753,7 @@
 							"GROUP BY consignid"
 						],
 						"outputs": [],
-						"execution_count": 5
+						"execution_count": 49
 					},
 					{
 						"cell_type": "code",
@@ -58723,37 +58766,24 @@
 								"transient": {
 									"deleting": false
 								}
-							}
-						},
-						"source": [
-							"df.count()"
-						],
-						"outputs": [],
-						"execution_count": 6
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"microsoft": {
-								"language": "sparksql"
 							},
 							"collapsed": false
 						},
 						"source": [
-							"%%sql\r\n",
-							"SELECT COUNT(*) FROM MAXVALUES"
+							"# -- %%sql\r\n",
+							"# -- -- --CREATE OR REPLACE TEMP VIEW\r\n",
+							"# -- -- --DEDUPE\r\n",
+							"# -- -- --AS\r\n",
+							"# -- -- SELECT \r\n",
+							"# -- -- df.consignid , COUNT(df.consignid)\r\n",
+							"# -- -- --COUNT(*)\r\n",
+							"# -- -- FROM df\r\n",
+							"# -- -- INNER JOIN MAXVALUES MV ON MV.Id = df.Id --AND (MV.CloseDt = df.CloseDt OR MV.CloseDt is NULL)\r\n",
+							"# -- -- GROUP BY df.consignid\r\n",
+							"# -- -- HAVING COUNT(consignid) > 1"
 						],
 						"outputs": [],
-						"execution_count": 7
+						"execution_count": 50
 					},
 					{
 						"cell_type": "code",
@@ -58767,59 +58797,23 @@
 									"deleting": false
 								}
 							},
-							"microsoft": {
-								"language": "sparksql"
-							},
 							"collapsed": false
 						},
 						"source": [
-							"%%sql\r\n",
-							"--CREATE OR REPLACE TEMP VIEW\r\n",
-							"--DEDUPE\r\n",
-							"--AS\r\n",
-							"SELECT \r\n",
-							"df.consignid , COUNT(df.consignid)\r\n",
-							"--COUNT(*)\r\n",
-							"FROM df\r\n",
-							"INNER JOIN MAXVALUES MV ON MV.Id = df.Id --AND (MV.CloseDt = df.CloseDt OR MV.CloseDt is NULL)\r\n",
-							"GROUP BY df.consignid\r\n",
-							"HAVING COUNT(consignid) > 1"
+							"# -- %%sql\r\n",
+							"# -- --CREATE OR REPLACE TEMP VIEW\r\n",
+							"# -- --DEDUPE\r\n",
+							"# -- --AS\r\n",
+							"# -- SELECT \r\n",
+							"# -- --df.consignid , COUNT(df.consignid)\r\n",
+							"# -- COUNT(*)\r\n",
+							"# -- FROM df\r\n",
+							"# -- INNER JOIN MAXVALUES MV ON MV.Id = df.Id --AND (MV.CloseDt = df.CloseDt OR MV.CloseDt is NULL)\r\n",
+							"# -- --GROUP BY df.ID\r\n",
+							"# -- --HAVING COUNT(ID) > 1"
 						],
 						"outputs": [],
-						"execution_count": 8
-					},
-					{
-						"cell_type": "code",
-						"metadata": {
-							"jupyter": {
-								"source_hidden": false,
-								"outputs_hidden": false
-							},
-							"nteract": {
-								"transient": {
-									"deleting": false
-								}
-							},
-							"microsoft": {
-								"language": "sparksql"
-							},
-							"collapsed": false
-						},
-						"source": [
-							"%%sql\r\n",
-							"--CREATE OR REPLACE TEMP VIEW\r\n",
-							"--DEDUPE\r\n",
-							"--AS\r\n",
-							"SELECT \r\n",
-							"--df.consignid , COUNT(df.consignid)\r\n",
-							"COUNT(*)\r\n",
-							"FROM df\r\n",
-							"INNER JOIN MAXVALUES MV ON MV.Id = df.Id --AND (MV.CloseDt = df.CloseDt OR MV.CloseDt is NULL)\r\n",
-							"--GROUP BY df.ID\r\n",
-							"--HAVING COUNT(ID) > 1"
-						],
-						"outputs": [],
-						"execution_count": 9
+						"execution_count": 51
 					},
 					{
 						"cell_type": "code",
@@ -58849,7 +58843,7 @@
 							"INNER JOIN MAXVALUES MV ON MV.Id = df.Id --AND (MV.CloseDt = df.CloseDt OR MV.CloseDt is NULL)"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 52
 					},
 					{
 						"cell_type": "code",
@@ -58868,7 +58862,7 @@
 							"DEDUPE = spark.sql(\"SELECT * FROM DEDUPE\")"
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 53
 					},
 					{
 						"cell_type": "code",
@@ -58887,7 +58881,7 @@
 							"DEDUPE.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 12
+						"execution_count": 54
 					},
 					{
 						"cell_type": "code",
@@ -58903,10 +58897,23 @@
 							}
 						},
 						"source": [
-							"from notebookutils import mssparkutils"
+							"mssparkutils.fs.rm('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', True)"
 						],
 						"outputs": [],
-						"execution_count": 13
+						"execution_count": 55
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"<mark>DEDUP **publicfinancedata**</mark>"
+						]
 					},
 					{
 						"cell_type": "code",
@@ -58922,10 +58929,186 @@
 							}
 						},
 						"source": [
-							"mssparkutils.fs.rm('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data_BU/LMS/DeDupeWF/bill_consignmentrT1.parquet', True)"
+							"df = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/TMS/publicfinancedata.parquet', format='parquet')\r\n",
+							"df.createOrReplaceTempView(\"df\")"
 						],
 						"outputs": [],
-						"execution_count": 14
+						"execution_count": 56
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Unstructured Data_BU/TMS/DeDupeWF/publicfinancedataT1.parquet', mode = \"overwrite\")"
+						],
+						"outputs": [],
+						"execution_count": 57
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Unstructured Data_BU/TMS/DeDupeWF/publicfinancedataT1.parquet', format='parquet')\r\n",
+							"df.createOrReplaceTempView(\"df\")"
+						],
+						"outputs": [],
+						"execution_count": 58
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"CREATE OR REPLACE TEMP VIEW\r\n",
+							"MAXVALUES\r\n",
+							"AS\r\n",
+							"SELECT \r\n",
+							"bookingid , MAX(id) id\r\n",
+							"FROM df\r\n",
+							"GROUP BY bookingid"
+						],
+						"outputs": [],
+						"execution_count": 59
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"CREATE OR REPLACE TEMP VIEW\r\n",
+							"DEDUPE\r\n",
+							"AS\r\n",
+							"SELECT \r\n",
+							"df.*\r\n",
+							"FROM df\r\n",
+							"INNER JOIN MAXVALUES MV ON MV.id = df.id"
+						],
+						"outputs": [],
+						"execution_count": 60
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"DEDUPE = spark.sql(\"SELECT * FROM DEDUPE\")"
+						],
+						"outputs": [],
+						"execution_count": 61
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"DEDUPE.write.parquet('abfss://synapse@citylogisticsstorageprod.dfs.core.windows.net/Unstructured Data/TMS/publicfinancedata.parquet', mode = \"overwrite\")"
+						],
+						"outputs": [],
+						"execution_count": 62
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"mssparkutils.fs.rm('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Unstructured Data_BU/TMS/DeDupeWF/publicfinancedataT1.parquet', True)"
+						],
+						"outputs": [],
+						"execution_count": 63
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"print(\"SUCCESS\")"
+						],
+						"outputs": [],
+						"execution_count": 64
 					}
 				]
 			},

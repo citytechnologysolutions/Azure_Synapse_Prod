@@ -20,7 +20,7 @@
 		"PostgreSqlTestServer_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'PostgreSqlTestServer'",
-			"defaultValue": "Host=orvdb.citylogistics.co.za;Port=5432;Database=orv;UID=synapse;EncryptionMethod=0"
+			"defaultValue": "Host=orvdb.citylogistics.co.za;Port=5433;Database=tmsapi;UID=synapse;EncryptionMethod=0"
 		},
 		"SQLTestServer_connectionString": {
 			"type": "secureString",
@@ -9532,7 +9532,7 @@
 						"type": "SynapseNotebook",
 						"dependsOn": [
 							{
-								"activity": "Iterate Data",
+								"activity": "If PeriodLoad",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -9593,6 +9593,13 @@
 										"type": "Expression"
 									},
 									"type": "string"
+								},
+								"TakeOnPeriod": {
+									"value": {
+										"value": "@if(greater(length(pipeline().parameters.TakeOnPeriod),1),string(activity('LookupPeriod').output.firstRow),' ')",
+										"type": "Expression"
+									},
+									"type": "string"
 								}
 							},
 							"snapshot": true,
@@ -9608,6 +9615,78 @@
 							},
 							"driverSize": "Small",
 							"numExecutors": 1
+						}
+					},
+					{
+						"name": "If PeriodLoad",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Iterate Data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(length(pipeline().parameters.TakeOnPeriod),1)",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "LookupPeriod",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "@pipeline().parameters.TakeOnPeriod",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "SqlServerDataSet",
+											"type": "DatasetReference",
+											"parameters": {
+												"ServerName": {
+													"value": "@variables('ServerName')",
+													"type": "Expression"
+												},
+												"DatabaseName": {
+													"value": "@variables('DatabaseName')",
+													"type": "Expression"
+												},
+												"UserName": {
+													"value": "@variables('UserName')",
+													"type": "Expression"
+												},
+												"CW_SchemaName": {
+													"value": "@variables('SchemaName')",
+													"type": "Expression"
+												},
+												"SecretName": {
+													"value": "@variables('SecretName')",
+													"type": "Expression"
+												},
+												"CW_TableName": "' '"
+											}
+										}
+									}
+								}
+							]
 						}
 					}
 				],
@@ -10769,7 +10848,7 @@
 						"type": "SynapseNotebook",
 						"dependsOn": [
 							{
-								"activity": "Iterate Data",
+								"activity": "If PeriodLoad",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -10830,6 +10909,13 @@
 										"type": "Expression"
 									},
 									"type": "string"
+								},
+								"TakeOnPeriod": {
+									"value": {
+										"value": "@if(greater(length(pipeline().parameters.TakeOnPeriod),1),string(activity('LookupPeriod').output.firstRow),' ')",
+										"type": "Expression"
+									},
+									"type": "string"
 								}
 							},
 							"snapshot": true,
@@ -10845,6 +10931,80 @@
 							},
 							"driverSize": "Small",
 							"numExecutors": 1
+						}
+					},
+					{
+						"name": "If PeriodLoad",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Iterate Data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(length(pipeline().parameters.TakeOnPeriod),1)",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "LookupPeriod",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "PostgreSqlSource",
+											"query": {
+												"value": "@pipeline().parameters.TakeOnPeriod",
+												"type": "Expression"
+											}
+										},
+										"dataset": {
+											"referenceName": "PostgresSQL_Dataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"ServerName": {
+													"value": "@variables('ServerName')",
+													"type": "Expression"
+												},
+												"DatabaseName": {
+													"value": "@variables('DatabaseName')",
+													"type": "Expression"
+												},
+												"UserName": {
+													"value": "@variables('UserName')",
+													"type": "Expression"
+												},
+												"CW_SchemaName": {
+													"value": "@variables('SchemaName')",
+													"type": "Expression"
+												},
+												"SecretName": {
+													"value": "@variables('SecretName')",
+													"type": "Expression"
+												},
+												"CW_TableName": "''",
+												"Port": {
+													"value": "@variables('Port')",
+													"type": "Expression"
+												}
+											}
+										}
+									}
+								}
+							]
 						}
 					}
 				],
@@ -10937,10 +11097,10 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/notebooks/IncrementalProdScript')]",
 				"[concat(variables('workspaceId'), '/bigDataPools/TESTSparkPool')]",
+				"[concat(variables('workspaceId'), '/datasets/PostgresSQL_Dataset')]",
 				"[concat(variables('workspaceId'), '/datasets/SqlServerDataSet')]",
 				"[concat(variables('workspaceId'), '/datasets/AzureSqlConnection')]",
-				"[concat(variables('workspaceId'), '/datasets/DataLakeParquet')]",
-				"[concat(variables('workspaceId'), '/datasets/PostgresSQL_Dataset')]"
+				"[concat(variables('workspaceId'), '/datasets/DataLakeParquet')]"
 			]
 		},
 		{
@@ -13360,7 +13520,7 @@
 						"type": "SynapseNotebook",
 						"dependsOn": [
 							{
-								"activity": "Iterate Data",
+								"activity": "If PeriodLoad",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -13421,6 +13581,13 @@
 										"type": "Expression"
 									},
 									"type": "string"
+								},
+								"TakeOnPeriod": {
+									"value": {
+										"value": "@if(greater(length(pipeline().parameters.TakeOnPeriod),1),string(activity('LookupPeriod').output.firstRow),' ')",
+										"type": "Expression"
+									},
+									"type": "string"
 								}
 							},
 							"snapshot": true,
@@ -13436,6 +13603,80 @@
 							},
 							"driverSize": "Small",
 							"numExecutors": 1
+						}
+					},
+					{
+						"name": "If PeriodLoad",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Iterate Data",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@greater(length(pipeline().parameters.TakeOnPeriod),1)",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "LookupPeriod",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "PostgreSqlSource",
+											"query": {
+												"value": "@pipeline().parameters.TakeOnPeriod",
+												"type": "Expression"
+											}
+										},
+										"dataset": {
+											"referenceName": "PostgresSQL_Dataset",
+											"type": "DatasetReference",
+											"parameters": {
+												"ServerName": {
+													"value": "@variables('ServerName')",
+													"type": "Expression"
+												},
+												"DatabaseName": {
+													"value": "@variables('DatabaseName')",
+													"type": "Expression"
+												},
+												"UserName": {
+													"value": "@variables('UserName')",
+													"type": "Expression"
+												},
+												"CW_SchemaName": {
+													"value": "@variables('SchemaName')",
+													"type": "Expression"
+												},
+												"SecretName": {
+													"value": "@variables('SecretName')",
+													"type": "Expression"
+												},
+												"CW_TableName": "''",
+												"Port": {
+													"value": "@variables('Port')",
+													"type": "Expression"
+												}
+											}
+										}
+									}
+								}
+							]
 						}
 					}
 				],
@@ -13523,10 +13764,10 @@
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/notebooks/IncrementalProdScript')]",
 				"[concat(variables('workspaceId'), '/bigDataPools/TESTSparkPool')]",
+				"[concat(variables('workspaceId'), '/datasets/PostgresSQL_Dataset')]",
 				"[concat(variables('workspaceId'), '/datasets/SqlServerDataSet')]",
 				"[concat(variables('workspaceId'), '/datasets/AzureSqlConnection')]",
-				"[concat(variables('workspaceId'), '/datasets/DataLakeParquet')]",
-				"[concat(variables('workspaceId'), '/datasets/PostgresSQL_Dataset')]"
+				"[concat(variables('workspaceId'), '/datasets/DataLakeParquet')]"
 			]
 		},
 		{
@@ -27953,7 +28194,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "89a53a1c-5e4c-459f-ad7f-4e51773a0105"
+						"spark.autotune.trackingId": "8f0d846d-abf4-4579-8db8-57bb6c3d9165"
 					}
 				},
 				"metadata": {
@@ -27967,18 +28208,18 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -27997,50 +28238,50 @@
 							}
 						},
 						"source": [
-							"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
-							"# if 'prod' in Environment:\r\n",
-							"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
-							"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-							"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
-							"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-							"# else:\r\n",
-							"#     StorageAccount = 'citylogisticsstorage'\r\n",
-							"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-							"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
-							"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+							"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+							"if 'prod' in Environment:\r\n",
+							"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+							"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+							"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+							"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+							"else:\r\n",
+							"    StorageAccount = 'citylogisticsstorage'\r\n",
+							"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+							"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+							"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 							"\r\n",
-							"# # ' + StorageAccount + '"
+							"# ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 22
+						"execution_count": 5
 					},
 					{
 						"cell_type": "code",
 						"source": [
-							"# #Create DataFrame for the ssttrackunion LMS Table\r\n",
-							"# ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
-							"# ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
+							"#Create DataFrame for the ssttrackunion LMS Table\r\n",
+							"ssttrackunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/ssttrackunion.parquet', format='parquet')\r\n",
+							"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")\r\n",
 							"\r\n",
-							"# #Create DataFrame for the sstwaybillsperparcel LMS Table\r\n",
-							"# sstwaybillsperparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstwaybillsperparcel.parquet', format='parquet')\r\n",
-							"# sstwaybillsperparcel.createOrReplaceTempView(\"sstwaybillsperparcel\")\r\n",
+							"#Create DataFrame for the sstwaybillsperparcel LMS Table\r\n",
+							"sstwaybillsperparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstwaybillsperparcel.parquet', format='parquet')\r\n",
+							"sstwaybillsperparcel.createOrReplaceTempView(\"sstwaybillsperparcel\")\r\n",
 							"\r\n",
-							"# #Create DataFrame for the dbolocation LMS Table\r\n",
-							"# dbolocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
-							"# dbolocation.createOrReplaceTempView(\"dbolocation\")\r\n",
+							"#Create DataFrame for the dbolocation LMS Table\r\n",
+							"dbolocation = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbolocation.parquet', format='parquet')\r\n",
+							"dbolocation.createOrReplaceTempView(\"dbolocation\")\r\n",
 							"\r\n",
-							"# #Create DataFrame for the dboloads LMS Table\r\n",
-							"# dboloads = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
-							"# dboloads.createOrReplaceTempView(\"dboloads\")\r\n",
+							"#Create DataFrame for the dboloads LMS Table\r\n",
+							"dboloads = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboloads.parquet', format='parquet')\r\n",
+							"dboloads.createOrReplaceTempView(\"dboloads\")\r\n",
 							"\r\n",
 							"\r\n",
-							"# #Create DataFrame for the sstparcelunion LMS Table\r\n",
-							"# sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
-							"# sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
+							"#Create DataFrame for the sstparcelunion LMS Table\r\n",
+							"sstparcelunion = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Semi Structured Data/OPS/sstparcelunion.parquet', format='parquet')\r\n",
+							"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")\r\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 23
+						"execution_count": 6
 					},
 					{
 						"cell_type": "code",
@@ -28056,13 +28297,13 @@
 							}
 						},
 						"source": [
-							"# from pyspark.sql import Window\r\n",
-							"# from pyspark.sql.functions import lag    \r\n",
-							"# from pyspark.sql.functions import *\r\n",
+							"from pyspark.sql import Window\r\n",
+							"from pyspark.sql.functions import lag    \r\n",
+							"from pyspark.sql.functions import *\r\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 24
+						"execution_count": 7
 					},
 					{
 						"cell_type": "code",
@@ -28082,7 +28323,7 @@
 							"ssttrackunion = ssttrackunion.withColumn(\"lag\",lag(\"parcelid\",1).over(windowSpec))"
 						],
 						"outputs": [],
-						"execution_count": 25
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
@@ -28102,7 +28343,7 @@
 							"ssttrackunion = ssttrackunion.withColumn(\"rnparcel\",row_number().over(partitiontrackparcel))"
 						],
 						"outputs": [],
-						"execution_count": 26
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -28122,7 +28363,7 @@
 							"ssttrackunion = ssttrackunion.withColumn(\"rntractype\",row_number().over(partitiontracktype))"
 						],
 						"outputs": [],
-						"execution_count": 27
+						"execution_count": 10
 					},
 					{
 						"cell_type": "code",
@@ -28141,7 +28382,7 @@
 							"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")"
 						],
 						"outputs": [],
-						"execution_count": 28
+						"execution_count": 11
 					},
 					{
 						"cell_type": "code",
@@ -28219,7 +28460,26 @@
 							"LEFT JOIN dboloads l on l.id = t.loadid"
 						],
 						"outputs": [],
-						"execution_count": 29
+						"execution_count": 12
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.sql(\"CACHE TABLE stlmstrack\")"
+						],
+						"outputs": [],
+						"execution_count": 13
 					},
 					{
 						"cell_type": "code",
@@ -28238,7 +28498,7 @@
 							"stlmstrack = spark.sql(\"SELECT * FROM stlmstrack\")"
 						],
 						"outputs": [],
-						"execution_count": 30
+						"execution_count": 14
 					},
 					{
 						"cell_type": "code",
@@ -28257,7 +28517,7 @@
 							"# stlmstrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 31
+						"execution_count": 15
 					},
 					{
 						"cell_type": "code",
@@ -28286,7 +28546,26 @@
 							"FROM stlmstrack t"
 						],
 						"outputs": [],
-						"execution_count": 32
+						"execution_count": 16
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.sql(\"CACHE TABLE stvsmparcel_tmp1\")"
+						],
+						"outputs": [],
+						"execution_count": 17
 					},
 					{
 						"cell_type": "code",
@@ -28305,7 +28584,7 @@
 							"stvsmparcel_tmp1 = spark.sql(\"SELECT * FROM stvsmparcel_tmp1\")"
 						],
 						"outputs": [],
-						"execution_count": 33
+						"execution_count": 18
 					},
 					{
 						"cell_type": "code",
@@ -28338,7 +28617,26 @@
 							"GROUP BY t.lms_track_parcelid"
 						],
 						"outputs": [],
-						"execution_count": 34
+						"execution_count": 19
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.sql(\"CACHE TABLE stvsmparcel_tmp2\")"
+						],
+						"outputs": [],
+						"execution_count": 20
 					},
 					{
 						"cell_type": "code",
@@ -28357,7 +28655,7 @@
 							"stvsmparcel_tmp2 = spark.sql(\"SELECT * FROM stvsmparcel_tmp2\")"
 						],
 						"outputs": [],
-						"execution_count": 35
+						"execution_count": 21
 					},
 					{
 						"cell_type": "code",
@@ -28391,7 +28689,26 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 36
+						"execution_count": 22
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.sql(\"CACHE TABLE stvsmparcel_tmp3\")"
+						],
+						"outputs": [],
+						"execution_count": 23
 					},
 					{
 						"cell_type": "code",
@@ -28410,7 +28727,7 @@
 							"stvsmparcel_tmp3 = spark.sql(\"SELECT * FROM stvsmparcel_tmp3\")"
 						],
 						"outputs": [],
-						"execution_count": 37
+						"execution_count": 24
 					},
 					{
 						"cell_type": "code",
@@ -28444,7 +28761,26 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 38
+						"execution_count": 25
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.sql(\"CACHE TABLE stvsmparcel_tmp4\")"
+						],
+						"outputs": [],
+						"execution_count": 26
 					},
 					{
 						"cell_type": "code",
@@ -28463,7 +28799,7 @@
 							"stvsmparcel_tmp4 = spark.sql(\"SELECT * FROM stvsmparcel_tmp4\")"
 						],
 						"outputs": [],
-						"execution_count": 39
+						"execution_count": 27
 					},
 					{
 						"cell_type": "code",
@@ -28499,7 +28835,26 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 40
+						"execution_count": 28
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.sql(\"CACHE TABLE stvsmparcel_tmp5\")"
+						],
+						"outputs": [],
+						"execution_count": 29
 					},
 					{
 						"cell_type": "code",
@@ -28518,7 +28873,7 @@
 							"stvsmparcel_tmp5 = spark.sql(\"SELECT * FROM stvsmparcel_tmp5\")"
 						],
 						"outputs": [],
-						"execution_count": 41
+						"execution_count": 30
 					},
 					{
 						"cell_type": "code",
@@ -28554,7 +28909,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 42
+						"execution_count": 31
 					},
 					{
 						"cell_type": "code",
@@ -28573,7 +28928,7 @@
 							"stvsmparcel = spark.sql(\"SELECT * FROM stvsmparcel\")"
 						],
 						"outputs": [],
-						"execution_count": 43
+						"execution_count": 32
 					},
 					{
 						"cell_type": "code",
@@ -28592,7 +28947,7 @@
 							"# stvsmparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stvsmparcel.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 44
+						"execution_count": 33
 					},
 					{
 						"cell_type": "code",
@@ -28611,7 +28966,7 @@
 							"print(\"SUCCESS\")"
 						],
 						"outputs": [],
-						"execution_count": 45
+						"execution_count": 34
 					}
 				]
 			},
@@ -30849,7 +31204,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "ecf97a71-c183-4872-a0a5-accc2f10675d"
+						"spark.autotune.trackingId": "547a3e72-50e7-4f76-8e0b-93bdfbf38805"
 					}
 				},
 				"metadata": {
@@ -30863,18 +31218,18 @@
 						"name": "python"
 					},
 					"a365ComputeOptions": {
-						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
-						"name": "DevSparkPool",
+						"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
+						"name": "PRDSparkPool",
 						"type": "Spark",
-						"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
+						"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
 						"auth": {
 							"type": "AAD",
 							"authResource": "https://dev.azuresynapse.net"
 						},
-						"sparkVersion": "3.2",
+						"sparkVersion": "3.3",
 						"nodeCount": 10,
-						"cores": 4,
-						"memory": 28
+						"cores": 8,
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -30908,7 +31263,7 @@
 							"# # ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 1
+						"execution_count": 5
 					},
 					{
 						"cell_type": "code",
@@ -30938,7 +31293,7 @@
 							"# dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")"
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 6
 					},
 					{
 						"cell_type": "code",
@@ -31011,7 +31366,26 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 3
+						"execution_count": 7
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.sql(\"CACHE TABLE storder_tmp1\")"
+						],
+						"outputs": [],
+						"execution_count": 8
 					},
 					{
 						"cell_type": "code",
@@ -31052,7 +31426,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 4
+						"execution_count": 9
 					},
 					{
 						"cell_type": "code",
@@ -31096,7 +31470,7 @@
 							"LEFT JOIN storder_tmp2 o2 ON o2.orderid = o.lms_order_id"
 						],
 						"outputs": [],
-						"execution_count": 6
+						"execution_count": 10
 					},
 					{
 						"cell_type": "code",
@@ -31128,7 +31502,26 @@
 							"GROUP BY o.lms_order_id"
 						],
 						"outputs": [],
-						"execution_count": 7
+						"execution_count": 11
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.sql(\"CACHE TABLE storder_tmp4\")"
+						],
+						"outputs": [],
+						"execution_count": 12
 					},
 					{
 						"cell_type": "code",
@@ -31159,7 +31552,26 @@
 							"LEFT JOIN storder_tmp4 o1 on o1.lms_order_id = o.lms_order_id"
 						],
 						"outputs": [],
-						"execution_count": 8
+						"execution_count": 13
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"spark.sql(\"CACHE TABLE storder_tmp5\")"
+						],
+						"outputs": [],
+						"execution_count": 14
 					},
 					{
 						"cell_type": "code",
@@ -31204,7 +31616,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 9
+						"execution_count": 15
 					},
 					{
 						"cell_type": "code",
@@ -31223,7 +31635,7 @@
 							"storder = spark.sql(\"SELECT * FROM storder\")"
 						],
 						"outputs": [],
-						"execution_count": 10
+						"execution_count": 16
 					},
 					{
 						"cell_type": "code",
@@ -31242,7 +31654,7 @@
 							"# storder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/storder.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 11
+						"execution_count": 17
 					},
 					{
 						"cell_type": "code",
@@ -31261,7 +31673,26 @@
 							"print(\"SUCCESS\")"
 						],
 						"outputs": [],
-						"execution_count": 12
+						"execution_count": 18
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							""
+						],
+						"outputs": [],
+						"execution_count": null
 					}
 				]
 			},
@@ -58607,8 +59038,7 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56,
-						"automaticScaleJobs": false
+						"memory": 56
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -58678,7 +59108,6 @@
 					},
 					{
 						"cell_type": "code",
-						"metadata": {},
 						"source": [
 							"df = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbobill_consignmentr.parquet', format='parquet')\r\n",
 							"df.createOrReplaceTempView(\"df\")"
@@ -59135,7 +59564,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "c809b0e5-fc08-442b-b050-46470b4b2100"
+						"spark.autotune.trackingId": "a72ef25b-ae97-4293-a440-1d017ac098ba"
 					}
 				},
 				"metadata": {
@@ -59160,7 +59589,8 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -59179,7 +59609,7 @@
 							}
 						},
 						"source": [
-							" %%configure -f\r\n",
+							" %%configure\r\n",
 							"{\r\n",
 							" \"conf\" : { \"spark.sql.legacy.parquet.int96RebaseModeInRead\": \"CORRECTED\"\r\n",
 							"             , \"spark.sql.legacy.parquet.int96RebaseModeInWrite\" : \"CORRECTED\"\r\n",
@@ -59195,6 +59625,15 @@
 					{
 						"cell_type": "code",
 						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
 							"tags": [
 								"parameters"
 							]
@@ -59206,7 +59645,7 @@
 							"Items = \"\"\r\n",
 							"FullLoad = \"\"\r\n",
 							"TempContainerName = \"\"\r\n",
-							""
+							"TakeOnPeriod = \"\""
 						],
 						"outputs": [],
 						"execution_count": 2
@@ -59227,12 +59666,54 @@
 						"source": [
 							"import json\r\n",
 							"from notebookutils import mssparkutils\r\n",
-							"from pyspark.sql.functions import broadcast, col, count\r\n",
-							"Items = json.loads(Items)\r\n",
+							"from pyspark.sql.functions import broadcast, col, count, min, max\r\n",
+							"from datetime import datetime"
+						],
+						"outputs": [],
+						"execution_count": 4
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"if len(TakeOnPeriod) > 1 :\r\n",
+							"    try:\r\n",
+							"        TakeOnPeriod = json.loads(TakeOnPeriod)[\"\"]\r\n",
+							"    except:\r\n",
+							"        TakeOnPeriod = json.loads(TakeOnPeriod)[\"extract\"]\r\n",
 							""
 						],
 						"outputs": [],
-						"execution_count": 21
+						"execution_count": 5
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"Items = json.loads(Items)"
+						],
+						"outputs": [],
+						"execution_count": 155
 					},
 					{
 						"cell_type": "code",
@@ -59251,7 +59732,7 @@
 							"print(Items)"
 						],
 						"outputs": [],
-						"execution_count": 22
+						"execution_count": 156
 					},
 					{
 						"cell_type": "code",
@@ -59313,6 +59794,45 @@
 							"                    raise Exception (\"Duplicates when Unioning table \" + cw_FileName + \" the Unioned table has \" + str(UnionCount) + \" rows and the Distinct Unioned table has \" + str(UnionDistinctCount))\r\n",
 							"            else: \r\n",
 							"                print(\"Union completed Succesfully\")\r\n",
+							"        elif len(TakeOnPeriod) > 1 :\r\n",
+							"            print(\"Rolling DATE LOAD\")\r\n",
+							"            ##Load the Left File\r\n",
+							"            path = 'abfss://' + ContainerName + '@' + DataLakeDF + '/' + cw_FolderName + '/' + cw_FileName\r\n",
+							"            ProdFile = spark.read.load(path, format='parquet')\r\n",
+							"\r\n",
+							"            ##Load the Right File\r\n",
+							"            IncrementFile = spark.read.load(copypath, format='parquet')\r\n",
+							"            IncrementFileZeroCountIncField = IncrementFile.filter(col(IncField).isNull()).count()\r\n",
+							"            IncrementFileZeroCountIdField = IncrementFile.filter(col(IdField).isNull()).count()\r\n",
+							"            if (IncrementFileZeroCountIncField > 0) or (IncrementFileZeroCountIdField > 0) :\r\n",
+							"                    print(\"IncField or IdField contains Null values\")\r\n",
+							"                    raise Exception (\"IncField or IdField contains Null values\")\r\n",
+							"\r\n",
+							"            # MinDate = IncrementFile.select(min(IncField))\r\n",
+							"            # MinDate = str(MinDate.collect()[0][0])\r\n",
+							"            # print(\"MinDate from Source System = \" + MinDate + \" For Table \" + cw_FileName) \r\n",
+							"            print(\"MaxDate to remove from DataLake = \" + TakeOnPeriod + \" For Table \" + cw_FileName) \r\n",
+							"            # df_with_rows_deleted = ProdFile.filter(IncField + \" < '\" + MinDate + \"'\")\r\n",
+							"            df_with_rows_deleted_TOP = ProdFile.filter(IncField + \" <= '\" + TakeOnPeriod + \"'\")\r\n",
+							"            df_with_rows_deleted = df_with_rows_deleted_TOP.join(broadcast(IncrementFile), on = IdField, how = 'left_anti')\r\n",
+							"            unioned = df_with_rows_deleted.unionByName(IncrementFile, allowMissingColumns=False)\r\n",
+							"            t1path = 'abfss://' + TempContainerName + '@' + DataLakeDF + cw_FolderName + '/T1_' + cw_FileName\r\n",
+							"            unioned.write.parquet(t1path, mode='overwrite')\r\n",
+							"            ##Load the Final File\r\n",
+							"            FinalDF = spark.read.load(t1path, format='parquet')\r\n",
+							"            Finalpath = 'abfss://' + ContainerName + '@' + DataLakeDF + '/' + cw_FolderName + '/' + cw_FileName\r\n",
+							"            if unioned.count() < (0.75 * ProdFile.count()):\r\n",
+							"                print (\"Error when Unioning table \" + cw_FileName + \" the Left side had \" + str(ProdFile.count()) + \" rows and the Unioned table has \" + str(unioned.count()))\r\n",
+							"                raise Exception (\"Error when Unioning table \" + cw_FileName + \" the Left side had \" + str(ProdFile.count()) + \" rows and the Unioned table has \" + str(unioned.count()))\r\n",
+							"            else: \r\n",
+							"                print(\"Union completed Succesfully\")\r\n",
+							"            UnionDistinctCount = unioned.select(IdField).distinct().count()\r\n",
+							"            UnionCount = unioned.count()\r\n",
+							"            if UnionDistinctCount != UnionCount :\r\n",
+							"                    print (\"Duplicates when Unioning table \" + cw_FileName + \" the Unioned table has \" + str(UnionCount) + \" rows and the Distinct Unioned table has \" + str(UnionDistinctCount))\r\n",
+							"                    raise Exception (\"Duplicates when Unioning table \" + cw_FileName + \" the Unioned table has \" + str(UnionCount) + \" rows and the Distinct Unioned table has \" + str(UnionDistinctCount))\r\n",
+							"            else: \r\n",
+							"                print(\"Union completed Succesfully\")\r\n",
 							"        elif IncField != IdField :\r\n",
 							"            print(\"Incremental DATE LOAD\")\r\n",
 							"            ##Load the Left File\r\n",
@@ -59363,7 +59883,7 @@
 							"    raise ValueError(\"One of the table iterations has failed\") "
 						],
 						"outputs": [],
-						"execution_count": 23
+						"execution_count": 157
 					},
 					{
 						"cell_type": "code",

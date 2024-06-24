@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "c809b0e5-fc08-442b-b050-46470b4b2100"
+				"spark.autotune.trackingId": "e36c9eb3-d3ea-4937-9f61-2fcf327dd161"
 			}
 		},
 		"metadata": {
@@ -62,7 +62,7 @@
 					}
 				},
 				"source": [
-					" %%configure -f\r\n",
+					" %%configure\r\n",
 					"{\r\n",
 					" \"conf\" : { \"spark.sql.legacy.parquet.int96RebaseModeInRead\": \"CORRECTED\"\r\n",
 					"             , \"spark.sql.legacy.parquet.int96RebaseModeInWrite\" : \"CORRECTED\"\r\n",
@@ -77,6 +77,15 @@
 			{
 				"cell_type": "code",
 				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
 					"tags": [
 						"parameters"
 					]
@@ -88,7 +97,7 @@
 					"Items = \"\"\r\n",
 					"FullLoad = \"\"\r\n",
 					"TempContainerName = \"\"\r\n",
-					""
+					"TakeOnPeriod = \"\""
 				],
 				"execution_count": 2
 			},
@@ -108,11 +117,51 @@
 				"source": [
 					"import json\r\n",
 					"from notebookutils import mssparkutils\r\n",
-					"from pyspark.sql.functions import broadcast, col, count\r\n",
-					"Items = json.loads(Items)\r\n",
+					"from pyspark.sql.functions import broadcast, col, count, min, max\r\n",
+					"from datetime import datetime"
+				],
+				"execution_count": 4
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"if len(TakeOnPeriod) > 1 :\r\n",
+					"    try:\r\n",
+					"        TakeOnPeriod = json.loads(TakeOnPeriod)[\"\"]\r\n",
+					"    except:\r\n",
+					"        TakeOnPeriod = json.loads(TakeOnPeriod)[\"extract\"]\r\n",
 					""
 				],
-				"execution_count": 21
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"Items = json.loads(Items)"
+				],
+				"execution_count": 155
 			},
 			{
 				"cell_type": "code",
@@ -130,7 +179,7 @@
 				"source": [
 					"print(Items)"
 				],
-				"execution_count": 22
+				"execution_count": 156
 			},
 			{
 				"cell_type": "code",
@@ -192,6 +241,45 @@
 					"                    raise Exception (\"Duplicates when Unioning table \" + cw_FileName + \" the Unioned table has \" + str(UnionCount) + \" rows and the Distinct Unioned table has \" + str(UnionDistinctCount))\r\n",
 					"            else: \r\n",
 					"                print(\"Union completed Succesfully\")\r\n",
+					"        elif len(TakeOnPeriod) > 1 :\r\n",
+					"            print(\"Rolling DATE LOAD\")\r\n",
+					"            ##Load the Left File\r\n",
+					"            path = 'abfss://' + ContainerName + '@' + DataLakeDF + '/' + cw_FolderName + '/' + cw_FileName\r\n",
+					"            ProdFile = spark.read.load(path, format='parquet')\r\n",
+					"\r\n",
+					"            ##Load the Right File\r\n",
+					"            IncrementFile = spark.read.load(copypath, format='parquet')\r\n",
+					"            IncrementFileZeroCountIncField = IncrementFile.filter(col(IncField).isNull()).count()\r\n",
+					"            IncrementFileZeroCountIdField = IncrementFile.filter(col(IdField).isNull()).count()\r\n",
+					"            if (IncrementFileZeroCountIncField > 0) or (IncrementFileZeroCountIdField > 0) :\r\n",
+					"                    print(\"IncField or IdField contains Null values\")\r\n",
+					"                    raise Exception (\"IncField or IdField contains Null values\")\r\n",
+					"\r\n",
+					"            # MinDate = IncrementFile.select(min(IncField))\r\n",
+					"            # MinDate = str(MinDate.collect()[0][0])\r\n",
+					"            # print(\"MinDate from Source System = \" + MinDate + \" For Table \" + cw_FileName) \r\n",
+					"            print(\"MaxDate to remove from DataLake = \" + TakeOnPeriod + \" For Table \" + cw_FileName) \r\n",
+					"            # df_with_rows_deleted = ProdFile.filter(IncField + \" < '\" + MinDate + \"'\")\r\n",
+					"            df_with_rows_deleted_TOP = ProdFile.filter(IncField + \" <= '\" + TakeOnPeriod + \"'\")\r\n",
+					"            df_with_rows_deleted = df_with_rows_deleted_TOP.join(broadcast(IncrementFile), on = IdField, how = 'left_anti')\r\n",
+					"            unioned = df_with_rows_deleted.unionByName(IncrementFile, allowMissingColumns=False)\r\n",
+					"            t1path = 'abfss://' + TempContainerName + '@' + DataLakeDF + cw_FolderName + '/T1_' + cw_FileName\r\n",
+					"            unioned.write.parquet(t1path, mode='overwrite')\r\n",
+					"            ##Load the Final File\r\n",
+					"            FinalDF = spark.read.load(t1path, format='parquet')\r\n",
+					"            Finalpath = 'abfss://' + ContainerName + '@' + DataLakeDF + '/' + cw_FolderName + '/' + cw_FileName\r\n",
+					"            if unioned.count() < (0.75 * ProdFile.count()):\r\n",
+					"                print (\"Error when Unioning table \" + cw_FileName + \" the Left side had \" + str(ProdFile.count()) + \" rows and the Unioned table has \" + str(unioned.count()))\r\n",
+					"                raise Exception (\"Error when Unioning table \" + cw_FileName + \" the Left side had \" + str(ProdFile.count()) + \" rows and the Unioned table has \" + str(unioned.count()))\r\n",
+					"            else: \r\n",
+					"                print(\"Union completed Succesfully\")\r\n",
+					"            UnionDistinctCount = unioned.select(IdField).distinct().count()\r\n",
+					"            UnionCount = unioned.count()\r\n",
+					"            if UnionDistinctCount != UnionCount :\r\n",
+					"                    print (\"Duplicates when Unioning table \" + cw_FileName + \" the Unioned table has \" + str(UnionCount) + \" rows and the Distinct Unioned table has \" + str(UnionDistinctCount))\r\n",
+					"                    raise Exception (\"Duplicates when Unioning table \" + cw_FileName + \" the Unioned table has \" + str(UnionCount) + \" rows and the Distinct Unioned table has \" + str(UnionDistinctCount))\r\n",
+					"            else: \r\n",
+					"                print(\"Union completed Succesfully\")\r\n",
 					"        elif IncField != IdField :\r\n",
 					"            print(\"Incremental DATE LOAD\")\r\n",
 					"            ##Load the Left File\r\n",
@@ -241,7 +329,7 @@
 					"    print(failflaglist)\r\n",
 					"    raise ValueError(\"One of the table iterations has failed\") "
 				],
-				"execution_count": 23
+				"execution_count": 157
 			},
 			{
 				"cell_type": "code",

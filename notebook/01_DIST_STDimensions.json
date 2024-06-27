@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "364785f8-c7b8-4420-a5d3-9ff7894cabf7"
+				"spark.autotune.trackingId": "474799b6-551e-433f-8b1f-c45bc978d069"
 			}
 		},
 		"metadata": {
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -212,10 +212,160 @@
 					"# csdcsdoutofservice = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CSD/csdcsdoutofservice.parquet', format='parquet')\r\n",
 					"# csdcsdoutofservice.createOrReplaceTempView(\"csdcsdoutofservice\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the dbodb_reasondetail LMS Table\r\n",
+					"# dbodb_reasondetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_reasondetail.parquet', format='parquet')\r\n",
+					"# dbodb_reasondetail.createOrReplaceTempView(\"dbodb_reasondetail\")\r\n",
 					"\r\n",
+					"# #Create DataFrame for the dbodb_reasondetail LMS Table\r\n",
+					"# dbodb_reasondetail = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_reasondetail.parquet', format='parquet')\r\n",
+					"# dbodb_reasondetail.createOrReplaceTempView(\"dbodb_reasondetail\")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbodb_holdstatus LMS Table\r\n",
+					"# dbodb_holdstatus  = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbodb_holdstatus.parquet', format='parquet')\r\n",
+					"# dbodb_holdstatus.createOrReplaceTempView(\"dbodb_holdstatus \")\r\n",
+					"\r\n",
+					"# #Create DataFrame for the dbostorehold LMS Table\r\n",
+					"# dbostorehold  = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbostorehold.parquet', format='parquet')\r\n",
+					"# dbostorehold.createOrReplaceTempView(\"dbostorehold \")\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 5
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"stholdstatus\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"id as lms_holdstatus_id\r\n",
+					",description as lms_holdstatus_description\r\n",
+					"FROM\r\n",
+					"dbodb_holdstatus \r\n",
+					""
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"stholdstatus = spark.sql(\"SELECT * FROM stholdstatus\")"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# stholdstatus.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stholdstatus.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"microsoft": {
+						"language": "sparksql"
+					},
+					"collapsed": false
+				},
+				"source": [
+					"%%sql\r\n",
+					"CREATE OR REPLACE TEMP VIEW\r\n",
+					"ststorehold\r\n",
+					"AS\r\n",
+					"SELECT \r\n",
+					"id as lms_storehold_id\r\n",
+					",description as lms_storehold_description\r\n",
+					",keepfreight as lms_storehold_keepfreight\r\n",
+					",db_holdstatusid as lms_storehold_holdstatusid\r\n",
+					"FROM\r\n",
+					"dbostorehold\r\n",
+					""
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"ststorehold = spark.sql(\"SELECT * FROM ststorehold\")"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# ststorehold.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/ststorehold.parquet', mode = \"overwrite\")"
+				],
+				"execution_count": 17
 			},
 			{
 				"cell_type": "code",

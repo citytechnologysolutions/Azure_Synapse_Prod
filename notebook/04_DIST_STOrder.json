@@ -7,7 +7,7 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "547a3e72-50e7-4f76-8e0b-93bdfbf38805"
+				"spark.autotune.trackingId": "ecf97a71-c183-4872-a0a5-accc2f10675d"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -79,7 +79,7 @@
 					"\r\n",
 					"# # ' + StorageAccount + '"
 				],
-				"execution_count": 5
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -108,7 +108,7 @@
 					"# dboweekendholiday = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dboweekendholiday.parquet', format='parquet')\r\n",
 					"# dboweekendholiday.createOrReplaceTempView(\"dboweekendholiday\")"
 				],
-				"execution_count": 6
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -180,25 +180,7 @@
 					"LEFT JOIN sstparcelbyorder pbo on pbo.lms_parcelbyorder_orderid =  o.id\r\n",
 					""
 				],
-				"execution_count": 7
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"spark.sql(\"CACHE TABLE storder_tmp1\")"
-				],
-				"execution_count": 8
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -238,7 +220,7 @@
 					"GROUP BY p.orderid\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -281,7 +263,7 @@
 					"FROM storder_tmp1 o\r\n",
 					"LEFT JOIN storder_tmp2 o2 ON o2.orderid = o.lms_order_id"
 				],
-				"execution_count": 10
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -312,25 +294,7 @@
 					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_order_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_order_actualleaddaysenddate))\r\n",
 					"GROUP BY o.lms_order_id"
 				],
-				"execution_count": 11
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"spark.sql(\"CACHE TABLE storder_tmp4\")"
-				],
-				"execution_count": 12
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -360,25 +324,7 @@
 					"FROM storder_tmp3 o\r\n",
 					"LEFT JOIN storder_tmp4 o1 on o1.lms_order_id = o.lms_order_id"
 				],
-				"execution_count": 13
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					"spark.sql(\"CACHE TABLE storder_tmp5\")"
-				],
-				"execution_count": 14
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -422,7 +368,7 @@
 					"FROM storder_tmp5\r\n",
 					""
 				],
-				"execution_count": 15
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -440,7 +386,7 @@
 				"source": [
 					"storder = spark.sql(\"SELECT * FROM storder\")"
 				],
-				"execution_count": 16
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -458,7 +404,7 @@
 				"source": [
 					"# storder.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/storder.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 17
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -476,25 +422,7 @@
 				"source": [
 					"print(\"SUCCESS\")"
 				],
-				"execution_count": 18
-			},
-			{
-				"cell_type": "code",
-				"metadata": {
-					"jupyter": {
-						"source_hidden": false,
-						"outputs_hidden": false
-					},
-					"nteract": {
-						"transient": {
-							"deleting": false
-						}
-					}
-				},
-				"source": [
-					""
-				],
-				"execution_count": null
+				"execution_count": 12
 			}
 		]
 	}

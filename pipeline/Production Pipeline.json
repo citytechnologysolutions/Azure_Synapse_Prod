@@ -1,0 +1,516 @@
+{
+	"name": "Production Pipeline",
+	"properties": {
+		"description": "This pipeline executes all the pipelines in the PROD folder sequentially",
+		"activities": [
+			{
+				"name": "CLMasterData LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CLMasterData LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"cw_items": "[{\"Source\":{\"TableName\":\"citybranch\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbocitybranch\"}},{\"Source\":{\"TableName\":\"deporequester\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodeporequester\"}},{\"Source\":{\"TableName\":\"depot\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodepot\"}},{\"Source\":{\"TableName\":\"ipaddress\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboipaddress\"}},{\"Source\":{\"TableName\":\"maillistaddress\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbomaillistaddress\"}},{\"Source\":{\"TableName\":\"maillistcontact\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbomaillistcontact\"}},{\"Source\":{\"TableName\":\"maillistcustomer\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbomaillistcustomer\"}},{\"Source\":{\"TableName\":\"peoplebasic\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbopeoplebasic\"}},{\"Source\":{\"TableName\":\"peopledriver\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbopeopledriver\"}},{\"Source\":{\"TableName\":\"peoplepersonal\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbopeoplepersonal\"}},{\"Source\":{\"TableName\":\"selist\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboselist\"}},{\"Source\":{\"TableName\":\"selistitem\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboselistitem\"}},{\"Source\":{\"TableName\":\"vehicleadmin\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbovehicleadmin\"}},{\"Source\":{\"TableName\":\"vehiclebasic\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbovehiclebasic\"}},{\"Source\":{\"TableName\":\"vehicleequipment\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbovehicleequipment\"}},{\"Source\":{\"TableName\":\"vehiclefinance\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbovehiclefinance\"}},{\"Source\":{\"TableName\":\"vehiclemovement\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbovehiclemovement\"}},{\"Source\":{\"TableName\":\"vehicleoperations\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbovehicleoperations\"}},{\"Source\":{\"TableName\":\"vehicletracking\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbovehicletracking\"}},{\"Source\":{\"TableName\":\"vehicletype\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbovehicletype\"}},{\"Source\":{\"TableName\":\"wfapproval\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbowfapproval\"}},{\"Source\":{\"TableName\":\"wfmail\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbowfmail\"}},{\"Source\":{\"TableName\":\"wftargets\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbowftargets\"}},{\"Source\":{\"TableName\":\"customer\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbocustomer\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"deliverycustomer\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodeliverycustomer\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": true,
+						"ColumnsNamesBlankSpaces": false,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "Incremental CLMasterData LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "CLMasterData LOAD PROD",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CLMasterData LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"cw_items": "[{\"Source\":{\"TableName\":\"clockinghoursdetail\",\"SchemaName\":\"prp\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"prpclockinghoursdetail\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": false,
+						"ColumnsNamesBlankSpaces": false,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "CSD LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Incremental CLMasterData LOAD PROD",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CSD LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"CW_Items": "[{\"Source\":{\"TableName\":\"csdreason\",\"SchemaName\":\"csd\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"csdcsdreason\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": true,
+						"ColumnsNamesBlankSpaces": false,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "Incremental CSD LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "CSD LOAD PROD",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "CSD LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"CW_Items": "[{\"Source\":{\"TableName\":\"csdoutofservice\",\"SchemaName\":\"csd\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"csdcsdoutofservice\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": false,
+						"ColumnsNamesBlankSpaces": false,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "LMS LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Incremental CSD LOAD PROD",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "LMS LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"CW_Items": "[{\"Source\":{\"TableName\":\"Bill_BillCustGroups\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_billcustgroups\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_BillTypesR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_billtypesr\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_BTYPE\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_btype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_CalcTypes\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_calctypes\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_CollectStatus\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_collectstatus\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_CustomerGroups\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_customergroups\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_CustomerGroupTypes\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_customergrouptypes\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_CustTypeR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_custtyper\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_DeliverType\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_delivertype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_MasterEcommZones\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_masterecommzones\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_MonthsR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_monthsr\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_ParcelPackaging\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_parcelpackaging\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_ParcelType\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_parceltype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_Periods\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_periods\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_PostalCodesR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_postalcodesr\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_ProductCategory\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_productcategory\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_RateCardR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_ratecardr\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_RateGroup\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_rategroup\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_RouteType\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_routetype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_ServiceType\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_servicetype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_SurchargeTypes\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_surchargetypes\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_UnitOfMeasureR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_unitofmeasurer\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_UOM\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_uom\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_VehicleTypeRates\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_vehicletyperates\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"VehicleCapacity\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbovehiclecapacity\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"HiltiGroupCode\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbohiltigroupcode\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"HiltiGroup\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbohiltigroup\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Hiltirouteratetype\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbohiltirouteratetype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_WeightCalcType\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_weightcalctype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_Wtype\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_wtype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_Zone\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_zone\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_ZoneRoute\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobill_zoneroute\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Broutemaster\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbobroutemaster\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"CountryMaster\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbocountrymaster\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"courier\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbocourier\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"CustAcc\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbocustacc\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"db_CollectStatus\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodb_collectstatus\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"db_DelayReason\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodb_delayreason\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"db_DeliveryStatus\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodb_deliverystatus\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"db_Endorsement\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodb_endorsement\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"db_InServiceReason\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodb_inservicereason\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"db_MobileFeedbackReason\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodb_mobilefeedbackreason\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"db_NotDbReason\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodb_notdbreason\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"db_ReasonDetail\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodb_reasondetail\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"db_ReasonGroup\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodb_reasongroup\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Dstatus\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodstatus\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"RouteRateType\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dborouteratetype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"SRoute\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbosroute\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"SRouteGroup\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbosroutegroup\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Stations\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbostations\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"TrackType\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbotracktype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Users\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbousers\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Volumiser\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbovolumiser\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"WBEndorsement\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbowbendorsement\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Zone\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbozone\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"PLC_Status\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboplc_status\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"PLC_ScanPoint\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboplc_scanpoint\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"PLC_DivertMapping\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboplc_divertmapping\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Damaged_Parcel_Audit_TapeType\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodamaged_parcel_audit_tapetype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Damaged_Parcel_Audit_Flute_Profiles\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodamaged_parcel_audit_flute_profiles\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"VolumiserLocation\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbovolumiserlocation\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Damaged_Parcel_Audit_Type\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodamaged_parcel_audit_type\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Claims_ClaimReason\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboclaims_claimreason\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Claims_ClaimStatus\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboclaims_claimstatus\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Claims_RejectionReasons\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboclaims_rejectionreasons\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"StoresOnHold\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbostoresonhold\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"2\",\"MaxExecutors\":\"4\"}},{\"Source\":{\"TableName\":\"StoresOnHold\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbostoresonhold\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"StoreHold\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbostorehold\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"db_HoldStatus\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbodb_holdstatus\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": true,
+						"ColumnsNamesBlankSpaces": false,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "Incremental LMS LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "LMS LOAD PROD",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "LMS LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"CW_Items": "[{\"Source\":{\"TableName\":\"Bill_ConsignmentR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"updatedate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbobill_consignmentr\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_ExceptionR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"updatedate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbobill_exceptionr\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_ConsignRouteChargeR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"updatedate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbobill_consignroutecharger\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_ConsignSurChargeR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"updatedate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbobill_consignsurcharger\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_BillCustomersR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbobill_billcustomersr\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Collect\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbocollect\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Customer\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbocustomer\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"DC_Transfer\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbodc_transfer\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"DC_Prepack\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbodc_prepack\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"DC_Order\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbodc_order\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Driver\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbodriver\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"LeadTime\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboleadtime\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"LeadTimeGroup\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboleadtimegroup\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"LeadTimeGroupDC\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboleadtimegroupdc\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"LeadTimeSection\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboleadtimesection\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"LeadTimeStructure\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboleadtimestructure\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Loads\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboloads\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"order\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboorder\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Parcel\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboparcel\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"ParcelDetail\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboparceldetail\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"ParcelStatus\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboparcelstatus\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Track\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbotrack\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Vehicle\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbovehicle\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Waybill\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbowaybill\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"WaybillsPerParcel\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbowaybillsperparcel\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"PLC_LPNRouting\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboplc_lpnrouting\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"plc_lpnrouting_history_centurion\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboplc_lpnrouting_history_centurion\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Damaged_Parcel_Audit\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbodamaged_parcel_audit\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"CSD_Message\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbocsd_message\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"CSD_MessageParcel\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbocsd_messageparcel\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"VolumiserLog\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbovolumiserlog\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_AuditRouteRatesR\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbobill_auditrouteratesr\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Bill_RouteRate\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbobill_routerate\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"WeekendHoliday\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboweekendholiday\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Location\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbolocation\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"PNPHUDetail\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbopnphudetail\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"Consignment\",\"SchemaName\":\"dbo\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboconsignment\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": false,
+						"ColumnsNamesBlankSpaces": false,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "ORV LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Incremental LMS LOAD PROD",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ORV LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"cw_items": "[{\"Source\":{\"TableName\":\"costmodel\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publiccostmodel\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"courier\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publiccourier\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"depo\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicdepo\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"device\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicdevice\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"dispatchcrew\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicdispatchcrew\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"hvcategory\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publichvcategory\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"hvsla\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publichvsla\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"hvtag\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publichvtag\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"hvtype\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publichvtype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"lhcustomer\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publiclhcustomer\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"list\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publiclist\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"listitem\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publiclistitem\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"mall\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicmall\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"manualdebriefreason\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicmanualdebriefreason\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"orvrole\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicorvrole\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"orvuserhvtype\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicorvuserhvtype\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"precheckoption\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicprecheckoption\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"precheckquestion\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicprecheckquestion\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"reasons\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicreasons\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"roletofeature\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicroletofeature\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"routetocourier\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicroutetocourier\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"systemfeature\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicsystemfeature\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"userdepo\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicuserdepo\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"userdevice\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicuserdevice\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"userrole\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicuserrole\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"usertorole\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicusertorole\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"vanassistant\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicvanassistant\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"vehicle\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publicvehicle\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"zoneroute\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"publiczoneroute\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": true,
+						"ColumnsNamesBlankSpaces": false,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "Incremental ORV LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "ORV LOAD PROD",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ORV LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"cw_items": "[{\"Source\":{\"TableName\":\"chatmsg\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicchatmsg\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"claim\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicclaim\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"customer\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publiccustomer\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"customeraccess\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publiccustomeraccess\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"customeraccesschild\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publiccustomeraccesschild\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"cutomerdeliverytracking\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publiccutomerdeliverytracking\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"delivery\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicdelivery\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"4\"}},{\"Source\":{\"TableName\":\"dispatch\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicdispatch\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"dispatchactionlog\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicdispatchactionlog\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"dispatchdevice\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicdispatchdevice\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"dispatchsegment\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicdispatchsegment\"},\"SparkConfig\":{\"NodeSize\":\"Medium\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"dispatchstart\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicdispatchstart\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"draftcollection\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicdraftcollection\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"emaildeliverystatus\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicemaildeliverystatus\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"event\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicevent\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"expense\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicexpense\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"hvcomment\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publichvcomment\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"hvlog\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publichvlog\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"hvnotification\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publichvnotification\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"hvticket\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publichvticket\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"lhchangerequest\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publiclhchangerequest\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"lhdelivery\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publiclhdelivery\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"lhdispatchsegment\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publiclhdispatchsegment\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"lhtmsdata\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publiclhtmsdata\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"orvconnect\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicorvconnect\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"orvconnectemailampm\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicorvconnectemailampm\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"orvconnectnotes\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicorvconnectnotes\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"orvconnectparcel\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"lastupdate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicorvconnectparcel\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"parcel\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicparcel\"},\"SparkConfig\":{\"NodeSize\":\"Medium\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"pod\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicpod\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"precheckanswer\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicprecheckanswer\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"supervisorticket\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicsupervisorticket\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"tmstrailerslog\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publictmstrailerslog\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"whatsappmsg\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicwhatsappmsg\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"reportdistotmgntdispatchdt\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"dispatchid\",\"IdField\":\"dispatchid\"},\"Destination\":{\"FileName\":\"publicreportdistotmgntdispatchdt\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"orvuser\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicorvuser\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": false,
+						"ColumnsNamesBlankSpaces": false,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "SAP LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Incremental ORV LOAD PROD",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "SAP LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"CW_Items": "[{\"Source\":{\"TableName\":\"OITM\"},\"Increment\":{\"IncField\":\"itemcode\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbooitm\"}},{\"Source\":{\"TableName\":\"OACT\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbooact\"}},{\"Source\":{\"TableName\":\"OASC\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbooasc\"}},{\"Source\":{\"TableName\":\"OCRD\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboocrd\"}},{\"Source\":{\"TableName\":\"OCTG\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbooctg\"}},{\"Source\":{\"TableName\":\"OFPR\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboofpr\"}},{\"Source\":{\"TableName\":\"OITB\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbooitb\"}},{\"Source\":{\"TableName\":\"OPRJ\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dbooprj\"}},{\"Source\":{\"TableName\":\"OUSR\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboousr\"}},{\"Source\":{\"TableName\":\"OWHS\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"Destination\":{\"FileName\":\"dboowhs\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": true,
+						"ColumnsNamesBlankSpaces": true,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "Incremental SAP LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "SAP LOAD PROD",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "SAP LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"CW_Items": "[{\"Source\":{\"TableName\":\"IGE1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboige1\"}},{\"Source\":{\"TableName\":\"IGN1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboign1\"}},{\"Source\":{\"TableName\":\"INV1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboinv1\"}},{\"Source\":{\"TableName\":\"JDT1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbojdt1\"}},{\"Source\":{\"TableName\":\"MFRHistoryDaily\"},\"Increment\":{\"IncField\":\"changedateto\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbomfrhistorydaily\"}},{\"Source\":{\"TableName\":\"MRV1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbomrv1\"}},{\"Source\":{\"TableName\":\"MRV2\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbomrv2\"}},{\"Source\":{\"TableName\":\"OIGE\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbooige\"}},{\"Source\":{\"TableName\":\"OIGN\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbooign\"}},{\"Source\":{\"TableName\":\"OINM\"},\"Increment\":{\"IncField\":\"transnum\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbooinm\"}},{\"Source\":{\"TableName\":\"OINV\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbooinv\"}},{\"Source\":{\"TableName\":\"OITW\"},\"Increment\":{\"IncField\":\"updatedate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbooitw\"}},{\"Source\":{\"TableName\":\"OJDT\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboojdt\"}},{\"Source\":{\"TableName\":\"OMRV\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboomrv\"}},{\"Source\":{\"TableName\":\"OPCH\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboopch\"}},{\"Source\":{\"TableName\":\"OPDN\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboopdn\"}},{\"Source\":{\"TableName\":\"OPOR\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboopor\"}},{\"Source\":{\"TableName\":\"ORIN\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboorin\"}},{\"Source\":{\"TableName\":\"ORPC\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboorpc\"}},{\"Source\":{\"TableName\":\"ORPD\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dboorpd\"}},{\"Source\":{\"TableName\":\"PCH1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbopch1\"}},{\"Source\":{\"TableName\":\"PDN1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbopdn1\"}},{\"Source\":{\"TableName\":\"POR1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dbopor1\"}},{\"Source\":{\"TableName\":\"RIN1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dborin1\"}},{\"Source\":{\"TableName\":\"RPC1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dborpc1\"}},{\"Source\":{\"TableName\":\"RPD1\"},\"Increment\":{\"IncField\":\"u_doctime\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"dborpd1\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": true,
+						"ColumnsNamesBlankSpaces": true,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "Avis Full Load",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Incremental SAP LOAD PROD",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Avis Full Take-on",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Sharepoint Full Load",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Avis Full Load",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "Sharepoint Full Take-on",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"CW_Items": "[{\"Source\":{\"TableName\":\"Shared Documents/General/ASA Excel Data Sources/Cost To Serve Mapping Sources\"},\"Increment\":{\"IncField\":\"0\",\"IdField\":\"0\"},\"destination\":{\"FileName\":\"Unstructured Data/CTS Mappings\"}}]",
+						"SharepointSiteName": "DataWarehouse"
+					}
+				}
+			},
+			{
+				"name": "TMS LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Sharepoint Full Load",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "TMS LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"cw_items": "[{\"Source\":{\"TableName\":\"driverpayitem\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicdriverpayitem\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": true,
+						"ColumnsNamesBlankSpaces": false,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "Incremental TMS LOAD PROD",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "TMS LOAD PROD",
+						"dependencyConditions": [
+							"Completed"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "TMS LOAD PROD",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"cw_items": "[{\"Source\":{\"TableName\":\"address\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicaddress\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"booking\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicbooking\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"customer\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publiccustomer\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"driverpay\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicdriverpay\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"financedata\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicfinancedata\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"fuelcard\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicfuelcard\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"fuelzone\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicfuelzone\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"fuelzonehistory\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicfuelzonehistory\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"instruction\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicinstruction\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"invoice\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicinvoice\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"invoiceitem\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicinvoiceitem\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"lmsdata\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publiclmsdata\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"nonbooking\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicnonbooking\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"ratecomponent\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicratecomponent\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"rateprofile\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicrateprofile\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"route\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicroute\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"thirdparty\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publicthirdparty\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"track\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publictrack\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"trip\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"moddate\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publictrip\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}},{\"Source\":{\"TableName\":\"triptrackinghistory\",\"SchemaName\":\"public\"},\"Increment\":{\"IncField\":\"id\",\"IdField\":\"id\"},\"Destination\":{\"FileName\":\"publictriptrackinghistory\"},\"SparkConfig\":{\"NodeSize\":\"Small\",\"MinExecutors\":\"1\",\"MaxExecutors\":\"3\"}}]",
+						"TakeOnPeriod": " ",
+						"Full_Load": false,
+						"ColumnsNamesBlankSpaces": false,
+						"LimitedLoadTopX": " "
+					}
+				}
+			},
+			{
+				"name": "Structure on Read RunOrder",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Incremental TMS LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "TMS LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Sharepoint Full Load",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Avis Full Load",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Incremental SAP LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "SAP LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Incremental ORV LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "ORV LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Incremental LMS LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "LMS LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Incremental CSD LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "CSD LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Incremental CLMasterData LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "CLMasterData LOAD PROD",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "RunOrder",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"folder": {
+			"name": "PROD"
+		},
+		"annotations": []
+	}
+}

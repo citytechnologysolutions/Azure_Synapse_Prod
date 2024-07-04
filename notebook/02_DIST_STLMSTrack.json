@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "41a85b52-7b72-48b2-bb68-7d03d5fdde66"
+				"spark.autotune.trackingId": "e79ac4c5-7f20-45aa-8b2c-a81991bf088d"
 			}
 		},
 		"metadata": {
@@ -146,7 +146,7 @@
 					"windowSpec  = Window.partitionBy(\"parcelid\").orderBy(\"parcelid\",\"id\")\r\n",
 					"ssttrackunion = ssttrackunion.withColumn(\"lag\",lag(\"parcelid\",1).over(windowSpec))"
 				],
-				"execution_count": 4
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -165,7 +165,7 @@
 					"partitiontrackparcel=Window.partitionBy(\"parcelid\").orderBy(col(\"parcelid\").asc(),col(\"ID\").asc())\r\n",
 					"ssttrackunion = ssttrackunion.withColumn(\"rnparcel\",row_number().over(partitiontrackparcel))"
 				],
-				"execution_count": 5
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -184,7 +184,7 @@
 					"partitiontracktype=Window.partitionBy(\"parcelid\",\"TrackTypeID\").orderBy(col(\"parcelid\").asc(),col(\"ID\").asc(),col(\"TrackTypeID\").asc())\r\n",
 					"ssttrackunion = ssttrackunion.withColumn(\"rntractype\",row_number().over(partitiontracktype))"
 				],
-				"execution_count": 6
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -202,7 +202,7 @@
 				"source": [
 					"ssttrackunion.createOrReplaceTempView(\"ssttrackunion\")"
 				],
-				"execution_count": 7
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -279,7 +279,7 @@
 					"LEFT JOIN sstparcelunion p on p.id = t.parcelid\r\n",
 					"LEFT JOIN dboloads l on l.id = t.loadid"
 				],
-				"execution_count": 8
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -298,7 +298,7 @@
 					"stlmstrack = spark.sql(\"SELECT * FROM stlmstrack\")\r\n",
 					""
 				],
-				"execution_count": 9
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -314,10 +314,10 @@
 					}
 				},
 				"source": [
-					"# put into memory\r\n",
-					"stlmstrack.cache()\r\n",
-					"# print(stlmstrack_tmp.count())\r\n",
-					"stlmstrack.createOrReplaceTempView(\"stlmstrack\")"
+					"# # put into memory\r\n",
+					"# stlmstrack.cache()\r\n",
+					"# # print(stlmstrack_tmp.count())\r\n",
+					"# stlmstrack.createOrReplaceTempView(\"stlmstrack\")"
 				],
 				"execution_count": null
 			},
@@ -338,7 +338,7 @@
 					"# stlmstrack.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stlmstrack.parquet', mode = \"overwrite\")\r\n",
 					"stlmstrack.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/Temp/stlmstrack.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 10
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -363,10 +363,10 @@
 					"stvsmparcel_tmp1\r\n",
 					"AS\r\n",
 					"SELECT DISTINCT\r\n",
-					"     t.lms_track_parcelid\r\n",
+					"      t.lms_track_parcelid\r\n",
 					"FROM stlmstrack t"
 				],
-				"execution_count": 11
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -400,10 +400,10 @@
 					}
 				},
 				"source": [
-					"# put into memory\r\n",
-					"stvsmparcel_tmp1.cache()\r\n",
-					"# print(stlmstrack_tmp.count())\r\n",
-					"stvsmparcel_tmp1.createOrReplaceTempView(\"stvsmparcel_tmp1\")"
+					"# # put into memory\r\n",
+					"# stvsmparcel_tmp1.cache()\r\n",
+					"# # print(stlmstrack_tmp.count())\r\n",
+					"# stvsmparcel_tmp1.createOrReplaceTempView(\"stvsmparcel_tmp1\")"
 				],
 				"execution_count": null
 			},
@@ -471,10 +471,10 @@
 					}
 				},
 				"source": [
-					"# put into memory\r\n",
-					"stvsmparcel_tmp2.cache()\r\n",
-					"# print(stlmstrack_tmp.count())\r\n",
-					"stvsmparcel_tmp2.createOrReplaceTempView(\"stvsmparcel_tmp2\")"
+					"# # put into memory\r\n",
+					"# stvsmparcel_tmp2.cache()\r\n",
+					"# # print(stlmstrack_tmp.count())\r\n",
+					"# stvsmparcel_tmp2.createOrReplaceTempView(\"stvsmparcel_tmp2\")"
 				],
 				"execution_count": null
 			},
@@ -543,10 +543,10 @@
 					}
 				},
 				"source": [
-					"# put into memory\r\n",
-					"stvsmparcel_tmp3.cache()\r\n",
-					"# print(stlmstrack_tmp.count())\r\n",
-					"stvsmparcel_tmp3.createOrReplaceTempView(\"stvsmparcel_tmp3\")"
+					"# # put into memory\r\n",
+					"# stvsmparcel_tmp3.cache()\r\n",
+					"# # print(stlmstrack_tmp.count())\r\n",
+					"# stvsmparcel_tmp3.createOrReplaceTempView(\"stvsmparcel_tmp3\")"
 				],
 				"execution_count": null
 			},
@@ -616,10 +616,10 @@
 					}
 				},
 				"source": [
-					"# put into memory\r\n",
-					"stvsmparcel_tmp4.cache()\r\n",
-					"# print(stlmstrack_tmp.count())\r\n",
-					"stvsmparcel_tmp4.createOrReplaceTempView(\"stvsmparcel_tmp4\")"
+					"# # put into memory\r\n",
+					"# stvsmparcel_tmp4.cache()\r\n",
+					"# # print(stlmstrack_tmp.count())\r\n",
+					"# stvsmparcel_tmp4.createOrReplaceTempView(\"stvsmparcel_tmp4\")"
 				],
 				"execution_count": null
 			},
@@ -691,10 +691,10 @@
 					}
 				},
 				"source": [
-					"# put into memory\r\n",
-					"stvsmparcel_tmp5.cache()\r\n",
-					"# print(stlmstrack_tmp.count())\r\n",
-					"stvsmparcel_tmp5.createOrReplaceTempView(\"stvsmparcel_tmp5\")"
+					"# # put into memory\r\n",
+					"# stvsmparcel_tmp5.cache()\r\n",
+					"# # print(stlmstrack_tmp.count())\r\n",
+					"# stvsmparcel_tmp5.createOrReplaceTempView(\"stvsmparcel_tmp5\")"
 				],
 				"execution_count": null
 			},

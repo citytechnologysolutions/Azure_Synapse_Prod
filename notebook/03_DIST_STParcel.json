@@ -21,7 +21,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "8078728a-4f97-48a2-91b5-bdf924d5a9d4"
+				"spark.autotune.trackingId": "d75f856a-030a-4ae2-9969-4ce2048a4704"
 			}
 		},
 		"metadata": {
@@ -72,7 +72,7 @@
 					"    }\r\n",
 					"}"
 				],
-				"execution_count": 28
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -92,7 +92,7 @@
 					"\r\n",
 					"# ' + StorageAccount + '"
 				],
-				"execution_count": 29
+				"execution_count": 2
 			},
 			{
 				"cell_type": "code",
@@ -111,7 +111,7 @@
 				"source": [
 					"print(StorageAccountWrite)"
 				],
-				"execution_count": 30
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -198,7 +198,7 @@
 					"stlocation.createOrReplaceTempView(\"stlocation\")\r\n",
 					"#print(stlocation.count())"
 				],
-				"execution_count": 31
+				"execution_count": 4
 			},
 			{
 				"cell_type": "code",
@@ -238,7 +238,7 @@
 					"LEFT JOIN publicdelivery d ON d.id = p.did\r\n",
 					"WHERE (d.mode ='deliver' ) and (d.skipreason <> 'Fix wrong data manipulation by the company' or d.skipreason is null )"
 				],
-				"execution_count": 32
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -259,7 +259,7 @@
 					"sstparcelunion = spark.sql(\"select * from sstparcelunion_init WHERE coalesce(acceptanceDate, handoverdate) IS NOT NULL AND locid NOT IN (163,110,213,27)\").repartition(192)\r\n",
 					"sstparcelunion.createOrReplaceTempView(\"sstparcelunion\")"
 				],
-				"execution_count": 33
+				"execution_count": 6
 			},
 			{
 				"cell_type": "code",
@@ -404,7 +404,7 @@
 					"-- WHERE  coalesce(p.acceptanceDate,p.handoverdate) IS NOT NULL\r\n",
 					"-- AND p.locid NOT IN (163,110,213,27)"
 				],
-				"execution_count": 34
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -423,7 +423,7 @@
 					"# put into memory\r\n",
 					"spark.sql(\"CACHE TABLE stparcel_tmp2_init\")"
 				],
-				"execution_count": 35
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -454,7 +454,7 @@
 					"INNER JOIN dboweekendholiday h on (date(h.DateHoliday) >=  date(lms_parcel_actualleaddaysstartdate) and date(h.DateHoliday) <= date(lms_parcel_actualleaddaysenddate))\r\n",
 					"GROUP BY p.lms_parcel_id"
 				],
-				"execution_count": 36
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -484,7 +484,7 @@
 					"FROM stparcel_tmp2_init p\r\n",
 					"LEFT JOIN stparcel_tmp3_init p1 on p1.lms_parcel_id = p.lms_parcel_id"
 				],
-				"execution_count": 38
+				"execution_count": 10
 			},
 			{
 				"cell_type": "code",
@@ -503,7 +503,7 @@
 					"# put into memory\r\n",
 					"spark.sql(\"CACHE TABLE stparcel_tmp4\")"
 				],
-				"execution_count": 39
+				"execution_count": 11
 			},
 			{
 				"cell_type": "code",
@@ -546,7 +546,7 @@
 					"\r\n",
 					"FROM stparcel_tmp4"
 				],
-				"execution_count": 40
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -565,7 +565,7 @@
 					"# put into memory\r\n",
 					"spark.sql(\"CACHE TABLE stparcel_tmp5\")"
 				],
-				"execution_count": 41
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -604,7 +604,7 @@
 					"FROM stparcel_tmp5 p\r\n",
 					"LEFT JOIN stvsmparcel v ON v.lms_track_parcelid = p.lms_parcel_id"
 				],
-				"execution_count": 42
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -624,7 +624,7 @@
 					"# put into memory\r\n",
 					"spark.sql(\"CACHE TABLE stparcel_tmp6_init\")"
 				],
-				"execution_count": 43
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -658,7 +658,7 @@
 					"p.lms_parcel_orderid,\r\n",
 					"p.lms_parcel_consignid"
 				],
-				"execution_count": 44
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -677,7 +677,7 @@
 					"# put into memory\r\n",
 					"spark.sql(\"CACHE TABLE stparcelsplitconsign_1_init\")"
 				],
-				"execution_count": 45
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -711,7 +711,7 @@
 					"p.lms_parcel_orderid\r\n",
 					""
 				],
-				"execution_count": 46
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -730,7 +730,7 @@
 					"# put into memory\r\n",
 					"spark.sql(\"CACHE TABLE stparcelsplitconsign_2_init\")"
 				],
-				"execution_count": 47
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -764,7 +764,7 @@
 					"p.lms_parcel_orderid\r\n",
 					",p.lms_parcel_waybillid"
 				],
-				"execution_count": 48
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -817,7 +817,7 @@
 					"GROUP BY\r\n",
 					"p.lms_parcel_orderid"
 				],
-				"execution_count": 50
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -851,7 +851,7 @@
 					"LEFT JOIN stparcelsplitconsign_2_init c ON p.lms_parcel_orderid = c.lms_parcel_orderid\r\n",
 					"LEFT JOIN stparcelsplitdeliver_2_init d ON p.lms_parcel_orderid = d.lms_parcel_orderid"
 				],
-				"execution_count": 52
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -869,7 +869,7 @@
 				"source": [
 					"stparcel = spark.sql(\"SELECT * FROM stparcel\")"
 				],
-				"execution_count": 53
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",
@@ -888,7 +888,7 @@
 					"# stparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/stparcel_test_for_optimisation.parquet', mode = \"overwrite\")\r\n",
 					"stparcel.write.parquet('abfss://synapse@citylogisticsstorage.dfs.core.windows.net/DataLake Dev/Temp/stparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 54
+				"execution_count": null
 			}
 		]
 	}

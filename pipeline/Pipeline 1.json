@@ -1,0 +1,287 @@
+{
+	"name": "Pipeline 1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set Start Time",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "startTime",
+					"value": {
+						"value": "@utcNow()",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "MainActivity",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set Start Time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "@concat('SELECT * FROM [', variables('SchemaName'),'].['']')\n    )",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "SqlServerDataSet",
+						"type": "DatasetReference",
+						"parameters": {
+							"ServerName": {
+								"value": "@variables('ServerName')",
+								"type": "Expression"
+							},
+							"DatabaseName": {
+								"value": "@variables('DatabaseName')",
+								"type": "Expression"
+							},
+							"UserName": {
+								"value": "@variables('UserName')",
+								"type": "Expression"
+							},
+							"CW_SchemaName": {
+								"value": "@variables('SchemaName')",
+								"type": "Expression"
+							},
+							"SecretName": {
+								"value": "@variables('SecretName')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set End Time",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "MainActivity",
+						"dependencyConditions": [
+							"Succeeded",
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "endTime",
+					"value": {
+						"value": "@utcNow()",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Status and Error Message",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Set End Time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals(activity('MainActivity').Status, 'Succeeded')",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Set Failure Status",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "status",
+								"value": {
+									"value": "Failed",
+									"type": "String"
+								}
+							}
+						},
+						{
+							"name": "Set Error Message",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "errorMessage",
+								"value": {
+									"value": "@activity('MainActivity').Error.Message",
+									"type": "Expression"
+								}
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Set Success Status",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "status",
+								"value": {
+									"value": "Succeeded",
+									"type": "String"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Log Metadata",
+				"type": "StoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Set Status and Error Message",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "LogPipelineMetadata",
+					"storedProcedureParameters": {
+						"PipelineName": {
+							"value": "@pipeline().Pipeline",
+							"type": "String"
+						},
+						"RunID": {
+							"value": "@pipeline().RunId",
+							"type": "String"
+						},
+						"StartTime": {
+							"value": "@variables('startTime')",
+							"type": "String"
+						},
+						"EndTime": {
+							"value": "@variables('endTime')",
+							"type": "String"
+						},
+						"Status": {
+							"value": "@variables('status')",
+							"type": "String"
+						},
+						"ErrorMessage": {
+							"value": "@variables('errorMessage')",
+							"type": "String"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"cw_items": {
+				"type": "array",
+				"defaultValue": []
+			},
+			"TakeOnPeriod": {
+				"type": "string",
+				"defaultValue": " "
+			},
+			"Full_Load": {
+				"type": "bool",
+				"defaultValue": true
+			},
+			"ColumnsNamesBlankSpaces": {
+				"type": "bool",
+				"defaultValue": false
+			},
+			"LimitedLoadTopX": {
+				"type": "string",
+				"defaultValue": "1"
+			}
+		},
+		"variables": {
+			"startTime": {
+				"type": "String"
+			},
+			"endTime": {
+				"type": "String"
+			},
+			"status": {
+				"type": "String"
+			},
+			"errorMessage": {
+				"type": "String"
+			},
+			"ServerName": {
+				"type": "String",
+				"defaultValue": "CCLMSPROD"
+			},
+			"DatabaseName": {
+				"type": "String",
+				"defaultValue": "CLMasterData"
+			},
+			"UserName": {
+				"type": "String",
+				"defaultValue": "Synapse@citylogistics.co.za"
+			},
+			"SchemaName": {
+				"type": "String",
+				"defaultValue": "public"
+			},
+			"SecretName": {
+				"type": "String",
+				"defaultValue": "CLMastSecret"
+			}
+		},
+		"annotations": []
+	}
+}

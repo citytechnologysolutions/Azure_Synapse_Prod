@@ -59030,7 +59030,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "ddd4b841-fc30-4b9a-91dd-300f28fc21f4"
+						"spark.autotune.trackingId": "ddd5e67a-2f9e-4fa3-bc7f-6aa41b039843"
 					}
 				},
 				"metadata": {
@@ -59055,13 +59055,15 @@
 						"sparkVersion": "3.3",
 						"nodeCount": 10,
 						"cores": 8,
-						"memory": 56
+						"memory": 56,
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
 				"cells": [
 					{
 						"cell_type": "code",
+						"metadata": {},
 						"source": [
 							"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
 							"# if 'prod' in Environment:\r\n",
@@ -59078,7 +59080,7 @@
 							"# # ' + StorageAccount + '"
 						],
 						"outputs": [],
-						"execution_count": 1
+						"execution_count": 19
 					},
 					{
 						"cell_type": "code",
@@ -59112,7 +59114,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 2
+						"execution_count": 20
 					},
 					{
 						"cell_type": "code",
@@ -59155,7 +59157,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 39
+						"execution_count": 21
 					},
 					{
 						"cell_type": "code",
@@ -59174,7 +59176,7 @@
 							"ststoresonhold_1 = spark.sql(\"SELECT * FROM ststoresonhold_1\")"
 						],
 						"outputs": [],
-						"execution_count": 40
+						"execution_count": 22
 					},
 					{
 						"cell_type": "code",
@@ -59221,7 +59223,7 @@
 							",lms_storehold_keepfreight"
 						],
 						"outputs": [],
-						"execution_count": 41
+						"execution_count": 23
 					},
 					{
 						"cell_type": "code",
@@ -59240,7 +59242,7 @@
 							"ststoresonhold_2 = spark.sql(\"SELECT * FROM ststoresonhold_2\")"
 						],
 						"outputs": [],
-						"execution_count": 42
+						"execution_count": 24
 					},
 					{
 						"cell_type": "code",
@@ -59280,7 +59282,7 @@
 							"lms_parcel_parceldetailcustonholdend"
 						],
 						"outputs": [],
-						"execution_count": 43
+						"execution_count": 25
 					},
 					{
 						"cell_type": "code",
@@ -59299,7 +59301,7 @@
 							"stparcelsoh = spark.sql(\"SELECT * FROM stparcelsoh\")"
 						],
 						"outputs": [],
-						"execution_count": 44
+						"execution_count": 26
 					},
 					{
 						"cell_type": "code",
@@ -59333,7 +59335,7 @@
 							"soh.lms_storesonhold_onholdfrom"
 						],
 						"outputs": [],
-						"execution_count": 45
+						"execution_count": 27
 					},
 					{
 						"cell_type": "code",
@@ -59352,7 +59354,7 @@
 							"stonhold = spark.sql(\"SELECT * FROM stonhold\")"
 						],
 						"outputs": [],
-						"execution_count": 46
+						"execution_count": 28
 					},
 					{
 						"cell_type": "code",
@@ -59395,7 +59397,7 @@
 							"ORDER BY COUNT(*) DESC "
 						],
 						"outputs": [],
-						"execution_count": 47
+						"execution_count": 29
 					},
 					{
 						"cell_type": "code",
@@ -59414,7 +59416,7 @@
 							"ststoresonhold_3 = spark.sql(\"SELECT * FROM ststoresonhold_3\")"
 						],
 						"outputs": [],
-						"execution_count": 48
+						"execution_count": 30
 					},
 					{
 						"cell_type": "code",
@@ -59440,11 +59442,11 @@
 							"AS\r\n",
 							"SELECT\r\n",
 							"soh2.*,\r\n",
-							"CASE WHEN soh2.lms_storesonhold_storeid = soh3.lms_storesonhold_storeid and soh2.lms_storesonhold_onholdfrom = soh3.lms_storesonhold_onholdfrom THEN soh3.lms_storesonhold_parcelsonhold\r\n",
+							"CASE WHEN soh2.lms_storesonhold_storeid = soh3.lms_storesonhold_storeid and soh2.lms_storesonhold_onholdfrom = soh3.lms_storesonhold_onholdfrom THEN SUM(soh3.lms_storesonhold_parcelsonhold)\r\n",
 							"END AS lms_storesonhold_parcelsonhold\r\n",
 							"FROM ststoresonhold_1 soh2\r\n",
 							"INNER JOIN ststoresonhold_3 soh3 on soh2.lms_storesonhold_storeid = soh3.lms_storesonhold_storeid\r\n",
-							"\r\n",
+							" \r\n",
 							"GROUP BY\r\n",
 							"soh2.lms_storesonhold_billcustid,\r\n",
 							"soh2.lms_storesonhold_storeid,\r\n",
@@ -59461,7 +59463,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 49
+						"execution_count": 31
 					},
 					{
 						"cell_type": "code",
@@ -59480,7 +59482,7 @@
 							"ststoresonhold_4 = spark.sql(\"SELECT * FROM ststoresonhold_4\")"
 						],
 						"outputs": [],
-						"execution_count": 50
+						"execution_count": 32
 					},
 					{
 						"cell_type": "code",
@@ -59512,7 +59514,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 51
+						"execution_count": 33
 					},
 					{
 						"cell_type": "code",
@@ -59531,7 +59533,7 @@
 							"ststoresonhold_5 = spark.sql(\"SELECT * FROM ststoresonhold_5\")"
 						],
 						"outputs": [],
-						"execution_count": 52
+						"execution_count": 34
 					},
 					{
 						"cell_type": "code",
@@ -59573,7 +59575,7 @@
 							""
 						],
 						"outputs": [],
-						"execution_count": 53
+						"execution_count": 35
 					},
 					{
 						"cell_type": "code",
@@ -59592,7 +59594,7 @@
 							"ststoresonhold = spark.sql(\"SELECT * FROM ststoresonhold\")"
 						],
 						"outputs": [],
-						"execution_count": 54
+						"execution_count": 36
 					},
 					{
 						"cell_type": "code",
@@ -59611,7 +59613,7 @@
 							"# ststoresonhold.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/ststoresonhold.parquet', mode = \"overwrite\")"
 						],
 						"outputs": [],
-						"execution_count": 56
+						"execution_count": 37
 					}
 				]
 			},

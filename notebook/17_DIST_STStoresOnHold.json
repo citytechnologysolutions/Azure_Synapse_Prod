@@ -7,20 +7,20 @@
 		"nbformat": 4,
 		"nbformat_minor": 2,
 		"bigDataPool": {
-			"referenceName": "PRDSparkPool",
+			"referenceName": "DevSparkPool",
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "56g",
-			"driverCores": 8,
-			"executorMemory": "56g",
-			"executorCores": 8,
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
 			"numExecutors": 2,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "ddd4b841-fc30-4b9a-91dd-300f28fc21f4"
+				"spark.autotune.trackingId": "7aa40b83-572b-4f19-b273-50c8e48883d7"
 			}
 		},
 		"metadata": {
@@ -34,18 +34,18 @@
 				"name": "python"
 			},
 			"a365ComputeOptions": {
-				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse_Prod/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace-prod/bigDataPools/PRDSparkPool",
-				"name": "PRDSparkPool",
+				"id": "/subscriptions/99b4fa8b-7705-4d41-a2fb-4f8f9ee006c7/resourceGroups/AZ_Resource_DataWarehouse/providers/Microsoft.Synapse/workspaces/citylogistics-synapseanalytics-workspace/bigDataPools/DevSparkPool",
+				"name": "DevSparkPool",
 				"type": "Spark",
-				"endpoint": "https://citylogistics-synapseanalytics-workspace-prod.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/PRDSparkPool",
+				"endpoint": "https://citylogistics-synapseanalytics-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/DevSparkPool",
 				"auth": {
 					"type": "AAD",
 					"authResource": "https://dev.azuresynapse.net"
 				},
-				"sparkVersion": "3.3",
+				"sparkVersion": "3.2",
 				"nodeCount": 10,
-				"cores": 8,
-				"memory": 56,
+				"cores": 4,
+				"memory": 28,
 				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
@@ -54,21 +54,21 @@
 			{
 				"cell_type": "code",
 				"source": [
-					"# Environment = mssparkutils.env.getWorkspaceName()\r\n",
-					"# if 'prod' in Environment:\r\n",
-					"#     StorageAccount = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
-					"# else:\r\n",
-					"#     StorageAccount = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountRead = 'citylogisticsstorageprod'\r\n",
-					"#     StorageAccountRead2 = 'citylogisticsstorage'\r\n",
-					"#     StorageAccountWrite = 'citylogisticsstorage'\r\n",
+					"Environment = mssparkutils.env.getWorkspaceName()\r\n",
+					"if 'prod' in Environment:\r\n",
+					"    StorageAccount = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorageprod'\r\n",
+					"else:\r\n",
+					"    StorageAccount = 'citylogisticsstorage'\r\n",
+					"    StorageAccountRead = 'citylogisticsstorageprod'\r\n",
+					"    StorageAccountRead2 = 'citylogisticsstorage'\r\n",
+					"    StorageAccountWrite = 'citylogisticsstorage'\r\n",
 					"\r\n",
-					"# # ' + StorageAccount + '"
+					"# ' + StorageAccount + '"
 				],
-				"execution_count": 1
+				"execution_count": 19
 			},
 			{
 				"cell_type": "code",
@@ -84,24 +84,24 @@
 					}
 				},
 				"source": [
-					"# #Create DataFrame for the dbostoresonhold LMS Table\r\n",
-					"# dbostoresonhold = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbostoresonhold.parquet', format='parquet')\r\n",
-					"# dbostoresonhold.createOrReplaceTempView(\"dbostoresonhold\")\r\n",
+					"#Create DataFrame for the dbostoresonhold LMS Table\r\n",
+					"dbostoresonhold = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/LMS/dbostoresonhold.parquet', format='parquet')\r\n",
+					"dbostoresonhold.createOrReplaceTempView(\"dbostoresonhold\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the stholdstatus LMS Table\r\n",
-					"# stholdstatus = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stholdstatus.parquet', format='parquet')\r\n",
-					"# stholdstatus.createOrReplaceTempView(\"stholdstatus\")\r\n",
+					"#Create DataFrame for the stholdstatus LMS Table\r\n",
+					"stholdstatus = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stholdstatus.parquet', format='parquet')\r\n",
+					"stholdstatus.createOrReplaceTempView(\"stholdstatus\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the ststorehold LMS Table\r\n",
-					"# ststorehold = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/ststorehold.parquet', format='parquet')\r\n",
-					"# ststorehold.createOrReplaceTempView(\"ststorehold\")\r\n",
+					"#Create DataFrame for the ststorehold LMS Table\r\n",
+					"ststorehold = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/ststorehold.parquet', format='parquet')\r\n",
+					"ststorehold.createOrReplaceTempView(\"ststorehold\")\r\n",
 					"\r\n",
-					"# #Create DataFrame for the stparcel LMS Table\r\n",
-					"# stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', format='parquet')\r\n",
-					"# stparcel.createOrReplaceTempView(\"stparcel\")\r\n",
+					"#Create DataFrame for the stparcel LMS Table\r\n",
+					"stparcel = spark.read.load('abfss://synapse@' + StorageAccountRead2 + '.dfs.core.windows.net/Structured Data/OPS/stparcel.parquet', format='parquet')\r\n",
+					"stparcel.createOrReplaceTempView(\"stparcel\")\r\n",
 					""
 				],
-				"execution_count": 2
+				"execution_count": 20
 			},
 			{
 				"cell_type": "code",
@@ -143,7 +143,7 @@
 					"LEFT JOIN stholdstatus hs on soh.delaytypeid = hs.lms_holdstatus_id\r\n",
 					""
 				],
-				"execution_count": 39
+				"execution_count": 21
 			},
 			{
 				"cell_type": "code",
@@ -161,7 +161,7 @@
 				"source": [
 					"ststoresonhold_1 = spark.sql(\"SELECT * FROM ststoresonhold_1\")"
 				],
-				"execution_count": 40
+				"execution_count": 22
 			},
 			{
 				"cell_type": "code",
@@ -207,7 +207,7 @@
 					",lms_storehold_description\r\n",
 					",lms_storehold_keepfreight"
 				],
-				"execution_count": 41
+				"execution_count": 23
 			},
 			{
 				"cell_type": "code",
@@ -225,7 +225,7 @@
 				"source": [
 					"ststoresonhold_2 = spark.sql(\"SELECT * FROM ststoresonhold_2\")"
 				],
-				"execution_count": 42
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -264,7 +264,7 @@
 					"lms_parcel_parceldetailcustonholdstart,\r\n",
 					"lms_parcel_parceldetailcustonholdend"
 				],
-				"execution_count": 43
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -282,7 +282,7 @@
 				"source": [
 					"stparcelsoh = spark.sql(\"SELECT * FROM stparcelsoh\")"
 				],
-				"execution_count": 44
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -315,7 +315,7 @@
 					"soh.lms_storesonhold_storeid,\r\n",
 					"soh.lms_storesonhold_onholdfrom"
 				],
-				"execution_count": 45
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -333,7 +333,7 @@
 				"source": [
 					"stonhold = spark.sql(\"SELECT * FROM stonhold\")"
 				],
-				"execution_count": 46
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -375,7 +375,7 @@
 					"\r\n",
 					"ORDER BY COUNT(*) DESC "
 				],
-				"execution_count": 47
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -393,7 +393,7 @@
 				"source": [
 					"ststoresonhold_3 = spark.sql(\"SELECT * FROM ststoresonhold_3\")"
 				],
-				"execution_count": 48
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -419,11 +419,11 @@
 					"AS\r\n",
 					"SELECT\r\n",
 					"soh2.*,\r\n",
-					"CASE WHEN soh2.lms_storesonhold_storeid = soh3.lms_storesonhold_storeid and soh2.lms_storesonhold_onholdfrom = soh3.lms_storesonhold_onholdfrom THEN soh3.lms_storesonhold_parcelsonhold\r\n",
+					"CASE WHEN soh2.lms_storesonhold_storeid = soh3.lms_storesonhold_storeid and soh2.lms_storesonhold_onholdfrom = soh3.lms_storesonhold_onholdfrom THEN SUM(soh3.lms_storesonhold_parcelsonhold)\r\n",
 					"END AS lms_storesonhold_parcelsonhold\r\n",
 					"FROM ststoresonhold_1 soh2\r\n",
 					"INNER JOIN ststoresonhold_3 soh3 on soh2.lms_storesonhold_storeid = soh3.lms_storesonhold_storeid\r\n",
-					"\r\n",
+					" \r\n",
 					"GROUP BY\r\n",
 					"soh2.lms_storesonhold_billcustid,\r\n",
 					"soh2.lms_storesonhold_storeid,\r\n",
@@ -439,7 +439,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 49
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -457,7 +457,7 @@
 				"source": [
 					"ststoresonhold_4 = spark.sql(\"SELECT * FROM ststoresonhold_4\")"
 				],
-				"execution_count": 50
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -488,7 +488,7 @@
 					"ststoresonhold_4\r\n",
 					""
 				],
-				"execution_count": 51
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -506,7 +506,7 @@
 				"source": [
 					"ststoresonhold_5 = spark.sql(\"SELECT * FROM ststoresonhold_5\")"
 				],
-				"execution_count": 52
+				"execution_count": 34
 			},
 			{
 				"cell_type": "code",
@@ -547,7 +547,7 @@
 					"WHERE RN = 1\r\n",
 					""
 				],
-				"execution_count": 53
+				"execution_count": 35
 			},
 			{
 				"cell_type": "code",
@@ -565,7 +565,7 @@
 				"source": [
 					"ststoresonhold = spark.sql(\"SELECT * FROM ststoresonhold\")"
 				],
-				"execution_count": 54
+				"execution_count": 36
 			},
 			{
 				"cell_type": "code",
@@ -583,7 +583,7 @@
 				"source": [
 					"# ststoresonhold.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/OPS/ststoresonhold.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 56
+				"execution_count": 37
 			}
 		]
 	}

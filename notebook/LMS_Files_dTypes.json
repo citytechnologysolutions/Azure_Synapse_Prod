@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "1a36fbe3-0e05-400a-a24f-fae5d68df0fa"
+				"spark.autotune.trackingId": "19e93b29-f9cb-4377-8042-3cff9512879e"
 			}
 		},
 		"metadata": {
@@ -141,15 +141,14 @@
 					"\r\n",
 					"    # Create a DataFrame from the schema information\r\n",
 					"    schema_df = spark.createDataFrame(schema_info)\r\n",
-					"    schema_df.show(truncate=False)\r\n",
-					"    print(schema_df)\r\n",
+					"\r\n",
 					"except py4j.protocol.Py4JJavaError as e:\r\n",
 					"    print(\"Error occurred while listing files: \", e)\r\n",
 					"except Exception as e:\r\n",
 					"    print(f\"Error: {e}\")\r\n",
 					""
 				],
-				"execution_count": 28
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -165,9 +164,41 @@
 					}
 				},
 				"source": [
+					"# Print the DataFrame\r\n",
+					"def print_dataframe(df, num_rows=10):\r\n",
+					"    \"\"\"Print the DataFrame with a specified number of rows.\"\"\"\r\n",
+					"    df.show(n=num_rows, truncate=False)\r\n",
+					"\r\n",
+					"# Call the print function\r\n",
+					"print_dataframe(schema_df)"
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Print the DataFrame with timestamp data types\r\n",
+					"def print_filtered_dataframe(df, num_rows=100):\r\n",
+					"    \"\"\"Print the DataFrame where data_type is 'timestamp' with a specified number of rows.\"\"\"\r\n",
+					"    filtered_df = df.filter(df.data_type == 'timestamp')\r\n",
+					"    filtered_df.show(n=num_rows, truncate=False)\r\n",
+					"\r\n",
+					"# Call the print function\r\n",
+					"print_filtered_dataframe(schema_df)\r\n",
 					""
 				],
-				"execution_count": null
+				"execution_count": 37
 			}
 		]
 	}

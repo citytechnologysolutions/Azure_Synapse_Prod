@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "3c29edfb-2eac-47ab-a2c2-7e326136d3c7"
+				"spark.autotune.trackingId": "8363701a-a36d-42ed-9383-30c62d5df4f3"
 			}
 		},
 		"metadata": {
@@ -63,7 +63,7 @@
 					"from io import StringIO\r\n",
 					"import csv"
 				],
-				"execution_count": 7
+				"execution_count": 2
 			},
 			{
 				"cell_type": "markdown",
@@ -161,7 +161,7 @@
 					"    print(f\"Error: {e}\")\r\n",
 					""
 				],
-				"execution_count": 8
+				"execution_count": 3
 			},
 			{
 				"cell_type": "code",
@@ -183,9 +183,28 @@
 					"date_columns = date_columns[date_columns.data_type == 'timestamp']\r\n",
 					"date_columns = date_columns['column_name']\r\n",
 					"date_columns = date_columns.drop_duplicates()\r\n",
+					"date_columns = date_columns.to_frame()\r\n",
 					"print(date_columns)"
 				],
-				"execution_count": 59
+				"execution_count": 30
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"date_columns[date_columns['column_name'] == 'moddate']"
+				],
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -209,7 +228,7 @@
 					"# Call the print function\r\n",
 					"print_dataframe(schema_df)"
 				],
-				"execution_count": 10
+				"execution_count": 5
 			},
 			{
 				"cell_type": "code",
@@ -236,7 +255,7 @@
 					"print_filtered_dataframe(schema_df)\r\n",
 					""
 				],
-				"execution_count": 11
+				"execution_count": 6
 			},
 			{
 				"cell_type": "markdown",
@@ -330,7 +349,7 @@
 					"    print(f\"Error: {e}\")\r\n",
 					""
 				],
-				"execution_count": 13
+				"execution_count": 7
 			},
 			{
 				"cell_type": "code",
@@ -372,7 +391,7 @@
 					"# Call the print function\r\n",
 					"print_dataframe(schema_df_LMSv2)"
 				],
-				"execution_count": 14
+				"execution_count": 8
 			},
 			{
 				"cell_type": "code",
@@ -391,7 +410,7 @@
 					"#Filter where column name is in Date list\r\n",
 					"print_dataframe(schema_df_LMSv2)"
 				],
-				"execution_count": 15
+				"execution_count": 9
 			},
 			{
 				"cell_type": "code",
@@ -407,16 +426,66 @@
 					}
 				},
 				"source": [
+					"df_LMSv2 = schema_df_LMSv2.toPandas()"
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df_LMSv2['Date_col'] = df_LMSv2['column_name'].apply(lambda x: 1 if 'date' in x else 0)"
+				],
+				"execution_count": 44
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df_LMSv2[df_LMSv2['Date_col'] ==1]"
+				],
+				"execution_count": 45
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
 					"#check if column is in date_columns from LMSv2\r\n",
 					"df_LMSv2 = schema_df_LMSv2.toPandas()\r\n",
 					"\r\n",
-					"for index, row in df_LMSv2.iterrows():\r\n",
+					"for row in df_LMSv2.iterrows():\r\n",
+					"    print(row)\r\n",
 					"    if row['column_name'] in date_columns:\r\n",
-					"        df_LMSv2.at[index, 'indi'] = 1\r\n",
+					"        df_LMSv2['indi'] = 1\r\n",
 					"print(df_LMSv2)\r\n",
 					""
-				],
-				"execution_count": 61
+				]
 			}
 		]
 	}

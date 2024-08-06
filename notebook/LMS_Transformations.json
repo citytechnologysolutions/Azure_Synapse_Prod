@@ -17,7 +17,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "9b0b29ee-6ccc-4faf-967f-d51382046013"
+				"spark.autotune.trackingId": "09a99b1b-ae71-4982-ab5c-565cabd87882"
 			}
 		},
 		"metadata": {
@@ -205,6 +205,84 @@
 					"display(final_result)"
 				],
 				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"table_paths = {\r\n",
+					"    \"parcel\": {\r\n",
+					"        \"v1\": \"/path/to/parcel_lms\",\r\n",
+					"        \"v2\": \"/path/to/parcel_lmsv2\"\r\n",
+					"    },\r\n",
+					"    \"order\": {\r\n",
+					"        \"v1\": \"/path/to/order_lms\",\r\n",
+					"        \"v2\": \"/path/to/order_lmsv2\"\r\n",
+					"    }\r\n",
+					"}\r\n",
+					"\r\n",
+					"# Iterate through the dictionary to process each table pair\r\n",
+					"for table_name, versions in table_paths.items():\r\n",
+					"    # Load the v1 and v2 versions of the table\r\n",
+					"    df_v1 = spark.read.parquet(versions[\"v1\"])\r\n",
+					"    df_v2 = spark.read.parquet(versions[\"v2\"])\r\n",
+					"    \r\n",
+					"    # Perform a left anti join to find IDs in v1 not in v2\r\n",
+					"    negative_ids = df_v1.join(df_v2, on=\"ID\", how=\"left_anti\").select(col(\"ID\"))\r\n",
+					"    \r\n",
+					"    # Negate those IDs\r\n",
+					"    negative_ids = negative_ids.withColumn(\"ID\", col(\"ID\") * -1)\r\n",
+					"    \r\n",
+					"    # Union the negative IDs with v2 IDs\r\n",
+					"    final_result = negative_ids.union(df_v2)"
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					""
+				],
+				"execution_count": null
 			},
 			{
 				"cell_type": "code",

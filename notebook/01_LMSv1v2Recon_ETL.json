@@ -20,7 +20,7 @@
 				"spark.dynamicAllocation.enabled": "true",
 				"spark.dynamicAllocation.minExecutors": "1",
 				"spark.dynamicAllocation.maxExecutors": "4",
-				"spark.autotune.trackingId": "7e3211e0-fd9f-4d9a-8497-254be8c12b9c"
+				"spark.autotune.trackingId": "91608190-ce7f-49e7-9ffb-e15da219a54a"
 			}
 		},
 		"metadata": {
@@ -68,7 +68,7 @@
 					"\r\n",
 					"# ' + StorageAccount + '"
 				],
-				"execution_count": 5
+				"execution_count": 73
 			},
 			{
 				"cell_type": "code",
@@ -87,7 +87,7 @@
 					"from pyspark.sql import functions as F\r\n",
 					"from pyspark.sql import DataFrame"
 				],
-				"execution_count": 6
+				"execution_count": 74
 			},
 			{
 				"cell_type": "code",
@@ -199,6 +199,12 @@
 					"for i in range(len(columns28)):dbolocationv2=dbolocationv2.withColumnRenamed(columns28[i],'v2'+ columns28[i])\r\n",
 					"dbolocationv2.createOrReplaceTempView(\"dbolocationv2\")\r\n",
 					"\r\n",
+					"#Create DataFrame for the v2trackoff LMSV2 Table\r\n",
+					"v2trackoff = spark.read.load('abfss://synapse@' + StorageAccountRead + '.dfs.core.windows.net/Unstructured Data/CLMasterData/v2track.parquet', format='parquet')\r\n",
+					"columns29=v2trackoff.columns\r\n",
+					"for i in range(len(columns29)):v2trackoff=v2trackoff.withColumnRenamed(columns29[i],'v2off'+ columns29[i])\r\n",
+					"v2trackoff.createOrReplaceTempView(\"v2trackoff\")\r\n",
+					"\r\n",
 					"######################################################################################################\r\n",
 					"\r\n",
 					"#Create DataFrame for the dbowaybill LMS Table\r\n",
@@ -281,7 +287,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 7
+				"execution_count": 75
 			},
 			{
 				"cell_type": "code",
@@ -331,7 +337,7 @@
 					"WHERE  COALESCE(p.v1acceptancedate,p.v1handoverdate)>='2024-01-01 00:00:00' --AND COALESCE(p.v1acceptancedate,p.v1handoverdate)<='2023-06-30 23:59:59'\r\n",
 					"AND p.v1orderid IS NOT NULL"
 				],
-				"execution_count": 8
+				"execution_count": 77
 			},
 			{
 				"cell_type": "code",
@@ -349,7 +355,7 @@
 				"source": [
 					"reconparcel = spark.sql(\"SELECT * FROM reconparcel\")"
 				],
-				"execution_count": 9
+				"execution_count": 78
 			},
 			{
 				"cell_type": "code",
@@ -377,7 +383,7 @@
 					"     v1id\r\n",
 					"FROM reconparcel"
 				],
-				"execution_count": 10
+				"execution_count": 79
 			},
 			{
 				"cell_type": "code",
@@ -406,7 +412,7 @@
 					"\r\n",
 					"FROM reconparcel"
 				],
-				"execution_count": 11
+				"execution_count": 80
 			},
 			{
 				"cell_type": "code",
@@ -434,7 +440,7 @@
 					"    v1orderid\r\n",
 					"FROM reconparcel"
 				],
-				"execution_count": 12
+				"execution_count": 81
 			},
 			{
 				"cell_type": "code",
@@ -462,7 +468,7 @@
 					"    v1consignid\r\n",
 					"FROM reconparcel"
 				],
-				"execution_count": 13
+				"execution_count": 82
 			},
 			{
 				"cell_type": "code",
@@ -492,7 +498,7 @@
 					"    ,v1id||'|'||v1consignid as v1parcelconsignid\r\n",
 					"FROM reconparcel"
 				],
-				"execution_count": 14
+				"execution_count": 83
 			},
 			{
 				"cell_type": "code",
@@ -536,7 +542,7 @@
 					"WHERE t.v1lms_track_parcelid is not null\r\n",
 					""
 				],
-				"execution_count": 15
+				"execution_count": 84
 			},
 			{
 				"cell_type": "code",
@@ -554,7 +560,7 @@
 				"source": [
 					"recondeliverynoteparcel = spark.sql(\"SELECT * FROM recondeliverynoteparcel\")"
 				],
-				"execution_count": 16
+				"execution_count": 85
 			},
 			{
 				"cell_type": "code",
@@ -596,7 +602,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 17
+				"execution_count": 86
 			},
 			{
 				"cell_type": "code",
@@ -614,7 +620,7 @@
 				"source": [
 					"reconparcelmessage = spark.sql(\"SELECT * FROM reconparcelmessage\")"
 				],
-				"execution_count": 18
+				"execution_count": 87
 			},
 			{
 				"cell_type": "code",
@@ -655,7 +661,7 @@
 					"\r\n",
 					""
 				],
-				"execution_count": 19
+				"execution_count": 88
 			},
 			{
 				"cell_type": "code",
@@ -673,7 +679,7 @@
 				"source": [
 					"reconparceldetail = spark.sql(\"SELECT * FROM reconparceldetail\")"
 				],
-				"execution_count": 20
+				"execution_count": 89
 			},
 			{
 				"cell_type": "code",
@@ -716,7 +722,7 @@
 					"LEFT JOIN v2consignmentperparcel cp on cp.v2parcelid = p.v2id and cp.v2consignmentid = c.v2id\r\n",
 					""
 				],
-				"execution_count": 21
+				"execution_count": 90
 			},
 			{
 				"cell_type": "code",
@@ -734,7 +740,7 @@
 				"source": [
 					"reconconsignmentperparcel = spark.sql(\"SELECT * FROM reconconsignmentperparcel\")"
 				],
-				"execution_count": 22
+				"execution_count": 91
 			},
 			{
 				"cell_type": "code",
@@ -800,7 +806,7 @@
 					"LEFT JOIN mddeliverycustomer dc on dc.v2id = dn.v2delid\r\n",
 					"LEFT JOIN mddeliverycustomer pc on pc.v2id = dn.v2puid"
 				],
-				"execution_count": 23
+				"execution_count": 92
 			},
 			{
 				"cell_type": "code",
@@ -818,7 +824,7 @@
 				"source": [
 					"reconwaybill = spark.sql(\"SELECT * FROM reconwaybill\")"
 				],
-				"execution_count": 24
+				"execution_count": 93
 			},
 			{
 				"cell_type": "code",
@@ -863,7 +869,7 @@
 					"LEFT JOIN mddeliverycustomer pc on pc.v2id = co.v2puid\r\n",
 					""
 				],
-				"execution_count": 25
+				"execution_count": 94
 			},
 			{
 				"cell_type": "code",
@@ -881,7 +887,7 @@
 				"source": [
 					"reconorder = spark.sql(\"SELECT * FROM reconorder\")"
 				],
-				"execution_count": 26
+				"execution_count": 95
 			},
 			{
 				"cell_type": "code",
@@ -922,7 +928,7 @@
 					"LEFT JOIN v2manifest m on m.v2id = co.v2manifestid\r\n",
 					""
 				],
-				"execution_count": 27
+				"execution_count": 96
 			},
 			{
 				"cell_type": "code",
@@ -940,7 +946,7 @@
 				"source": [
 					"reconconsignment = spark.sql(\"SELECT * FROM reconconsignment\")"
 				],
-				"execution_count": 28
+				"execution_count": 97
 			},
 			{
 				"cell_type": "code",
@@ -967,6 +973,7 @@
 					"SELECT \r\n",
 					"    t1.*\r\n",
 					"    ,t2.*\r\n",
+					"    ,t3.*\r\n",
 					"    ,CASE \r\n",
 					"        WHEN t2.v2id IS NULL THEN 1\r\n",
 					"        ELSE 0\r\n",
@@ -974,11 +981,11 @@
 					"\r\n",
 					"FROM reconparcel_baseparcelid b \r\n",
 					"LEFT JOIN stlmstrack t1 on t1.v1lms_track_parcelid = b.v1id\r\n",
-					"-- LEFT JOIN on behavior loading and off loadin to get 2 records on 12\r\n",
-					"LEFT JOIN v2track t2 on t2.v2legacyid = t1.v1lms_track_id\r\n",
+					"LEFT JOIN v2track t2 on t2.v2legacyid = t1.v1lms_track_id AND t2.v2behaviour = 'loading'\r\n",
+					"LEFT JOIN v2trackoff t3 on t3.v2offlegacyid = t1.v1lms_track_id AND t3.v2offbehaviour = 'offloading'\r\n",
 					"WHERE v1lms_track_id is not null"
 				],
-				"execution_count": 29
+				"execution_count": 98
 			},
 			{
 				"cell_type": "code",
@@ -996,7 +1003,7 @@
 				"source": [
 					"recontrack = spark.sql(\"SELECT  * FROM recontrack\")"
 				],
-				"execution_count": 30
+				"execution_count": 99
 			},
 			{
 				"cell_type": "code",
@@ -1025,7 +1032,7 @@
 					"FROM recontrack\r\n",
 					""
 				],
-				"execution_count": 31
+				"execution_count": 100
 			},
 			{
 				"cell_type": "code",
@@ -1043,7 +1050,7 @@
 				"source": [
 					"recontrack_base = spark.sql(\"SELECT  * FROM recontrack_base\")"
 				],
-				"execution_count": 32
+				"execution_count": 101
 			},
 			{
 				"cell_type": "code",
@@ -1086,7 +1093,7 @@
 					"LEFT JOIN dbolocationv2 lf on lf.v2id = m.v2fromlocid\r\n",
 					"LEFT JOIN dbolocationv2 lt on lt.v2id = m.v2tolocid"
 				],
-				"execution_count": 38
+				"execution_count": 102
 			},
 			{
 				"cell_type": "code",
@@ -1104,7 +1111,7 @@
 				"source": [
 					"reconloads = spark.sql(\"SELECT * FROM reconloads where v1ID is not null\")"
 				],
-				"execution_count": 43
+				"execution_count": 103
 			},
 			{
 				"cell_type": "code",
@@ -1132,7 +1139,7 @@
 					"    * \r\n",
 					"FROM v2movement"
 				],
-				"execution_count": 40
+				"execution_count": 104
 			},
 			{
 				"cell_type": "code",
@@ -1150,7 +1157,7 @@
 				"source": [
 					"reconmovement = spark.sql(\"SELECT  * FROM reconmovement\")"
 				],
-				"execution_count": null
+				"execution_count": 105
 			},
 			{
 				"cell_type": "code",
@@ -1178,7 +1185,7 @@
 					"# reconconsignmentperparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/reconconsignmentperparcel.parquet', mode = \"overwrite\")\r\n",
 					"recondeliverynoteparcel.write.parquet('abfss://synapse@' + StorageAccountWrite + '.dfs.core.windows.net/Structured Data/LMSV2/recondeliverynoteparcel.parquet', mode = \"overwrite\")"
 				],
-				"execution_count": 41
+				"execution_count": 106
 			}
 		]
 	}
